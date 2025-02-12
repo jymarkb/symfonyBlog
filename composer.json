@@ -73,6 +73,7 @@
         "symfony/polyfill-php82": "*"
     },
     "scripts": {
+        "docker": "docker-compose up --build -d",
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd",
