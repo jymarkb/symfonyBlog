@@ -6,6 +6,23 @@ ADD ./ /www
 
 RUN composer install --prefer-dist --no-scripts --ignore-platform-reqs
 
+FROM node:20 as asset-build
+
+WORKDIR /www
+
+COPY ./package.json /www/
+COPY ./webpack.config.js /www/
+COPY ./tsconfig.json /www/
+
+ADD ./app/Resources/ /www/app/Resources/
+ADD ./templates/ /www/templates/
+
+ADD ./package.json /www/package.json
+ADD ./yarn.lock /www/yarn.lock
+
+RUN yarn install
+RUN yarn run build
+
 FROM php:8.2-fpm AS final
 
 RUN apt-get update && apt-get install -y \
@@ -18,6 +35,7 @@ WORKDIR /www
 ADD ./ /www
 
 COPY --from=composer-build /www/vendor/ /www/vendor/
+COPY --from=asset-build /www/public/ /www/public/
 
 RUN rm -rf /www/var/cache/* && \
     rm -rf /www/var/logs/*
