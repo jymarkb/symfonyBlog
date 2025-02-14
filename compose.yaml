@@ -17,7 +17,7 @@ services:
       - ./.env
     environment:
       - DATABASE_URL
-  
+
   nginx:
     image: nginx:stable-alpine
     volumes:

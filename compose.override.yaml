@@ -4,6 +4,15 @@ services:
   database:
     ports:
       - "5432"
+  
+  nginx:
+    volumes:
+      - ./public:/www/public
+  
+  php:
+    volumes:
+      - ./public:/www/public
+
 ###< doctrine/doctrine-bundle ###
 
 ###> symfony/mailer ###
