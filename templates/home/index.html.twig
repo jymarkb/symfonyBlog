@@ -2,6 +2,7 @@
 
 {% block title %}Hello HomeController!{% endblock %}
 {% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
     {{ encore_entry_script_tags('home/home') }}
  {% endblock  %}
 
@@ -13,11 +14,17 @@
 
 <div class="example-wrapper">
     <h1>Hello {{ controller_name }}! ✅</h1>
-
     This friendly message is coming from:
     <ul>
         <li>Your controller at <code>/home/arcobaleno/symfonyBlog/src/Controller/HomeController.php</code></li>
         <li>Your template at <code>/home/arcobaleno/symfonyBlog/templates/home/index.html.twig</code></li>
     </ul>
+     <button class="default-btn">
+      Static ShadCN Button
+    </button>
+
+    <div class="" id="test">
+        Tailwind is working!
+    </div>
 </div>
 {% endblock %}
