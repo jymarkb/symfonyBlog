@@ -7,11 +7,15 @@ services:
   
   nginx:
     volumes:
+      - ./app:/www/app
       - ./public:/www/public
   
   php:
     volumes:
+      - ./app:/www/app
       - ./public:/www/public
+      - ./templates:/www/templates
+      - ./migrations:/www/migrations
 
 ###< doctrine/doctrine-bundle ###
 
