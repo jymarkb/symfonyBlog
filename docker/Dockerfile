@@ -11,14 +11,15 @@ FROM node:20 as asset-build
 WORKDIR /www
 
 COPY ./package.json /www/
-COPY ./webpack.config.js /www/
 COPY ./tsconfig.json /www/
+COPY ./postcss.config.js /www/
+COPY ./webpack.config.js /www/
+COPY ./tailwind.config.js /www/
+ADD ./yarn.lock /www/
 
 ADD ./app/Resources/ /www/app/Resources/
 ADD ./templates/ /www/templates/
-
-ADD ./package.json /www/package.json
-ADD ./yarn.lock /www/yarn.lock
+ADD ./assets/ /www/assets/
 
 RUN yarn install
 RUN yarn run build
