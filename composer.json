@@ -76,7 +76,7 @@
     "scripts": {
         "docker": "docker-compose up --build -d",
         "docker-clean":"docker-compose up --build --force-recreate",
-        "down":"docke-compose down",
+        "down":"docker-compose down",
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd",

@@ -2,9 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "~lucide-static/font/lucide.css";
+
 @layer base {
   :root {
-
     --background: 0 0% 100%;
 
     --foreground: 224 71.4% 4.1%;
@@ -53,10 +54,18 @@
 
     --chart-5: 27 87% 67%;
 
-    --radius: 0.5rem
+    --radius: 0.5rem;
+
+    /* custom color */
+    --border-theme: 176 43% 45%;
+    --secondary-theme: 226 74% 41%;
+    --primary-theme: 176 43% 45%;
+    /* --secondary-theme: 236 36% 66%; */
+    --article-theme: 240 88% 70%;
+    --information-theme: 28 79% 56%;
+    --news-theme: 157 30 35%
   }
   .dark {
-
     --background: 224 71.4% 4.1%;
 
     --foreground: 210 20% 98%;
@@ -103,7 +112,7 @@
 
     --chart-4: 280 65% 60%;
 
-    --chart-5: 340 75% 55%
+    --chart-5: 340 75% 55%;
   }
 }
 
@@ -117,6 +126,6 @@
 }
 
 /* mimic shadcn button design on twig static button*/
-.default-btn { 
-  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2
+.default-btn {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2;
 }
