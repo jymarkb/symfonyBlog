@@ -9,7 +9,11 @@ if (!Encore.isRuntimeEnvironmentConfigured()) {
 Encore.setOutputPath("public/dist")
   .setPublicPath("/dist")
   .addEntry("app", "./assets/app.js")
+
+  // home
   .addEntry("home/home", "./app/Resources/js/home/home.tsx")
+  .addEntry("home/home_style", "./app/Resources/css/home/home.css")
+
   .splitEntryChunks() // Split common dependencies for smaller bundles
   .enableSingleRuntimeChunk()
   .cleanupOutputBeforeBuild()
