@@ -1,0 +1,38 @@
+{% extends 'account/index.html.twig' %}
+
+{% block title %}Signup - Account | The &lt;/blog&gt; Blog
+{% endblock %}
+
+{% block content %}
+	<div class="form-header mb-6 flex flex-col items-center">
+		<h1 class="flex justify-center items-center w-28 h-28 font-bold text-2xl text-white text-center title-bg rounded-full mb-4">
+			&lt;/blog&gt;
+		</h1>
+		<h3 class="font-bold text-3xl text-center font-semibold">Create your Account</h3>
+		<p class="font-light">Enter the fields below to get started</p>
+	</div>
+
+	<div class="form-content flex flex-col gap-4">
+		<div class="signup-form">
+
+			{% include 'account/form.signup.html.twig' %}
+
+			<div class="create-account flex gap-2">
+				<p>Already have an account?</p>
+				<a class="forgot-link" href="/login">Log in</a>
+			</div>
+		</div>
+
+		<div class="form-separator flex items-center gap-4">
+			<div class="flex-1 h-px bg-gray-300"></div>
+			<span class="text-gray-600 text-sm font-semibold">or Continue with</span>
+			<div class="flex-1 h-px bg-gray-300"></div>
+		</div>
+		<button class="btn-google inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-colors shadow w-full px-2 h-12 text-sm" type="submit">
+			<i class="icon-mail text-primary h-5 w-5"></i>
+			Google
+		</button>
+	</div>
+
+
+{% endblock %}
