@@ -14,6 +14,9 @@ Encore.setOutputPath("public/dist")
   .addEntry("home/home", "./app/Resources/js/home/home.tsx")
   .addEntry("home/home_style", "./app/Resources/css/home/home.css")
 
+  //account
+  .addEntry("account/account_style", "./app/Resources/css/account/account.css")
+
   .splitEntryChunks() // Split common dependencies for smaller bundles
   .enableSingleRuntimeChunk()
   .cleanupOutputBeforeBuild()
@@ -63,6 +66,7 @@ config.resolve.extensions = [".tsx", ".ts", ".js", ".jsx"];
 // Add alias for `@` to point to the `assets` directory
 config.resolve.alias = {
   "@": path.resolve(__dirname, "assets"),
+  "css": path.resolve(__dirname, "app/Resources/css"),
 };
 
 module.exports = config;

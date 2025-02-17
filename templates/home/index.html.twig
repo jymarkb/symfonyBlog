@@ -1,32 +1,47 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}The &lt;/blog&gt; Blog{% endblock %}
-   {% block stylesheets %}
-        {{ encore_entry_link_tags('home/home_style') }}
-    {% endblock %}
+{% block title %}The &lt;/blog&gt; Blog
+{% endblock %}
+{% block stylesheets %}
+	{{ encore_entry_link_tags('home/home_style') }}
+{% endblock %}
 
 {% block javascripts %}
-    {# {{ encore_entry_script_tags('app') }} #}
-    {{ encore_entry_script_tags('home/home') }}
- {% endblock  %}
+	{# {{ encore_entry_script_tags('app') }} #}
+	{{ encore_entry_script_tags('home/home') }}
+{% endblock  %}
 
 {% block body %}
 
-    {% include 'home/header.html.twig' %}
+	{% include 'home/header.html.twig' %}
 
-    {# banner #}
-    <div class="border-grid border-b">
-        <div class="container-wrapper">
-            <div class="container flex flex-col items-center gap-3 py-8 md:py-10 lg:py-12">
-                <h1 class="title text-5xl font-bold leading-tight tracking-tighter xl:text-8xl lg:text-7xl md:text-6xl lg:leading-[1.1] ">The &lt;/blog&gt; Blog </h1>
-                <p class="max-w-2xl text-lg font-light text-foreground text-center">Embark on a journey of discovery with us—every post fuels your curiosity and inspires your mind, opening doors to endless possibilities.</p>
-                <h2 class="slogan text-4xl md:text-5xl">Fueling Curiosity, Inspiring Minds</h2>
-                    {# <img src="{{ asset("img/banner.webp") }}" width="1440" alt="website landing page banner"> #}
-            </div>
-        </div>
-    </div>
+	{# banner #}
+	<div class="border-grid border-b">
+		<div class="container-wrapper">
+			<div class="container flex flex-col items-center gap-3 py-8 md:py-10 lg:py-12">
+				<h1 class="title text-5xl font-bold leading-tight tracking-tighter xl:text-8xl lg:text-7xl md:text-6xl lg:leading-[1.1] ">The &lt;/blog&gt; Blog
+				</h1>
+				<p class="max-w-2xl text-lg font-light text-foreground text-center">Embark on a journey of discovery with us—every post fuels your curiosity and inspires your mind, opening doors to endless possibilities.</p>
+				<h2 class="slogan text-4xl md:text-5xl">Fueling Curiosity, Inspiring Minds</h2>
+				{# <img src="{{ asset("img/banner.webp") }}" width="1440" alt="website landing page banner"> #}
+			</div>
+		</div>
+	</div>
 
-    {% include 'home/featured.html.twig'%}
-    {% include 'home/footer.html.twig'%}
+	{% include 'home/featured.html.twig'%}
+
+	<div class="border-grid border-b">
+		<div class="container-wrapper">
+			<div class="container py-8">
+				<h2 class="section-title font-heading md:text-3xl text-2xl font-semibold tracking-tight mb-4">Libraries and Frameworks</h2>
+
+				<div id="carousel">
+				
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{% include 'home/footer.html.twig'%}
 
 {% endblock %}
