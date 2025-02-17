@@ -24,3 +24,11 @@ body {
     padding-right: 0;
   }
 }
+
+.text-password-help {
+  color: hsl(var(--primary) / 0.4);
+}
+
+.text-password-help.active {
+  color: hsl(var(--primary-theme));
+}
