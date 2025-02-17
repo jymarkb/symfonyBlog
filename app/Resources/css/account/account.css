@@ -14,7 +14,7 @@ body {
   background-color: hsl(var(--primary-theme) / 0.1);
 }
 
-.forgot-link {
+.action-link {
   color: hsl(var(--primary-theme));
 }
 
