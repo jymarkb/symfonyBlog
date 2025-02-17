@@ -1,4 +1,5 @@
 @import "/assets/styles/app.css";
+@import "header.css";
 /* @import "public/font/Allison-Regular.ttf"; */
 /* @import url('https://fonts.googleapis.com/css2?family=Allison&display=swap'); */
 
@@ -13,53 +14,11 @@ body {
   font-style: normal;
 }
 
-.container-wrapper {
-  margin-left: auto;
-  margin-right: auto;
-  width: 100%;
-  max-width: 1400px;
-  border-style: dashed;
-  border-color: hsl(var(--border-theme) / 0.3);
-}
-
-@media (min-width: 1800px) {
-  .container-wrapper {
-    max-width: 1536px;
-  }
-}
-
-@media (min-width: 1400px) {
-  .container-wrapper {
-    border-left-width: 1px;
-    border-right-width: 1px;
-  }
-}
-
-.container {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 1536px;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-@media (min-width: 1280px) {
-  .container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
 .slogan {
   font-family: "Allison", serif;
   font-weight: 400;
   font-style: normal;
   color: hsl(var(--secondary-theme));
-}
-
-.title,
-.section-title {
-  color: #41a59e;
 }
 
 .border-grid {

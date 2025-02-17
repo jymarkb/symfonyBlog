@@ -17,6 +17,9 @@ services:
       - ./.env
     environment:
       - DATABASE_URL
+    # todo fix bin command to work without volumes here
+    volumes:
+      - .:/www
 
   nginx:
     image: nginx:stable-alpine

@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Login! | The &lt;/blog&gt; Blog
+{% endblock %}
+
+{% block stylesheets %}
+	{{ encore_entry_link_tags('account/account_style') }}
+{% endblock %}
+
+{% block body %}
+
+{% include 'home/header.html.twig' %}
+
+	<main class="border-grid border-b">
+		<div
+			class="container-wrapper">
+			{# min-h-[calc(100vh-10rem-2px)] #}
+			<div class="container min-h-[calc(100vh-10rem-2px)] py-0 px-0 h-full flex items-center justify-center">
+				<div class="form-container m-10 h-auto px-4 sm:px-6 md:px-8 py-4  sm:py-6 md:py-8 bg-white shadow rounded w-11/12 sm:w-9/12 md:w-8/12 lg:w-6/12 xl:w-4/12">
+					<div class="form-header mb-6 flex flex-col items-center">
+						<h1 class="flex justify-center items-center w-28 h-28 font-bold text-2xl text-white text-center title-bg rounded-full mb-4">
+							&lt;/blog&gt;
+						</h1>
+
+						<h3 class="font-bold text-3xl text-center font-semibold">Welcome back</h3>
+						<p class="font-light">Glad to see you again 👋</p>
+						<p class="font-light">Login to your account below</p>
+					</div>
+
+					<div class="form-content flex flex-col gap-4">
+						<div class="login-form">
+
+							{# import login form #}
+							{% include 'account/form.html.twig' %}
+
+							<div class="create-account flex gap-2">
+								<p>Not register yet?</p>
+								<a class="forgot-link" href="/sign-up">Create an Account</a>
+							</div>
+						</div>
+
+						<div class="form-separator flex items-center gap-4">
+							<div class="flex-1 h-px bg-gray-300"></div>
+							<span class="text-gray-600 text-sm font-semibold">or Continue with</span>
+							<div class="flex-1 h-px bg-gray-300"></div>
+						</div>
+
+						<button class="btn-google inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-colors shadow w-full px-2 h-12 text-sm" type="submit">
+							<i class="icon-mail text-primary h-5 w-5"></i>
+							Google
+						</button>
+
+					</div>
+
+
+				</div>
+			</div>
+		</div>
+	</main>
+
+
+	{% include 'home/footer.html.twig' %}
+
+{% endblock %}
