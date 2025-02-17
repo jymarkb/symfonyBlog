@@ -11,10 +11,11 @@
 	{{ encore_entry_script_tags('home/home') }}
 {% endblock  %}
 
-{% block body %}
-
+{% block header %}
 	{% include 'home/header.html.twig' %}
+{% endblock %}
 
+{% block body %}
 	{# banner #}
 	<div class="border-grid border-b">
 		<div class="container-wrapper">
@@ -35,13 +36,13 @@
 			<div class="container py-8">
 				<h2 class="section-title font-heading md:text-3xl text-2xl font-semibold tracking-tight mb-4">Libraries and Frameworks</h2>
 
-				<div id="carousel">
-				
-				</div>
+				<div id="carousel"></div>
 			</div>
 		</div>
 	</div>
 
-	{% include 'home/footer.html.twig'%}
+{% endblock %}
 
+{% block footer %}
+	{% include 'home/footer.html.twig' %}
 {% endblock %}

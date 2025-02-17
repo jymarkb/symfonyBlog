@@ -1,12 +1,12 @@
 {# {% extends 'index.html.twig' %} #}
+{% set excludeRoute = ['app_registration', 'app_login']%}
+{% set route = app.request.attributes.get('_route') %}
 
 
 <header class="border-grid sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 	<div class="container-wrapper">
 		<div class="container flex h-20 items-center">
-			<div
-				class="mr-4 hidden md:flex">
-				{# <a class="flex" href="/"><img width="120"src="{{ asset('img/logo.webp') }}" alt="website logo"</a> #}
+			<div class="mr-4 hidden md:flex">
 				<a class="flex justify-center items-center w-16 h-16 rounded-full title-bg text-white bg-primary font-bold mr-4 lg:mr-6 text-sm" href="/">
 					&lt;/blog&gt
 				</a>
@@ -24,12 +24,14 @@
 				<span class="sr-only">Toggle Menu</span>
 			</button>
 
-			<div class="flex flex-1 items-center gap-2 justify-end">
-				<nav class="flex items-center gap-4 text-sm xl:gap-6">
-					<a class="rounded-md transition-colors p-2 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/login">Login</a>
-					<a class="rounded-md transition-colors bg-primary p-2 text-white hover:text-white/80 text-foreground/80" href="/signup">Sign up</a>
-				</nav>
-			</div>
+			{% if route not in excludeRoute %}
+				<div class="flex flex-1 items-center gap-2 justify-end">
+					<nav class="flex items-center gap-4 text-sm xl:gap-6">
+						<a class="rounded-md transition-colors p-2 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/login">Log in</a>
+						<a class="btn-submit text-white rounded-md transition-colors p-2" href="/signup">Sign up</a>
+					</nav>
+				</div>
+			{% endif %}
 		</div>
 	</div>
 </header>
