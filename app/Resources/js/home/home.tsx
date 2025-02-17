@@ -18,10 +18,20 @@
 // }
 
 // renderAlertToWrapper();
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import { FeaturedNavigation } from './featured/navigation';
+import {CarouselDemo} from './CarouselSize';
+
 class Home {
   constructor() {
     new FeaturedNavigation(this);
+
+    const containerDiv = document.querySelector('#carousel');
+    console.log(containerDiv);
+    if (containerDiv) {
+      ReactDOM.createRoot(containerDiv).render(<CarouselDemo />);
+    }
   }
 }
 

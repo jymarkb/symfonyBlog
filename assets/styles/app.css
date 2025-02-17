@@ -132,6 +132,10 @@
   background-color: hsl(var(--primary-theme)/ 0.9);
 }
 
+.carousel-item {
+  flex: 0 0 33.33% !important;
+  max-width: 33.33% !important;
+}
 /* mimic shadcn button design on twig static button*/
 /* .default-btn {
   @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-colors shadow;
