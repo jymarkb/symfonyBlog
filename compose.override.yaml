@@ -1,10 +1,6 @@
 
 services:
 ###> doctrine/doctrine-bundle ###
-  database:
-    ports:
-      - "5432"
-  
   nginx:
     volumes:
       - ./app:/www/app
