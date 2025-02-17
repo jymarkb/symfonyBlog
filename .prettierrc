@@ -2,12 +2,19 @@
   "singleQuote": true,
   "twigMultiTags": ["{% %}", "{{ }}", "{# #}"],
   "overrides": [
-      {
-          "files": "*.html.twig",
-          "options": {
-              "parser": "melody",
-              "plugins": ["prettier-plugin-twig-melody"]
-          }
+    {
+      "files": "*.html.twig",
+      "options": {
+        "parser": "melody",
+        "plugins": ["prettier-plugin-twig-melody"]
       }
-  ]
+    },
+    {
+      "files": "*.php",
+      "options": {
+        "parser": "php"
+      }
+    }
+  ],
+  "plugins": ["@prettier/plugin-php"]
 }
