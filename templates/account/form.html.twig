@@ -1,0 +1,36 @@
+<form class="flex flex-col gap-5 mb-4" method="post" action="{{ path('app_login') }}">
+	{% if error %}
+		<div class="flex items-center p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+			<span>
+				<i class="icon-circle-alert text-red-700"></i>
+				{{ error.messageKey|trans(error.messageData, 'security') }}</span>
+		</div>
+	{% endif %}
+
+	<input type="email" name="email" id="inputEmail" autocomplete="email" required placeholder="email@domain.com" class="border border-input bg-transparent p-3 text-base  rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full">
+
+	<input type="password" name="password" id="inputPassword" required placeholder="password" class="border border-input bg-transparen p-3 text-base  rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full">
+
+	<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+	<div class="control flex">
+		<div class="checkbox flex items-center gap-2">
+			<input type="checkbox" id="remember-me" name="_remember_me" class="peer hidden">
+			<span class="relative flex items-center justify-center w-6 h-6 border-2 border-gray-300 rounded-md cursor-pointer transition-colors peer-checked:bg-primaryTheme peer-checked:border-primaryTheme">
+				<i class="icon-check text-white"></i>
+			</span>
+			<label for="remember-me" class=" cursor-pointer">
+				Remember me
+			</label>
+		</div>
+
+		<div class="forgot-password ml-auto">
+			<a href="/forgot-password">Forgot password?</a>
+		</div>
+
+	</div>
+
+	<button class="btn-submit text-white inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-colors shadow w-full px-2 h-12 text-sm" type="submit">
+		Sign in
+	</button>
+</form>
