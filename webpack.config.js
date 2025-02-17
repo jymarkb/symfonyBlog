@@ -63,6 +63,17 @@ const config = Encore.getWebpackConfig();
 // Add TypeScript and JSX extensions
 config.resolve.extensions = [".tsx", ".ts", ".js", ".jsx"];
 
+config.stats = {
+  assets: true,
+  modules: false,
+  entrypoints: false,
+  colors: true,
+  children: false,
+  version: false,
+  builtAt: false,
+  timings: false,
+};
+
 // Add alias for `@` to point to the `assets` directory
 config.resolve.alias = {
   "@": path.resolve(__dirname, "assets"),
