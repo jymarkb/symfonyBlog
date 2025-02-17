@@ -1,0 +1,13 @@
+{
+  "singleQuote": true,
+  "twigMultiTags": ["{% %}", "{{ }}", "{# #}"],
+  "overrides": [
+      {
+          "files": "*.html.twig",
+          "options": {
+              "parser": "melody",
+              "plugins": ["prettier-plugin-twig-melody"]
+          }
+      }
+  ]
+}
