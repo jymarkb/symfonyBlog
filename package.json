@@ -34,6 +34,7 @@
     "test": "concurrently \"yarn encore dev --watch\" \"yarn watch:prettier\""
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-slot": "^1.1.2",
     "@shadcn/ui": "^0.0.4",
     "@tailwindcss/aspect-ratio": "^0.4.2",
