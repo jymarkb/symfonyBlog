@@ -1,21 +1,22 @@
-const Encore = require("@symfony/webpack-encore");
-const path = require("path");
-const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer"); // Optional for bundle analysis
+const Encore = require('@symfony/webpack-encore');
+const path = require('path');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer'); // Optional for bundle analysis
 
 if (!Encore.isRuntimeEnvironmentConfigured()) {
-  Encore.configureRuntimeEnvironment(process.env.NODE_ENV || "dev");
+  Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
 }
 
-Encore.setOutputPath("public/dist")
-  .setPublicPath("/dist")
-  .addEntry("app", "./assets/app.js")
+Encore.setOutputPath('public/dist')
+  .setPublicPath('/dist')
+  .addEntry('app', './assets/app.js')
 
-  // home
-  .addEntry("home/home", "./app/Resources/js/home/home.tsx")
-  .addEntry("home/home_style", "./app/Resources/css/home/home.css")
+  // Home
+  .addEntry('home/home', './app/Resources/js/home/home.tsx')
+  .addEntry('home/home_style', './app/Resources/css/home/home.css')
 
-  //account
-  .addEntry("account/account_style", "./app/Resources/css/account/account.css")
+  // Account
+  // .addEntry('account/account', './app/Resources/js/account/account.tsx')
+  .addEntry('account/account_style', './app/Resources/css/account/account.css')
 
   .splitEntryChunks() // Split common dependencies for smaller bundles
   .enableSingleRuntimeChunk()
@@ -25,19 +26,19 @@ Encore.setOutputPath("public/dist")
   .enableVersioning(Encore.isProduction())
   .configureManifestPlugin(() => false)
   .configureBabelPresetEnv((config) => {
-    config.useBuiltIns = "usage";
-    config.corejs = "3.38";
+    config.useBuiltIns = 'usage';
+    config.corejs = '3.38';
   })
   .enableTypeScriptLoader()
   .enableReactPreset()
   .enablePostCssLoader((options) => {
     options.postcssOptions = {
-      config: "./postcss.config.js",
+      config: './postcss.config.js',
     };
   });
 
 // Check the environment and conditionally apply minification
-const isProduction = process.env.APP_ENV === "production";
+const isProduction = process.env.APP_ENV === 'production';
 
 if (isProduction) {
   // Enable TerserPlugin for minification
@@ -54,15 +55,31 @@ if (isProduction) {
 
 // Optional: Add bundle analysis
 if (isProduction) {
-  const config = Encore.getWebpackConfig();
-  config.plugins.push(new BundleAnalyzerPlugin());
+  const prodConfig = Encore.getWebpackConfig();
+  prodConfig.plugins.push(new BundleAnalyzerPlugin());
 }
 
+// Get the generated Webpack configuration
 const config = Encore.getWebpackConfig();
 
 // Add TypeScript and JSX extensions
-config.resolve.extensions = [".tsx", ".ts", ".js", ".jsx"];
+config.resolve.extensions = ['.tsx', '.ts', '.js', '.jsx'];
 
+// Enhanced alias configuration
+config.resolve.alias = {
+  '@': path.resolve(__dirname, 'assets'),
+  css: path.resolve(__dirname, 'app/Resources/css'),
+  js: path.resolve(__dirname, 'app/Resources/js'),
+  '~': path.resolve(__dirname, 'node_modules'), // Alias for node_modules
+};
+
+// Improve module resolution
+config.resolve.modules = [
+  path.resolve(__dirname, 'node_modules'),
+  'node_modules',
+];
+
+// Custom stats for cleaner output
 config.stats = {
   assets: true,
   modules: false,
@@ -72,12 +89,6 @@ config.stats = {
   version: false,
   builtAt: false,
   timings: false,
-};
-
-// Add alias for `@` to point to the `assets` directory
-config.resolve.alias = {
-  "@": path.resolve(__dirname, "assets"),
-  "css": path.resolve(__dirname, "app/Resources/css"),
 };
 
 module.exports = config;
