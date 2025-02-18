@@ -24,13 +24,28 @@
 				<span class="sr-only">Toggle Menu</span>
 			</button>
 
-			{% if route not in excludeRoute %}
+			{% if route not in excludeRoute and not app.user %}
 				<div class="flex flex-1 items-center gap-2 justify-end">
 					<nav class="flex items-center gap-4 text-sm xl:gap-6">
 						<a class="rounded-md transition-colors p-2 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/login">Log in</a>
 						<a class="btn-submit text-white rounded-md transition-colors p-2" href="/signup">Sign up</a>
 					</nav>
 				</div>
+			{% elseif app.user %}
+				<div class="flex flex-1 items-center gap-2 justify-end">
+					<nav class="flex items-center gap-4 text-sm xl:gap-6">
+						<a class="rounded-md transition-colors p-2 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/dashboard">
+
+							<div class="flex gap-2 items-center">
+								<span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-full"><img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png"></span>
+								Dashboard
+							</div>
+
+						</a>
+						<a class="btn-submit text-white rounded-md transition-colors p-2" href="/logout">Logout</a>
+					</nav>
+				</div>
+
 			{% endif %}
 		</div>
 	</div>
