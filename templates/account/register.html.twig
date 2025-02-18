@@ -15,10 +15,11 @@
 	<div class="form-content flex flex-col gap-4">
 		<div class="signup-form">
 
-			{% include 'account/forms/form.signup.html.twig' %}
+			{# {{form(form)}} #}
+			{# {% include 'account/forms/form.signup.html.twig', with {'form': form} %} #}
+			{% include 'account/forms/form.signup.html.twig' with {'form': form} %}
 
-			<div class="create-account flex gap-2">
-				<p>Already have an account?</p>
+				<div class="create-account flex gap-2"> <p>Already have an account?</p>
 				<a class="action-link" href="/login">Log in</a>
 			</div>
 		</div>
