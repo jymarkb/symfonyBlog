@@ -128,8 +128,8 @@
   background-color: hsl(var(--primary-theme));
 }
 
-.btn-submit:hover{
-  background-color: hsl(var(--primary-theme)/ 0.9);
+.btn-submit:hover {
+  background-color: hsl(var(--primary-theme) / 0.9);
 }
 
 .carousel-item {
