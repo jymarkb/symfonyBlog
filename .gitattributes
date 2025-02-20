@@ -1,0 +1,26 @@
+# Enforce LF line endings for all text files
+* text=auto
+
+# Shell scripts should always have LF
+*.sh text eol=lf
+
+# PHP files should always have LF
+*.php text eol=lf
+
+# YAML files should always have LF
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Composer files should have LF
+composer.json text eol=lf
+composer.lock text eol=lf
+
+# Markdown files
+*.md text eol=lf
+
+# Ignore binary files (no line-ending changes)
+*.jpg -text
+*.png -text
+*.gif -text
+*.ico -text
+*.pdf -text
