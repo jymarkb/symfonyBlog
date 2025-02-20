@@ -1,6 +1,7 @@
 const Encore = require('@symfony/webpack-encore');
 const path = require('path');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer'); // Optional for bundle analysis
+const TerserPlugin = require('terser-webpack-plugin'); // For production minification
 
 if (!Encore.isRuntimeEnvironmentConfigured()) {
   Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
@@ -42,19 +43,23 @@ const isProduction = process.env.APP_ENV === 'production';
 
 if (isProduction) {
   // Enable TerserPlugin for minification
-  Encore.configureTerserPlugin((options) => {
-    options.terserOptions = {
-      compress: {
-        drop_console: true, // Removes console logs
-        drop_debugger: true, // Removes debugger statements
-      },
-      mangle: true, // Minify variable and function names
-    };
+  Encore.configureOptimization((optimization) => {
+    optimization.minimize = true;
+    optimization.minimizer = [
+      new TerserPlugin({
+        parallel: true, // Use multiple processes for faster builds
+        terserOptions: {
+          compress: {
+            drop_console: true, // Removes console logs
+            drop_debugger: true, // Removes debugger statements
+          },
+          mangle: true, // Minify variable and function names
+        },
+      }),
+    ];
   });
-}
 
-// Optional: Add bundle analysis
-if (isProduction) {
+  // Optional: Add bundle analysis
   const prodConfig = Encore.getWebpackConfig();
   prodConfig.plugins.push(new BundleAnalyzerPlugin());
 }
@@ -78,6 +83,14 @@ config.resolve.modules = [
   path.resolve(__dirname, 'node_modules'),
   'node_modules',
 ];
+
+// Enable persistent caching to speed up builds
+config.cache = {
+  type: 'filesystem', // Use the filesystem for persistent caching
+  buildDependencies: {
+    config: [__filename], // Rebuild cache if this file changes
+  },
+};
 
 // Custom stats for cleaner output
 config.stats = {
