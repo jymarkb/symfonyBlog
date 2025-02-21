@@ -1,0 +1,9 @@
+@import '/assets/styles/app.css';
+@import '/app/Resources/css/components/blog.css';
+@import '/app/Resources/css/dashboard/components/sidebar.css';
+
+.article,
+.news,
+.information {
+  border-color: hsl(var(--border));
+}

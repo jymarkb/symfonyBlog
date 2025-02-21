@@ -26,6 +26,7 @@ export default {
     extend: {
       colors: {
         primaryTheme: 'hsl(var(--primary-theme))',
+        secondaryTheme: 'hsl(var(--secondary-theme))',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
