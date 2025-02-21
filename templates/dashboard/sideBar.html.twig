@@ -1,34 +1,30 @@
-<div id="side-nav-wrapper" class="lg:relative fixed top-0 left-0 h-screen bg-white shadow-lg transition-all duration-300 z-100 lg:z-100 w-72 overflow-hidden">
-	<div id="side-nav-container" class="h-screen p-5 pt-16 transition-all duration-300 flex flex-col text-primary">
+{% set activeRoute = app.request.attributes.get('_route')  %}
+{# {{dump(activePage) }} #}
+{# {{  #}
+	<div id="side-nav-wrapper" class="lg:relative fixed top-0 left-0 h-screen bg-white shadow-lg transition-all duration-300 z-100 lg:z-100 w-72 overflow-hidden"> <div id="side-nav-container" class="h-screen p-5 pt-16 transition-all duration-300 flex flex-col text-primary">
 		<div class="border my-3"></div>
 		<ul class="nav-wrapper top flex flex-col gap-3">
-			<li class="nav-item ">
+			<li class="nav-item {{activePage('dashboard.index', activeRoute) }}">
 				<a class="flex gap-2 items-center" href="/dashboard">
 					<i class="icon-layout-dashboard p-1 text-3xl"></i>
 					<span class="transform text-1xl">Dashboard</span>
 				</a>
 			</li>
-			<li class="nav-item active">
-				<a class="flex gap-2 items-center" href="/dashboard">
-					<i class="icon-rss p-1 text-3xl"></i>
-					<span class="transform text-1xl">News</span>
+			<li class="nav-item {{activePage('dashboard.pages', activeRoute) }}">
+				<a class="flex gap-2 items-center" href="{{ path('dashboard.pages') }}">
+					<i class="icon-layers p-1 text-3xl"></i>
+					<span class="transform text-1xl">Pages</span>
 				</a>
 			</li>
-			<li class="nav-item">
-				<a class="flex gap-2 items-center" href="/dashboard">
-					<i class="icon-book-text p-1 text-3xl"></i>
-					<span class="transform text-1xl">Article</span>
+			<li class="nav-item {{activePage('dashboard.inbox', activeRoute) }}">
+				<a class="flex gap-2 items-center" href="{{ path('dashboard.inbox') }}">
+					<i class="icon-mails p-1 text-3xl"></i>
+					<span class="transform text-1xl">Inbox</span>
 				</a>
 			</li>
-			<li class="nav-item">
-				<a class="flex gap-2 items-center" href="/dashboard">
-					<i class="icon-layout-dashboard p-1 text-3xl"></i>
-					<span class="transform text-1xl">Information</span>
-				</a>
-			</li>
-			<li class="nav-item">
-				<a class="flex gap-2 items-center" href="/dashboard">
-					<i class="icon-square-user p-1 text-3xl"></i>
+			<li class="nav-item {{activePage('dashboard.account', activeRoute) }}">
+				<a class="flex gap-2 items-center" href="{{ path('dashboard.account') }}">
+					<i class="icon-user-round-cog p-1 text-3xl"></i>
 					<span class="transform text-1xl">Accounts</span>
 				</a>
 			</li>
