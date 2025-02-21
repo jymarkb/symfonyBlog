@@ -16,42 +16,50 @@ use Symfony\Component\Validator\Constraints\Length;
 
 class SignupCustomType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
-    {
+    public function buildForm(
+        FormBuilderInterface $builder,
+        array $options
+    ): void {
         $builder
             ->add('firstName', TextType::class, [
                 'required' => true,
                 'constraints' => [
                     new Regex([
                         'pattern' => '/^[a-zA-Z]+$/',
-                        'message' => 'Firstname : This field accept only letters.',
+                        'message' =>
+                        'Firstname : This field accept only letters.',
                     ]),
                 ],
-
             ])
             ->add('lastName', TextType::class, [
                 'required' => true,
                 'constraints' => [
                     new Regex([
                         'pattern' => '/^[a-zA-Z]+$/',
-                        'message' => 'Lastname : This field accept only letters.',
+                        'message' =>
+                        'Lastname : This field accept only letters.',
                     ]),
                 ],
-
             ])
             ->add('email', EmailType::class, [
                 'required' => true,
                 'constraints' => [
                     new Email([
-                        'message' => 'Email : Please enter a valid email address.',
+                        'message' =>
+                        'Email : Please enter a valid email address.',
                     ]),
                 ],
-
             ])
             ->add('password', PasswordType::class, [
                 'required' => true,
-            ])
-        ;
+                // 'constraints' => [
+                //     new Length([
+                //         'min' => 8,
+                //         'minMessage' =>
+                //         'Your password must be at least {{ limit }} characters long.',
+                //     ]),
+                // ],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
