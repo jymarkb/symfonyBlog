@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 import { fontFamily } from 'tailwindcss/defaultTheme';
+import tailwindSafelist from './app/Resources/js/tailwind-safelist';
 
 export default {
   darkMode: ['class'],
@@ -44,14 +45,22 @@ export default {
         'card-foreground': 'hsl(var(--card-foreground))',
         popover: 'hsl(var(--popover))',
         'popover-foreground': 'hsl(var(--popover-foreground))',
-
-        // Custom theme colors
         'primary-theme': 'hsl(var(--primary-theme))',
         'secondary-theme': 'hsl(var(--secondary-theme))',
         'border-theme': 'hsl(var(--border-theme))',
         'article-theme': 'hsl(var(--article-theme))',
         'information-theme': 'hsl(var(--information-theme))',
         'news-theme': 'hsl(var(--news-theme))',
+        sidebar: {
+          DEFAULT: 'hsl(var(--sidebar-background))',
+          foreground: 'hsl(var(--sidebar-foreground))',
+          primary: 'hsl(var(--sidebar-primary))',
+          'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+          accent: 'hsl(var(--sidebar-accent))',
+          'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+          border: 'hsl(var(--sidebar-border))',
+          ring: 'hsl(var(--sidebar-ring))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -64,12 +73,20 @@ export default {
       },
       keyframes: {
         'accordion-down': {
-          from: { height: '0px' },
-          to: { height: 'var(--radix-accordion-content-height)' },
+          from: {
+            height: '0px',
+          },
+          to: {
+            height: 'var(--radix-accordion-content-height)',
+          },
         },
         'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0px' },
+          from: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+          to: {
+            height: '0px',
+          },
         },
       },
       animation: {
@@ -78,6 +95,8 @@ export default {
       },
     },
   },
+  // add for dynamic class change
+  safelist: tailwindSafelist,
   plugins: [
     require('tailwindcss-animate'),
     require('@tailwindcss/forms'),
