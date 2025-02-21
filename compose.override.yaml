@@ -1,18 +1,17 @@
-
 services:
-###> doctrine/doctrine-bundle ###
+  ###> doctrine/doctrine-bundle ###
   nginx:
     volumes:
       - ./app:/www/app
       - ./public:/www/public
-  
+      - ./src:/www/src
+
   php:
     volumes:
       - ./app:/www/app
       - ./public:/www/public
       - ./templates:/www/templates
       - ./migrations:/www/migrations
-
 ###< doctrine/doctrine-bundle ###
 
 ###> symfony/mailer ###
