@@ -1,5 +1,5 @@
-@import "/assets/styles/app.css";
-@import "header.css";
+@import '/assets/styles/app.css';
+@import 'header.css';
 /* @import "public/font/Allison-Regular.ttf"; */
 /* @import url('https://fonts.googleapis.com/css2?family=Allison&display=swap'); */
 
@@ -8,14 +8,14 @@ body {
 }
 
 @font-face {
-  font-family: "Allison";
-  src: url("/assets/font/Allison-Regular.ttf") format("truetype");
+  font-family: 'Allison';
+  src: url('/assets/font/Allison-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 .slogan {
-  font-family: "Allison", serif;
+  font-family: 'Allison', serif;
   font-weight: 400;
   font-style: normal;
   color: hsl(var(--secondary-theme));
@@ -46,58 +46,80 @@ body {
   color: white;
 }
 
-.article, .article-feature .btn {
+.article,
+.article-feature .btn {
   border-color: hsl(var(--article-theme) / 0.3);
 }
 
-.article .badge, .article-feature .badge{
+.article .badge,
+.article-feature .badge {
   background-color: hsl(var(--article-theme));
 }
 
-.article .name, .article .title, .article .date,
-.article-feature .name, .article-feature .title, .article-feature .date, .article-feature .btn
-{
-  color:  hsl(var(--article-theme));
+.article .name,
+.article .title,
+.article .date,
+.article-feature .name,
+.article-feature .title,
+.article-feature .date,
+.article-feature .btn {
+  color: hsl(var(--article-theme));
 }
 
-.news, .news .btn {
+.news,
+.news .btn {
   border-color: hsl(var(--news-theme) / 0.3);
 }
 
-.news .badge, .news-feature .badge{
+.news .badge,
+.news-feature .badge {
   background-color: hsl(var(--news-theme));
 }
 
-.news .name, .news .title, .news .date,
-.news-feature .name, .news-feature .title, .news-feature .date, .news-feature .btn
-{
-  color:  hsl(var(--news-theme));
+.news .name,
+.news .title,
+.news .date,
+.news-feature .name,
+.news-feature .title,
+.news-feature .date,
+.news-feature .btn {
+  color: hsl(var(--news-theme));
 }
 
-.information, .information-feature .btn {
+.information,
+.information-feature .btn {
   border-color: hsl(var(--information-theme) / 0.3);
 }
 
-.information .badge,  .information-feature .badge{
+.information .badge,
+.information-feature .badge {
   background-color: hsl(var(--information-theme));
-
 }
-.information .name, .information .title, .information .date,
-.information-feature .name, .information-feature .title, .information-feature .date, .information-feature .btn
-{
-  color:  hsl(var(--information-theme));
+.information .name,
+.information .title,
+.information .date,
+.information-feature .name,
+.information-feature .title,
+.information-feature .date,
+.information-feature .btn {
+  color: hsl(var(--information-theme));
 }
 
-.container-wrapper-card-feature{
+.container-wrapper-card-feature {
   gap: 2.5rem;
 }
 
-.article-feature{
+.article-feature {
   background-color: hsl(var(--article-theme) / 0.02);
 }
-.news-feature{
+.news-feature {
   background-color: hsl(var(--news-theme) / 0.02);
 }
-.information-feature{
+.information-feature {
   background-color: hsl(var(--information-theme) / 0.02);
+}
+
+.carousel-item {
+  flex: 0 0 33.33% !important;
+  max-width: 33.33% !important;
 }

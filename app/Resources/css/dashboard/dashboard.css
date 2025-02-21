@@ -1,0 +1,20 @@
+@import '/assets/styles/app.css';
+
+/* #side-nav-container {
+  transition-property: width;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+} */
+
+.nav-item.active a,
+.nav-item:hover.active a {
+  /* color: hsl(var(--secondary-theme));
+  background-color: hsl(var(--primary-theme) / 0.3); */
+  /* color: hsl(var(--secondary-theme)); */
+  color: white;
+  background-color: hsl(var(--secondary-theme));
+}
+
+.nav-item:hover a {
+  background-color: hsl(var(--primary) / 0.05);
+}
