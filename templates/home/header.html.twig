@@ -37,8 +37,8 @@
 						<a class="rounded-md transition-colors p-2 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/dashboard">
 
 							<div class="flex gap-2 items-center">
-								<span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-full"><img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png"></span>
-								Dashboard
+								<span class="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-white randomBg">{{ app.user.firstName|first|capitalize}}{{ app.user.lastName|first|capitalize}}</span>
+								{{ app.user.firstName | capitalize }}
 							</div>
 
 						</a>
