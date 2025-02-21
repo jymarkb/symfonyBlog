@@ -12,12 +12,16 @@ Encore.setOutputPath('public/dist')
   .addEntry('app', './assets/app.js')
 
   // Home
-  .addEntry('home/home', './app/Resources/js/home/home.tsx')
-  .addEntry('home/home_style', './app/Resources/css/home/home.css')
+  .addEntry('home/script', './app/Resources/js/home/home.tsx')
+  .addEntry('home/style', './app/Resources/css/home/home.css')
 
   // Account
   // .addEntry('account/account', './app/Resources/js/account/account.tsx')
-  .addEntry('account/account_style', './app/Resources/css/account/account.css')
+  .addEntry('account/style', './app/Resources/css/account/account.css')
+
+  //Dashboard
+  .addEntry('dashboard/script', './app/Resources/js/dashboard/dashboard.tsx')
+  .addEntry('dashboard/style', './app/Resources/css/dashboard/dashboard.css')
 
   .splitEntryChunks() // Split common dependencies for smaller bundles
   .enableSingleRuntimeChunk()
