@@ -11,13 +11,14 @@
 			{{ encore_entry_link_tags('app') }}
 		{% endblock %}
 
-		{% block javascripts %}
-		{# {{ encore_entry_script_tags('app') }} #}
-		{# {% block importmap %}{{ importmap('app') }}{% endblock %} #}{% endblock %}
 	</head>
 	<body>
 		{% block header %}{% endblock %}
 		{% block body %}{% endblock %}
 		{% block footer %}{% endblock %}
+
+		{% block javascripts %}
+			{# {{ encore_entry_script_tags('app') }} #}
+		{% endblock %}
 	</body>
 </html>
