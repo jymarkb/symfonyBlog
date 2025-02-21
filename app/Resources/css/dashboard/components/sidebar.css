@@ -1,0 +1,9 @@
+.nav-item.active a,
+.nav-item:hover.active a {
+  color: white;
+  background-color: hsl(var(--secondary-theme));
+}
+
+.nav-item:hover a {
+  background-color: hsl(var(--primary) / 0.05);
+}
