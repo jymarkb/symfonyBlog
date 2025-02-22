@@ -4,11 +4,14 @@
 	{{ encore_entry_link_tags('dashboard/pages/style') }}
 {% endblock %}
 
-{% block content %}
+{% block javascripts %}
+	{{ encore_entry_script_tags('dashboard/pages/script') }}
+{% endblock %}
 
+{% block content %}
 	<div class="form-table-wrapper mb-5">
 		<div class="form-container flex gap-2">
-			<button class="h-10 px-3 py-1 text-sm rounded-md bg-primaryTheme text-white flex flex-nowrap gap-2 items-center w-full max-w-28 cursor-pointer">
+			<button class="h-10 px-3 py-1 text-sm rounded-md bg-primaryTheme text-white flex flex-nowrap gap-2 items-center w-full max-w-28 cursor-pointer" id="btn-add">
 				<i class="icon-plus"></i>
 				<span>Add new</span>
 			</button>
