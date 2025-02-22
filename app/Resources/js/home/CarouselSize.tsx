@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Autoplay from "embla-carousel-autoplay"
+import Autoplay from 'embla-carousel-autoplay';
 
 export function Example() {
   return (
@@ -12,9 +12,8 @@ export function Example() {
     >
       // ...
     </Carousel>
-  )
+  );
 }
-
 
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -28,10 +27,17 @@ import {
 export function CarouselDemo() {
   return (
     <Carousel
-      className="w-full max-w-xs"
+      className="w-full"
+      opts={{
+        align: 'start', // Ensures one item moves at a time
+        loop: true, // Keeps it scrolling infinitely
+        containScroll: 'keepSnaps', // Ensures proper snapping
+      }}
       plugins={[
         Autoplay({
-          delay: 2000,
+          delay: 2000, // Slide every 2 seconds
+          stopOnInteraction: false, // Keeps autoplay running
+          stopOnMouseEnter: true, // Stops when hovering
         }),
       ]}
     >
@@ -41,7 +47,9 @@ export function CarouselDemo() {
             <div className="p-1">
               <Card>
                 <CardContent className="flex aspect-square items-center justify-center p-6">
-                  <span className="text-4xl font-semibold">Logo {index + 1}</span>
+                  <span className="text-4xl font-semibold">
+                    Logo {index + 1}
+                  </span>
                 </CardContent>
               </Card>
             </div>
