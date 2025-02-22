@@ -9,7 +9,8 @@ class Pages {
   }
 
   init() {
-    this.initPopupFormRender();
+    //disable popup
+    // this.initPopupFormRender();
     initSideBarNavigation();
   }
 
