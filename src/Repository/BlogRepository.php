@@ -40,4 +40,14 @@ class BlogRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function showPageByStatusId(int $statusId = 2): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.status = :statusId')
+            ->setParameter('statusId', $statusId)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }
