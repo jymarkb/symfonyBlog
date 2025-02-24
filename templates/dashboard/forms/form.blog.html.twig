@@ -1,0 +1,38 @@
+{% extends '/dashboard/index.html.twig' %}
+{% block stylesheets %}
+	{{
+encore_entry_link_tags('dashboard/pages/style') }}
+{% endblock %}
+{% block javascripts %}
+	{{
+encore_entry_script_tags('dashboard/pages/script') }}
+{% endblock %}
+{% block content %}
+
+	<div class="form-wrapper">
+		<div class="form-container  max-w-7xl">
+			{{ form_start(form, {'action': path('dashboard.pages.create'), 'method': 'POST'}) }}
+			{{ form_widget(form.title, { 
+				'attr': { 
+					'type': 'text', 
+					'placeholder': 'Title', 
+					'class':'border border-input bg-transparent p-3 text-base rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full' } }) }}
+			{{ form_widget(form.category, { 
+				'attr': { 
+					'type': 'select', 
+					'class':'border border-input bg-transparent p-3 text-base rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full' } }) }}
+
+			<div class="flex gap-4">
+				<button type="submit" name="status" value="1" class="px-4 py-2 border rounded-md transition-colors bg-gray-500 text-white">
+					Save as Draft
+				</button>
+
+				<button type="submit" name="status" value="2" class="px-4 py-2 border rounded-md transition-colors bg-blue-500 text-white">
+					Publish
+				</button>
+			</div>
+			{{ form_end(form) }}
+		</div>
+	</div>
+
+{% endblock %}

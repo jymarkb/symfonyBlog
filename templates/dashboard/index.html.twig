@@ -14,7 +14,7 @@
 
 	<div class="flex">
 
-		<div class="flex fixed ml-5 mt-5 z-10 gap-3">
+		<div class="flex fixed ml-5 mt-5 z-50 gap-3">
 			<button id="side-nav-btn" class="h-8 w-8 cursor-pointer">
 				<i class="icon-panels-top-left text-3xl text-primary "></i>
 			</button>
@@ -25,12 +25,14 @@
 		</div>
 
 		{% include('dashboard/sideBar.html.twig') %}
-		<main id="main-content" class="w-full h-screen p-7 bg-gray-100 transition-all duration-300">
+		<main id="main-content" class="w-full h-screen p-7 pt-8 bg-gray-100 transition-all duration-300">
 			<div class="content-wrapper pt-10">
 				{% block content %}{% endblock %}
 			</div>
 		</main>
 	</div>
 
+	{# dynamic popup container do not remove #}
+	<div id="popup-container"></div>
 
 {% endblock %}

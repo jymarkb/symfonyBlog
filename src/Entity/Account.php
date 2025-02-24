@@ -3,24 +3,33 @@
 namespace App\Entity;
 
 use App\Repository\AccountRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: AccountRepository::class)]
-#[UniqueEntity('email', message: 'Email : This email already in used.')]
+#[UniqueEntity('email', message: 'Email : This email already in use.')]
 class Account implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(name: "account_id", type: "integer")]
+    private ?int $account_id = null;
+
+    #[ORM\OneToMany(mappedBy: 'account', targetEntity: Blog::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[Groups(['account:read'])]
+    private Collection $blogs;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['blog:read'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['blog:read'])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
@@ -41,9 +50,15 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
+    public function __construct()
+    {
+        $this->blogs = new ArrayCollection();
+    }
+
+
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->account_id;
     }
 
     public function getFirstName(): ?string
@@ -172,5 +187,40 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
+    }
+
+    /**
+     * @return Collection<int, Blog>
+     */
+    public function getBlogs(): Collection
+    {
+        return $this->blogs;
+    }
+
+    public function addBlog(Blog $blog): static
+    {
+        if (!$this->blogs->contains($blog)) {
+            $this->blogs->add($blog);
+            $blog->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBlog(Blog $blog): static
+    {
+        if ($this->blogs->removeElement($blog)) {
+            // set the owning side to null (unless already changed)
+            if ($blog->getUser() === $this) {
+                $blog->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAccountId(): ?int
+    {
+        return $this->account_id;
     }
 }

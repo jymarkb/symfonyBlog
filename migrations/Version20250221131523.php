@@ -10,22 +10,24 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250217152235 extends AbstractMigration
+final class Version20250221131523 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'remove username from account entity';
+        return '';
     }
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE account DROP username');
+        $categories = array('article', 'news', 'information');
+        foreach ($categories as $c) {
+            $this->addSql("INSERT INTO category (`name`) VALUES (?)", [$c]);
+        }
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE account ADD username VARCHAR(255) NOT NULL');
+
     }
 }

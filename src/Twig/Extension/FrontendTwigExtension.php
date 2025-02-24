@@ -13,11 +13,26 @@ class FrontendTwigExtension extends AbstractExtension
     {
         return [
             new TwigFunction('activePage', [$this, 'activePage']),
+            new TwigFunction('blogStatus', [$this, 'blogStatus']),
+            new TwigFunction('blogIcon', [$this, 'blogIcon']),
         ];
     }
 
     public function activePage(string $route, string $current_dir): string
     {
         return $route === $current_dir ? 'active' : '';
+    }
+
+    public function blogStatus(int $id): string
+    {
+        $status = ['1' => 'Drafted', '2' => 'Published'];
+
+        return $status[$id];
+    }
+
+    public function blogIcon(int $id): string
+    {
+        $icons = ['1' => 'icon-newspaper', '2' => 'icon-rss', '3' => 'icon-book-text'];
+        return $icons[$id];
     }
 }
