@@ -1,0 +1,10 @@
+{% extends 'blog/index.html.twig' %}
+{# 
+{% block title %}The &lt;/blog&gt; Blog |
+	{{ blog.title|title }}
+{% endblock %} #}
+
+
+{% block content %}
+	{{ blog.htmlContent|raw }}
+{% endblock %}

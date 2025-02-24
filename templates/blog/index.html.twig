@@ -1,0 +1,17 @@
+{% extends 'home/index.html.twig' %}
+
+
+{% block body %}
+	<div class="border-grid border-b">
+		<div class="container-wrapper  h-screen">
+			<div class="container py-8">
+
+				{% block content %}
+					this is the index twig
+				{% endblock %}
+
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
