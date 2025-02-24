@@ -39,7 +39,7 @@ final class BlogRouteListener
             return;
         }
 
-        if ($blog->getStatus() !== 2 && !$this->security->isGranted('IS_AUTHENTICATED_FULLY')) {
+        if ($blog->getStatus() === '1' && !$this->security->isGranted('IS_AUTHENTICATED_FULLY')) {
             $event->setResponse(new RedirectResponse($this->router->generate('home.index')));
             return;
         }
