@@ -4,168 +4,26 @@
 	{{ encore_entry_link_tags('dashboard/pages/style') }}
 {% endblock %}
 
-{% block content %}
+{% block javascripts %}
+	{{ encore_entry_script_tags('dashboard/pages/script') }}
+{% endblock %}
 
-	<div class="flex items-center py-4"><input class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm max-w-sm" placeholder="Filter emails..." value=""><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 ml-auto" type="button" id="radix-:r12:" aria-haspopup="menu" aria-expanded="false" data-state="closed">Columns
-			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down ">
-				<path d="m6 9 6 6 6-6"></path>
-			</svg>
-		</button>
+{% block content %}
+	<div class="form-table-wrapper mb-5">
+		<div class="form-container flex gap-2">
+			<a class="h-10 px-3 py-1 text-sm rounded-md bg-primaryTheme text-white flex flex-nowrap gap-2 items-center w-full max-w-28 cursor-pointer" id="btn-add" href="{{path('dashboard.pages.create')}}">
+				<i class="icon-plus"></i>
+				<span>Add new</span>
+			</a>
+
+			<input type="text" class="border border-input bg-transparent px-3 px-1 text-base rounded-md shadow transition-colors placeholder:text-muted-foreground md:text-sm h-10 w-full max-w-lg" placeholder="Search here...">
+		</div>
 	</div>
 
-	{# <div class="rounded-md border">
-																																																																																																																																																																			<div class="relative w-full overflow-auto">
-																																																																																																																																																																				<table class="w-full caption-bottom text-sm">
-																																																																																																																																																																					<thead class="[&amp;_tr]:border-b">
-																																																																																																																																																																						<tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-																																																																																																																																																																							<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" aria-label="Select all"></button>
-																																																																																																																																																																							</th>
-																																																																																																																																																																							<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">Status</th>
-																																																																																																																																																																							<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">Email<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-down ">
-																																																																																																																																																																										<path d="m21 16-4 4-4-4"></path>
-																																																																																																																																																																										<path d="M17 20V4"></path>
-																																																																																																																																																																										<path d="m3 8 4-4 4 4"></path>
-																																																																																																																																																																										<path d="M7 4v16"></path>
-																																																																																																																																																																									</svg>
-																																																																																																																																																																								</button>
-																																																																																																																																																																							</th>
-																																																																																																																																																																							<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="text-right">Amount</div>
-																																																																																																																																																																							</th>
-																																																																																																																																																																							<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]"></th>
-																																																																																																																																																																						</tr>
-																																																																																																																																																																					</thead>
-																																																																																																																																																																					<tbody class="[&amp;_tr:last-child]:border-0">
-																																																																																																																																																																						<tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted" data-state="false">
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" aria-label="Select row"></button>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="capitalize">success</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="lowercase">ken99@yahoo.com</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="text-right font-medium">$316.00</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0" type="button" id="radix-:r14:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
-																																																																																																																																																																									<span class="sr-only">Open menu</span>
-																																																																																																																																																																									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis ">
-																																																																																																																																																																										<circle cx="12" cy="12" r="1"></circle>
-																																																																																																																																																																										<circle cx="19" cy="12" r="1"></circle>
-																																																																																																																																																																										<circle cx="5" cy="12" r="1"></circle>
-																																																																																																																																																																									</svg>
-																																																																																																																																																																								</button>
-																																																																																																																																																																							</td>
-																																																																																																																																																																						</tr>
-																																																																																																																																																																						<tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted" data-state="false">
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" aria-label="Select row"></button>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="capitalize">success</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="lowercase">Abe45@gmail.com</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="text-right font-medium">$242.00</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0" type="button" id="radix-:r16:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
-																																																																																																																																																																									<span class="sr-only">Open menu</span>
-																																																																																																																																																																									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis ">
-																																																																																																																																																																										<circle cx="12" cy="12" r="1"></circle>
-																																																																																																																																																																										<circle cx="19" cy="12" r="1"></circle>
-																																																																																																																																																																										<circle cx="5" cy="12" r="1"></circle>
-																																																																																																																																																																									</svg>
-																																																																																																																																																																								</button>
-																																																																																																																																																																							</td>
-																																																																																																																																																																						</tr>
-																																																																																																																																																																						<tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted" data-state="false">
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" aria-label="Select row"></button>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="capitalize">processing</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="lowercase">Monserrat44@gmail.com</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="text-right font-medium">$837.00</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0" type="button" id="radix-:r18:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
-																																																																																																																																																																									<span class="sr-only">Open menu</span>
-																																																																																																																																																																									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis ">
-																																																																																																																																																																										<circle cx="12" cy="12" r="1"></circle>
-																																																																																																																																																																										<circle cx="19" cy="12" r="1"></circle>
-																																																																																																																																																																										<circle cx="5" cy="12" r="1"></circle>
-																																																																																																																																																																									</svg>
-																																																																																																																																																																								</button>
-																																																																																																																																																																							</td>
-																																																																																																																																																																						</tr>
-																																																																																																																																																																						<tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted" data-state="false">
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" aria-label="Select row"></button>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="capitalize">success</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="lowercase">Silas22@gmail.com</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="text-right font-medium">$874.00</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0" type="button" id="radix-:r1a:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
-																																																																																																																																																																									<span class="sr-only">Open menu</span>
-																																																																																																																																																																									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis ">
-																																																																																																																																																																										<circle cx="12" cy="12" r="1"></circle>
-																																																																																																																																																																										<circle cx="19" cy="12" r="1"></circle>
-																																																																																																																																																																										<circle cx="5" cy="12" r="1"></circle>
-																																																																																																																																																																									</svg>
-																																																																																																																																																																								</button>
-																																																																																																																																																																							</td>
-																																																																																																																																																																						</tr>
-																																																																																																																																																																						<tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted" data-state="false">
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" aria-label="Select row"></button>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="capitalize">failed</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="lowercase">carmella@hotmail.com</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<div class="text-right font-medium">$721.00</div>
-																																																																																																																																																																							</td>
-																																																																																																																																																																							<td class="p-2 align-middle [&amp;:has([role=checkbox])]:pr-0 [&amp;>[role=checkbox]]:translate-y-[2px]">
-																																																																																																																																																																								<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0" type="button" id="radix-:r1c:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
-																																																																																																																																																																									<span class="sr-only">Open menu</span>
-																																																																																																																																																																									<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis ">
-																																																																																																																																																																										<circle cx="12" cy="12" r="1"></circle>
-																																																																																																																																																																										<circle cx="19" cy="12" r="1"></circle>
-																																																																																																																																																																										<circle cx="5" cy="12" r="1"></circle>
-																																																																																																																																																																									</svg>
-																																																																																																																																																																								</button>
-																																																																																																																																																																							</td>
-																																																																																																																																																																						</tr>
-																																																																																																																																																																					</tbody>
-																																																																																																																																																																				</table>
-																																																																																																																																																																			</div>
-																																																																																																																																																																		</div> #}
-	<div class="table-wrapper relative w-full overflow-auto rounded-md border">
-		<table class="w-full caption-bottom text-sm">
-			<thead class="[&_tr]:border-b">
-				<tr class="border-b transition-colors">
+	<div class="table-wrapper relative w-full overflow-auto rounded-md border max-h-128 z-10">
+		<table class="w-full caption-bottom text-sm bg-white shadow">
+			<thead class="[&_tr]:border-b sticky top-0 bg-white">
+				<tr class="transition-colors  border-b">
 					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground">
 						Status
 					</th>
@@ -187,154 +45,46 @@
 					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground"></th>
 				</tr>
 			</thead>
-			<tbody class="[&_tr:last-child]:border-0">
-				<tr class="article border-b transition-colors hover:bg-secondaryTheme/5 data-[state=selected]:bg-muted">
-					<td class="p-2 align-middle">
-						<div class="flex p-1 px-3 bg-gray-500 rounded text-white w-fit gap-1">
-							<i class="icon-cog"></i>
-							<span class="ml-auto">Drafted</span>
-
-						</div>
-					</td>
-					<td class="p-2 align-middle">
-						From AI to IoT: Exploring the Cutting-Edge of Modern Technology
-					</td>
-					<td class="p-2 align-middle">
-						<div class="badge inline-flex items-center rounded  px-4 py-1 shadow text-sm">
-							<i class="icon-newspaper">
-								&nbsp;
-							</i>
-							Article
-						</div>
-
-					</td>
-					<td class="p-2 align-middle">
-						Jay Mark B.
-					</td>
-					<td class="p-2 align-middle">
-						Feb 21, 2025
-					</td>
-					<td class="p-2 align-middle">
-						Feb 21, 2025
-					</td>
-					<td class="p-2 align-middle">
-						<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0" type="button" id="radix-:r18:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
-							<i class="icon-ellipsis"></i>
-						</button>
-					</td>
-				</tr>
-
-				<tr class="news border-b transition-colors hover:bg-secondaryTheme/5 data-[state=selected]:bg-muted">
-					<td class="p-2 align-middle">
-						<div class="flex items-center justify-center p-1 px-3 bg-primaryTheme rounded text-white w-fit gap-1">
-							Published
-							<i class="icon-check"></i>
-						</div>
-					</td>
-					<td class="p-2 align-middle">
-						From AI to IoT: Exploring the Cutting-Edge of Modern Technology
-					</td>
-					<td class="p-2 align-middle">
-						<div class="badge inline-flex items-center rounded  px-4 py-1 shadow text-sm">
-							<i class="icon-newspaper">
-								&nbsp;
-							</i>
-							Article
-						</div>
-
-					</td>
-					<td class="p-2 align-middle">
-						Jay Mark B.
-					</td>
-					<td class="p-2 align-middle">
-						Feb 21, 2025
-					</td>
-					<td class="p-2 align-middle">
-						Feb 21, 2025
-					</td>
-					<td class="p-2 align-middle">
-						<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0" type="button" id="radix-:r18:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
-							<i class="icon-ellipsis"></i>
-						</button>
-					</td>
-				</tr>
-
-				<tr class="information border-b transition-colors hover:bg-secondaryTheme/5 data-[state=selected]:bg-muted">
-					<td class="p-2 align-middle">
-						<div class="flex items-center p-1 px-3 bg-primaryTheme rounded text-white w-fit gap-2">
-							Publish
-							<i class="icon-check"></i>
-						</div>
-					</td>
-					<td class="p-2 align-middle">
-						From AI to IoT: Exploring the Cutting-Edge of Modern Technology
-					</td>
-					<td class="p-2 align-middle">
-						<div class="badge inline-flex items-center rounded  px-4 py-1 shadow text-sm">
-							<i class="icon-newspaper">
-								&nbsp;
-							</i>
-							Article
-						</div>
-
-					</td>
-					<td class="p-2 align-middle">
-						Jay Mark B.
-					</td>
-					<td class="p-2 align-middle">
-						Feb 21, 2025
-					</td>
-					<td class="p-2 align-middle">
-						Feb 21, 2025
-					</td>
-					<td class="p-2 align-middle">
-						<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0" type="button" id="radix-:r18:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
-							<i class="icon-ellipsis"></i>
-						</button>
-					</td>
-				</tr>
-
-				<tr class="article border-b transition-colors hover:bg-secondaryTheme/5 data-[state=selected]:bg-muted">
-					<td class="p-2 align-middle">
-						<div class="flex items-center p-1 px-3 bg-primaryTheme rounded text-white w-fit gap-2">
-							Publish
-							<i class="icon-check"></i>
-						</div>
-					</td>
-					<td class="p-2 align-middle">
-						From AI to IoT: Exploring the Cutting-Edge of Modern Technology
-					</td>
-					<td class="p-2 align-middle">
-						<div class="badge inline-flex items-center rounded  px-4 py-1 shadow text-sm">
-							<i class="icon-newspaper">
-								&nbsp;
-							</i>
-							Article
-						</div>
-
-					</td>
-					<td class="p-2 align-middle">
-						Jay Mark B.
-					</td>
-					<td class="p-2 align-middle">
-						Feb 21, 2025
-					</td>
-					<td class="p-2 align-middle">
-						Feb 21, 2025
-					</td>
-					<td class="p-2 align-middle">
-						<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0" type="button" id="radix-:r18:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
-							<i class="icon-ellipsis"></i>
-						</button>
-					</td>
-				</tr>
-
-
+			<tbody class="[&_tr:last-child]:border-0 overflow-y-auto">
+				{% for blog in blogs %}
+					<tr class="{{blog.category.name}} border-b transition-colors hover:bg-secondaryTheme/5 data-[state=selected]:bg-muted">
+						<td class="p-2 align-middle">
+							<div class="flex p-1 px-2 {{ blog.status is same as('1') ? 'bg-gray-500 ':'bg-primaryTheme' }} rounded text-white w-fit gap-1">
+								<i class="{{ blog.status is same as('1') ? 'icon-cog':'icon-check' }}"></i>
+								<span class="ml-auto">{{ blogStatus(blog.status) }}</span>
+							</div>
+						</td>
+						<td class="p-2 align-middle">
+							{{ blog.title }}
+						</td>
+						<td class="p-2 align-middle">
+							<div class="badge inline-flex items-center rounded  px-2 py-1 shadow text-sm">
+								<i class="{{ blogIcon(blog.category.id) }}">
+									&nbsp;
+								</i>
+								{{ blog.category.name|capitalize }}
+							</div>
+						</td>
+						<td class="p-2 align-middle">
+							{{ blog.account.firstName|capitalize ~ ' ' ~ blog.account.lastName|capitalize|first ~'.'}}
+						</td>
+						<td class="p-2 align-middle">
+							{{ blog.createdAt|date('M d, Y H:i:s A', "Asia/Manila") }}
+						</td>
+						<td class="p-2 align-middle">
+							{{ blog.updatedAt|date('M d, Y H:i:s A', "Asia/Manila") }}
+						</td>
+						<td class="p-2 align-middle">
+							<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0" type="button" id="radix-:r18:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
+								<i class="icon-ellipsis"></i>
+							</button>
+						</td>
+					</tr>
+				{% endfor %}
 			</tbody>
 		</table>
 
 	</div>
-
 
 	<div class="flex items-center justify-end space-x-2 py-4">
 		<div class="flex-1 text-sm text-muted-foreground">0 of 5 row(s) selected.</div>
@@ -343,5 +93,8 @@
 			<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs" disabled="">Next</button>
 		</div>
 	</div>
+
+	{# <div id="blog-root" data-blogs='{{ blogs|json_encode|raw }}'></div> #}
+
 
 {% endblock %}

@@ -8,8 +8,9 @@ export default {
     './assets/**/*.{js,ts,jsx,tsx}', // Symfony assets
     './templates/**/*.twig', // Symfony Twig templates
     './src/**/*.php', // Symfony backend templates
-    './components/**/*.{js,ts,jsx,tsx}',
+    // './components/**/*.{js,ts,jsx,tsx}',
     './node_modules/@shadcn/ui/dist/**/*.{js,ts,jsx,tsx}', // ShadCN UI components
+    './app/Resources/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     container: {
@@ -24,6 +25,13 @@ export default {
       },
     },
     extend: {
+      maxHeight: {
+        128: '30rem',
+      },
+      zIndex: {
+        100: 100,
+        200: 200,
+      },
       colors: {
         primaryTheme: 'hsl(var(--primary-theme))',
         secondaryTheme: 'hsl(var(--secondary-theme))',
