@@ -37,7 +37,7 @@ class Category
 
     public function getName(): ?string
     {
-        return $this->name;
+        return ucfirst($this->name);
     }
 
     public function setName(string $name): static
