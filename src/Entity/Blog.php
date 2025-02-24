@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\BlogRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[ORM\Entity(repositoryClass: BlogRepository::class)]
 class Blog
@@ -32,17 +33,20 @@ class Blog
     #[Groups(['blog:read', 'category:read'])]
     private ?string $status = null;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $htmlContent = null;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $htmlStyle = null;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $htmlScript = null;
 
-    #[ORM\Column(type: 'text', length: 255)]
+    #[ORM\Column(type: 'text', length: 255, nullable: true)]
     private ?string $htmlThumbnail = null;
+
+    #[ORM\Column(type: 'text', length: 255)]
+    private ?string $slug = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
@@ -176,6 +180,23 @@ class Blog
     public function setHtmlThumbnail(string $htmlThumbnail): static
     {
         $this->htmlThumbnail = $htmlThumbnail;
+
+        return $this;
+    }
+
+    public function generateSlug(SluggerInterface $slugger): void
+    {
+        $this->slug = $slugger->slug($this->title)->lower();
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }
