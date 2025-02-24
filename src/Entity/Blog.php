@@ -32,6 +32,17 @@ class Blog
     #[Groups(['blog:read', 'category:read'])]
     private ?string $status = null;
 
+    #[ORM\Column(type: 'text')]
+    private ?string $htmlContent = null;
+
+    #[ORM\Column(type: 'text')]
+    private ?string $htmlStyle = null;
+
+    #[ORM\Column(type: 'text')]
+    private ?string $htmlScript = null;
+
+    #[ORM\Column(type: 'text', length: 255)]
+    private ?string $htmlThumbnail = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
@@ -119,5 +130,53 @@ class Blog
     public function getBlogId(): ?int
     {
         return $this->blog_id;
+    }
+
+    public function getHtmlContent(): ?string
+    {
+        return $this->htmlContent;
+    }
+
+    public function setHtmlContent(string $htmlContent): static
+    {
+        $this->htmlContent = $htmlContent;
+
+        return $this;
+    }
+
+    public function getHtmlStyle(): ?string
+    {
+        return $this->htmlStyle;
+    }
+
+    public function setHtmlStyle(string $htmlStyle): static
+    {
+        $this->htmlStyle = $htmlStyle;
+
+        return $this;
+    }
+
+    public function getHtmlScript(): ?string
+    {
+        return $this->htmlScript;
+    }
+
+    public function setHtmlScript(string $htmlScript): static
+    {
+        $this->htmlScript = $htmlScript;
+
+        return $this;
+    }
+
+    public function getHtmlThumbnail(): ?string
+    {
+        return $this->htmlThumbnail;
+    }
+
+    public function setHtmlThumbnail(string $htmlThumbnail): static
+    {
+        $this->htmlThumbnail = $htmlThumbnail;
+
+        return $this;
     }
 }
