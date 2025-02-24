@@ -15,6 +15,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/dashboard', name: 'dashboard.')]
 #[IsGranted('IS_AUTHENTICATED_FULLY')]
@@ -25,19 +26,22 @@ final class PagesController extends AbstractController
     private CreateNewPageType $createPages;
     private Security $security;
     private EntityManagerInterface $em;
+    private SluggerInterface $slugger;
 
     public function __construct(
         BlogRepository $blogRepository,
         SerializerInterface $serializer,
         CreateNewPageType $createPages,
         Security $security,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        SluggerInterface $slugger,
     ) {
         $this->blogRepository = $blogRepository;
         $this->serializer = $serializer;
         $this->createPages = $createPages;
         $this->security = $security;
         $this->em = $em;
+        $this->slugger = $slugger;
     }
 
     #[Route('/pages', name: 'pages')]
@@ -71,6 +75,7 @@ final class PagesController extends AbstractController
             $blog->setCategory($category);
             $blog->setCreatedAt(new \DateTimeImmutable('now'));
             $blog->setUpdatedAt(new \DateTimeImmutable('now'));
+            $blog->generateSlug($this->slugger);
 
             $this->em->persist($blog);
             $this->em->flush();
