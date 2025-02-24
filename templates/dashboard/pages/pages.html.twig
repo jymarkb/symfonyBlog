@@ -47,7 +47,7 @@
 			</thead>
 			<tbody class="[&_tr:last-child]:border-0 overflow-y-auto">
 				{% for blog in blogs %}
-					<tr class="{{blog.category.name}} border-b transition-colors hover:bg-secondaryTheme/5 data-[state=selected]:bg-muted">
+					<tr class="{{blog.category.name|lower}} border-b transition-colors hover:bg-secondaryTheme/5 data-[state=selected]:bg-muted">
 						<td class="p-2 align-middle">
 							<div class="flex p-1 px-2 {{ blog.status is same as('1') ? 'bg-gray-500 ':'bg-primaryTheme' }} rounded text-white w-fit gap-1">
 								<i class="{{ blog.status is same as('1') ? 'icon-cog':'icon-check' }}"></i>
