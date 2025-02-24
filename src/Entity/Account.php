@@ -25,9 +25,11 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $blogs;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['blog:read'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['blog:read'])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
@@ -56,7 +58,7 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->account_id;
     }
 
     public function getFirstName(): ?string
