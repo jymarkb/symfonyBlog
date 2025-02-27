@@ -41,13 +41,13 @@ class BlogRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function showPageByStatusId(int $statusId = 2): array
+    public function showPageByStatusId(int $statusId = Blog::PUBLISHED): array
     {
         return $this->createQueryBuilder('b')
-            ->andWhere('b.status = :statusId')
-            ->setParameter('statusId', $statusId)
-            ->getQuery()
-            ->getResult()
-        ;
+        ->where('b.status = :published')
+        ->setParameter('published', $statusId)
+        ->orderBy('b.created_at', 'DESC')
+        ->getQuery()
+        ->getResult();
     }
 }
