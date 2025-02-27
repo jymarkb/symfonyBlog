@@ -19,10 +19,12 @@ export const initSideBarNavigation = (
   if (btnSidebar) {
     btnSidebar.addEventListener('click', () => {
       if (window.innerWidth < 1024) {
+        btnSidebar?.classList.toggle('active')
         sidebarWrapper?.classList.toggle('w-72');
         sidebarWrapper?.classList.toggle('w-0');
         mainContentWrapper?.classList.toggle('blur-md');
       } else {
+        btnSidebar?.classList.toggle('active')
         sidebarWrapper?.classList.toggle('w-72');
         sidebarWrapper?.classList.toggle('w-0');
       }
