@@ -10,6 +10,8 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[ORM\Entity(repositoryClass: BlogRepository::class)]
 class Blog
 {
+    public const PUBLISHED = 2;
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: "blog_id", type: "integer")]
