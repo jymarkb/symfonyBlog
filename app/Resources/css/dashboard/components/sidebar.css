@@ -7,3 +7,17 @@
 .nav-item:hover a {
   background-color: hsl(var(--primary) / 0.05);
 }
+
+#side-nav-btn.active{
+  background: hsl(var(--secondary-theme));
+
+  *{
+    color: white;
+  }
+}
+
+#side-nav-btn.active:hover{
+  box-shadow: 12px 12px 12px rgba(0, 0, 0, 0.1),
+  -10px -10px -10px white;
+
+}
