@@ -13,7 +13,7 @@ export const initSideBarNavigation = (
   } = props;
 
   const sidebarWrapper = document.getElementById(wrapperId);
-  const mainContentWrapper = document.querySelector(mainContent);
+  const mainContentWrapper = document.getElementById(mainContent);
   const btnSidebar = document.getElementById(buttonId);
 
   if (btnSidebar) {
@@ -23,10 +23,12 @@ export const initSideBarNavigation = (
         sidebarWrapper?.classList.toggle('w-72');
         sidebarWrapper?.classList.toggle('w-0');
         mainContentWrapper?.classList.toggle('blur-md');
+        mainContentWrapper?.classList.toggle('ml-72');
       } else {
         btnSidebar?.classList.toggle('active')
         sidebarWrapper?.classList.toggle('w-72');
         sidebarWrapper?.classList.toggle('w-0');
+        mainContentWrapper?.classList.toggle('ml-72');
       }
     });
   }
