@@ -54,6 +54,15 @@ export const blogContentConfig = {
         clipboardData.getData('text/plain');
       if (!pastedHtml) return;
 
+      // Remove any <script> tags completely
+      pastedHtml = pastedHtml.replace(
+        /<script\b[^<]*>([\s\S]*?)<\/script>/gi,
+        '',
+      );
+
+      // Remove any inline event handlers (like onclick, onerror, etc.)
+      pastedHtml = pastedHtml.replace(/\son\w+="[^"]*"/gi, '');
+
       // Regex for detecting raw HTML tags that should be inserted as-is
       const rawHtmlTags =
         /<(?:iframe|script|style|embed|object|video|audio|source|picture|img|svg|math|canvas|form|input|textarea|button|select|option|label|fieldset|legend|details|summary|menu|dialog)[\s\S]*?>/i;
