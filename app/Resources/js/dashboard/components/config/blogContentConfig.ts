@@ -2,7 +2,7 @@ import { Editor as TinyMCEEditor, EditorEvent } from 'tinymce';
 export const blogContentConfig = {
   menubar: false,
   placeholder: 'Start typing your content here...',
-  height: 500,
+  height: 600,
   plugins: [
     'code',
     'image',
@@ -15,9 +15,10 @@ export const blogContentConfig = {
   ],
   // 🔹 Allow ALL elements and attributes
   valid_elements: '*[*]',
-  valid_children: '+body[iframe][video|audio],+div[iframe][video|audio]',
+  valid_children:
+    '+body[iframe|video|audio|img|a],+div[iframe|video|audio|pre],+p[div|span|img|iframe],+form[div|br]',
   extended_valid_elements:
-    'iframe[src|width|height|frameborder|allowfullscreen],pre[class],code[class],audio[controls|src],video[controls|width|height|src]',
+    'iframe[src|width|height|frameborder|allowfullscreen],pre[class],code[class],audio[controls|src],video[controls|width|height|src],label[for],input[id|name|type|placeholder],table[border|cellpadding|cellspacing],td[style],th[style]',
 
   entity_encoding: 'raw', // Prevent escaping HTML entities
   remove_linebreaks: false,
@@ -32,7 +33,7 @@ export const blogContentConfig = {
   paste_auto_cleanup_on_paste: false,
   toolbar:
     'undo redo | formatselect | bold italic underline strikethrough | link image media | code | bullist numlist | table',
-  content_style: `body { background: transparent !important; }`,
+  content_style: `body { background: #f9f9f9; }`,
   branding: false,
   promotion: false,
   telemetry: false,
@@ -43,6 +44,18 @@ export const blogContentConfig = {
   content_css: false,
   invalid_elements: 'marquee',
   setup: (editor: TinyMCEEditor) => {
+    editor.on('blur', function () {
+      if (!editor) return;
+      let content = editor.getContent() || '';
+
+      // Decode escaped HTML entities
+      content = content.replace(/&lt;(.*?)&gt;/g, '<$1>');
+
+      // Remove empty <p> tags
+      content = content.replace(/<p>\s*<\/p>/g, '');
+
+      editor.setContent(content, { format: 'raw' });
+    });
     editor.on('Paste', (event: EditorEvent<ClipboardEvent>) => {
       event.preventDefault();
 
