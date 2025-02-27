@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import MainEditor from './MainEditor';
-import { blogContenConfig } from './config/blogContenConfig';
+import { blogContentConfig } from './config/blogContentConfig'; 
 
 // const CodeEditor = ({
 //   initBindButton,
@@ -44,7 +44,7 @@ const CodeEditor = () => {
               </label>
             ) : null // show label when editor is ready
           }
-          <MainEditor editorRef={editorRef} setEditorReady={setEditorReady} blogContenConfig={blogContenConfig}/>
+          <MainEditor editorRef={editorRef} setEditorReady={setEditorReady} blogContentConfig={blogContentConfig}/>
         </div>
       )}
     </>
