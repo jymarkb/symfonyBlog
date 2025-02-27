@@ -1,14 +1,15 @@
 {% extends '/dashboard/index.html.twig' %}
-{% block stylesheets %}
-	{{
-encore_entry_link_tags('dashboard/pages/style') }}
-{% endblock %}
-{% block javascripts %}
-	{{
-encore_entry_script_tags('dashboard/pages/script') }}
-{% endblock %}
-{% block content %}
 
+{% block stylesheets %}
+	{{ encore_entry_link_tags('dashboard/pages/style') }}
+{% endblock %}
+
+{% block javascripts %}
+	{{ encore_entry_script_tags('dashboard/pages/script') }}
+{% endblock %}
+
+{% block content %}
+	<button id="getClass" class="bg-primary h-10 text-white px-3">get class</button>
 	<div class="form-wrapper">
 		<div class="form-container  max-w-7xl">
 			{{ form_start(form, { 'attr':{
@@ -18,16 +19,17 @@ encore_entry_script_tags('dashboard/pages/script') }}
 				'attr': { 
 					'type': 'text', 
 					'placeholder': 'Title', 
-					'class':'border border-input bg-transparent p-3 text-base rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full' } }) }}
+					'class':'border border-input bg-white p-3 text-base rounded-md shadow-sm  md:text-sm h-12 w-full' } }) }}
 			{{ form_widget(form.category, { 
 				'attr': { 
 					'type': 'select', 
-					'class':'border border-input bg-transparent p-3 text-base rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full' } }) }}
+					'class':'border border-input bg-white p-3 text-base rounded-md shadow-sm md:text-sm h-12 w-full' } }) }}
 
-			{{ form_widget(form.htmlContent )}}
-			{{ form_widget(form.htmlScript )}}
-			{{ form_widget(form.htmlStyle )}}
-			{{ form_widget(form.htmlThumbnail )}}
+			<div id="htmlEditor"></div>
+			{# {{ form_widget(form.htmlContent )}}
+																																										{{ form_widget(form.htmlScript )}}
+																																										{{ form_widget(form.htmlStyle )}}
+																																										{{ form_widget(form.htmlThumbnail )}} #}
 
 			<div class="flex gap-4">
 				<button type="submit" name="status" value="1" class="px-4 py-2 border rounded-md transition-colors bg-gray-500 text-white">
@@ -43,3 +45,6 @@ encore_entry_script_tags('dashboard/pages/script') }}
 	</div>
 
 {% endblock %}
+
+
+
