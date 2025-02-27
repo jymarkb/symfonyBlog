@@ -7,3 +7,32 @@
 .information {
   border-color: hsl(var(--border));
 }
+
+.tox-edit-area iframe {
+  background-color: transparent !important;
+}
+
+.labelEditor{
+  margin-bottom: -2.2rem;
+}
+
+.tox-toolbar__primary{
+  display: flex;
+  flex-direction: row;
+  place-content: end;
+}
+
+@keyframes popup {
+  from {
+    opacity: 0;
+    transform:  scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.labelEditor {
+  animation: popup 0.3s ease-out;
+}
