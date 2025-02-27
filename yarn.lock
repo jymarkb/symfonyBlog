@@ -1277,6 +1277,13 @@
     lodash.merge "^4.6.2"
     postcss-selector-parser "6.0.10"
 
+"@tinymce/tinymce-react@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@tinymce/tinymce-react/-/tinymce-react-6.0.0.tgz#ca74d6e5190cc50f6c82684a1ad09e7507efc331"
+  integrity sha512-v5q6x3/kgg3rfQjFYrAm8ZVCnPbUgOuB3yUvSskp75VwR/EUQimONG4S16KL85kFbstiiat6AUDDLMXN4hRxhQ==
+  dependencies:
+    prop-types "^15.6.2"
+
 "@trysound/sax@0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@trysound/sax/-/sax-0.2.0.tgz#cccaab758af56761eb7bf37af6f03f326dd798ad"
@@ -3868,7 +3875,7 @@ prompts@^2.4.2:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@^15.8.1:
+prop-types@^15.6.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -4509,6 +4516,11 @@ tiny-invariant@^1.3.3:
   version "1.3.3"
   resolved "https://registry.yarnpkg.com/tiny-invariant/-/tiny-invariant-1.3.3.tgz#46680b7a873a0d5d10005995eb90a70d74d60127"
   integrity sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==
+
+tinymce@^6.0.0:
+  version "6.8.5"
+  resolved "https://registry.yarnpkg.com/tinymce/-/tinymce-6.8.5.tgz#aa9a711c4e0b59d506dd281bade857d35a7b3c59"
+  integrity sha512-qAL/FxL7cwZHj4BfaF818zeJJizK9jU5IQzTcSLL4Rj5MaJdiVblEj7aDr80VCV1w9h4Lak9hlnALhq/kVtN1g==
 
 tmp@^0.2.1:
   version "0.2.3"
