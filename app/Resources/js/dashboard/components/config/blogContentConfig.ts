@@ -1,5 +1,5 @@
 import { Editor as TinyMCEEditor, EditorEvent } from 'tinymce';
-export const blogContenConfig = {
+export const blogContentConfig = {
   menubar: false,
   placeholder: 'Start typing your content here...',
   height: 500,
