@@ -57,4 +57,17 @@ class BlogRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function getLatestBlogPost(){
+        return $this->createQueryBuilder('b')
+        ->leftJoin('b.category', 'c')
+        ->select('b.title', 'b.slug', 'b.htmlThumbnail', 'b.created_at')
+        ->addSelect('c.name')
+        ->leftJoin('b.account', 'a')
+        ->addSelect('a.firstName', 'a.lastName')
+        ->orderBy('b.created_at', 'DESC')
+        ->setMaxResults(4)
+        ->getQuery()
+        ->getResult();
+    }
 }
