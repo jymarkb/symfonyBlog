@@ -17,16 +17,14 @@ export function CarouselDemo() {
     { name: 'Typescript', imgSrc: '/img/techstack/typescript.svg', href: '/' },
     { name: 'Lucide', imgSrc: '/img/techstack/lucide.webp', href: '/' },
     { name: 'shadcn/ui', imgSrc: '/img/techstack/shadcn.svg', href: '/' },
+    { name: 'TinyMCE', imgSrc: '/img/techstack/tiny.webp', href: '/' },
     { name: 'Docker', imgSrc: '/img/techstack/docker.svg', href: '/' },
     { name: 'MySql', imgSrc: '/img/techstack/mysql.svg', href: '/' },
     { name: 'PHP', imgSrc: '/img/techstack/php.svg', href: '/' },
+    { name: 'Web Services', imgSrc: '/img/techstack/aws.svg', href: '/' },
+    { name: 'Github', imgSrc: '/img/techstack/github.svg', href: '/' },
   ];
 
-  {
-    techStack.map((tech) => {
-      console.log(tech);
-    });
-  }
   return (
     <Carousel
       className="w-full"
@@ -50,7 +48,7 @@ export function CarouselDemo() {
               <div className="p-1">
                 <Card>
                   <CardContent className="flex aspect-square items-center justify-center p-6 gap-2">
-                    <img className="h-14 w-14" src={tech.imgSrc} />
+                    <img className="h-14 w-14 object-cover" src={tech.imgSrc} />
                     <h3 className="text-3xl font-semibold text-primaryTheme">
                       {tech.name}
                     </h3>
