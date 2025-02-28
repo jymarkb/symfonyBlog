@@ -44,7 +44,7 @@ export function CarouselDemo() {
       <CarouselContent>
         {techStack.map((tech, index) => {
           return (
-            <CarouselItem key={index} className="carousel-item">
+            <CarouselItem key={index} className="carousel-item transtion duration-300">
               <div className="p-1">
                 <Card>
                   <CardContent className="flex aspect-square items-center justify-center p-6 gap-2">
