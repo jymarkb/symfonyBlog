@@ -22,13 +22,12 @@ export const initSideBarNavigation = (
         btnSidebar?.classList.toggle('active')
         sidebarWrapper?.classList.toggle('w-72');
         sidebarWrapper?.classList.toggle('w-0');
-        mainContentWrapper?.classList.toggle('blur-md');
-        mainContentWrapper?.classList.toggle('ml-72');
+        // mainContentWrapper?.classList.toggle('ml-72');
       } else {
         btnSidebar?.classList.toggle('active')
         sidebarWrapper?.classList.toggle('w-72');
         sidebarWrapper?.classList.toggle('w-0');
-        mainContentWrapper?.classList.toggle('ml-72');
+        // mainContentWrapper?.classList.toggle('ml-72');
       }
     });
   }
