@@ -7,11 +7,35 @@
 
 {% block content %}
 	{# {{ dump(blog) }} #}
-	<div class="container py-8 justify-center {{blog.category.name|lower}} text-center">
+	<div class="container py-8 justify-center {{blog.category.name|lower}}">
 		<a href="{{path('blog.index')}}" class="flex items-center gap-2 text-primaryTheme">
 			<i class="icon-move-left text-xl font-bold"></i>Go back</a>
 
-		<h1 class="title text-5xl font-bold my-5">{{blog.title}}</h1>
-		{{ blog.htmlContent|raw }}
+		<h1 class="title text-5xl font-bold my-5 text-center">{{blog.title}}</h1>
+
+		<div class="editor-content">
+			{{ blog.htmlContent|raw }}
+		</div>
+
+
+		<style>
+			.editor-content {
+				all: unset; /* Reset inherited styles */
+			}
+
+			.editor-content * {
+				all: revert; /* Revert styles for all elements inside */
+			}
+
+			.editor-content {
+				{{ blog.htmlStyle|raw }}
+			}
+		</style>
+
+		<script>
+		
+		{{ blog.htmlScript|raw }}
+		</script>
+
 	</div>
 {% endblock %}
