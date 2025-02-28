@@ -1,5 +1,6 @@
 import { Editor as TinyMCEEditor, EditorEvent } from 'tinymce';
-export const blogContentConfig = {
+
+export const blogContentConfig = (textAreaId : string) => ({
   menubar: false,
   placeholder: 'Start typing your content here...',
   height: 600,
@@ -17,14 +18,21 @@ export const blogContentConfig = {
   valid_elements: '*[*]',
   valid_children:
     '+body[iframe|video|audio|img|a],+div[iframe|video|audio|pre],+p[div|span|img|iframe],+form[div|br]',
-  extended_valid_elements:
-    'iframe[src|width|height|frameborder|allowfullscreen],pre[class],code[class],audio[controls|src],video[controls|width|height|src],label[for],input[id|name|type|placeholder],table[border|cellpadding|cellspacing],td[style],th[style]',
+  extended_valid_elements: `iframe[src|width|height|frameborder|allowfullscreen],
+    pre[class],
+    code[class],
+    audio[controls|src],
+    video[controls|width|height|src],
+    label[for],
+    input[id|name|type|placeholder],
+    table[border|cellpadding|cellspacing],
+    td[style],th[style]`,
 
   entity_encoding: 'raw', // Prevent escaping HTML entities
   remove_linebreaks: false,
   convert_urls: false,
-  forced_root_block: 'false', // Ensure content is not auto-wrapped
-  force_br_newlines: true,
+  default_block: '', // Ensure content is not auto-wrapped
+  force_br_newlines: false,
   // Paste settings
   paste_as_text: false,
   paste_data_images: true,
@@ -44,7 +52,7 @@ export const blogContentConfig = {
   content_css: false,
   invalid_elements: 'marquee',
   setup: (editor: TinyMCEEditor) => {
-    editor.on('blur', function () {
+    editor.on('blur', () => {
       if (!editor) return;
       let content = editor.getContent() || '';
 
@@ -55,7 +63,17 @@ export const blogContentConfig = {
       content = content.replace(/<p>\s*<\/p>/g, '');
 
       editor.setContent(content, { format: 'raw' });
+
+      const testTextArea = document.getElementById(
+        textAreaId,
+      ) as HTMLTextAreaElement;
+
+      if (testTextArea) {
+        testTextArea.value = editor.getContent();
+        console.log(testTextArea.value);
+      }
     });
+
     editor.on('Paste', (event: EditorEvent<ClipboardEvent>) => {
       event.preventDefault();
 
@@ -108,4 +126,4 @@ export const blogContentConfig = {
       editor.insertContent(pastedHtml);
     });
   },
-};
+});
