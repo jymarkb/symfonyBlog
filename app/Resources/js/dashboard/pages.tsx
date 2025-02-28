@@ -10,7 +10,7 @@ class Pages {
   init() {
     initSideBarNavigation();
     // initPopup();
-    initEditor('htmlEditor');
+    // initEditor('htmlEditor');
   }
 }
 

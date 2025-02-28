@@ -2,11 +2,11 @@ import { Editor } from '@tinymce/tinymce-react';
 
 const MainEditor = ({
   editorRef,
-  setEditorReady,blogContentConfig
+  setEditorReady,contentConfig
 }: {
   editorRef: any;
   setEditorReady: (ready: boolean) => void;
-  blogContentConfig:any;
+  contentConfig:any;
 }) => {
   return (
     <Editor
@@ -16,7 +16,7 @@ const MainEditor = ({
         setEditorReady(true);
       }}
       init={
-        blogContentConfig
+        contentConfig
       }
     />
   );

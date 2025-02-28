@@ -5,13 +5,13 @@
 {% endblock %}
 
 {% block javascripts %}
-	{{ encore_entry_script_tags('dashboard/pages/script') }}
+	{{ encore_entry_script_tags('dashboard/pages/create') }}
 {% endblock %}
 
 {% block content %}
-	<button id="getClass" class="bg-primary h-10 text-white px-3">get class</button>
-	<div class="form-wrapper">
-		<div class="form-container  max-w-7xl">
+	<button name="preview" class="bg-primary h-10 text-white px-3 mb-2">Preview</button>
+	<div class="form-wrapper flex justify-center lg:justify-start">
+		<div class="form-container lg:max-w-7xl w-[95%]">
 			{{ form_start(form, { 'attr':{
 				'class':'flex flex-col gap-4'
 			} ,'action': path('dashboard.pages.create'), 'method': 'POST'}) }}
@@ -26,10 +26,11 @@
 					'class':'border border-input bg-white p-3 text-base rounded-md shadow-sm md:text-sm h-12 w-full' } }) }}
 
 			<div id="htmlEditor"></div>
-			{# {{ form_widget(form.htmlContent )}}
-																																										{{ form_widget(form.htmlScript )}}
-																																										{{ form_widget(form.htmlStyle )}}
-																																										{{ form_widget(form.htmlThumbnail )}} #}
+			<div id="cssEditor"></div>
+			<div id="jsEditor"></div>
+			{{ form_widget(form.htmlContent)}}
+			{{ form_widget(form.htmlStyle)}}
+			{{ form_widget(form.htmlScript)}}
 
 			<div class="flex gap-4">
 				<button type="submit" name="status" value="1" class="px-4 py-2 border rounded-md transition-colors bg-gray-500 text-white">

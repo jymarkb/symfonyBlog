@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import MainEditor from './MainEditor';
-import { blogContentConfig } from './config/blogContentConfig'; 
+// import { blogContentConfig } from './config/blogContentConfig'; 
 
 // const CodeEditor = ({
 //   initBindButton,
@@ -8,11 +8,10 @@ import { blogContentConfig } from './config/blogContentConfig';
 //   initBindButton: (btnId: HTMLElement, getContent: () => string) => void;
 // }) => {
 
-const CodeEditor = () => {
+const CodeEditor = ({containerTitle, contentConfig}: {containerTitle:string, contentConfig:object}) => {
   const editorRef = useRef<any>(null);
   const [editorReady, setEditorReady] = useState(false);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     // const checkButton = () => {
     //   const btnId = document.getElementById('getClass') as HTMLElement;
@@ -39,12 +38,12 @@ const CodeEditor = () => {
         <div className="flex flex-col mt-4 h-[600px]">
           {
             editorReady ? (
-              <label className="text-sm labelEditor z-100 ml-4 w-fit">
-                Blog Content
+              <label className="text-sm labelEditor z-20 ml-4 w-fit">
+                {containerTitle}
               </label>
             ) : null // show label when editor is ready
           }
-          <MainEditor editorRef={editorRef} setEditorReady={setEditorReady} blogContentConfig={blogContentConfig}/>
+          <MainEditor editorRef={editorRef} setEditorReady={setEditorReady} contentConfig={contentConfig}/>
         </div>
       )}
     </>
