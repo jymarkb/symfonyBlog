@@ -1,32 +1,32 @@
+{% set latest = data|first %}
 <main class="border-grid border-b">
 	<div class="container-wrapper">
 		<div class="container py-8">
 			<h2 class="section-title font-heading md:text-3xl text-2xl font-semibold tracking-tight mb-4">Latest blog posts</h2>
 			<div class="flex container-wrapper-card-feature">
 				<div class="container-blog-card-feature w-8/12">
-					<div class="article-feature card shadow rounded-3xl">
+					<div class="{{latest.name}}-feature card shadow rounded-3xl">
 						<div class="flex">
-							<div class="container-card-feature w-1/2 py-8 px-8">
+							<div class="container-card-feature w-1/2 py-8 px-8 ">
 
 								<div class="card-author flex gap-4 mb-4">
 									<div class="badge inline-flex items-center rounded-md  px-4 py-2 shadow">
 										<i class="icon-newspaper">
 											&nbsp
-										</i>Article</div>
+										</i>{{latest.name|capitalize}}</div>
 									<div class="border-l pl-4 inline-flex gap-2">
 										<span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"><img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png"></span>
-										<p class="flex items-center name">Jay Mark B.</p>
+										<p class="flex items-center name">{{ latest.firstName|capitalize ~ ' ' ~ latest.lastName|capitalize|first ~'.'}}</p>
 									</div>
-									<div class="text-sm ml-auto date">Feb 16, 2024</div>
+									<div class="text-sm ml-auto date">{{ latest.created_at|date('M d, Y', "Asia/Manila") }}</div>
 								</div>
 
-								<h1 class="text-4xl title mb-8">Cybersecurity in a Digital Age: Protecting Your Data in a Connected World</h1>
-
-								<a class="btn shadow border py-3 px-6 rounded-3xl font-light" href="/">Read article</a>
+								<h1 class="text-4xl title mb-8">{{ latest.title }}</h1>
+								<a class="btn shadow border py-3 px-6 rounded-3xl font-light inline-block hover:scale-110 transition duration-300" href="blog/{{ latest.slug }}">Read {{latest.name|capitalize}}</a>
 
 							</div>
 							<div class="container-card-image w-1/2 py-8 px-8 flex justify-end">
-								<img class="rounded-2xl" width="400" height="400" src="{{ asset('/blog/img/4.webp') }}" alt="feature blog post image">
+								<img class="rounded-2xl" width="400" height="400" src="{{ latest.htmlThumbnail }}" alt="feature blog post image">
 							</div>
 						</div>
 					</div>
@@ -39,52 +39,27 @@
 						</div>
 					</div>
 					<div class="container-blog-card flex flex-col gap-3">
-						<div class="article card card-post w-full p-4 border rounded-lg shadow">
-							<div class="card-author flex gap-4 mb-2">
-								<div class="badge inline-flex items-center rounded-md  px-4 py-2 shadow">
-									<i class="icon-newspaper">
-										&nbsp
-									</i>Article</div>
-								<div class="border-l pl-4 inline-flex gap-2">
-									<span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"><img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png"></span>
-									<p class="flex items-center name">Jay Mark B.</p>
-								</div>
-								<div class="text-sm ml-auto date">Feb 16, 2024</div>
-							</div>
-							<div class="font-semibold text-foreground title" href="/">From AI to IoT: Exploring the Cutting-Edge of Modern Technology</div>
-						</div>
 
-						<div class="news card card-post w-full p-4 border rounded-lg shadow">
-							<div class="card-author flex gap-4 mb-2">
-								<div class="badge inline-flex items-center rounded-md  px-4 py-2 shadow">
-									<i class="icon-rss">
-										&nbsp
-									</i>News</div>
-								<div class="border-l pl-4 inline-flex gap-2">
-									<span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"><img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png"></span>
-									<p class="flex items-center name">Jay Mark B.</p>
+					{% for item in data %}
+						{% if not loop.first %}
+							<div class="{{item.name}} card card-post w-full p-4 border rounded-lg shadow transition duration-300 hover:scale-105">
+								<div class="card-author flex gap-4 mb-2">
+									<div class="badge inline-flex items-center rounded-md  px-4 py-2 shadow">
+										<i class="icon-newspaper">
+											&nbsp
+										</i>{{ item.name|capitalize }}</div>
+									<div class="border-l pl-4 inline-flex gap-2">
+										<span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"><img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png"></span>
+										<p class="flex items-center name">{{ item.firstName|capitalize ~ ' ' ~ item.lastName|capitalize|first ~'.'}}</p>
+									</div>
+									<div class="text-sm ml-auto date">{{ item.created_at|date('M d, Y', "Asia/Manila") }}</div>
 								</div>
-								<div class="text-sm ml-auto date">Feb 16, 2024</div>
+								<a class="font-semibold text-foreground title" href="blog/{{ item.slug }}">{{item.title}}</a>
 							</div>
-							<div class="font-semibold text-foreground title" href="/">From AI to IoT: Exploring the Cutting-Edge of Modern Technology</div>
-						</div>
+						{% endif %}
+					{% endfor %}
 
-						<div class="information card card-post w-full p-4 border rounded-lg shadow">
-							<div class="card-author flex gap-4 mb-2">
-								<div class="badge inline-flex items-center rounded-md  px-4 py-2 shadow">
-									<i class="icon-book-text">
-										&nbsp
-									</i>Information</div>
-								<div class="border-l pl-4 inline-flex gap-2">
-									<span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"><img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png"></span>
-									<p class="flex items-center name">Jay Mark B.</p>
-								</div>
-								<div class="text-sm ml-auto date">Feb 16, 2024</div>
-							</div>
-							<div class="font-semibold text-foreground title" href="/">From AI to IoT: Exploring the Cutting-Edge of Modern Technology</div>
-						</div>
 					</div>
-
 				</div>
 			</div>
 		</div>
