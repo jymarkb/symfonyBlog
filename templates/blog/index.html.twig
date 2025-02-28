@@ -7,7 +7,7 @@
 				<div class="container py-8 flex justify-center items-center">
 					<div class="card-container flex flex-wrap gap-8 lg:max-w-[85%] max-w-[95%] justify-center items-center">
 						{% for blog in blogs %}
-							<div class="{{ blog.category.name|lower}} p-4 border shadow rounded max-w-sm bg-white hover:scale-105">
+							<div class="{{ blog.category.name|lower}} p-4 border shadow rounded max-w-sm bg-white hover:scale-105 transition duration-300 ">
 								<div class="card-author flex flex-col gap-2 h-full">
 									<a href="/blog/{{ blog.slug }}">
 										<img src="{{ blog.htmlThumbnail }}" class="w-full h-[350px] object-cover mb-2 rounded-md hover:opacity-90 transition" alt="image for card"/>

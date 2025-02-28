@@ -11,19 +11,33 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class Blog
 {
     public const PUBLISHED = 2;
-    
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: "blog_id", type: "integer")]
+    #[ORM\Column(name: 'blog_id', type: 'integer')]
     private ?int $blog_id = null;
 
     #[ORM\ManyToOne(targetEntity: Account::class, inversedBy: 'blogs')]
-    #[ORM\JoinColumn(name: "account_id", referencedColumnName: "account_id", nullable: false, onDelete: "CASCADE")]
+    #[
+        ORM\JoinColumn(
+            name: 'account_id',
+            referencedColumnName: 'account_id',
+            nullable: false,
+            onDelete: 'CASCADE'
+        )
+    ]
     #[Groups(['blog:read'])]
     private ?Account $account = null;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'blogs')]
-    #[ORM\JoinColumn(name: "category_id", referencedColumnName: "category_id", nullable: false, onDelete: "CASCADE")]
+    #[
+        ORM\JoinColumn(
+            name: 'category_id',
+            referencedColumnName: 'category_id',
+            nullable: false,
+            onDelete: 'CASCADE'
+        )
+    ]
     #[Groups(['blog:read'])]
     private ?Category $category = null;
 
