@@ -35,7 +35,7 @@ final class BlogPageController extends AbstractController
     {
         $isAdmin = $this->security->isGranted('IS_AUTHENTICATED_FULLY');
         $blogs = $isAdmin
-            ? $this->blogRepository->findAll()
+            ? $this->blogRepository->showAllPages()
             : $this->blogRepository->showPageByStatusId();
 
         return $this->render('blog/index.html.twig', [
