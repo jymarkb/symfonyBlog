@@ -43,18 +43,18 @@ class CreateNewPageType extends AbstractType
                 'placeholder' => 'Select a category',
                 'required' => true
             ])
-            // ->add('htmlContent', TextareaType::class, [
-            //     'required' => false,
-            //     'attr' => ['rows' => 6, 'class' => 'form-control',  'placeholder' => 'Blog Content',],
-            // ])
-            // ->add('htmlStyle', TextareaType::class, [
-            //     'required' => false,
-            //     'attr' => ['rows' => 4, 'class' => 'form-control',  'placeholder' => 'Blog Style',],
-            // ])
-            // ->add('htmlScript', TextareaType::class, [
-            //     'required' => false,
-            //     'attr' => ['rows' => 4, 'class' => 'form-control',  'placeholder' => 'Blog Script',],
-            // ])
+            ->add('htmlContent', TextareaType::class, [
+                'required' => false,
+                'attr' => ['rows' => 6, 'class' => 'form-control hidden',  'placeholder' => 'Blog Content',],
+            ])
+            ->add('htmlStyle', TextareaType::class, [
+                'required' => false,
+                'attr' => ['rows' => 4, 'class' => 'form-control hidden',  'placeholder' => 'Blog Style',],
+            ])
+            ->add('htmlScript', TextareaType::class, [
+                'required' => false,
+                'attr' => ['rows' => 4, 'class' => 'form-control hidden',  'placeholder' => 'Blog Script',],
+            ])
             // ->add('htmlThumbnail', FileType::class, [
             //     'label' => 'Thumbnail Image',
             //     'mapped' => false, // This prevents Symfony from automatically trying to save it as a string

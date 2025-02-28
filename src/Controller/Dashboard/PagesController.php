@@ -76,6 +76,10 @@ final class PagesController extends AbstractController
             $blog->setCreatedAt(new \DateTimeImmutable('now'));
             $blog->setUpdatedAt(new \DateTimeImmutable('now'));
             $blog->generateSlug($this->slugger);
+            $blog->setHtmlContent($data->gethtmlContent());
+            $blog->setHtmlStyle($data->gethtmlStyle());
+            $blog->setHtmlScript($data->gethtmlScript());
+
 
             $this->em->persist($blog);
             $this->em->flush();
