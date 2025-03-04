@@ -33,6 +33,24 @@
 							'placeholder': 'Write a short summary here...', 
 							'class':'border border-input bg-white p-3 text-base rounded-md shadow-sm  md:text-sm h-full w-full' } }) }}
 				</div>
+
+				<div class=" lg:w-[40%] w-full flex items-center justify-center w-full flex-col">
+					<label for="create_new_page_htmlThumbnail" id="dragLabel"class="flex flex-col items-center justify-center w-full h-64 border-2 border-primaryTheme border-dashed rounded-lg cursor-pointer bg-primaryTheme-50 hover:bg-primaryTheme-100">
+						<div class="flex flex-col items-center justify-center pt-5 pb-6">
+							<i class="text-gray-500 text-5xl icon-cloud-upload"></i>
+							<p class="mb-2 text-sm text-gray-500 dark:text-gray-400 text-center"><span class="font-semibold">Drop your thumbnail here </span>or click to upload.</p>
+							<p class="text-xs text-gray-500 dark:text-gray-400 text-center">Upload a high-quality thumbnail (JPG, PNG, WEBP – Max 2MB).</p>
+						</div>
+						{{ form_widget(form.htmlThumbnail)}}
+					</label>
+
+					<div id="viewThumbnail" class="relative h-64 bg-primaryTheme-50 w-full border-solid border-2 border-primaryTheme rounded-lg flex justify-center items-center hidden">
+						<button id="removeUpload" class="absolute top-2 right-2 text-xl text-red-700 font-bold">
+							<i class="icon-x"></i>
+						</button>
+						<img id="imgViewer" class="object-contain max-w-[98%] max-h-[98%]" src="" alt="Preview for file upload">
+					</div>
+				</div> 
 			</div>
 
 			<div id="htmlEditor"></div>

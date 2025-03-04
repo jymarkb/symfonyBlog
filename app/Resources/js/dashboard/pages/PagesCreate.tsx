@@ -8,6 +8,7 @@ import {
   jsEditorConfig,
 } from '../components/config/pagesEditorConfig';
 import { initEditor } from './Editor';
+import ThumbnailUploader from '../components/ThumbnailUploader';
 
 class PagesCreate {
   constructor() {
@@ -17,6 +18,7 @@ class PagesCreate {
   init() {
     initSideBarNavigation();
     this.initTinyFormEditor(); // for html,css,js editor
+    ThumbnailUploader();
   }
 
   async initTinyFormEditor() {
