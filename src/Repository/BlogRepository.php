@@ -62,7 +62,7 @@ class BlogRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('b')
         ->leftJoin('b.category', 'c')
         ->select('b.title', 'b.slug', 'b.htmlThumbnail', 'b.created_at', 'b.summary')
-        ->addSelect('c.name')
+        ->addSelect('c.name', 'c.category_id')
         ->leftJoin('b.account', 'a')
         ->addSelect('a.firstName', 'a.lastName')
         ->orderBy('b.created_at', 'DESC')
