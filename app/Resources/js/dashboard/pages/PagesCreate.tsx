@@ -9,6 +9,7 @@ import {
 } from '../components/config/pagesEditorConfig';
 import { initEditor } from './Editor';
 import ThumbnailUploader from '../components/ThumbnailUploader';
+import ScrollListener from '../components/ScrollListener';
 
 class PagesCreate {
   constructor() {
@@ -19,6 +20,7 @@ class PagesCreate {
     initSideBarNavigation();
     this.initTinyFormEditor(); // for html,css,js editor
     ThumbnailUploader();
+    ScrollListener();
   }
 
   async initTinyFormEditor() {
