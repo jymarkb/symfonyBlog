@@ -2,9 +2,9 @@
 <main class="border-grid border-b">
 	<div class="container-wrapper">
 		<div class="container py-8">
-			<h2 class="section-title font-heading md:text-3xl text-2xl font-semibold tracking-tight mb-4">Latest blog posts</h2>
 			<div class="flex container-wrapper-card-feature">
 				<div class="container-blog-card-feature w-8/12">
+					<h2 class="section-title font-heading md:text-3xl text-2xl font-semibold tracking-tight mb-4 mt-2">Latest blog posts</h2>
 					<div class="{{latest.name}}-feature card shadow rounded-3xl">
 						<div class="flex">
 							<div class="container-card-feature w-1/2 py-8 px-8 ">
@@ -21,7 +21,10 @@
 									<div class="text-sm ml-auto date">{{ latest.created_at|date('M d, Y', "Asia/Manila") }}</div>
 								</div>
 
-								<h1 class="text-4xl title mb-8">{{ latest.title }}</h1>
+								<h1 class="text-4xl title mb-4">{{ latest.title }}</h1>
+								<p class="text-sm text-gray-500 line-clamp-3 italic  mb-4">
+									{{ latest.summary }}
+								</p>
 								<a class="btn shadow border py-3 px-6 rounded-3xl font-light inline-block hover:scale-110 transition duration-300" href="blog/{{ latest.slug }}">Read {{latest.name|capitalize}}</a>
 
 							</div>
@@ -32,33 +35,36 @@
 					</div>
 				</div>
 				<div class="container-blog-card-side w-4/12">
-					<div class="flex container-blog-navigation justify-center mb-6">
-						<div class="flex round-corner p-1 w-9/12">
+					<div class="flex container-blog-navigation justify-center mb-3">
+						<div class="flex round-corner w-9/12">
 							<a class="blog-navigation transition-colors py-3 active w-1/2" href="/">Most Popular</a>
 							<a class="blog-navigation transition-colors py-3 w-1/2" href="/">Latest Post</a>
 						</div>
 					</div>
 					<div class="container-blog-card flex flex-col gap-3">
-
-					{% for item in data %}
-						{% if not loop.first %}
-							<div class="{{item.name}} card card-post w-full p-4 border rounded-lg shadow transition duration-300 hover:scale-105">
-								<div class="card-author flex gap-4 mb-2">
-									<div class="badge inline-flex items-center rounded-md  px-4 py-2 shadow">
-										<i class="icon-newspaper">
-											&nbsp
-										</i>{{ item.name|capitalize }}</div>
-									<div class="border-l pl-4 inline-flex gap-2">
-										<span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"><img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png"></span>
-										<p class="flex items-center name">{{ item.firstName|capitalize ~ ' ' ~ item.lastName|capitalize|first ~'.'}}</p>
+						{% for item in data %}
+							{% if not loop.first %}
+							<a href="blog/{{ item.slug }}">
+								<div class="{{item.name}} card card-post w-full p-4 border rounded-lg shadow transition duration-300 hover:scale-105">
+									<div class="card-author flex gap-4 mb-2">
+										<div class="badge inline-flex items-center rounded-md text-sm px-4 py-2 shadow">
+											<i class="icon-newspaper">
+												&nbsp
+											</i>{{ item.name|capitalize }}</div>
+										<div class="border-l pl-4 inline-flex gap-2">
+											<span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"><img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png"></span>
+											<p class="flex items-center name">{{ item.firstName|capitalize ~ ' ' ~ item.lastName|capitalize|first ~'.'}}</p>
+										</div>
+										<div class="text-sm ml-auto date">{{ item.created_at|date('M d, Y', "Asia/Manila") }}</div>
 									</div>
-									<div class="text-sm ml-auto date">{{ item.created_at|date('M d, Y', "Asia/Manila") }}</div>
+									<p class="font-semibold text-foreground title">{{item.title}}</p>
+									<p class="text-sm text-gray-500 line-clamp-2 italic">
+										{{ item.summary }}
+									</p>
 								</div>
-								<a class="font-semibold text-foreground title" href="blog/{{ item.slug }}">{{item.title}}</a>
-							</div>
-						{% endif %}
-					{% endfor %}
-
+							</a>
+							{% endif %}
+						{% endfor %}
 					</div>
 				</div>
 			</div>
