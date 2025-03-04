@@ -61,7 +61,7 @@ class BlogRepository extends ServiceEntityRepository
     public function getLatestBlogPost(){
         return $this->createQueryBuilder('b')
         ->leftJoin('b.category', 'c')
-        ->select('b.title', 'b.slug', 'b.htmlThumbnail', 'b.created_at')
+        ->select('b.title', 'b.slug', 'b.htmlThumbnail', 'b.created_at', 'b.summary')
         ->addSelect('c.name')
         ->leftJoin('b.account', 'a')
         ->addSelect('a.firstName', 'a.lastName')
