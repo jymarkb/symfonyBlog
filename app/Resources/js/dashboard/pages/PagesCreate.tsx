@@ -11,6 +11,7 @@ import { initEditor } from './Editor';
 import ThumbnailUploader from '../components/ThumbnailUploader';
 import ScrollListener from '../components/ScrollListener';
 import ToastMessage from '../components/ToastMessage';
+import { initPopup } from './Popup';
 
 class PagesCreate {
   constructor() {
@@ -21,8 +22,9 @@ class PagesCreate {
     initSideBarNavigation();
     this.initTinyFormEditor(); // for html,css,js editor
     ThumbnailUploader();
-    ScrollListener();
+    ScrollListener(); // for header action btn
     ToastMessage();
+    initPopup('btnPreview');
   }
 
   async initTinyFormEditor() {
