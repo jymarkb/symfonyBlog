@@ -2,9 +2,12 @@ import { blogContentConfig } from '../components/config/blogContentConfig';
 import { cssContentConfig } from '../components/config/cssContentConfig';
 import { jsContentConfig } from '../components/config/jsContentConfig';
 import { initSideBarNavigation } from '../components/SidebarNavigation';
+import {
+  htmlEditorConfig,
+  cssEditorConfig,
+  jsEditorConfig,
+} from '../components/config/pagesEditorConfig';
 import { initEditor } from './Editor';
-// import { initPopup } from './pages/Popup';
-// import { initEditor } from '../pages/Editor';
 
 class PagesCreate {
   constructor() {
@@ -13,44 +16,26 @@ class PagesCreate {
 
   init() {
     initSideBarNavigation();
-
-    initEditor({
-      ...this.htmlEditorConfig(),
-      contentConfig: blogContentConfig('create_new_page_htmlContent'),
-    });
-
-    initEditor({
-      ...this.cssEditorConfig(),
-      contentConfig: cssContentConfig('create_new_page_htmlStyle'),
-    });
-
-    initEditor({
-      ...this.jsEditorConfig(),
-      contentConfig: jsContentConfig('create_new_page_htmlScript'),
-    });
+    this.initTinyFormEditor(); // for html,css,js editor
   }
 
-  htmlEditorConfig() {
-    return {
-      containerId: 'htmlEditor',
-      containerTitle: 'Blog Content',
-    };
-  }
+  async initTinyFormEditor() {
+    const editorConfigs = [
+      {
+        ...htmlEditorConfig(),
+        contentConfig: blogContentConfig('create_new_page_htmlContent'),
+      },
+      {
+        ...cssEditorConfig(),
+        contentConfig: cssContentConfig('create_new_page_htmlStyle'),
+      },
+      {
+        ...jsEditorConfig(),
+        contentConfig: jsContentConfig('create_new_page_htmlScript'),
+      },
+    ];
 
-  cssEditorConfig() {
-    return {
-      containerId: 'cssEditor',
-      containerTitle: 'CSS Content',
-    };
-  }
-
-  jsEditorConfig() {
-    return {
-      containerId: 'jsEditor',
-      containerTitle: 'JS Content',
-    };
+    editorConfigs.forEach(initEditor);
   }
 }
-
 new PagesCreate();
-// create_new_page_htmlContent
