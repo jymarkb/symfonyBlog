@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
-use App\Entity\Blog;
 use App\Repository\BlogRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/blog', name: 'blog.')]
 final class BlogPageController extends AbstractController
@@ -30,6 +30,20 @@ final class BlogPageController extends AbstractController
         ]);
     }
 
+    #[Route('/search/{data}', name: 'search')]
+    public function hereQwerty(string $data): JsonResponse
+    {
+        $query = $data;
+        $allBlog = $this->blogRepository->findBy(
+            ['status' => (int) $data],
+            ['created_at' => 'DESC']
+        );    
+        return new JsonResponse([
+            'query' => $query,
+            'data' => $allBlog,
+        ]);
+    }
+    
     #[Route('/', name: 'index')]
     public function index(): Response
     {
