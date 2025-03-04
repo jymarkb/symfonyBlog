@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom/client';
 import BottomPopupForm from '../components/BottomPopupForm';
 import { PopupProps, PopupWrapperProps } from '../utils/props';
 
-export const initPopup = () => {
+export const initPopup = (btnActionTrigger: string) => {
   const popDivContainer = document.getElementById(
     'popup-container',
   ) as HTMLElement | null;
@@ -26,11 +26,21 @@ export const initPopup = () => {
     popup: HTMLElement | null,
     popupContainer: HTMLElement | null,
   ) => {
-    const btnAction = document.getElementById('btn-add');
+    const btnAction = document.getElementById(btnActionTrigger);
     btnAction?.addEventListener('click', () => {
+
+      const form = document.getElementById("blogForm") as HTMLFormElement;
+      const formData = new FormData(form);
+      if(form){
+        for( const [key,value] of formData){
+          console.log({'key':key, 'value':value});
+        }
+      }
+
       if (popup && popupContainer) {
         showPopup({ popup: popup, popupContainer: popupContainer });
       }
+      
     });
   };
 
