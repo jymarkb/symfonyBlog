@@ -10,6 +10,7 @@ import {
 import { initEditor } from './Editor';
 import ThumbnailUploader from '../components/ThumbnailUploader';
 import ScrollListener from '../components/ScrollListener';
+import ToastMessage from '../components/ToastMessage';
 
 class PagesCreate {
   constructor() {
@@ -21,6 +22,7 @@ class PagesCreate {
     this.initTinyFormEditor(); // for html,css,js editor
     ThumbnailUploader();
     ScrollListener();
+    ToastMessage();
   }
 
   async initTinyFormEditor() {
