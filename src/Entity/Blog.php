@@ -3,71 +3,87 @@
 namespace App\Entity;
 
 use App\Repository\BlogRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[ORM\Entity(repositoryClass: BlogRepository::class)]
+#[ORM\Table(
+    name: 'blog',
+    indexes: [
+        new ORM\Index(name: 'blog_status_idx', columns: ['status']),
+        new ORM\Index(name: 'blog_slug_idx', columns: ['slug']),
+        new ORM\Index(name: 'blog_created_idx', columns: ['created_at']),
+    ]
+)]
 class Blog
 {
+    public const DRAFTED = 1;
     public const PUBLISHED = 2;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'blog_id', type: 'integer')]
+    #[Groups(['blog:read'])]
     private ?int $blog_id = null;
 
     #[ORM\ManyToOne(targetEntity: Account::class, inversedBy: 'blogs')]
-    #[
-        ORM\JoinColumn(
-            name: 'account_id',
-            referencedColumnName: 'account_id',
-            nullable: false,
-            onDelete: 'CASCADE'
-        )
-    ]
+    #[ORM\JoinColumn(name: 'account_id', referencedColumnName: 'account_id', nullable: false, onDelete: 'CASCADE')]
     #[Groups(['blog:read'])]
     private ?Account $account = null;
 
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'blogs')]
-    #[
-        ORM\JoinColumn(
-            name: 'category_id',
-            referencedColumnName: 'category_id',
-            nullable: false,
-            onDelete: 'CASCADE'
-        )
-    ]
+    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'category_id', nullable: false, onDelete: 'CASCADE')]
     #[Groups(['blog:read'])]
     private ?Category $category = null;
+
+    #[ORM\OneToOne(targetEntity: BlogAnalytics::class, mappedBy: 'blog', cascade: ['persist', 'remove'])]
+    #[Groups(['blog:read'])]
+    private ?BlogAnalytics $blogAnalytics = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['blog:read', 'category:read'])]
     private ?string $title = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 1)]
     #[Groups(['blog:read', 'category:read'])]
-    private ?string $status = null;
+    private ?int $status = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['blog:read'])]
+    private ?string $summary = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['blog:read'])]
     private ?string $htmlContent = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['blog:read'])]
     private ?string $htmlStyle = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['blog:read'])]
     private ?string $htmlScript = null;
 
-    #[ORM\Column(type: 'text', length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['blog:read'])]
     private ?string $htmlThumbnail = null;
 
-    #[ORM\Column(type: 'text', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[Groups(['blog:read'])]
     private ?string $slug = null;
 
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['blog:read'])]
+    private bool $is_featured = false;
+
     #[ORM\Column]
+    #[Groups(['blog:read'])]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column]
+    #[Groups(['blog:read'])]
     private ?\DateTimeImmutable $updated_at = null;
 
     public function getId(): ?int
@@ -213,6 +229,52 @@ class Blog
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function isFeatured(): ?bool
+    {
+        return $this->is_featured;
+    }
+
+    public function setIsFeatured(bool $is_featured): static
+    {
+        $this->is_featured = $is_featured;
+
+        return $this;
+    }
+
+    public function getSummary(): ?string
+    {
+        return $this->summary;
+    }
+
+    public function setSummary(?string $summary): static
+    {
+        $this->summary = $summary;
+
+        return $this;
+    }
+
+    public function getBlogAnalytics(): ?BlogAnalytics
+    {
+        return $this->blogAnalytics;
+    }
+
+    public function setBlogAnalytics(?BlogAnalytics $blogAnalytics): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($blogAnalytics === null && $this->blogAnalytics !== null) {
+            $this->blogAnalytics->setBlog(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($blogAnalytics !== null && $blogAnalytics->getBlog() !== $this) {
+            $blogAnalytics->setBlog($this);
+        }
+
+        $this->blogAnalytics = $blogAnalytics;
 
         return $this;
     }
