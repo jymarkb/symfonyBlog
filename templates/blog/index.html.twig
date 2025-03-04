@@ -5,27 +5,29 @@
 		<div class="container-wrapper min-h-screen">
 			{% block content %}
                 <div class="container py-8 flex justify-center items-center">
-                    <div class="card-container flex flex-wrap gap-8 lg:max-w-[85%] max-w-[95%] justify-center items-center">
+                    <div class="card-container flex flex-wrap gap-8 lg:max-w-[90%] max-w-[95%] justify-center items-center">
                         {% for blog in blogs %}
-                            <div class="{{ blog.category.name|lower }} p-4 border shadow rounded max-w-sm bg-white hover:scale-105 transition duration-300 flex flex-col h-full">
+                            <div class="{{ blog.category.name|lower }} border shadow rounded max-w-sm bg-white hover:scale-105 transition duration-300 flex flex-col h-full">
                                 <!-- Card Content Wrapper -->
-                                <div class="flex-grow flex flex-col">
+                                {# public/img/blog/thumbnails #}
+                                <div class="flex-grow flex flex-col  p-4 pb-2">
                                     <a href="/blog/{{ blog.slug }}">
-                                        <img src="{{ blog.htmlThumbnail }}" class="w-full h-[250px] object-cover mb-2 rounded-md hover:opacity-90 transition" alt="image for card"/>
-                                        <h1 class="title font-semibold text-lg text-gray-800 line-clamp-2">
+                                        <img src="{{ asset('img/blog/thumbnails/'~ blog.htmlThumbnail) }}" class="w-full h-[250px] object-cover mb-2 rounded-md hover:opacity-90 transition" alt="image for card"/>
+                                        <h1 class="title font-semibold text-lg text-gray-800 line-clamp-2 text-justify">
                                             {{ blog.title }}
                                         </h1>
                                     </a>
-                                    <p class="text-sm text-gray-500 line-clamp-3 italic">
+                                    <p class="text-sm text-gray-500 line-clamp-3 italic text-justify">
                                         {{ blog.summary }}
                                     </p>
                                 </div>
 
                                 <!-- Card Footer: Aligns at the bottom -->
-                                <div class="blog-tag flex gap-2 items-center mt-auto">
-                                    <div class="badge inline-flex items-center rounded-sm px-4 py-2 shadow text-xs w-fit">
-                                        <i class="icon-newspaper">&nbsp;</i>Article
+                                <div class="blog-tag flex gap-2 items-center mt-auto pl-0 pb-4 pr-4">
+                                    <div class="badge inline-flex items-center px-4 py-2 shadow text-xs w-fit">
+                                        <i class="{{ blogIcon(blog.category.id) }}">&nbsp;</i>{{ blog.category.name }}
                                     </div>
+                                    
 
                                     <div class="border-l pl-2 inline-flex gap-2">
                                         <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-full">
@@ -35,10 +37,13 @@
                                             {{ blog.account.firstName|capitalize ~ ' ' ~ blog.account.lastName|first|capitalize ~ '.' }}
                                         </p>
                                     </div>
-
-                                    <div class="text-sm ml-auto date">
-                                        {{ blog.createdAt|date('M d, Y') }}
+                                    
+                                    <div class="text-xs ml-auto date flex flex-col">
+                                        <span>{{ blog.createdAt|date('M d, Y') }}</span>
+                                        <span>Reading Time: 3m</span>
                                     </div>
+
+                                    
                                 </div>
                             </div>
                         {% endfor %}

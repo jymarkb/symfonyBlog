@@ -68,7 +68,11 @@
 							<p class="mb-2 text-sm text-gray-500 dark:text-gray-400 text-center"><span class="font-semibold">Drop your thumbnail here </span>or click to upload.</p>
 							<p class="text-xs text-gray-500 dark:text-gray-400 text-center">Upload a high-quality thumbnail (JPG, PNG, WEBP – Max 2MB).</p>
 						</div>
-						{{ form_widget(form.htmlThumbnail)}}
+						{{ form_widget(form.htmlThumbnail, {
+							'attr':{
+								'accept': '.jpg, .jpeg, .png, .webp'
+							}
+						})}}
 					</label>
 
 					<div id="viewThumbnail" class="relative h-64 bg-primaryTheme-50 w-full border-solid border-2 border-primaryTheme rounded-lg flex justify-center items-center hidden">
