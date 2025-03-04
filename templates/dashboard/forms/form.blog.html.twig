@@ -9,21 +9,31 @@
 {% endblock %}
 
 {% block content %}
-	<button name="preview" class="bg-primary h-10 text-white px-3 mb-2">Preview</button>
-	<div class="form-wrapper flex justify-center lg:justify-start">
+	<div class="form-wrapper flex justify-center">
 		<div class="form-container lg:max-w-7xl w-[95%]">
 			{{ form_start(form, { 'attr':{
-				'class':'flex flex-col gap-4'
+				'class':'flex flex-col gap-4',
+				'id':'blogForm'
 			} ,'action': path('dashboard.pages.create'), 'method': 'POST'}) }}
-			{{ form_widget(form.title, { 
-				'attr': { 
-					'type': 'text', 
-					'placeholder': 'Title', 
-					'class':'border border-input bg-white p-3 text-base rounded-md shadow-sm  md:text-sm h-12 w-full' } }) }}
-			{{ form_widget(form.category, { 
-				'attr': { 
-					'type': 'select', 
-					'class':'border border-input bg-white p-3 text-base rounded-md shadow-sm md:text-sm h-12 w-full' } }) }}
+			<div class="flex gap-2 lg:flex-row flex-col">
+				<div class="lg:w-[60%] w-full flex-col flex gap-2">
+					{{ form_widget(form.title, { 
+						'attr': { 
+							'type': 'text', 
+							'placeholder': 'Title', 
+							'class':'border border-input bg-white p-3 text-base rounded-md shadow-sm  md:text-sm h-12 w-full' } }) }}
+					{{ form_widget(form.category, { 
+						'attr': { 
+							'type': 'select', 
+							'class':'border border-input bg-white p-3 text-base rounded-md shadow-sm md:text-sm h-12 w-full' } }) }}
+					
+					{{ form_widget(form.summary, { 
+						'attr': { 
+							'type': 'textarea', 
+							'placeholder': 'Write a short summary here...', 
+							'class':'border border-input bg-white p-3 text-base rounded-md shadow-sm  md:text-sm h-full w-full' } }) }}
+				</div>
+			</div>
 
 			<div id="htmlEditor"></div>
 			<div id="cssEditor"></div>
@@ -33,11 +43,11 @@
 			{{ form_widget(form.htmlScript)}}
 
 			<div class="flex gap-4">
-				<button type="submit" name="status" value="1" class="px-4 py-2 border rounded-md transition-colors bg-gray-500 text-white">
+				<button type="submit" name="status" value="1" class="hidden">
 					Save as Draft
 				</button>
 
-				<button type="submit" name="status" value="2" class="px-4 py-2 border rounded-md transition-colors bg-blue-500 text-white">
+				<button type="submit" name="status" value="2" class="hidden">
 					Publish
 				</button>
 			</div>

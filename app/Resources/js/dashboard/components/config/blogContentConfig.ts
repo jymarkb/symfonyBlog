@@ -3,7 +3,6 @@ import { Editor as TinyMCEEditor, EditorEvent } from 'tinymce';
 export const blogContentConfig = (textAreaId : string) => ({
   menubar: false,
   placeholder: 'Start typing your content here...',
-  height: 600,
   plugins: [
     'code',
     'image',
@@ -13,7 +12,12 @@ export const blogContentConfig = (textAreaId : string) => ({
     'wordcount',
     'lists',
     'table',
+    'autoresize'
   ],
+  min_height: 400,
+  max_height:800,
+  autoresize_max_height: 800,
+  autoresize_min_height: 400,
   // 🔹 Allow ALL elements and attributes
   valid_elements: '*[*]',
   valid_children:
@@ -70,7 +74,6 @@ export const blogContentConfig = (textAreaId : string) => ({
 
       if (testTextArea) {
         testTextArea.value = editor.getContent();
-        console.log(testTextArea.value);
       }
     });
 
