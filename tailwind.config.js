@@ -33,7 +33,11 @@ export default {
         200: 200,
       },
       colors: {
-        primaryTheme: 'hsl(var(--primary-theme))',
+        primaryTheme: {
+          DEFAULT: 'hsl(var(--primary-theme))',     
+          50: 'hsl(var(--primary-theme) / 0.1)',   // Lightest shade
+          100: 'hsl(var(--primary-theme) / 0.2)',
+        },
         secondaryTheme: 'hsl(var(--secondary-theme))',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
