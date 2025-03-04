@@ -1,3 +1,11 @@
+import { toast } from 'sonner';
+
+const showToastError = (message: string = 'Invalid File') => {
+  toast.error(message, {
+    description: 'Please upload a valid image file (JPG, JPEG, PNG, or WEBP).',
+  });
+};
+
 const fileTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/webp'];
 const ThumbnailUploader = () => {
   const fileInput = document.getElementById(
@@ -34,7 +42,7 @@ const ThumbnailUploader = () => {
 
   const handleFileValidation = (file: File | null): file is File => {
     if (!file || !fileTypes.includes(file.type)) {
-      // showToastError();
+      showToastError();
       return false;
     }
     return true;
