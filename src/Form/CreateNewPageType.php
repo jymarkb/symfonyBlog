@@ -18,15 +18,18 @@ use Symfony\Component\Validator\Constraints\File;
 
 class CreateNewPageType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
-    {
+    public function buildForm(
+        FormBuilderInterface $builder,
+        array $options
+    ): void {
         $builder
             ->add('title', TextType::class, [
                 'required' => true,
             ])
             ->add('status', HiddenType::class, [
-                'mapped' => false
+                'mapped' => false,
             ])
+            ->add('summary', TextareaType::class)
             // ->add('created_at', null, [
             //     'widget' => 'single_text',
             // ])
@@ -41,36 +44,52 @@ class CreateNewPageType extends AbstractType
                 'class' => Category::class,
                 'choice_label' => 'name',
                 'placeholder' => 'Select a category',
-                'required' => true
+                'required' => true,
             ])
             ->add('htmlContent', TextareaType::class, [
-                'required' => false,
-                'attr' => ['rows' => 6, 'class' => 'form-control hidden',  'placeholder' => 'Blog Content',],
+                'required' => true,
+                'attr' => [
+                    'rows' => 6,
+                    'class' => 'form-control hidden',
+                    'placeholder' => 'Blog Content',
+                ],
             ])
             ->add('htmlStyle', TextareaType::class, [
                 'required' => false,
-                'attr' => ['rows' => 4, 'class' => 'form-control hidden',  'placeholder' => 'Blog Style',],
+                'attr' => [
+                    'rows' => 4,
+                    'class' => 'form-control hidden',
+                    'placeholder' => 'Blog Style',
+                ],
             ])
             ->add('htmlScript', TextareaType::class, [
                 'required' => false,
-                'attr' => ['rows' => 4, 'class' => 'form-control hidden',  'placeholder' => 'Blog Script',],
+                'attr' => [
+                    'rows' => 4,
+                    'class' => 'form-control hidden',
+                    'placeholder' => 'Blog Script',
+                ],
             ])
-            // ->add('htmlThumbnail', FileType::class, [
-            //     'label' => 'Thumbnail Image',
-            //     'mapped' => false, // This prevents Symfony from automatically trying to save it as a string
-            //     'required' => false,
-            //     'constraints' => [
-            //         new File([
-            //             'maxSize' => '2M',
-            //             'mimeTypes' => ['image/jpeg', 'image/png', 'image/gif'],
-            //             'mimeTypesMessage' => 'Please upload a valid image file (JPEG, PNG, GIF)',
-            //         ]),
-            //     ],
-            // ]);
-            // ->add('_token', HiddenType::class, [
-            //     'mapped' => false,
-            // ])
-        ;
+            ->add('htmlThumbnail', FileType::class, [
+                'label' => 'Thumbnail Image',
+                'mapped' => false,
+                'required' => true,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp',
+                        ],
+                        'mimeTypesMessage' =>
+                            'Please upload a valid image file (JPG, JPEG, PNG, WEBP)',
+                    ]),
+                ],
+                'attr' => [
+                    'class' => 'hidden',
+                ],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

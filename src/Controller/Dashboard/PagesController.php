@@ -79,6 +79,7 @@ final class PagesController extends AbstractController
             $blog->setHtmlContent($data->gethtmlContent());
             $blog->setHtmlStyle($data->gethtmlStyle());
             $blog->setHtmlScript($data->gethtmlScript());
+            $blog->setSummary($data->getSummary());
 
 
             $this->em->persist($blog);
