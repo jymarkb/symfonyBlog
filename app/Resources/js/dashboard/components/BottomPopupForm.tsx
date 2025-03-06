@@ -1,7 +1,11 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { PopupProps, PopupWrapperProps } from '../utils/props';
+import { ReactNode } from 'react';
 
-const BottomPopupForm = ({ onReady }: PopupProps) => {
+const BottomPopupForm = ({
+  onReady,
+  children,
+}: PopupProps & { children: ReactNode }) => {
   const handleClickOutside = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
@@ -38,20 +42,11 @@ const BottomPopupForm = ({ onReady }: PopupProps) => {
       onClick={handleClickOutside}
     >
       <div
-        className="popup-container bg-white w-11/12 md:w-8/12 rounded-t-3xl p-5 shadow-lg transform translate-y-full transition-transform duration-500 overflow-y"
+        className="popup-container bg-white w-11/12 md:w-8/12 rounded-t-3xl p-5 shadow-lg transform translate-y-full transition-transform duration-500 max-h-[90%]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="form-wrapper bg-primary p-4 rounded-lg">
-          <h2 className="text-lg font-semibold text-white">Popup Form</h2>
-          <p className="text-sm text-white">Your form elements go here.</p>
-          <button className="mt-4 bg-white text-primary px-4 py-2 rounded-lg">
-            Submit
-          </button>
-          <h2 className="text-lg font-semibold text-white">Popup Form</h2>
-          <p className="text-sm text-white">Your form elements go here.</p>
-          <button className="mt-4 bg-white text-primary px-4 py-2 rounded-lg">
-            Submit
-          </button>
+        <div className="form-wrapper p-4 pb-36 rounded-lg max-h-[100vh] overflow-y-auto">
+          {children}
         </div>
       </div>
     </div>
