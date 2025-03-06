@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 const showToastError = (message: string = 'Invalid File') => {
   toast.error(message, {
     description: 'Please upload a valid image file (JPG, JPEG, PNG, or WEBP).',
+    duration:1500
   });
 };
 

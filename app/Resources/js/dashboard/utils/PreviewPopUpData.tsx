@@ -60,6 +60,7 @@ const PreviewPopUpData = async () => {
     toast.error('Form Submission Error: Missing Required Fields', {
       description:
         'Please fill in the required fields: Title, Category, Summary, Body Content',
+      duration: 1500,
     });
     return { openModal: false, data: null };
   }

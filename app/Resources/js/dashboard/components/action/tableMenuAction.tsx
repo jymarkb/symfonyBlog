@@ -28,10 +28,10 @@ export const deleteBlog = ({ id }: { id: string }) => {
   );
 };
 
-// export const shareBlog = ({ id }: { id: string }) => {
-//   console.log(id);
-//   toast.success('Link Copied!', {
-//     description: 'The link has been copied to your clipboard.',
-//     duration: 1500,
-//   });
-// };
+export const shareBlog = ({ id }: { id: string }) => {
+  console.log(id);
+  toast.success('Link Copied!', {
+    description: 'The link has been copied to your clipboard.',
+    duration: 1500,
+  });
+};
