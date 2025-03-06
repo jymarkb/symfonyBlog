@@ -31,8 +31,8 @@
 		{% endfor %}
 	{% endfor %}
 
-	<div class="table-wrapper relative w-full overflow-auto rounded-md border max-h-128 z-10">
-		<table class="w-full caption-bottom text-sm bg-white shadow">
+	<div class="table-wrapper relative w-full overflow-auto rounded-md border max-h-[90%] z-10">
+		<table id="blogTable" class="w-full caption-bottom text-sm bg-white shadow">
 			<thead class="[&_tr]:border-b sticky top-0 bg-white">
 				<tr class="transition-colors  border-b">
 					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground">
@@ -86,14 +86,17 @@
 							{{ blog.updatedAt|date('M d, Y H:i:s A', "Asia/Manila") }}
 						</td>
 						<td class="p-2 align-middle">
-							<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0" type="button" id="radix-:r18:" aria-haspopup="menu" aria-expanded="false" data-state="closed">
+							<button id="{{ blog.id }}" class="btn-tableAction inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none hover:bg-primaryTheme-100 hover:text-accent-foreground h-8 w-8 p-0" data-dropdown='true' type="button" aria-haspopup="menu" aria-expanded="false" data-uri="{{ blog.id }}">
 								<i class="icon-ellipsis"></i>
 							</button>
+							<div id="dropdown-{{blog.id}}" class="dropdown-wrapper opacity-0"></div>
 						</td>
 					</tr>
 				{% endfor %}
 			</tbody>
 		</table>
+
+		<div id="table-action-container"></div>
 
 	</div>
 
