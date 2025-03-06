@@ -32,17 +32,17 @@ class PagesService
             $account = $this->security->getUser();
             $thumbnail = $this->thumbnailUpload($data['file']);
 
-            $blog->setTitle($data['formData']->getTitle());
-            $blog->setStatus($data['status']);
+            $blog->setTitle($data['formData']->getTitle() ?? '');
+            $blog->setStatus($data['status'] ?? 0);
             $blog->setAccount($account);
             $blog->setCategory($category);
-            $blog->setCreatedAt(new \DateTimeImmutable('now'));
-            $blog->setUpdatedAt(new \DateTimeImmutable('now'));
+            $blog->setCreatedAt(new \DateTimeImmutable());
+            $blog->setUpdatedAt(new \DateTimeImmutable());
             $blog->generateSlug($this->slugger);
-            $blog->setHtmlContent($data['formData']->gethtmlContent());
-            $blog->setHtmlStyle($data['formData']->gethtmlStyle());
-            $blog->setHtmlScript($data['formData']->gethtmlScript());
-            $blog->setSummary($data['formData']->getSummary());
+            $blog->setHtmlContent($data['formData']->getHtmlContent() ?? '');
+            $blog->setHtmlStyle($data['formData']->getHtmlStyle() ?? '');
+            $blog->setHtmlScript($data['formData']->getHtmlScript() ?? '');
+            $blog->setSummary($data['formData']->getSummary() ?? '');
             $blog->setHtmlThumbnail($thumbnail);
             $this->em->persist($blog);
             $this->em->flush();
