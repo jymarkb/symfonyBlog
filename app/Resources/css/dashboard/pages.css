@@ -22,3 +22,15 @@
   place-content: end;
 }
 
+.dropdown-container {
+  opacity: 0;
+  transform: translateX(10px); /* Start from the right */
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  pointer-events: none; /* Prevent interaction when hidden */
+}
+
+.dropdown-container.visible {
+  opacity: 1;
+  transform: translateX(0); /* Move to its original position */
+  pointer-events: auto;
+}

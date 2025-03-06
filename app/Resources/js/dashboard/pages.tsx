@@ -1,8 +1,7 @@
 import SearchBar from './components/SearchBar';
 import { initSideBarNavigation } from './components/SidebarNavigation';
-// import TableAction from './components/TableAction';
-// import { initPopup } from './pages/Popup';
-// import { initEditor } from './pages/Editor';
+import TableAction from './components/TableAction';
+import ToastMessage from './components/ToastMessage';
 
 class Pages {
   constructor() {
@@ -11,10 +10,9 @@ class Pages {
 
   init() {
     initSideBarNavigation();
-    // initPopup();
-    // initEditor('htmlEditor');
     SearchBar();
-    // TableAction();
+    ToastMessage();
+     TableAction();
   }
 }
 
