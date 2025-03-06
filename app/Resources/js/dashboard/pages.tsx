@@ -1,6 +1,6 @@
 import { initSideBarNavigation } from './components/SidebarNavigation';
 // import { initPopup } from './pages/Popup';
-import { initEditor } from './pages/Editor';
+// import { initEditor } from './pages/Editor';
 
 class Pages {
   constructor() {

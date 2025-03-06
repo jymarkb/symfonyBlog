@@ -15,15 +15,21 @@
 				<i class="icon-plus"></i>
 				<span>Add new</span>
 			</a>
-
-			{# <button class="h-10 px-3 py-1 text-sm rounded-md bg-primaryTheme text-white flex flex-nowrap gap-2 items-center w-full max-w-28 cursor-pointer" id="btn-add" >
-				<i class="icon-plus"></i>
-				<span>Add new</span>
-			</button>
-			 #}
 			<input id="pageSearch" type="text" class="border border-input bg-white/50 px-3 px-1 text-base rounded-md shadow transition-colors placeholder:text-muted-foreground md:text-sm h-10 w-full max-w-lg" placeholder="Search here...">
 		</div>
 	</div>
+
+	{% for label, messages in app.flashes(['success', 'error']) %}
+		{% for message in messages %}
+			<div role="alert" class="relative w-full rounded-lg border px-4 py-3 text-sm {{ label is same as('success') ? 'border-green-500 text-green-500' : 'border-red-500 text-red-500' }} mb-2 flex gap-2">
+				<i class="icon-badge-{{ label is same as('success')? 'check' : 'x' }} text-3xl"></i>
+				<div>
+					<h5 class="mb-1 font-medium leading-none tracking-tight">{{ label|capitalize }}</h5>
+					<p class="text-sm">{{ message }}</p>
+				</div>
+			</div>
+		{% endfor %}
+	{% endfor %}
 
 	<div class="table-wrapper relative w-full overflow-auto rounded-md border max-h-128 z-10">
 		<table class="w-full caption-bottom text-sm bg-white shadow">

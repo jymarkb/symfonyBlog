@@ -42,26 +42,47 @@ final class PagesController extends AbstractController
     {
         $blog = new Blog();
         $form = $this->createForm(CreateNewPageType::class, $blog);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $status = $request->get('status');
-            $file = $request->files->get('create_new_page')['htmlThumbnail'];
+            $status = $request->get('status', null);
+            $file = $request->files->get('create_new_page')['htmlThumbnail'] ?? null;
+
             $data = [
                 'formData' => $form->getData(),
                 'status' => $status,
                 'file' => $file,
             ];
 
-            $createPage = $this->pagesService->CreatePage($data, $blog);
-            if ($createPage) return $this->redirect($this->generateUrl('dashboard.pages'));
+            try {
+                if ($this->pagesService->CreatePage($data, $blog)) {
+                    $this->addFlash('success', 'Page created successfully!');
+                    return $this->redirectToRoute('dashboard.pages');
+                }
 
-            return $createPage;
+                $this->addFlash('error', 'Failed to create the page.');
+            } catch (\Throwable $e) {
+                $this->addFlash('error', 'Error: ' . $e->getMessage());
+            }
         }
 
-        return $this->render('dashboard/forms/form.blog.html.twig', [
+        return $this->render('dashboard/component/form.blog.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/pages/preview', name: 'pages.preview')]
+    public function pagePreview(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data) {
+            return new Response('Invalid JSON data', Response::HTTP_BAD_REQUEST);
+        }
+
+        // dump($data); die;
+        return $this->render('dashboard/component/preview.blog.html.twig', [
+            'data' => $data,
         ]);
     }
 }
