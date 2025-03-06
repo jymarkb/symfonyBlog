@@ -21,6 +21,7 @@
 
 ###> symfony/asset-mapper ###
 /public/assets/
+/public/img/blog/thumbnails/
 /assets/vendor/
 ###< symfony/asset-mapper ###
 
@@ -31,3 +32,4 @@
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
+
