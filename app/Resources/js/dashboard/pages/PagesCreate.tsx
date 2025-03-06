@@ -7,11 +7,12 @@ import {
   cssEditorConfig,
   jsEditorConfig,
 } from '../components/config/pagesEditorConfig';
-import { initEditor } from './Editor';
+import { initEditor } from '../components/Editor';
 import ThumbnailUploader from '../components/ThumbnailUploader';
 import ScrollListener from '../components/ScrollListener';
 import ToastMessage from '../components/ToastMessage';
-import { initPopup } from './Popup';
+import { popUpModal } from '../components/Popup';
+import PreviewPopUpData from '../utils/PreviewPopUpData';
 
 class PagesCreate {
   constructor() {
@@ -24,7 +25,7 @@ class PagesCreate {
     ThumbnailUploader();
     ScrollListener(); // for header action btn
     ToastMessage();
-    initPopup('btnPreview');
+    popUpModal('btnPreview', () => PreviewPopUpData());
   }
 
   async initTinyFormEditor() {
