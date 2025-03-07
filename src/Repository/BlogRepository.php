@@ -44,9 +44,9 @@ class BlogRepository extends ServiceEntityRepository
     public function showAllPages(): array
     {
         return $this->createQueryBuilder('b')
-        ->orderBy('b.blog_id', 'DESC')
-        ->getQuery()
-        ->getResult();
+            ->orderBy('b.blog_id', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
     public function showPageByStatusId(int $statusId = Blog::PUBLISHED): array
     {
@@ -58,16 +58,38 @@ class BlogRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function getLatestBlogPost(){
+    public function getLatestBlogPost()
+    {
         return $this->createQueryBuilder('b')
-        ->leftJoin('b.category', 'c')
-        ->select('b.title', 'b.slug', 'b.htmlThumbnail', 'b.created_at', 'b.summary')
-        ->addSelect('c.name', 'c.category_id')
-        ->leftJoin('b.account', 'a')
-        ->addSelect('a.firstName', 'a.lastName')
-        ->orderBy('b.created_at', 'DESC')
-        ->setMaxResults(4)
-        ->getQuery()
-        ->getResult();
+            ->leftJoin('b.category', 'c')
+            ->select(
+                'b.title',
+                'b.slug',
+                'b.htmlThumbnail',
+                'b.created_at',
+                'b.summary'
+            )
+            ->addSelect('c.name', 'c.category_id')
+            ->leftJoin('b.account', 'a')
+            ->addSelect('a.firstName', 'a.lastName')
+            ->orderBy('b.created_at', 'DESC')
+            ->setMaxResults(4)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getBlogByTitle(string $title)
+    {
+        return $this->createQueryBuilder('b')
+                ->select('b.blog_id', 'b.title', 'b.created_at', 'b.updated_at', 'b.status')
+                ->leftJoin('b.category', 'c')
+                ->addSelect('c.category_id', 'c.name')
+                ->leftJoin('b.account', 'a')
+                ->addSelect('a.firstName', 'a.lastName')
+                ->where('b.title LIKE :paramTitle')
+                ->setParameter('paramTitle', '%' . $title . '%')
+                ->getQuery()
+                ->getArrayResult();
+
     }
 }

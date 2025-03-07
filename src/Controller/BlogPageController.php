@@ -30,20 +30,25 @@ final class BlogPageController extends AbstractController
         ]);
     }
 
-    #[Route('/search/{data}', name: 'search')]
-    public function hereQwerty(string $data): JsonResponse
+    #[Route('/search/{title}', name: 'search')]
+    public function searchBlogByTitle(string $title): Response
     {
-        $query = $data;
-        $allBlog = $this->blogRepository->findBy(
-            ['status' => (int) $data],
-            ['created_at' => 'DESC']
-        );    
-        return new JsonResponse([
-            'query' => $query,
-            'data' => $allBlog,
-        ]);
+        $query = $title;
+        $blogData = $this->blogRepository->getBlogByTitle($title);
+
+        if (empty($blogData)) {
+            return new Response(
+                json_encode([
+                    'error' => 'No matching blogs found',
+                    'query' => $title,
+                ])
+            );
+        }
+        return new Response(
+            json_encode(['query' => $title, 'data' => $blogData])
+        );
     }
-    
+
     #[Route('/', name: 'index')]
     public function index(): Response
     {
