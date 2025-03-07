@@ -37,6 +37,7 @@ export default {
           DEFAULT: 'hsl(var(--primary-theme))',     
           50: 'hsl(var(--primary-theme) / 0.1)',   // Lightest shade
           100: 'hsl(var(--primary-theme) / 0.2)',
+          900: 'hsl(var(--primary-theme) / 0.9)',
         },
         secondaryTheme: 'hsl(var(--secondary-theme))',
         border: 'hsl(var(--border))',

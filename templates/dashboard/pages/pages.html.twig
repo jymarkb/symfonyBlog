@@ -6,6 +6,19 @@
 
 {% block javascripts %}
 	{{ encore_entry_script_tags('dashboard/pages/script') }}
+	// <script>
+    //     document.addEventListener("DOMContentLoaded", function () {
+    //         setTimeout(() => {
+    //             {% for label, messages in app.flashes(['success', 'error']) %}
+    //                 {% for message in messages %}
+    //                     document.dispatchEvent(new CustomEvent("show-toast", {
+    //                         detail: { type: "{{ label }}", message: "{{ message }}" }
+    //                     }));
+    //                 {% endfor %}
+    //             {% endfor %}
+    //         }, 250);
+    //     });
+    // </script>
 {% endblock %}
 
 {% block content %}
@@ -15,23 +28,16 @@
 				<i class="icon-plus"></i>
 				<span>Add new</span>
 			</a>
-			<input id="pageSearch" type="text" class="border border-input bg-white/50 px-3 px-1 text-base rounded-md shadow transition-colors placeholder:text-muted-foreground md:text-sm h-10 w-full max-w-lg" placeholder="Search here...">
+			<div class="max-w-lg w-full flex justify-center items-center">
+				<input id="pageSearch" type="text" class="border border-input bg-white/50 px-3 px-1 text-base rounded-md shadow transition-colors placeholder:text-muted-foreground md:text-sm h-10 w-full" placeholder="Type a blog title to search...">
+				<button id="btnSearch" class="ml-[-35px] bg-primaryTheme h-7 w-7 text-white rounded-full flex items-center justify-center text-sm hover:bg-primaryTheme-900"><i class="icon-search"></i></button>
+				<button id="clearSearch" class="text-lg text-primaryTheme font-bold ml-[-50px] flex items-center justify-center opacity-0 transition duration-300"><i class="icon-x"></i></button>
+			</div>
+
 		</div>
 	</div>
 
-	{% for label, messages in app.flashes(['success', 'error']) %}
-		{% for message in messages %}
-			<div role="alert" class="relative w-full rounded-lg border px-4 py-3 text-sm {{ label is same as('success') ? 'border-green-500 text-green-500' : 'border-red-500 text-red-500' }} mb-2 flex gap-2">
-				<i class="icon-badge-{{ label is same as('success')? 'check' : 'x' }} text-3xl"></i>
-				<div>
-					<h5 class="mb-1 font-medium leading-none tracking-tight">{{ label|capitalize }}</h5>
-					<p class="text-sm">{{ message }}</p>
-				</div>
-			</div>
-		{% endfor %}
-	{% endfor %}
-
-	<div class="table-wrapper relative w-full overflow-auto rounded-md border max-h-[90%] z-10">
+	<div class="table-wrapper relative w-full overflow-auto rounded-md border max-h-[530px] z-10">
 		<table id="blogTable" class="w-full caption-bottom text-sm bg-white shadow">
 			<thead class="[&_tr]:border-b sticky top-0 bg-white">
 				<tr class="transition-colors  border-b">
@@ -86,7 +92,7 @@
 							{{ blog.updatedAt|date('M d, Y H:i:s A', "Asia/Manila") }}
 						</td>
 						<td class="p-2 align-middle">
-							<button id="{{ blog.id }}" class="btn-tableAction inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none hover:bg-primaryTheme-100 hover:text-accent-foreground h-8 w-8 p-0" data-dropdown='true' type="button" aria-haspopup="menu" aria-expanded="false" data-uri="{{ blog.id }}">
+							<button id="{{ blog.id }}" class="btn-tableAction inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none hover:bg-primaryTheme-100 hover:text-accent-foreground h-8 w-8 p-0" data-dropdown='true' type="button" data-id={{blog.id}} data-slug={{ blog.slug }} data-title={{blog.title | e('html_attr')}} aria-haspopup="menu" aria-expanded="false" data-uri='{{ blog.id }}'>
 								<i class="icon-ellipsis"></i>
 							</button>
 							<div id="dropdown-{{blog.id}}" class="dropdown-wrapper opacity-0"></div>
@@ -95,9 +101,6 @@
 				{% endfor %}
 			</tbody>
 		</table>
-
-		<div id="table-action-container"></div>
-
 	</div>
 
 	<div class="flex items-center justify-end space-x-2 py-4">
@@ -107,8 +110,4 @@
 			<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs" disabled="">Next</button>
 		</div>
 	</div>
-
-	{# <div id="blog-root" data-blogs='{{ blogs|json_encode|raw }}'></div> #}
-
-
 {% endblock %}
