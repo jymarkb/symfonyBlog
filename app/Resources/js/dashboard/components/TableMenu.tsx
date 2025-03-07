@@ -6,8 +6,9 @@ import {
   editBlog,
   previewBlog,
 } from './action/tableMenuAction';
+import { ButtonTableProps } from '../utils/props';
 
-const TableMenu = ({ dataId }: { dataId: string }) => {
+const TableMenu = ({ data }: { data: ButtonTableProps }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [dialogContent, setDialogContent] = useState<ReactNode>(null);
   return (
@@ -21,14 +22,14 @@ const TableMenu = ({ dataId }: { dataId: string }) => {
       <ul className="p-1 cursor-pointer text-md">
         <li
           className="hover:bg-accent hover:text-accent-foreground p-2 rounded flex"
-          onClick={() => editBlog({ id: dataId })}
+          // onClick={() => editBlog({ id: dataId })}
         >
           <span>Edit</span>
           <i className="ml-auto text-xs tracking-widest opacity-60 icon-pencil"></i>
         </li>
         <li
           className="hover:bg-accent hover:text-accent-foreground p-2 rounded flex"
-          onClick={() => previewBlog({ id: dataId })}
+          onClick={() => previewBlog({ slug: data.slug })}
         >
           <span>Preview</span>
           <i className="ml-auto text-xs tracking-widest opacity-60 icon-eye"></i>
@@ -36,7 +37,7 @@ const TableMenu = ({ dataId }: { dataId: string }) => {
         <li
           className="hover:bg-accent hover:text-accent-foreground p-2 rounded flex"
           onClick={() => {
-            setDialogContent(deleteBlog({ id: dataId }));
+            setDialogContent(deleteBlog({ id: data.id, title: data.title }));
             setOpenDelete(true);
           }}
         >
@@ -45,7 +46,7 @@ const TableMenu = ({ dataId }: { dataId: string }) => {
         </li>
         <li
           className="hover:bg-accent hover:text-accent-foreground p-2 rounded flex w-full"
-          onClick={() => shareBlog({ id: dataId })}
+          onClick={() => shareBlog({ slug: data.slug })}
         >
           <span>Share</span>
           <i className="ml-auto text-xs tracking-widest opacity-60 icon-share-2"></i>

@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[Route('/dashboard', name: 'dashboard.')]
 #[IsGranted('IS_AUTHENTICATED_FULLY')]
@@ -18,13 +19,16 @@ final class PagesController extends AbstractController
 {
     private BlogRepository $blogRepository;
     private PagesService $pagesService;
+    private EntityManagerInterface $em;
 
     public function __construct(
         BlogRepository $blogRepository,
-        PagesService $pagesService
+        PagesService $pagesService,
+        EntityManagerInterface $em
     ) {
         $this->blogRepository = $blogRepository;
         $this->pagesService = $pagesService;
+        $this->em = $em;
     }
 
     #[Route('/pages', name: 'pages')]
@@ -46,7 +50,9 @@ final class PagesController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $status = $request->get('status', null);
-            $file = $request->files->get('create_new_page')['htmlThumbnail'] ?? null;
+            $file =
+                $request->files->get('create_new_page')['htmlThumbnail'] ??
+                null;
 
             $data = [
                 'formData' => $form->getData(),
@@ -77,12 +83,24 @@ final class PagesController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         if (!$data) {
-            return new Response('Invalid JSON data', Response::HTTP_BAD_REQUEST);
+            return new Response(
+                'Invalid JSON data',
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
-        // dump($data); die;
         return $this->render('dashboard/component/preview.blog.html.twig', [
             'data' => $data,
         ]);
+    }
+
+    #[Route('/pages/delete/{id}', name: 'pages.preview')]
+    public function deletePage(int $id): Response
+    {
+        $blog = $this->blogRepository->find($id);
+        $this->em->remove($blog);
+        $this->em->flush();
+        $this->addFlash('success', 'The blog has been deleted.');
+        return new Response(json_encode(["success"=>true]),200);
     }
 }
