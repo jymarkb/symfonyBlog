@@ -1,12 +1,20 @@
 import ReactDom from 'react-dom/client';
 import TableDropDown from './TableDropDown';
 import TableMenu from './TableMenu';
+import { ButtonTableProps } from '../utils/props';
 
 const rootInstances = new Map<string, ReactDom.Root>();
 
 const TableAction = () => {
   const tableId = document.getElementById('blogTable');
+
   if (!tableId) return;
+  
+  const selectedData: ButtonTableProps = {
+    id: 0,
+    slug: '',
+    title: '',
+  };
 
   const handleClick = (e: MouseEvent) => {
     e.stopPropagation();
@@ -17,11 +25,19 @@ const TableAction = () => {
       return;
     }
 
-    const targetBtn = targetElement.closest('button');
+    const targetBtn = targetElement.closest(
+      'button[data-dropdown="true"]',
+    ) as HTMLButtonElement | null;
     if (!targetBtn || !tableId.contains(e.target as Node)) {
       closeAllDropdowns();
       return;
     }
+
+    Object.assign(selectedData, {
+      id: targetBtn.getAttribute('data-id') ?? '',
+      slug: targetBtn.getAttribute('data-slug') ?? '',
+      title: targetBtn.getAttribute('data-title') ?? '',
+    });
 
     const dropdownId = `dropdown-${targetBtn.id}`;
     const dropdownContainer = document.getElementById(dropdownId);
@@ -58,7 +74,7 @@ const TableAction = () => {
 
     root.render(
       <TableDropDown targetX={targetX} targetY={targetY} isVisible={isVisible}>
-        <TableMenu dataId={dataId} />
+        <TableMenu data={selectedData} />
       </TableDropDown>,
     );
   };

@@ -12,7 +12,7 @@ class Pages {
     initSideBarNavigation();
     SearchBar();
     ToastMessage();
-     TableAction();
+    TableAction();
   }
 }
 
