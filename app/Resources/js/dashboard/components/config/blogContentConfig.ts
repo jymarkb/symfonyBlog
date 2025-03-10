@@ -1,6 +1,6 @@
 import { Editor as TinyMCEEditor, EditorEvent } from 'tinymce';
-
-export const blogContentConfig = (textAreaId : string) => ({
+import { editorCustomStyle } from '../../utils/editorCustomStyle';
+export const blogContentConfig = (textAreaId: string) => ({
   menubar: false,
   placeholder: 'Start typing your content here...',
   plugins: [
@@ -12,10 +12,10 @@ export const blogContentConfig = (textAreaId : string) => ({
     'wordcount',
     'lists',
     'table',
-    'autoresize'
+    'autoresize',
   ],
   min_height: 400,
-  max_height:800,
+  max_height: 800,
   autoresize_max_height: 800,
   autoresize_min_height: 400,
   // 🔹 Allow ALL elements and attributes
@@ -45,7 +45,7 @@ export const blogContentConfig = (textAreaId : string) => ({
   paste_auto_cleanup_on_paste: false,
   toolbar:
     'undo redo | formatselect | bold italic underline strikethrough | link image media | code | bullist numlist | table',
-  content_style: `body { background: #f9f9f9; }`,
+  content_style: editorCustomStyle,
   branding: false,
   promotion: false,
   telemetry: false,
