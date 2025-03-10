@@ -2,12 +2,10 @@
 
 namespace App\Form;
 
-use App\Entity\Account;
 use App\Entity\Blog;
 use App\Entity\Category;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ButtonType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -30,16 +28,6 @@ class CreateNewPageType extends AbstractType
                 'mapped' => false,
             ])
             ->add('summary', TextareaType::class)
-            // ->add('created_at', null, [
-            //     'widget' => 'single_text',
-            // ])
-            // ->add('updated_at', null, [
-            //     'widget' => 'single_text',
-            // ])
-            // ->add('account', EntityType::class, [
-            //     'class' => Account::class,
-            //     'choice_label' => 'id',
-            // ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name',
@@ -56,6 +44,7 @@ class CreateNewPageType extends AbstractType
             ])
             ->add('htmlStyle', TextareaType::class, [
                 'required' => false,
+                'empty_data' => '',
                 'attr' => [
                     'rows' => 4,
                     'class' => 'form-control hidden',
@@ -64,6 +53,7 @@ class CreateNewPageType extends AbstractType
             ])
             ->add('htmlScript', TextareaType::class, [
                 'required' => false,
+                'empty_data' => '',
                 'attr' => [
                     'rows' => 4,
                     'class' => 'form-control hidden',
@@ -73,7 +63,7 @@ class CreateNewPageType extends AbstractType
             ->add('htmlThumbnail', FileType::class, [
                 'label' => 'Thumbnail Image',
                 'mapped' => false,
-                'required' => true,
+                'required' => $options['isEditPage'] ? false : true,
                 'constraints' => [
                     new File([
                         'maxSize' => '2M',
@@ -83,7 +73,7 @@ class CreateNewPageType extends AbstractType
                             'image/webp',
                         ],
                         'mimeTypesMessage' =>
-                            'Please upload a valid image file (JPG, JPEG, PNG, WEBP)',
+                        'Please upload a valid image file (JPG, JPEG, PNG, WEBP)',
                     ]),
                 ],
                 'attr' => [
@@ -96,6 +86,7 @@ class CreateNewPageType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Blog::class,
+            'isEditPage' => false,
         ]);
     }
 }
