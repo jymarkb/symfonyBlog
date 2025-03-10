@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\Blog;
 use Doctrine\ORM\EntityManagerInterface;
-use Error;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -47,7 +46,7 @@ class PagesService
             $this->em->persist($blog);
             $this->em->flush();
             return true;
-        } catch (Error $e) {
+        } catch (\Throwable $e) {
             return new Response('Create Error:' . $e);
         }
     }
@@ -77,5 +76,33 @@ class PagesService
         $file->move($this->targetDirectory, $fileName);
 
         return $fileName;
+    }
+
+    public function EditPage(array $newData)
+    {
+        try {
+            $formData = $newData['formData'];
+            if (isset($newData['status'])) {
+                $formData->setStatus($newData['status']);
+            }
+
+            if ($formData->getTitle()) {
+                $formData->generateSlug($this->slugger);
+            }
+
+            if (isset($newData['file'])) {
+                $thumbnail = $this->thumbnailUpload($newData['file']);
+                $formData->setHtmlThumbnail($thumbnail);
+            }
+
+            $this->em->persist($formData);
+            $this->em->flush();
+
+            return true;
+        } catch (\Throwable $e) {
+            return $e;
+        }
+
+        return false;
     }
 }

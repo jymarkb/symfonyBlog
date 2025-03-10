@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\CategoryRepository;
 
 #[Route('/dashboard', name: 'dashboard.')]
 #[IsGranted('IS_AUTHENTICATED_FULLY')]
@@ -20,15 +21,18 @@ final class PagesController extends AbstractController
     private BlogRepository $blogRepository;
     private PagesService $pagesService;
     private EntityManagerInterface $em;
+    private CategoryRepository $categoryRepository;
 
     public function __construct(
         BlogRepository $blogRepository,
         PagesService $pagesService,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        CategoryRepository $categoryRepository
     ) {
         $this->blogRepository = $blogRepository;
         $this->pagesService = $pagesService;
         $this->em = $em;
+        $this->categoryRepository = $categoryRepository;
     }
 
     #[Route('/pages', name: 'pages')]
@@ -49,18 +53,8 @@ final class PagesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $status = $request->get('status', null);
-            $file =
-                $request->files->get('create_new_page')['htmlThumbnail'] ??
-                null;
-
-            $data = [
-                'formData' => $form->getData(),
-                'status' => $status,
-                'file' => $file,
-            ];
-
             try {
+                $data = $this->formatData($form, $request);
                 if ($this->pagesService->CreatePage($data, $blog)) {
                     $this->addFlash('success', 'Page created successfully!');
                     return $this->redirectToRoute('dashboard.pages');
@@ -74,6 +68,8 @@ final class PagesController extends AbstractController
 
         return $this->render('dashboard/component/form.blog.html.twig', [
             'form' => $form->createView(),
+            'titleForm' => 'Create New Blog Page',
+            'submitPath' => 'dashboard.pages.create'
         ]);
     }
 
@@ -81,7 +77,9 @@ final class PagesController extends AbstractController
     public function pagePreview(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
-
+        $category = $this->categoryRepository->find(
+            $data['create_new_page[category]']
+        );
         if (!$data) {
             return new Response(
                 'Invalid JSON data',
@@ -91,16 +89,71 @@ final class PagesController extends AbstractController
 
         return $this->render('dashboard/component/preview.blog.html.twig', [
             'data' => $data,
+            'category' => $category,
         ]);
     }
 
-    #[Route('/pages/delete/{id}', name: 'pages.preview')]
+    #[Route('/pages/delete/{id}', name: 'pages.delete')]
     public function deletePage(int $id): Response
     {
         $blog = $this->blogRepository->find($id);
         $this->em->remove($blog);
         $this->em->flush();
         $this->addFlash('success', 'The blog has been deleted.');
-        return new Response(json_encode(["success"=>true]),200);
+        return new Response(json_encode(['success' => true]), 200);
+    }
+
+    #[Route('/pages/edit/{slug}', name: 'pages.edit')]
+    public function editPage(string $slug, Request $request): Response
+    {
+        $blog = $this->blogRepository->findOneBy(['slug' => $slug]);
+
+        if (!$blog) {
+            throw $this->createNotFoundException('Page not found');
+        }
+
+        $form = $this->createForm(CreateNewPageType::class, $blog);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $data = $this->formatData($form, $request);
+                $updateData = $this->pagesService->editPage($data);
+                if ($updateData) {
+                    $this->addFlash('success', 'Page successfully updated!');
+                    return $this->redirectToRoute('dashboard.pages');
+                }
+
+                $this->addFlash('error', 'Failed to update the page.');
+            } catch (\Throwable $e) {
+                $this->addFlash('error', 'Error: ' . $e->getMessage());
+            }
+        }
+
+        return $this->render('dashboard/component/form.blog.html.twig', [
+            'form' => $form->createView(),
+            'titleForm' => 'Edit Blog Page',
+            'existingThumbnail' => $blog->getHtmlThumbnail()
+                ? '/img/blog/thumbnails/' . $blog->getHtmlThumbnail()
+                : null,
+            'submitPath' => 'dashboard.pages.edit',
+            'slug' => $slug
+        ]);
+    }
+
+    private function formatData($form, $request): array
+    {
+        $status = $request->get('status', null);
+        $file =
+            $request->files->get('create_new_page')['htmlThumbnail'] ??
+            null;
+
+        $data = [
+            'formData' => $form->getData(),
+            'status' => $status,
+            'file' => $file,
+        ];
+
+        return $data;
     }
 }
