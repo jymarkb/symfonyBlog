@@ -1,18 +1,27 @@
-import { useEffect, useRef, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import MainEditor from './MainEditor';
 
 const CodeEditor = ({
   containerTitle,
   contentConfig,
+  targetField,
+  isEditPage,
 }: {
   containerTitle: string;
   contentConfig: object;
+  targetField: string;
+  isEditPage: boolean;
 }) => {
   const editorRef = useRef<any>(null);
   const [editorReady, setEditorReady] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [initialData, setInitialData] = useState<any>(null);
   useEffect(() => {
-    // setTimeout(() => setLoading(false), 300);
+    if (isEditPage) {
+      const targetValue = document.getElementById(targetField) as HTMLTextAreaElement;
+      setInitialData(targetValue?.value);
+    }
+    setTimeout(() => setLoading(false), 300);
   }, [editorReady]);
 
   return (
@@ -35,6 +44,7 @@ const CodeEditor = ({
             editorRef={editorRef}
             setEditorReady={setEditorReady}
             contentConfig={contentConfig}
+            initialData={initialData}
           />
         </div>
       )}
