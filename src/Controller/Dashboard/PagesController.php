@@ -49,7 +49,7 @@ final class PagesController extends AbstractController
     public function pageCreate(Request $request): Response
     {
         $blog = new Blog();
-        $form = $this->createForm(CreateNewPageType::class, $blog);
+        $form = $this->createForm(CreateNewPageType::class, $blog, ['isEditPage' => false]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -112,7 +112,7 @@ final class PagesController extends AbstractController
             throw $this->createNotFoundException('Page not found');
         }
 
-        $form = $this->createForm(CreateNewPageType::class, $blog);
+        $form = $this->createForm(CreateNewPageType::class, $blog, ['isEditPage' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
