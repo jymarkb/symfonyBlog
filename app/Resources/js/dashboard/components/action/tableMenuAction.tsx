@@ -8,17 +8,18 @@ import {
 } from '@/components/ui/dialog';
 import { AlertTriangle } from 'lucide-react';
 
-export const editBlog = ({ id }: { id: string }) => {
-  console.log(id);
+export const editBlog = ({ slug }: { slug: string }) => {
+  const targetLoc = `${window.location.origin}/dashboard/pages/edit/${slug}`;
+  window.location.href = targetLoc;
 };
 
 export const previewBlog = async ({ slug }: { slug: string }) => {
-  const fullUrl = `https://localhost/blog/${slug}`;
-  window.open(fullUrl, '_focus');
+  const fullUrl = `${window.location.origin}/blog/${slug}`;
+  window.open(fullUrl, '_blank');
 };
 
-export const deleteBlog = ({ id, title }: { id: number; title: string }) => {
-  const handleConfirm = async (id: number) => {
+export const deleteBlog = ({ id, title }: { id: string; title: string }) => {
+  const handleConfirm = async (id: string) => {
     console.log(id);
 
     const res = await fetch(`/dashboard/pages/delete/${id}`).then((response) =>
@@ -67,7 +68,8 @@ export const deleteBlog = ({ id, title }: { id: number; title: string }) => {
 };
 
 export const shareBlog = async ({ slug }: { slug: string }) => {
-  navigator.clipboard.writeText(slug);
+  const fullUrl = `${window.location.origin}/blog/${slug}`;
+  navigator.clipboard.writeText(fullUrl);
   toast.success('Link Copied!', {
     description: 'The link has been copied to your clipboard.',
     duration: 1500,

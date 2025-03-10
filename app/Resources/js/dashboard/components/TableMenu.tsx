@@ -22,7 +22,7 @@ const TableMenu = ({ data }: { data: ButtonTableProps }) => {
       <ul className="p-1 cursor-pointer text-md">
         <li
           className="hover:bg-accent hover:text-accent-foreground p-2 rounded flex"
-          // onClick={() => editBlog({ id: dataId })}
+          onClick={() => editBlog({ slug: data.slug })}
         >
           <span>Edit</span>
           <i className="ml-auto text-xs tracking-widest opacity-60 icon-pencil"></i>
