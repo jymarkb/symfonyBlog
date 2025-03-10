@@ -1,5 +1,5 @@
-<div class="container py-8 justify-center">
-    <h1 class="title text-5xl font-bold my-5 text-center">{{ data["create_new_page[title]"] }}</h1>
+<div class="container py-8 justify-center {{ category.name|lower }}">
+    <h1 class="title text-4xl font-bold my-5 text-center">{{ data["create_new_page[title]"] }}</h1>
 
     <div class="editor-content">
         {{ data["create_new_page[summary]"]|raw }}
@@ -7,6 +7,7 @@
     </div>
 
      <style>
+        {{ encore_entry_link_tags('dashboard/pages/create/style') }}
         .editor-content {
             all: unset;
         }

@@ -2,7 +2,7 @@ import { toast } from 'sonner';
 
 const fetchPreview = async (data: Record<string, any>): Promise<string> => {
   try {
-    const response = await fetch('https://localhost/dashboard/pages/preview', {
+    const response = await fetch('/dashboard/pages/preview', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
