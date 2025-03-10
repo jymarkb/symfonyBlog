@@ -20,5 +20,5 @@ export type TableDropDownProps = {
 export type ButtonTableProps = {
   title: string;
   slug: string;
-  id: number;
+  id: string;
 };

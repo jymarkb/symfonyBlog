@@ -11,7 +11,7 @@ const TableAction = () => {
   if (!tableId) return;
   
   const selectedData: ButtonTableProps = {
-    id: 0,
+    id: '',
     slug: '',
     title: '',
   };
