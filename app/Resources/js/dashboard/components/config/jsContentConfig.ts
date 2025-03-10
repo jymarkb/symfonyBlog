@@ -1,15 +1,16 @@
 import { Editor as TinyMCEEditor } from 'tinymce';
+import { editorCustomStyle } from '../../utils/editorCustomStyle';
 
 export const jsContentConfig = (textAreaId: string) => ({
   menubar: false,
   placeholder: 'Write your JavaScript code here...',
-  plugins: ['code','autoresize'],
+  plugins: ['code', 'autoresize'],
   min_height: 400,
-  max_height:800,
+  max_height: 800,
   autoresize_max_height: 800,
   autoresize_min_height: 400,
   toolbar: 'undo redo | code',
-  content_style: `body { background: #f9f9f9; }`,
+  content_style: editorCustomStyle,
   content_css: false,
   branding: false,
   promotion: false,
@@ -38,13 +39,17 @@ export const jsContentConfig = (textAreaId: string) => ({
 
       // If there's actual content, wrap it in <pre>, otherwise keep empty
       if (content) {
-        editor.setContent(`<pre class="js-editor">${content}</pre>`, { format: 'raw' });
+        editor.setContent(`<pre class="js-editor">${content}</pre>`, {
+          format: 'raw',
+        });
       } else {
         editor.setContent('', { format: 'raw' });
       }
 
       // Sync with hidden textarea
-      const testTextArea = document.getElementById(textAreaId) as HTMLTextAreaElement;
+      const testTextArea = document.getElementById(
+        textAreaId,
+      ) as HTMLTextAreaElement;
       if (testTextArea) {
         testTextArea.value = content;
       }
@@ -60,7 +65,14 @@ export const jsContentConfig = (textAreaId: string) => ({
       pastedContent = pastedContent.replace(/([{};])\s*/g, '$1\n');
 
       // If there's content, wrap it in <pre>, otherwise leave empty
-      event.content = pastedContent ? `<pre class="js-editor">${pastedContent}</pre>` : '';
+      event.content = pastedContent
+        ? `<pre class="js-editor">${pastedContent}</pre>`
+        : '';
     });
+  },
+  init_instance_callback: (editor: TinyMCEEditor) => {
+    setTimeout(() => {
+      editor.fire('blur');
+    }, 100);
   },
 });

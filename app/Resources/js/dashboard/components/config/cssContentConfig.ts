@@ -1,15 +1,16 @@
 import { Editor as TinyMCEEditor } from 'tinymce';
+import { editorCustomStyle } from '../../utils/editorCustomStyle';
 
 export const cssContentConfig = (textAreaId: string) => ({
   menubar: false,
   placeholder: 'Write your CSS code here...',
-  plugins: ['code','autoresize'],
+  plugins: ['code', 'autoresize'],
   min_height: 400,
-  max_height:800,
+  max_height: 800,
   autoresize_max_height: 800,
   autoresize_min_height: 400,
   toolbar: 'undo redo | code',
-  content_style: `body { background: #f9f9f9; }`,
+  content_style: editorCustomStyle,
   content_css: false,
   branding: false,
   promotion: false,
@@ -19,7 +20,7 @@ export const cssContentConfig = (textAreaId: string) => ({
   force_br_newlines: false,
   convert_urls: false,
   paste_as_text: true,
-  valid_elements: '*[*]', 
+  valid_elements: '*[*]',
   extended_valid_elements: 'pre[class],code[class]',
   formats: {
     removeformat: [{ selector: 'pre,code', remove: 'all', split: false }],
@@ -44,13 +45,17 @@ export const cssContentConfig = (textAreaId: string) => ({
 
       // **Only wrap in <pre> if there's content**
       if (content) {
-        editor.setContent(`<pre class="css-editor">${content}</pre>`, { format: 'raw' });
+        editor.setContent(`<pre class="css-editor">${content}</pre>`, {
+          format: 'raw',
+        });
       } else {
         editor.setContent('', { format: 'raw' });
       }
 
       // Sync with hidden textarea
-      const textArea = document.getElementById(textAreaId) as HTMLTextAreaElement;
+      const textArea = document.getElementById(
+        textAreaId,
+      ) as HTMLTextAreaElement;
       if (textArea) {
         textArea.value = content;
       }
@@ -72,7 +77,14 @@ export const cssContentConfig = (textAreaId: string) => ({
       pastedContent = pastedContent.replace(/([{};])\s*/g, '$1\n');
 
       // **Only wrap in <pre> if there's content**
-      event.content = pastedContent ? `<pre class="css-editor">${pastedContent}</pre>` : '';
+      event.content = pastedContent
+        ? `<pre class="css-editor">${pastedContent}</pre>`
+        : '';
     });
+  },
+  init_instance_callback: (editor: TinyMCEEditor) => {
+    setTimeout(() => {
+      editor.fire('blur');
+    }, 100);
   },
 });
