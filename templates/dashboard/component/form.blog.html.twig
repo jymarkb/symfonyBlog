@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block javascripts %}
-	{{ encore_entry_script_tags('dashboard/pages/create') }}
+	{{ encore_entry_script_tags('dashboard/pages/create/script') }}
 	<script>
         document.addEventListener("DOMContentLoaded", function () {
             setTimeout(() => {
@@ -29,32 +29,41 @@
 					<i class="icon-eye"></i>
 					<span class="md:block hidden">Preview</span>
 				</button>
-				<button name="status" form="blogForm" 
+				<button 
+					name="status" 
+					form="blogForm"
 					class="px-4 py-2 border rounded-md transition-colors bg-gray-500 text-white flex gap-2"
-					formaction="{{ path('dashboard.pages.create', { 'status': '1' }) }}"
+					formaction="{{ path(submitPath, slug is defined ? { 'slug': slug, 'status': '1' } : { 'status': '1' }) }}"
 				>
 					<i class="icon-cog"></i>
 					<span class="md:block hidden">Save as Draft</span>
 				</button>
 
-				<button name="status" form="blogForm" 
+				<button 
+					name="status" 
+					form="blogForm"
 					class="px-4 py-2 border rounded-md transition-colors bg-primaryTheme text-white flex gap-2"
-					formaction="{{ path('dashboard.pages.create', { 'status': '2' }) }}"
+					formaction="{{ path(submitPath, slug is defined ? { 'slug': slug, 'status': '2' } : { 'status': '2' }) }}"
 				>
 					<i class="icon-check"></i>
 					<span class="md:block hidden">Publish</span>
 				</button>
 			</div>
 
-			<h1 id="createTitle" class="text-primaryTheme text-2xl font-semibold lg:w-fit w-full my-2">Create New Blog Page</h1>
+			<h1 id="createTitle" class="text-primaryTheme text-2xl font-semibold lg:w-fit w-full my-2">{{ titleForm }}</h1>
 		</div>
 	</div>
 	<div class="form-wrapper flex justify-center">
 		<div class="form-container lg:max-w-7xl w-[95%]">
-			{{ form_start(form, { 'attr':{
-				'class':'flex flex-col gap-4',
-				'id':'blogForm'
-			} ,'action': path('dashboard.pages.create'), 'method': 'POST'}) }}
+			{{ form_start(form, {
+    'attr': {
+        'class': 'flex flex-col gap-4',
+        'id': 'blogForm'
+    },
+    'action': path(submitPath, slug is defined ? { 'slug': slug } : {}),
+    'method': 'POST'
+}) }}
+
 			<div class="flex gap-2 lg:flex-row flex-col">
 				<div class="lg:w-[60%] w-full flex-col flex gap-2">
 					{{ form_widget(form.title, { 
@@ -83,7 +92,8 @@
 						</div>
 						{{ form_widget(form.htmlThumbnail, {
 							'attr':{
-								'accept': '.jpg, .jpeg, .png, .webp'
+								'accept': '.jpg, .jpeg, .png, .webp',
+								'data-src': existingThumbnail is defined ? asset(existingThumbnail) : ''
 							}
 						})}}
 					</label>
