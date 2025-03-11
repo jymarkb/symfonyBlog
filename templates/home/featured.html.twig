@@ -72,7 +72,7 @@
 												</div>
 
 												<div class="border-l pl-2 flex gap-2 items-center">
-													<span class="h-10 w-10 shrink-0 overflow-hidden rounded-full">
+													<span class="h-8 w-8 lg:h-10 lg:w-10 shrink-0 overflow-hidden rounded-full">
 														<img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png">
 													</span>
 													<p class="name">{{ item.firstName|capitalize ~ ' ' ~ item.lastName|capitalize|first ~'.'}}</p>
@@ -81,7 +81,7 @@
 
 											<div class="mx-4 my-2 2xl:mr-2 flex flex-col gap-2">
 												<p class="font-semibold text-foreground title text-md text-justify">{{item.title}}</p> 
-												<div class="text-sm date flex items-center justify-between gap-3 2xl:gap-1">
+												<div class="text-xs md:text-sm date flex items-center justify-between gap-1 2xl:gap-1">
 													<span>{{ item.created_at|date('M d, Y', "Asia/Manila") }}</span>
 													<div class="bg-border h-4 w-[1px]"></div>
 													<span class="italic flex items-center"><i class="icon-clock mr-1"></i>{{ item.readingTime }} min read</span>
