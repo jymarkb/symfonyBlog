@@ -42,7 +42,7 @@ const BottomPopupForm = ({
       onClick={handleClickOutside}
     >
       <div
-        className="popup-container bg-white w-11/12 md:w-8/12 rounded-t-3xl p-5 shadow-lg transform translate-y-full transition-transform duration-500 max-h-[90%]"
+        className="popup-container bg-white rounded-t-3xl p-5 shadow-lg transform translate-y-full transition-transform duration-500 max-h-[90%] max-w-[90%] md:max-w-[min(70%,_300px)]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="form-wrapper p-4 pb-36 rounded-lg max-h-[100vh] overflow-y-auto">
