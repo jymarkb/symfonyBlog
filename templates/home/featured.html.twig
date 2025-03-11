@@ -26,7 +26,7 @@
 									{{ latest.title }}
 								</h1>
 
-								<p class="text-xs sm:text-sm md:text-base text-gray-700 line-clamp-3 italic">
+								<p class="text-xs sm:text-sm md:text-base text-gray-500 line-clamp-3 italic">
 									{{ latest.summary }}
 								</p>
 
@@ -39,9 +39,9 @@
 								<div class="flex items-center date justify-between lg:justify-start text-xs sm:text-sm text-gray-600 mt-auto gap-3 sm:gap-5">
 									<span>{{ latest.created_at|date('M d, Y', "Asia/Manila") }}</span>
 									<div class="bg-border h-4 w-px"></div>
-									<span class="flex items-center gap-1"><i class="icon-clock"></i> 5 min read</span>
+									<span class="flex items-center gap-1"><i class="icon-clock"></i> {{latest.readingTime}} min read</span>
 									<div class="bg-border h-4 w-px"></div>
-									<span class="flex items-center gap-1"><i class="icon-eye"></i> 1k Views</span>
+									<span class="flex items-center gap-1"><i class="icon-eye"></i> {{formatViews(latest.views)}} Views</span>
 								</div>
 
 							</div>
@@ -84,9 +84,9 @@
 												<div class="text-sm date flex items-center justify-between gap-3 2xl:gap-1">
 													<span>{{ item.created_at|date('M d, Y', "Asia/Manila") }}</span>
 													<div class="bg-border h-4 w-[1px]"></div>
-													<span class="italic flex items-center"><i class="icon-clock mr-1"></i>5 min read</span>
+													<span class="italic flex items-center"><i class="icon-clock mr-1"></i>{{ item.readingTime }} min read</span>
 													<div class="bg-border h-4 w-[1px]"></div>
-													<span class="flex items-center"><i class="icon-eye mr-1"></i>1k Views</span>
+													<span class="flex items-center"><i class="icon-eye mr-1"></i>{{ formatViews(item.views) }} Views</span>
 												</div>
 
 											</div>
