@@ -72,6 +72,8 @@ class BlogRepository extends ServiceEntityRepository
             ->addSelect('c.name', 'c.category_id')
             ->leftJoin('b.account', 'a')
             ->addSelect('a.firstName', 'a.lastName')
+            ->leftJoin('b.blogAnalytics', 'analytics')
+            ->addSelect('analytics.views', 'analytics.readingTime')
             ->orderBy('b.created_at', 'DESC')
             ->setMaxResults(4)
             ->getQuery()
