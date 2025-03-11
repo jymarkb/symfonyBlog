@@ -83,15 +83,54 @@ class BlogRepository extends ServiceEntityRepository
     public function getBlogByTitle(string $title)
     {
         return $this->createQueryBuilder('b')
-                ->select('b.blog_id', 'b.title', 'b.created_at', 'b.updated_at', 'b.status')
-                ->leftJoin('b.category', 'c')
-                ->addSelect('c.category_id', 'c.name')
-                ->leftJoin('b.account', 'a')
-                ->addSelect('a.firstName', 'a.lastName')
-                ->where('b.title LIKE :paramTitle')
-                ->setParameter('paramTitle', '%' . $title . '%')
-                ->getQuery()
-                ->getArrayResult();
+            ->select(
+                'b.blog_id',
+                'b.title',
+                'b.created_at',
+                'b.updated_at',
+                'b.status'
+            )
+            ->leftJoin('b.category', 'c')
+            ->addSelect('c.category_id', 'c.name')
+            ->leftJoin('b.account', 'a')
+            ->addSelect('a.firstName', 'a.lastName')
+            ->where('b.title LIKE :paramTitle')
+            ->setParameter('paramTitle', '%' . $title . '%')
+            ->getQuery()
+            ->getArrayResult();
+    }
 
+    public function getBlogWithFilter(?string $title, array $filters = []): array
+    {
+        $qb = $this->createQueryBuilder('b');
+
+        $qb->select('b.title', 'b.blog_id', 'b.status', 'b.slug', 'b.created_at', 'b.updated_at');
+        $qb->leftJoin('b.category', 'category');
+        $qb->addSelect('category.category_id', 'category.name');
+        $qb->leftJoin('b.account', 'account');
+        $qb->addSelect('account.firstName', 'account.lastName');
+
+        if ($title) {
+            $qb->andWhere('b.title LIKE :title')->setParameter(
+                'title',
+                "%$title%"
+            );
+        }
+
+        if (!empty($filters['status'])) {
+            $qb->andWhere('b.status IN (:status)')->setParameter(
+                'status',
+                $filters['status']
+            );
+        }
+
+        if (!empty($filters['category'])) {
+            $qb->andWhere('b.category IN (:category)')->setParameter(
+                'category',
+                $filters['category']
+            );
+        }
+
+        return $qb->getQuery()->getArrayResult();
     }
 }
