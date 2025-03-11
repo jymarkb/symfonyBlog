@@ -30,14 +30,12 @@
 									{{ latest.summary }}
 								</p>
 
-								<a class="btn shadow border py-2 sm:py-3 px-4 sm:px-6 rounded-2xl font-light inline-flex items-center gap-2 transition-transform duration-300 hover:scale-105 w-fit "
+								<a class="btn shadow border mb-2 py-2 sm:py-3 px-4 sm:px-6 rounded-2xl font-light inline-flex items-center gap-2 transition-transform duration-300 hover:scale-105 w-fit "
 									href="blog/{{ latest.slug }}">
 										Read {{ latest.name|capitalize }}
 										<i class="icon-arrow-right"></i>
-									</a>
+								</a>
 
-								
-								
 								<div class="flex items-center date justify-between lg:justify-start text-xs sm:text-sm text-gray-600 mt-auto gap-3 sm:gap-5">
 									<span>{{ latest.created_at|date('M d, Y', "Asia/Manila") }}</span>
 									<div class="bg-border h-4 w-px"></div>
