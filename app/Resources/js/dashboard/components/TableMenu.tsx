@@ -5,7 +5,7 @@ import {
   deleteBlog,
   editBlog,
   previewBlog,
-} from './action/tableMenuAction';
+} from './action/TableMenuAction';
 import { ButtonTableProps } from '../utils/props';
 
 const TableMenu = ({ data }: { data: ButtonTableProps }) => {
