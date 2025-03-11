@@ -21,7 +21,7 @@ export function CarouselDemo() {
     { name: 'Docker', imgSrc: '/img/techstack/docker.svg', href: '/' },
     { name: 'MySql', imgSrc: '/img/techstack/mysql.svg', href: '/' },
     { name: 'PHP', imgSrc: '/img/techstack/php.svg', href: '/' },
-    { name: 'Web Services', imgSrc: '/img/techstack/aws.svg', href: '/' },
+    { name: 'AWS', imgSrc: '/img/techstack/aws.svg', href: '/' },
     { name: 'Github', imgSrc: '/img/techstack/github.svg', href: '/' },
   ];
 
@@ -33,23 +33,30 @@ export function CarouselDemo() {
         loop: true, // Keeps it scrolling infinitely
         containScroll: 'keepSnaps', // Ensures proper snapping
       }}
-      plugins={[
-        Autoplay({
-          delay: 2000, // Slide every 2 seconds
-          stopOnInteraction: false, // Keeps autoplay running
-          stopOnMouseEnter: true, // Stops when hovering
-        }),
-      ]}
+      // plugins={[
+      //   Autoplay({
+      //     delay: 2000, // Slide every 2 seconds
+      //     stopOnInteraction: false, // Keeps autoplay running
+      //     stopOnMouseEnter: true, // Stops when hovering
+      //   }),
+      // ]}
     >
       <CarouselContent>
         {techStack.map((tech, index) => {
           return (
-            <CarouselItem key={index} className="carousel-item transtion duration-300">
+            <CarouselItem
+              key={index}
+              className="carousel-item transtion duration-300"
+            >
               <div className="p-1">
-                <Card>
-                  <CardContent className="flex aspect-square items-center justify-center p-6 gap-2">
-                    <img className="h-14 w-14 object-cover" src={tech.imgSrc} />
-                    <h3 className="text-3xl font-semibold text-primaryTheme">
+                <Card className="w-full sm:w-auto">
+                  <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6 gap-2">
+                    <img
+                      className="h-12 w-12 sm:h-14 sm:w-14 object-cover"
+                      src={tech.imgSrc}
+                      alt={tech.name}
+                    />
+                    <h3 className="text-base sm:text-lg md:text-xl font-semibold text-primaryTheme text-center w-full">
                       {tech.name}
                     </h3>
                   </CardContent>
