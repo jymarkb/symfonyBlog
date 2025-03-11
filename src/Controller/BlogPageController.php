@@ -7,19 +7,23 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use App\Service\SearchService;
 
 #[Route('/blog', name: 'blog.')]
 final class BlogPageController extends AbstractController
 {
     private BlogRepository $blogRepository;
     private Security $security;
+    private SearchService $searchService;
     public function __construct(
         BlogRepository $blogRepository,
-        Security $security
+        Security $security,
+        SearchService $searchService
     ) {
         $this->blogRepository = $blogRepository;
         $this->security = $security;
+        $this->searchService = $searchService;
     }
 
     #[Route('/test', name: 'test')]
@@ -30,23 +34,14 @@ final class BlogPageController extends AbstractController
         ]);
     }
 
-    #[Route('/search/{title}', name: 'search')]
-    public function searchBlogByTitle(string $title): Response
+    #[Route('/search', name: 'search,')]
+    public function searchBlogFilter(Request $request): Response
     {
-        $query = $title;
-        $blogData = $this->blogRepository->getBlogByTitle($title);
+        $data = json_decode($request->getContent(), true);
 
-        if (empty($blogData)) {
-            return new Response(
-                json_encode([
-                    'error' => 'No matching blogs found',
-                    'query' => $title,
-                ])
-            );
-        }
-        return new Response(
-            json_encode(['query' => $title, 'data' => $blogData])
-        );
+        $searchData = $this->searchService->SearchBlogWithFilter($data);
+
+        return new Response(json_encode($searchData));
     }
 
     #[Route('/', name: 'index')]
@@ -62,7 +57,7 @@ final class BlogPageController extends AbstractController
         ]);
     }
 
-    #[Route('/{slug}', name: 'blog.pageView')]
+    #[Route('/{slug}', name: 'pageView')]
     public function pageView(string $slug): Response
     {
         $blog = $this->blogRepository->findOneBy(['slug' => $slug]);
