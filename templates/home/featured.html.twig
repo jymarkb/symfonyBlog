@@ -2,71 +2,108 @@
 <main class="border-grid border-b">
 	<div class="container-wrapper">
 		<div class="container py-8">
-			<div class="flex container-wrapper-card-feature">
-				<div class="container-blog-card-feature w-8/12">
+			<div class="flex flex-col 2xl:flex-row container-wrapper-card-feature">
+				<div class="container-blog-card-feature w-full 2xl:w-[65%]">
 					<h2 class="section-title font-heading md:text-3xl text-2xl font-semibold tracking-tight mb-4 mt-2">Latest blog posts</h2>
-					<div class="{{latest.name}}-feature card shadow rounded-3xl">
-						<div class="flex">
-							<div class="container-card-feature w-1/2 py-8 px-8 ">
+					<div class="{{latest.name}}-feature card shadow rounded-xl sm:rounded-3xl">
+						<div class="flex flex-col sm:flex-row p-0 gap-0 sm:gap-6 sm:p-4 md:p-6 lg:p-8">
+							<div class="container-card-feature w-full sm:w-[60%] md:w-1/2 flex flex-col p-4 gap-2 sm:p-0 gap-2 sm:gap-3 lg:gap-4 order-2 sm:order-1 flex flex-col">
 
-								<div class="card-author flex gap-4 mb-4">
-									<div class="badge inline-flex items-center rounded-md  px-4 py-2 shadow">
-										<i class="{{ blogIcon(latest.category_id) }}">
-											&nbsp
-										</i>{{latest.name|capitalize}}</div>
-									<div class="border-l pl-4 inline-flex gap-2">
-										<span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"><img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png"></span>
-										<p class="flex items-center name">{{ latest.firstName|capitalize ~ ' ' ~ latest.lastName|capitalize|first ~'.'}}</p>
+								<div class="card-author flex items-center gap-3">
+									<div class="badge flex items-center gap-2 rounded sm:rounded-md px-4 py-2 shadow text-xs md:text-sm lg:text-base">
+										<i class="{{ blogIcon(latest.category_id) }}"></i>
+										<span>{{ latest.name|capitalize }}</span>
 									</div>
-									<div class="text-sm ml-auto date">{{ latest.created_at|date('M d, Y', "Asia/Manila") }}</div>
+									<div class="border-l pl-4 flex items-center gap-3 text-xs md:text-sm lg:text-base">
+										<span class="relative flex lg:h-10 lg:w-10 md:h-9 md:w-9 h-8 w-8 shrink-0 overflow-hidden rounded-full">
+											<img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png">
+										</span>
+										<p class="name">{{ latest.firstName|capitalize ~ ' ' ~ latest.lastName|capitalize|first ~'.' }}</p>
+									</div>
 								</div>
 
-								<h1 class="text-4xl title mb-4">{{ latest.title }}</h1>
-								<p class="text-sm text-gray-500 line-clamp-3 italic  mb-4">
+								<h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold title text-justify">
+									{{ latest.title }}
+								</h1>
+
+								<p class="text-xs sm:text-sm md:text-base text-gray-700 line-clamp-3 italic">
 									{{ latest.summary }}
 								</p>
-								<a class="btn shadow border py-3 px-6 rounded-3xl font-light inline-block hover:scale-110 transition duration-300" href="blog/{{ latest.slug }}">Read {{latest.name|capitalize}}</a>
+
+								<a class="btn shadow border py-2 sm:py-3 px-4 sm:px-6 rounded-2xl font-light inline-flex items-center gap-2 transition-transform duration-300 hover:scale-105 w-fit "
+									href="blog/{{ latest.slug }}">
+										Read {{ latest.name|capitalize }}
+										<i class="icon-arrow-right"></i>
+									</a>
+
+								
+								
+								<div class="flex items-center date justify-between lg:justify-start text-xs sm:text-sm text-gray-600 mt-auto gap-3 sm:gap-5">
+									<span>{{ latest.created_at|date('M d, Y', "Asia/Manila") }}</span>
+									<div class="bg-border h-4 w-px"></div>
+									<span class="flex items-center gap-1"><i class="icon-clock"></i> 5 min read</span>
+									<div class="bg-border h-4 w-px"></div>
+									<span class="flex items-center gap-1"><i class="icon-eye"></i> 1k Views</span>
+								</div>
 
 							</div>
-							<div class="container-card-image w-1/2 py-8 px-8 flex justify-end">
-								<img class="rounded-2xl" width="400" height="400" src="{{ asset('img/blog/thumbnails/'~ latest.htmlThumbnail) }}" alt="feature blog post image">
+							<div class="container-card-image w-full sm:w-[40%] md:w-1/2 flex justify-end order-1 sm:order-2">
+								<img class="rounded-t-xl sm:rounded-md object-cover w-full h-auto aspect-square max-h-[260px] md:max-h-[280px] lg:max-h-[380px] xl:max-h-[400px] 2xl:max-h-[400px]" width="400" height="400" src="{{ asset('img/blog/thumbnails/'~ latest.htmlThumbnail) }}" alt="feature blog post image">
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="container-blog-card-side w-4/12">
-					<div class="flex container-blog-navigation justify-center mb-3">
-						<div class="flex round-corner w-9/12">
+				
+				<div class="container-blog-card-side 2xl:w-[35%] justify-center items-center flex flex-col">
+					<div class="flex container-blog-navigation justify-center 2xl:mb-3 mb-5 w-full">
+						<div class="flex round-corner w-[385px]">
 							<a class="blog-navigation transition-colors py-3 active w-1/2" href="/">Most Popular</a>
 							<a class="blog-navigation transition-colors py-3 w-1/2" href="/">Latest Post</a>
 						</div>
 					</div>
-					<div class="container-blog-card flex flex-col gap-3">
+					<div class="container-blog-card justify-center flex flex-col lg:flex-row 2xl:flex-col max-w-sm lg:max-w-full w-full gap-5 lg:gap-3">
 						{% for item in data %}
 							{% if not loop.first %}
 							<a href="blog/{{ item.slug }}">
-								<div class="{{item.name}} card card-post w-full p-4 border rounded-lg shadow transition duration-300 hover:scale-105">
-									<div class="card-author flex gap-4 mb-2">
-										<div class="badge inline-flex items-center rounded-md text-sm px-4 py-2 shadow">
-											<i class="{{ blogIcon(item.category_id) }}">
-												&nbsp
-											</i>{{ item.name|capitalize }}</div>
-										<div class="border-l pl-4 inline-flex gap-2">
-											<span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"><img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png"></span>
-											<p class="flex items-center name">{{ item.firstName|capitalize ~ ' ' ~ item.lastName|capitalize|first ~'.'}}</p>
+								<div class="{{item.name}} card card-post w-full max-w-sm 2xl:w-full 2xl:max-w-full border rounded xl:rounded-lg shadow transition duration-300 hover:scale-105 ">
+									<div class="flex 2xl:flex-row flex-col">
+										<div class="left w-full 2xl:w-[65%] 2xl:my-4 mb-4 2xl:order-1 order-2">
+											<div class="flex h-fit items-center">
+												<div class="badge mr-2 2xl:px-4 2xl:py-2 py-1 px-2 text-sm h-fit">
+													<i class="{{ blogIcon(item.category_id) }}"></i>&nbsp;{{ item.name|capitalize }}
+												</div>
+
+												<div class="border-l pl-2 flex gap-2 items-center">
+													<span class="h-10 w-10 shrink-0 overflow-hidden rounded-full">
+														<img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png">
+													</span>
+													<p class="name">{{ item.firstName|capitalize ~ ' ' ~ item.lastName|capitalize|first ~'.'}}</p>
+												</div>
+											</div>
+
+											<div class="mx-4 my-2 2xl:mr-2 flex flex-col gap-2">
+												<p class="font-semibold text-foreground title text-md text-justify">{{item.title}}</p> 
+												<div class="text-sm date flex items-center justify-between gap-3 2xl:gap-1">
+													<span>{{ item.created_at|date('M d, Y', "Asia/Manila") }}</span>
+													<div class="bg-border h-4 w-[1px]"></div>
+													<span class="italic flex items-center"><i class="icon-clock mr-1"></i>5 min read</span>
+													<div class="bg-border h-4 w-[1px]"></div>
+													<span class="flex items-center"><i class="icon-eye mr-1"></i>1k Views</span>
+												</div>
+
+											</div>
 										</div>
-										<div class="text-sm ml-auto date">{{ item.created_at|date('M d, Y', "Asia/Manila") }}</div>
+										<div class="right w-full 2xl:w-[35%] 2xl:p-4 2xl:pl-0 p-4 pb-2 flex 2xl:justify-end justfiy-center 2xl:order-2 order-1">
+											<img class="rounded-md 2xl:rounded-xl 2xl:w-[120px] 2xl:h-[120px] w-full h-[205px] aspect-square object-cover"
+											width="120" height="120" src="/img/blog/thumbnails/{{ asset(item.htmlThumbnail) }}" alt="most popular image thumbnail">
+										</div>
 									</div>
-									<p class="font-semibold text-foreground title">{{item.title}}</p>
-									<p class="text-sm text-gray-500 line-clamp-2 italic">
-										{{ item.summary }}
-									</p>
 								</div>
 							</a>
 							{% endif %}
 						{% endfor %}
 					</div>
-				</div>
+				</div>	
 			</div>
 		</div>
 	</div>

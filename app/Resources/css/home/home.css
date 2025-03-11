@@ -42,10 +42,25 @@ body {
 }
 
 .carousel-item {
-  flex: 0 0 25% !important;
-  max-width: 25% !important;
+  flex: 0 0 33.33% !important; /* 3 items per row on small screens */
+  max-width: 33.33% !important;
 }
 
-.carousel-item:hover{
-  scale: 1.05
+@media (min-width: 640px) {
+  .carousel-item {
+    flex: 0 0 25% !important; /* 4 items per row on tablets */
+    max-width: 25% !important;
+  }
 }
+
+@media (min-width: 1024px) {
+  .carousel-item {
+    flex: 0 0 20% !important; /* 5 items per row on desktops */
+    max-width: 20% !important;
+  }
+}
+
+
+/* .carousel-item:hover{
+  scale: 1.05
+} */
