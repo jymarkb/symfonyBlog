@@ -2,6 +2,7 @@ const Encore = require('@symfony/webpack-encore');
 const path = require('path');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer'); // Optional for bundle analysis
 const TerserPlugin = require('terser-webpack-plugin'); // For production minification
+const ESLintPlugin = require('eslint-webpack-plugin'); // Added for linting
 
 if (!Encore.isRuntimeEnvironmentConfigured()) {
   Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
@@ -113,5 +114,15 @@ config.stats = {
   builtAt: false,
   timings: false,
 };
+
+if (!Encore.isProduction()) {
+  config.plugins.push(
+    new ESLintPlugin({
+      extensions: ['js', 'jsx', 'ts', 'tsx'],
+      fix: true, // Automatically fix fixable issues (optional)
+      emitWarning: true, // Show warnings instead of errors if desired
+    })
+  );
+}
 
 module.exports = config;
