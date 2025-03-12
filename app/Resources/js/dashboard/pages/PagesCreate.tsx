@@ -9,7 +9,7 @@ import { Editor } from '../components/Editor';
 import ThumbnailUploader from '../components/ThumbnailUploader';
 import ScrollListener from '../components/ScrollListener';
 import ToastMessage from '../components/ToastMessage';
-import { popUpModal } from '../components/Popup';
+import { Popup } from '../components/Popup';
 import PreviewPopUpData from '../utils/PreviewPopUpData';
 
 class PagesCreate {
@@ -23,7 +23,7 @@ class PagesCreate {
     ThumbnailUploader(fileUploadConfig());
     ScrollListener(); // for header action btn
     ToastMessage();
-    popUpModal('btnPreview', () => PreviewPopUpData());
+    Popup('btnPreview', () => PreviewPopUpData());
   }
 
   initTinyFormEditor() {
