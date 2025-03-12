@@ -1,17 +1,18 @@
 import ReactDOM from 'react-dom/client';
 import BottomPopupForm from './BottomPopupForm';
 import { PopupProps, PopupWrapperProps } from '../utils/props';
+import React from 'react';
 
-export const popUpModal = (
+export const Popup = (
   btnActionTrigger: string,
-  updatePopupData: () => Promise<any>,
+  updatePopupData: () => Promise<any> | React.ReactElement,
 ) => {
   const popDivContainer = document.getElementById(
     'popup-container',
   ) as HTMLElement | null;
   if (!popDivContainer) return;
 
-  let root = ReactDOM.createRoot(popDivContainer);
+  const root = ReactDOM.createRoot(popDivContainer);
   let popupData: any = '';
 
   const renderPopup = ({ containerEl, onReady }: PopupProps) => {
