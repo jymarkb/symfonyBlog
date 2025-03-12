@@ -22,3 +22,9 @@ export type ButtonTableProps = {
   slug: string;
   id: string;
 };
+
+export type SearchFilterProps = {
+  value: string;
+  status?: any[];
+  category?: any[];
+}

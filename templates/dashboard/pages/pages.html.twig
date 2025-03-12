@@ -28,10 +28,16 @@
 				<i class="icon-plus"></i>
 				<span>Add new</span>
 			</a>
-			<div class="max-w-lg w-full flex justify-center items-center">
-				<input id="pageSearch" type="text" class="border border-input bg-white/50 px-3 px-1 text-base rounded-md shadow transition-colors placeholder:text-muted-foreground md:text-sm h-10 w-full" placeholder="Type a blog title to search...">
-				<button id="btnSearch" class="ml-[-35px] bg-primaryTheme h-7 w-7 text-white rounded-full flex items-center justify-center text-sm hover:bg-primaryTheme-900"><i class="icon-search"></i></button>
-				<button id="clearSearch" class="text-lg text-primaryTheme font-bold ml-[-50px] flex items-center justify-center opacity-0 transition duration-300"><i class="icon-x"></i></button>
+			<div class="max-w-lg w-full flex items-center flex gap-2">
+				<div class="search-form-group w-full flex items-center flex">
+					<input id="pageSearch" type="text" class="border border-input bg-white/50 px-3 px-1 text-base rounded-md shadow transition-colors placeholder:text-muted-foreground md:text-sm h-10 w-full" placeholder="Type a blog title to search...">
+					<button id="btnSearch" class="ml-[-35px] bg-primaryTheme h-7 w-7 text-white rounded-full flex items-center justify-center text-sm hover:bg-primaryTheme-900"><i class="icon-search"></i></button>
+					<button id="clearSearch" class="text-lg text-primaryTheme font-bold ml-[-50px] flex items-center justify-center opacity-0 transition duration-300"><i class="icon-x"></i></button>
+				</div>
+
+				<div>
+					<button id="btnFilter" class="size-10 bg-white text-primaryTheme p-1 rounded-md hover:bg-primaryTheme hover:text-white transition duration-300 font-bold border shadow"><i class="icon-sliders-horizontal"></i></button>
+				</div>
 			</div>
 
 		</div>
