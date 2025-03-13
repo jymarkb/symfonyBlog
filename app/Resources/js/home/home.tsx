@@ -1,3 +1,4 @@
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { CarouselDemo } from './CarouselSize';
 import { initSideBarNavigation } from '../dashboard/components/SidebarNavigation';

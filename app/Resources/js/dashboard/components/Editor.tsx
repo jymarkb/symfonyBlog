@@ -1,5 +1,7 @@
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import CodeEditor from '../components/CodeEditor';
+import { InitOptions } from '@tinymce/tinymce-react/lib/cjs/main/ts/components/Editor';
 
 export const Editor = ({
   containerId,
@@ -11,7 +13,7 @@ export const Editor = ({
   containerId: string;
   containerTitle: string;
   targetField: string;
-  contentConfig: object;
+  contentConfig: InitOptions;
   isEditPage: boolean;
 }) => {
   const renderContainer = document.getElementById(containerId);

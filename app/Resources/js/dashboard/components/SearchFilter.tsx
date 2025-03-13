@@ -1,9 +1,7 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
 import { fetchData } from './action/SearchBarAction';
 
-
-const SearchFilter = async() => {
+const SearchFilter = async () => {
   const data = [
     {
       title: 'Status',
@@ -15,9 +13,8 @@ const SearchFilter = async() => {
     },
   ];
 
-  const testFetch = await fetchData({value:'the', status:[], category:[]})
+  const testFetch = await fetchData({ value: 'the', status: [], category: [] });
   console.log(testFetch);
-  
 
   // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   setStatus({

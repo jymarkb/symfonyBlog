@@ -1,11 +1,14 @@
 import ReactDOM from 'react-dom/client';
 import BottomPopupForm from './BottomPopupForm';
 import { PopupProps, PopupWrapperProps } from '../utils/props';
-import React from 'react';
+import React, { JSX } from 'react';
 
 export const Popup = (
   btnActionTrigger: string,
-  updatePopupData: () => Promise<any> | React.ReactElement,
+  updatePopupData: () => Promise<{
+    openModal: boolean;
+    data: JSX.Element | null;
+  }>,
 ) => {
   const popDivContainer = document.getElementById(
     'popup-container',
@@ -13,7 +16,7 @@ export const Popup = (
   if (!popDivContainer) return;
 
   const root = ReactDOM.createRoot(popDivContainer);
-  let popupData: any = '';
+  let popupData: JSX.Element | null = null;
 
   const renderPopup = ({ containerEl, onReady }: PopupProps) => {
     if (!containerEl) return;
@@ -23,10 +26,7 @@ export const Popup = (
     );
   };
 
-  const handlePopupReady = (
-    popup: HTMLElement | null,
-    popupContainer: HTMLElement | null,
-  ) => {
+  const handlePopupReady = () => {
     const btnAction = document.getElementById(btnActionTrigger);
     if (!btnAction) return;
 
@@ -61,7 +61,6 @@ export const Popup = (
 
   renderPopup({
     containerEl: popDivContainer,
-    onReady: ({ popup, popupContainer }) =>
-      handlePopupReady(popup, popupContainer),
+    onReady: () => handlePopupReady(),
   });
 };

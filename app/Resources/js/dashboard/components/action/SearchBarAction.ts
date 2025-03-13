@@ -32,9 +32,12 @@ export const fetchData = async ({
   }
 };
 
-export const debounce = (func: Function, delay: number) => {
+export const debounce = <T extends unknown[]>(
+  func: (...args: T) => void,
+  delay: number,
+) => {
   let timer: NodeJS.Timeout;
-  return (...args: any[]) => {
+  return (...args: T) => {
     clearTimeout(timer);
     timer = setTimeout(() => func(...args), delay);
   };
