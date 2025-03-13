@@ -26,24 +26,22 @@
 									{{ latest.title }}
 								</h1>
 
-								<p class="text-xs sm:text-sm md:text-base text-gray-700 line-clamp-3 italic">
+								<p class="text-xs sm:text-sm md:text-base text-gray-500 line-clamp-3 italic">
 									{{ latest.summary }}
 								</p>
 
-								<a class="btn shadow border py-2 sm:py-3 px-4 sm:px-6 rounded-2xl font-light inline-flex items-center gap-2 transition-transform duration-300 hover:scale-105 w-fit "
+								<a class="btn shadow border mb-2 py-2 sm:py-3 px-4 sm:px-6 rounded-2xl font-light inline-flex items-center gap-2 transition-transform duration-300 hover:scale-105 w-fit "
 									href="blog/{{ latest.slug }}">
 										Read {{ latest.name|capitalize }}
 										<i class="icon-arrow-right"></i>
-									</a>
+								</a>
 
-								
-								
 								<div class="flex items-center date justify-between lg:justify-start text-xs sm:text-sm text-gray-600 mt-auto gap-3 sm:gap-5">
 									<span>{{ latest.created_at|date('M d, Y', "Asia/Manila") }}</span>
 									<div class="bg-border h-4 w-px"></div>
-									<span class="flex items-center gap-1"><i class="icon-clock"></i> 5 min read</span>
+									<span class="flex items-center gap-1"><i class="icon-clock"></i> {{latest.readingTime}} min read</span>
 									<div class="bg-border h-4 w-px"></div>
-									<span class="flex items-center gap-1"><i class="icon-eye"></i> 1k Views</span>
+									<span class="flex items-center gap-1"><i class="icon-eye"></i> {{formatViews(latest.views)}} Views</span>
 								</div>
 
 							</div>
@@ -74,7 +72,7 @@
 												</div>
 
 												<div class="border-l pl-2 flex gap-2 items-center">
-													<span class="h-10 w-10 shrink-0 overflow-hidden rounded-full">
+													<span class="h-8 w-8 lg:h-10 lg:w-10 shrink-0 overflow-hidden rounded-full">
 														<img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png">
 													</span>
 													<p class="name">{{ item.firstName|capitalize ~ ' ' ~ item.lastName|capitalize|first ~'.'}}</p>
@@ -83,12 +81,12 @@
 
 											<div class="mx-4 my-2 2xl:mr-2 flex flex-col gap-2">
 												<p class="font-semibold text-foreground title text-md text-justify">{{item.title}}</p> 
-												<div class="text-sm date flex items-center justify-between gap-3 2xl:gap-1">
+												<div class="text-xs md:text-sm date flex items-center justify-between gap-1 2xl:gap-1">
 													<span>{{ item.created_at|date('M d, Y', "Asia/Manila") }}</span>
 													<div class="bg-border h-4 w-[1px]"></div>
-													<span class="italic flex items-center"><i class="icon-clock mr-1"></i>5 min read</span>
+													<span class="italic flex items-center"><i class="icon-clock mr-1"></i>{{ item.readingTime }} min read</span>
 													<div class="bg-border h-4 w-[1px]"></div>
-													<span class="flex items-center"><i class="icon-eye mr-1"></i>1k Views</span>
+													<span class="flex items-center"><i class="icon-eye mr-1"></i>{{ formatViews(item.views) }} Views</span>
 												</div>
 
 											</div>

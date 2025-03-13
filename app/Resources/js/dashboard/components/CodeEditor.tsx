@@ -1,5 +1,8 @@
-import { use, useEffect, useRef, useState } from 'react';
+import React from 'react';
+import { useEffect, useRef, useState } from 'react';
 import MainEditor from './MainEditor';
+import { InitOptions } from '@tinymce/tinymce-react/lib/cjs/main/ts/components/Editor';
+import { Editor as TinyMCEEditor } from 'tinymce';
 
 const CodeEditor = ({
   containerTitle,
@@ -8,17 +11,19 @@ const CodeEditor = ({
   isEditPage,
 }: {
   containerTitle: string;
-  contentConfig: object;
+  contentConfig: InitOptions;
   targetField: string;
   isEditPage: boolean;
 }) => {
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<TinyMCEEditor | null>(null);
   const [editorReady, setEditorReady] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [initialData, setInitialData] = useState<any>(null);
+  const [initialData, setInitialData] = useState<string>('');
   useEffect(() => {
     if (isEditPage) {
-      const targetValue = document.getElementById(targetField) as HTMLTextAreaElement;
+      const targetValue = document.getElementById(
+        targetField,
+      ) as HTMLTextAreaElement;
       setInitialData(targetValue?.value);
     }
     setTimeout(() => setLoading(false), 300);

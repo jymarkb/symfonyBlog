@@ -2,7 +2,7 @@ import { Editor as TinyMCEEditor, EditorEvent } from 'tinymce';
 import { editorCustomStyle } from '../../utils/editorCustomStyle';
 import { InitOptions } from '@tinymce/tinymce-react/lib/cjs/main/ts/components/Editor';
 
-export const blogContentConfig = (textAreaId: string): InitOptions => {
+export const testConfig = (textAreaId: string): InitOptions => {
   return {
     menubar: false,
     placeholder: 'Start typing your content here...',
