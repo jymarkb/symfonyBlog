@@ -1,15 +1,20 @@
+import React from 'react';
 import { Editor } from '@tinymce/tinymce-react';
+import { Editor as TinyMCEEditor } from 'tinymce';
+import { InitOptions } from '@tinymce/tinymce-react/lib/cjs/main/ts/components/Editor';
 
-const MainEditor = ({
+interface MainEditorProps {
+  editorRef: React.MutableRefObject<TinyMCEEditor | null>;
+  setEditorReady: (ready: boolean) => void;
+  contentConfig: InitOptions;
+  initialData: string;
+}
+
+const MainEditor: React.FC<MainEditorProps> = ({
   editorRef,
   setEditorReady,
   contentConfig,
   initialData,
-}: {
-  editorRef: any;
-  setEditorReady: (ready: boolean) => void;
-  contentConfig: any;
-  initialData: any;
 }) => {
   return (
     <Editor

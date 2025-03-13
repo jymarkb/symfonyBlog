@@ -7,23 +7,16 @@
                 <div class="container py-8 flex justify-center items-center">
                     <div class="card-container flex flex-wrap gap-8 lg:max-w-[90%] max-w-[95%] justify-center items-center">
                         {% for blog in blogs %}
-                            <div class="{{ blog.category.name|lower }} border shadow rounded max-w-sm bg-white hover:scale-105 transition duration-300 flex flex-col h-[450px]">
-                                <!-- Card Content Wrapper -->
-                                {# public/img/blog/thumbnails #}
-                                <div class="flex-grow flex flex-col  p-4 pb-2">
-                                    <a href="/blog/{{ blog.slug }}">
-                                        <img src="{{ asset('img/blog/thumbnails/'~ blog.htmlThumbnail) }}" class="w-full h-[250px] object-cover mb-2 rounded-md hover:opacity-90 transition" alt="image for card"/>
-                                        <h1 class="title font-semibold text-lg text-gray-800 line-clamp-2 text-justify">
-                                            {{ blog.title }}
-                                        </h1>
-                                    </a>
-                                    <p class="text-sm text-gray-500 line-clamp-3 italic text-justify">
-                                        {{ blog.summary }}
-                                    </p>
+                        <a href="/blog/{{ blog.slug }}">
+                            <div class="{{ blog.category.name|lower }} border shadow rounded max-w-sm bg-white hover:scale-105 transition duration-300 flex flex-col gap-2 h-[480px]">
+                               
+                                <div class="px-4 mt-4">
+                                    <img src="{{ asset('img/blog/thumbnails/'~ blog.htmlThumbnail) }}" 
+                                        class="w-full h-[250px] object-cover rounded-md hover:opacity-90 transition"
+                                        alt="image for card"/>
                                 </div>
-
-                                <!-- Card Footer: Aligns at the bottom -->
-                                <div class="blog-tag flex gap-2 items-center mt-auto pl-0 pb-4 pr-4">
+                               
+                                <div class="flex gap-2">
                                     <div class="badge inline-flex items-center px-4 py-2 shadow text-xs w-fit">
                                         <i class="{{ blogIcon(blog.category.id) }}">&nbsp;</i>{{ blog.category.name }}
                                     </div>
@@ -37,15 +30,29 @@
                                             {{ blog.account.firstName|capitalize ~ ' ' ~ blog.account.lastName|first|capitalize ~ '.' }}
                                         </p>
                                     </div>
-                                    
-                                    <div class="text-xs ml-auto date flex flex-col">
-                                        <span>{{ blog.createdAt|date('M d, Y') }}</span>
-                                        <span>Reading Time: 3m</span>
-                                    </div>
+                                </div>
+
+                                <div class="px-4">
+                                    <h1 class="title font-semibold text-lg text-gray-800 line-clamp-2 text-justify">
+                                        {{ blog.title }}
+                                    </h1>
+                                    <p class="text-sm text-gray-500 line-clamp-3 italic text-justify">
+                                        {{ blog.summary }}
+                                    </p>
 
                                     
                                 </div>
+
+                                <div class="text-xs md:text-sm date flex mt-auto px-4 mb-4 justify-between">
+                                    <span>{{ blog.createdAt|date('M d, Y') }}</span>
+                                    <div class="bg-border h-4 w-[1px]"></div>
+                                    <span class="italic flex items-center"><i class="icon-clock mr-1"></i>{{blog.blogAnalytics.readingTime}} min read</span>
+                                    <div class="bg-border h-4 w-[1px]"></div>
+                                    <span class="flex items-center"><i class="icon-eye mr-1"></i>{{ formatViews(blog.blogAnalytics.views) }} Views</span>
+                                </div> 
+                                 
                             </div>
+                        </a>
                         {% endfor %}
                     </div>
                 </div>

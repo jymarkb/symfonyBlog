@@ -49,7 +49,9 @@ final class PagesController extends AbstractController
     public function pageCreate(Request $request): Response
     {
         $blog = new Blog();
-        $form = $this->createForm(CreateNewPageType::class, $blog, ['isEditPage' => false]);
+        $form = $this->createForm(CreateNewPageType::class, $blog, [
+            'isEditPage' => false,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -69,7 +71,7 @@ final class PagesController extends AbstractController
         return $this->render('dashboard/component/form.blog.html.twig', [
             'form' => $form->createView(),
             'titleForm' => 'Create New Blog Page',
-            'submitPath' => 'dashboard.pages.create'
+            'submitPath' => 'dashboard.pages.create',
         ]);
     }
 
@@ -77,9 +79,7 @@ final class PagesController extends AbstractController
     public function pagePreview(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
-        $category = $this->categoryRepository->find(
-            $data['create_new_page[category]']
-        );
+        $category = $this->categoryRepository->find($data['category']);
         if (!$data) {
             return new Response(
                 'Invalid JSON data',
@@ -112,7 +112,9 @@ final class PagesController extends AbstractController
             throw $this->createNotFoundException('Page not found');
         }
 
-        $form = $this->createForm(CreateNewPageType::class, $blog, ['isEditPage' => true]);
+        $form = $this->createForm(CreateNewPageType::class, $blog, [
+            'isEditPage' => true,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -137,7 +139,7 @@ final class PagesController extends AbstractController
                 ? '/img/blog/thumbnails/' . $blog->getHtmlThumbnail()
                 : null,
             'submitPath' => 'dashboard.pages.edit',
-            'slug' => $slug
+            'slug' => $slug,
         ]);
     }
 
@@ -145,8 +147,7 @@ final class PagesController extends AbstractController
     {
         $status = $request->get('status', null);
         $file =
-            $request->files->get('create_new_page')['htmlThumbnail'] ??
-            null;
+            $request->files->get('create_new_page')['htmlThumbnail'] ?? null;
 
         $data = [
             'formData' => $form->getData(),

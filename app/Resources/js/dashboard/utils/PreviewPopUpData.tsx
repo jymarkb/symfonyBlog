@@ -1,26 +1,13 @@
+import React, { JSX } from 'react';
 import { toast } from 'sonner';
-
-const fetchPreview = async (data: Record<string, any>): Promise<string> => {
-  try {
-    const response = await fetch('/dashboard/pages/preview', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
-    return response.text();
-  } catch (error) {
-    console.error('Failed to fetch preview:', error);
-    return '';
-  }
-};
+import { fetchPreview } from '../components/action/PopupPreviewAction';
+import { PageFormData } from './props';
 
 // Function to execute script inside the popup
 const executeScripts = (element: HTMLElement) => {
   element.querySelectorAll('script').forEach((oldScript) => {
     const newScript = document.createElement('script');
+
     if (oldScript.src) {
       newScript.src = oldScript.src;
       newScript.async = true;
@@ -28,13 +15,17 @@ const executeScripts = (element: HTMLElement) => {
       newScript.textContent = oldScript.textContent;
     }
 
-    oldScript.replaceWith(newScript);
+    oldScript.parentNode?.removeChild(oldScript); // Remove safely
+    element.appendChild(newScript); // Append new script
   });
 };
 
-const PreviewPopUpData = async () => {
+const PreviewPopUpData = async (): Promise<{
+  openModal: boolean;
+  data: JSX.Element | null;
+}> => {
   const form = document.getElementById('blogForm') as HTMLFormElement | null;
-  if (!form) return;
+  if (!form) return { openModal: false, data: null };
 
   const formData = new FormData(form);
   const excludeFields = new Set([
@@ -43,29 +34,39 @@ const PreviewPopUpData = async () => {
     'create_new_page[htmlScript]',
   ]);
 
-  const formJson: Record<string, any> = {};
+  const formJson: Partial<PageFormData> = {}; // Fix: Ensuring compatibility
   const emptyFields: string[] = [];
 
   formData.forEach((value, key) => {
-    if (
-      !excludeFields.has(key) &&
-      (!value || (typeof value === 'string' && value.trim() === ''))
-    ) {
-      emptyFields.push(key);
+    if (excludeFields.has(key) && !value) return;
+
+    const match = key.match(/^create_new_page\[(.*?)\]$/);
+
+    if (match) {
+      const fieldName = match[1] as keyof PageFormData;
+
+      if (fieldName === 'htmlThumbnail') {
+        formJson[fieldName] = value instanceof File ? value : {};
+      } else {
+        formJson[fieldName] = value as string;
+      }
+
+      if (typeof value === 'string' && value.trim() === '') {
+        emptyFields.push(fieldName);
+      }
     }
-    formJson[key] = value;
   });
 
   if (emptyFields.length) {
     toast.error('Form Submission Error: Missing Required Fields', {
       description:
-        'Please fill in the required fields: Title, Category, Summary, Body Content',
+        'Please fill in the required fields: ' + emptyFields.join(', '),
       duration: 1500,
     });
     return { openModal: false, data: null };
   }
 
-  const popupData = await fetchPreview(formJson);
+  const popupData = await fetchPreview(formJson as PageFormData);
 
   return {
     openModal: true,

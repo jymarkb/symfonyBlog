@@ -8,7 +8,6 @@ export default {
     './assets/**/*.{js,ts,jsx,tsx}', // Symfony assets
     './templates/**/*.twig', // Symfony Twig templates
     './src/**/*.php', // Symfony backend templates
-    // './components/**/*.{js,ts,jsx,tsx}',
     './node_modules/@shadcn/ui/dist/**/*.{js,ts,jsx,tsx}', // ShadCN UI components
     './app/Resources/**/*.{js,ts,jsx,tsx}',
   ],
@@ -34,10 +33,10 @@ export default {
       },
       colors: {
         primaryTheme: {
-          DEFAULT: 'hsl(var(--primary-theme))',     
-          50: 'hsl(var(--primary-theme) / 0.1)',   // Lightest shade
-          100: 'hsl(var(--primary-theme) / 0.2)',
-          900: 'hsl(var(--primary-theme) / 0.9)',
+          DEFAULT: 'hsl(var(--primary-theme, 220, 90%, 56%))', // Fallback if missing
+          50: 'hsl(var(--primary-theme, 220, 90%, 56%) / 0.1)',
+          100: 'hsl(var(--primary-theme, 220, 90%, 56%) / 0.2)',
+          900: 'hsl(var(--primary-theme, 220, 90%, 56%) / 0.9)',
         },
         secondaryTheme: 'hsl(var(--secondary-theme))',
         border: 'hsl(var(--border))',

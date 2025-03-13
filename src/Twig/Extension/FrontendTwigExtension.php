@@ -15,6 +15,7 @@ class FrontendTwigExtension extends AbstractExtension
             new TwigFunction('activePage', [$this, 'activePage']),
             new TwigFunction('blogStatus', [$this, 'blogStatus']),
             new TwigFunction('blogIcon', [$this, 'blogIcon']),
+            new TwigFunction('formatViews', [$this, 'formatViews']),
         ];
     }
 
@@ -34,5 +35,13 @@ class FrontendTwigExtension extends AbstractExtension
     {
         $icons = ['1' => 'icon-newspaper', '2' => 'icon-rss', '3' => 'icon-book-text'];
         return $icons[$id];
+    }
+
+    public function formatViews(int $viewCount): string
+    {
+        if ($viewCount >= 1000) {
+            return number_format($viewCount / 1000, 1) . "K"; 
+        }
+        return $viewCount;
     }
 }

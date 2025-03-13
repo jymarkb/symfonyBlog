@@ -1,11 +1,12 @@
-import { ReactNode, use, useState } from 'react';
+import React from 'react';
+import { ReactNode, useState } from 'react';
 import ActionDialog from './action/ActionDialog';
 import {
   shareBlog,
   deleteBlog,
   editBlog,
   previewBlog,
-} from './action/tableMenuAction';
+} from './action/TableMenuAction';
 import { ButtonTableProps } from '../utils/props';
 
 const TableMenu = ({ data }: { data: ButtonTableProps }) => {

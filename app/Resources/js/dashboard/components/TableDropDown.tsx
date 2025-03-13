@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TableDropDownProps } from '../utils/props';
 const TableDropDown: React.FC<TableDropDownProps> = ({
   targetX = 0,
-  targetY = 0 ,
+  targetY = 0,
   isVisible = false,
   children = null,
+}: {
+  targetX: number;
+  targetY: number;
+  isVisible: boolean;
+  children: React.ReactNode | null;
 }) => {
   const [isRendered, setIsRendered] = useState(false);
 
