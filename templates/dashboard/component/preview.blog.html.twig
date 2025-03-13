@@ -1,9 +1,9 @@
 <div class="container py-8 justify-center {{ category.name|lower }} mb-36">
-    <h1 class="title text-4xl font-bold my-5 text-center">{{ data["create_new_page[title]"] }}</h1>
+    <h1 class="title text-4xl font-bold my-5 text-center">{{ data.title }}</h1>
 
     <div class="editor-content">
-        {{ data["create_new_page[summary]"]|raw }}
-        {{ data["create_new_page[htmlContent]"]|raw }}
+        {{ data.summary|raw }}
+        {{ data.htmlContent|raw }}
     </div>
 
      <style>
@@ -17,11 +17,11 @@
         }
 
         .editor-content {
-            {{ data["create_new_page[htmlStyle]"]|raw }}
+            {{ data.htmlStyle|raw }}
         }
     </style>
 
     <script>
-        {{ data["create_new_page[htmlScript]"]|raw }}
+        {{ data.htmlScript|raw }}
     </script>
 </div>

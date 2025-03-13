@@ -1,3 +1,4 @@
+import React from 'react';
 import ReactDom from 'react-dom/client';
 import TableDropDown from './TableDropDown';
 import TableMenu from './TableMenu';
@@ -9,7 +10,7 @@ const TableAction = () => {
   const tableId = document.getElementById('blogTable');
 
   if (!tableId) return;
-  
+
   const selectedData: ButtonTableProps = {
     id: '',
     slug: '',
@@ -43,14 +44,13 @@ const TableAction = () => {
     const dropdownContainer = document.getElementById(dropdownId);
     if (!dropdownContainer) return;
 
-    toggleDropdown(dropdownId, dropdownContainer, targetBtn, targetBtn.id);
+    toggleDropdown(dropdownId, dropdownContainer, targetBtn);
   };
 
   const toggleDropdown = (
     dropdownId: string,
     dropdownContainer: HTMLElement,
     targetBtn: HTMLElement,
-    dataId: string,
   ) => {
     closeAllDropdowns();
 
