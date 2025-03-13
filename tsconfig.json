@@ -13,5 +13,5 @@
     "skipLibCheck": true,
     "moduleResolution": "node" // Proper resolution for node modules
   },
-  "include": ["app/Resources/js/**/*", "assets/**/*"]
+  "include": ["**/*.ts", "**/*.tsx"]
 }
