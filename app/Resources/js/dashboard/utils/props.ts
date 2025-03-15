@@ -31,3 +31,25 @@ export type PageFormData = {
 
 export type FiltersType = Record<string, Record<string, number> | string>;
 
+export type BlogPost = {
+  title: string;
+  blog_id: number;
+  status: number;
+  slug: string;
+  created_at: {
+    date: string;
+    timezone_type: number;
+    timezone: string;
+  };
+  updated_at: {
+    date: string;
+    timezone_type: number;
+    timezone: string;
+  };
+  category_id: number;
+  name: string;
+  firstName: string;
+  lastName: string;
+};
+
+

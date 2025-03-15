@@ -8,18 +8,19 @@
 	{{ encore_entry_script_tags('dashboard/pages/script') }}
 	<script>
 		document.addEventListener("DOMContentLoaded", function () {
-setTimeout(() => {
-{% for label, messages in app.flashes(['success', 'error']) %}
-{% for message in messages %}
-document.dispatchEvent(new CustomEvent("show-toast", {
-detail: {
-type: "{{ label }}",
-message: "{{ message }}"
-}
-}));{% endfor %}
-{% endfor %}
-}, 250);
-});
+			setTimeout(() => {
+				{% for label, messages in app.flashes(['success', 'error']) %}
+					{% for message in messages %}
+						document.dispatchEvent(new CustomEvent("show-toast", {
+							detail: {
+							type: "{{ label }}",
+							message: "{{ message }}"
+						}
+					}));
+					{% endfor %}
+				{% endfor %}
+			}, 250);
+		});
 	</script>
 {% endblock %}
 

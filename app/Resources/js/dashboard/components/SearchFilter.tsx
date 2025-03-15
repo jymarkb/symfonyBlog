@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Filters } from './Filters';
 import { FiltersType } from '../utils/props';
 import { SearchFilterAction } from './action/SearchFilterAction';
+import { TableRenderAction } from './action/TableRenderAction';
 
 export const SearchFilter = ({
   onLoad,
@@ -11,7 +12,6 @@ export const SearchFilter = ({
   onFail?: () => void;
 }) => {
   const [filters, setFilter] = useState<FiltersType>({});
-
   const dataFilter: Record<string, string[]> = {
     status: ['drafted', 'published'],
     category: ['article', 'news', 'information'],
@@ -23,7 +23,7 @@ export const SearchFilter = ({
     const targetBtn = e?.target as HTMLButtonElement;
 
     const fetchData = await SearchFilterAction({ filters: filters });
-    console.log(fetchData);
+    TableRenderAction({ fetchData });
 
     if (targetBtn?.id !== 'applyFilter') return;
 
@@ -42,11 +42,17 @@ export const SearchFilter = ({
 
     if (!searchBar) return;
 
-    const handleSearch = () => {
+    const handleSearch = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter' && e.key !== 'Backspace') return;
+      handleApplyFilter(null);
+    };
+
+    const handleSearchInput = () => {
       const value = searchBar.value.trim();
+
       setFilter((prevFilters) => ({
         ...prevFilters,
-        title: value || prevFilters.title,
+        title: value,
       }));
       btnClear?.classList.toggle('opacity-0', !value);
     };
@@ -59,21 +65,25 @@ export const SearchFilter = ({
       });
       searchBar.value = '';
       btnClear?.classList.add('opacity-0');
+
+      handleApplyFilter(null);
     };
 
     const handleSearchClick = () => handleApplyFilter(null);
-    btnSearch?.addEventListener('click', handleSearchClick);
+    const handleInputType = (ev: KeyboardEvent) => handleSearch(ev);
 
     onLoad?.();
     onFail?.();
 
     btnClear?.addEventListener('click', handleClear);
-    searchBar?.addEventListener('input', handleSearch);
-
+    searchBar?.addEventListener('keydown', handleInputType);
+    searchBar?.addEventListener('input', handleSearchInput);
+    btnSearch?.addEventListener('click', handleSearchClick);
     return () => {
       btnSearch?.removeEventListener('click', handleSearchClick);
       btnClear?.removeEventListener('click', handleClear);
-      searchBar?.removeEventListener('input', handleSearch);
+      searchBar?.removeEventListener('keydown', handleInputType);
+      searchBar?.removeEventListener('input', handleSearchInput);
     };
   }, [onLoad, onFail, filters]); // Ensures latest filter state
 

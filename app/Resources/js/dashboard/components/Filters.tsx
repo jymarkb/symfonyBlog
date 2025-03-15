@@ -26,8 +26,6 @@ export const Filters = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dataFilter = e.target.getAttribute('data-filter') as string;
-    console.log(e.target.value);
-    
     const updateFilter = {
       ...filter,
       [dataFilter]: {
