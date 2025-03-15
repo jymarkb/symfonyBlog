@@ -30,6 +30,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable intl \
     && rm -rf /var/lib/apt/lists/*
 
+COPY ./docker/phpfpm/php.ini /usr/local/etc/php/conf.d/
+
 WORKDIR /www
 ADD ./ /www
 

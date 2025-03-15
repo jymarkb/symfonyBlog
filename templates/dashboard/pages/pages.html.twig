@@ -8,16 +8,18 @@
 	{{ encore_entry_script_tags('dashboard/pages/script') }}
 	<script>
 		document.addEventListener("DOMContentLoaded", function () {
-			setTimeout(() => {
-				{% for label, messages in app.flashes(['success', 'error']) %}
-					{% for message in messages %}
-						document.dispatchEvent(new CustomEvent("show-toast", {
-						detail: { type: "{{ label }}", message: "{{ message }}" }
-						}));
-				{% endfor %}
-			{% endfor %}
-		}, 250);
-		});
+setTimeout(() => {
+{% for label, messages in app.flashes(['success', 'error']) %}
+{% for message in messages %}
+document.dispatchEvent(new CustomEvent("show-toast", {
+detail: {
+type: "{{ label }}",
+message: "{{ message }}"
+}
+}));{% endfor %}
+{% endfor %}
+}, 250);
+});
 	</script>
 {% endblock %}
 
@@ -31,73 +33,77 @@
 			<div class="max-w-lg w-full flex items-center flex gap-2">
 				<div class="search-form-group w-full flex items-center flex">
 					<input id="pageSearch" type="text" class="border border-input bg-white/50 px-3 px-1 text-base rounded-md shadow transition-colors placeholder:text-muted-foreground md:text-sm h-10 w-full" placeholder="Type a blog title to search...">
-					<button id="btnSearch" class="ml-[-35px] bg-primaryTheme h-7 w-7 text-white rounded-full flex items-center justify-center text-sm hover:bg-primaryTheme-900"><i class="icon-search"></i></button>
-					<button id="clearSearch" class="text-lg text-primaryTheme font-bold ml-[-50px] flex items-center justify-center opacity-0 transition duration-300"><i class="icon-x"></i></button>
+					<button id="btnSearch" class="ml-[-35px] bg-primaryTheme h-7 w-7 text-white rounded-full flex items-center justify-center text-sm hover:bg-primaryTheme-900">
+						<i class="icon-search"></i>
+					</button>
+					<button id="clearSearch" class="text-lg text-primaryTheme font-bold ml-[-50px] flex items-center justify-center opacity-0 transition duration-300">
+						<i class="icon-x"></i>
+					</button>
 				</div>
 
 				<div>
-					<button id="btnFilter" class="size-10 bg-white text-primaryTheme p-1 rounded-md hover:bg-primaryTheme hover:text-white transition duration-300 font-bold border shadow"><i class="icon-sliders-horizontal"></i></button>
+					<button id="btnFilter" class="size-10 bg-white text-primaryTheme p-1 rounded-md hover:bg-primaryTheme hover:text-white transition duration-300 font-bold border shadow">
+						<i class="icon-sliders-horizontal"></i>
+					</button>
 				</div>
 			</div>
 
 		</div>
 	</div>
 
-	<div class="table-wrapper relative w-full overflow-auto rounded-md border max-h-[530px] z-10">
+	<div class="table-wrapper relative w-full overflow-auto rounded-md border max-h-[480px] sm:max-h-[532px] z-10">
 		<table id="blogTable" class="w-full caption-bottom text-sm bg-white shadow">
 			<thead class="[&_tr]:border-b sticky top-0 bg-white">
 				<tr class="transition-colors  border-b">
 					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground">
 						Status
 					</th>
-					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground">
+					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground w-full max-w-[45%]">
 						Title
 					</th>
-					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground">
+					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground hidden sm:table-cell">
 						Category
 					</th>
-					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground">
+					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground hidden md:table-cell">
 						Author
 					</th>
-					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground">
+					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground hidden lg:table-cell">
 						Date Created
 					</th>
-					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground">
+					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground hidden xl:table-cell">
 						Date Updated
 					</th>
 					<th class="h-10 px-2 text-left align-middle font-medium text-muted-foreground"></th>
 				</tr>
 			</thead>
-			<tbody class="[&_tr:last-child]:border-0 overflow-y-auto">
+			<tbody class="[&_tr:last-child]:border-0 overflow-y-auto" id="blogTableBody">
 				{% for blog in blogs %}
 					<tr class="{{blog.category.name|lower}} border-b transition-colors hover:bg-secondaryTheme/5 data-[state=selected]:bg-muted">
-						<td class="p-2 align-middle">
-							<div class="flex p-1 px-2 {{ blog.status is same as('1') ? 'bg-gray-500 ':'bg-primaryTheme' }} rounded text-white w-fit gap-1">
+						<td class="p-2 align-middle whitespace-nowrap">
+							<div class="flex p-1 px-2 {{ blog.status is same as('1') ? 'bg-gray-500 ':'bg-primaryTheme' }} rounded text-white w-fit gap-1 text-xs sm:text-sm">
 								<i class="{{ blog.status is same as('1') ? 'icon-cog':'icon-check' }}"></i>
 								<span class="ml-auto">{{ blogStatus(blog.status) }}</span>
 							</div>
 						</td>
-						<td class="p-2 align-middle">
+						<td class="p-2 align-middle w-full lg:max-w-[40%] xl:max-w-[45%] text-xs sm:text-sm whitespace-normal">
 							{{ blog.title }}
 						</td>
-						<td class="p-2 align-middle">
-							<div class="badge inline-flex items-center rounded  px-2 py-1 shadow text-sm">
-								<i class="{{ blogIcon(blog.category.id) }}">
-									&nbsp;
-								</i>
-								{{ blog.category.name|capitalize }}
+						<td class="p-2 align-middle hidden sm:table-cell whitespace-nowrap">
+							<div class="badge inline-flex items-center rounded px-2 py-1 shadow text-sm h-fit gap-1 text-xs sm:text-sm">
+								<i class="h-fit {{ blogIcon(blog.category.id) }}"></i>
+								<span>{{ blog.category.name|capitalize }}</span>
 							</div>
 						</td>
-						<td class="p-2 align-middle">
+						<td class="p-2 align-middle hidden md:table-cell whitespace-nowrap">
 							{{ blog.account.firstName|capitalize ~ ' ' ~ blog.account.lastName|capitalize|first ~'.'}}
 						</td>
-						<td class="p-2 align-middle">
-							{{ blog.createdAt|date('M d, Y H:i:s A', "Asia/Manila") }}
+						<td class="p-2 align-middle hidden lg:table-cell whitespace-nowrap">
+							{{ blog.createdAt|date('M d, Y, h:i:s A', "Asia/Manila") }}
 						</td>
-						<td class="p-2 align-middle">
-							{{ blog.updatedAt|date('M d, Y H:i:s A', "Asia/Manila") }}
+						<td class="p-2 align-middle hidden xl:table-cell whitespace-nowrap">
+							{{ blog.updatedAt|date('M d, Y, h:i:s A', "Asia/Manila") }}
 						</td>
-						<td class="p-2 align-middle">
+						<td class="p-2 align-middle whitespace-nowrap">
 							<button id="{{ blog.id }}" class="btn-tableAction inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none hover:bg-primaryTheme-100 hover:text-accent-foreground h-8 w-8 p-0" data-dropdown='true' type="button" data-id={{blog.id}} data-slug={{ blog.slug }} data-title={{blog.title | e('html_attr')}} aria-haspopup="menu" aria-expanded="false" data-uri='{{ blog.id }}'>
 								<i class="icon-ellipsis"></i>
 							</button>
