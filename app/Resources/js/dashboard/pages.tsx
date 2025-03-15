@@ -1,9 +1,9 @@
-import { Popup } from './components/Popup';
-import SearchBar from './components/SearchBar';
-import SearchFilter from './components/SearchFilter';
+import React from 'react';
 import { initSideBarNavigation } from './components/SidebarNavigation';
 import TableAction from './components/TableAction';
 import ToastMessage from './components/ToastMessage';
+import { Popup } from './components/Popup';
+import { SearchFilter } from '../component/SearchFilter';
 
 class Pages {
   constructor() {
@@ -12,10 +12,9 @@ class Pages {
 
   init() {
     initSideBarNavigation();
-    SearchBar();
     ToastMessage();
     TableAction();
-    Popup('btnFilter', () => SearchFilter()); // popup filter
+    Popup({ btnTrigger: 'btnFilter', popUpdata: <SearchFilter /> });
   }
 }
 
