@@ -8,6 +8,7 @@ services:
       - dev_mysql_data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=$DATABASE_PASSWORD
+      - TZ
 
   php:
     build:
@@ -17,6 +18,7 @@ services:
       - ./.env
     environment:
       - DATABASE_URL
+      - TZ=$TZ
     # todo fix bin command to work without volumes here
     volumes:
       - .:/www
