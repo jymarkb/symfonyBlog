@@ -2,10 +2,14 @@ import React, { JSX } from 'react';
 import ReactDOM from 'react-dom/client';
 import { PopupWrapper } from './PopupWrapper';
 
+let root: ReactDOM.Root | null;
+
 export const Popup = ({
   btnTrigger,
   popUpdata,
+  isFilter
 }: {
+  isFilter:boolean;
   btnTrigger: string;
   popUpdata: JSX.Element | null;
 }) => {
@@ -13,11 +17,17 @@ export const Popup = ({
   const btnAction = document.getElementById(btnTrigger);
   if (!popDivContainer || !btnAction || !popUpdata) return;
 
-  const root = ReactDOM.createRoot(popDivContainer);
+  const renderPop = (isOpen: boolean, renderAgain: boolean) => {
+    if (!root) {
+      root = ReactDOM.createRoot(popDivContainer);
+    } else if (!isOpen && !renderAgain) {
+      root.unmount();
+      root = null;
+      return;
+    }
 
-  const renderPop = (isOpen: boolean) => {
     root.render(
-      <PopupWrapper openWrapper={isOpen} onClose={() => renderPop(false)}>
+      <PopupWrapper openWrapper={isOpen} onClose={() => renderPop(false, isFilter)}>
         {popUpdata}
       </PopupWrapper>,
     );
@@ -32,7 +42,7 @@ export const Popup = ({
         onLoad: () => {
           //trigger on next tick
           setTimeout(() => {
-            renderPop(true);
+            renderPop(true, isFilter);
             tempRoot.unmount();
           }, 0);
         },
@@ -48,7 +58,7 @@ export const Popup = ({
     
   };
 
-  renderPop(false); // todo: on edit/create
+  renderPop(false, isFilter); // todo: on edit/create
 
   btnAction.removeEventListener('click', handleClick);
   btnAction.addEventListener('click', handleClick);
