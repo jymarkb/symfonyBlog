@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { FiltersType } from '../dashboard/utils/props';
-import { Filters } from '../dashboard/components/Filters';
-import { SearchFilterAction } from '../dashboard/components/action/SearchFilterAction';
+import { Filters } from './Filters';
+import { FiltersType } from '../utils/props';
+import { SearchFilterAction } from './action/SearchFilterAction';
 
 export const SearchFilter = ({
   onLoad,
