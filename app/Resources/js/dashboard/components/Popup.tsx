@@ -1,66 +1,55 @@
-import ReactDOM from 'react-dom/client';
-import BottomPopupForm from './BottomPopupForm';
-import { PopupProps, PopupWrapperProps } from '../utils/props';
 import React, { JSX } from 'react';
+import ReactDOM from 'react-dom/client';
+import { PopupWrapper } from './PopupWrapper';
 
-export const Popup = (
-  btnActionTrigger: string,
-  updatePopupData: () => Promise<{
-    openModal: boolean;
-    data: JSX.Element | null;
-  }>,
-) => {
-  const popDivContainer = document.getElementById(
-    'popup-container',
-  ) as HTMLElement | null;
-  if (!popDivContainer) return;
+export const Popup = ({
+  btnTrigger,
+  popUpdata,
+}: {
+  btnTrigger: string;
+  popUpdata: JSX.Element | null;
+}) => {
+  const popDivContainer = document.getElementById('popup-container');
+  const btnAction = document.getElementById(btnTrigger);
+  if (!popDivContainer || !btnAction || !popUpdata) return;
 
   const root = ReactDOM.createRoot(popDivContainer);
-  let popupData: JSX.Element | null = null;
 
-  const renderPopup = ({ containerEl, onReady }: PopupProps) => {
-    if (!containerEl) return;
-
+  const renderPop = (isOpen: boolean) => {
     root.render(
-      <BottomPopupForm onReady={onReady}>{popupData}</BottomPopupForm>,
+      <PopupWrapper openWrapper={isOpen} onClose={() => renderPop(false)}>
+        {popUpdata}
+      </PopupWrapper>,
     );
   };
 
-  const handlePopupReady = () => {
-    const btnAction = document.getElementById(btnActionTrigger);
-    if (!btnAction) return;
+  const handleClick = () => {
+    const tempContainer = document.createElement('div');
+    const tempRoot = ReactDOM.createRoot(tempContainer);
 
-    // Ensure the event listener is only attached once
-    btnAction.removeEventListener('click', handleClick);
-    btnAction.addEventListener('click', handleClick);
+    tempRoot.render(
+      React.cloneElement(popUpdata, {
+        onLoad: () => {
+          //trigger on next tick
+          setTimeout(() => {
+            renderPop(true);
+            tempRoot.unmount();
+          }, 0);
+        },
+        onFail: () => {
+          // prevent unmount while rendering, trigger on next tick
+          setTimeout(() => {
+            tempRoot.unmount();
+          }, 0);
+        },
+      }),
+    );
+
+    
   };
 
-  const handleClick = async () => {
-    const popupResponse = await updatePopupData();
+  renderPop(false); // todo: on edit/create
 
-    if (!popupResponse.openModal) return;
-
-    popupData = popupResponse.data;
-
-    renderPopup({
-      containerEl: popDivContainer,
-      onReady: ({ popup, popupContainer }) =>
-        showPopup({ popup, popupContainer }),
-    });
-  };
-
-  const showPopup = ({ popup, popupContainer }: PopupWrapperProps) => {
-    if (!popup || !popupContainer) return;
-
-    popup.classList.remove('pointer-events-none');
-    setTimeout(() => {
-      popup.classList.replace('opacity-0', 'opacity-100');
-      popupContainer.classList.replace('translate-y-full', 'translate-y-0');
-    }, 50);
-  };
-
-  renderPopup({
-    containerEl: popDivContainer,
-    onReady: () => handlePopupReady(),
-  });
+  btnAction.removeEventListener('click', handleClick);
+  btnAction.addEventListener('click', handleClick);
 };
