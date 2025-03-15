@@ -14,7 +14,7 @@ class Pages {
     initSideBarNavigation();
     ToastMessage();
     TableAction();
-    Popup({ btnTrigger: 'btnFilter', popUpdata: <SearchFilter /> });
+    Popup({ btnTrigger: 'btnFilter', isFilter:true, popUpdata: <SearchFilter /> });
   }
 }
 

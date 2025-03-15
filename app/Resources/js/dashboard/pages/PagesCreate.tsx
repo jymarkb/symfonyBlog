@@ -24,7 +24,7 @@ class PagesCreate {
     ThumbnailUploader(fileUploadConfig());
     ScrollListener(); // for header action btn
     ToastMessage();
-    Popup({ btnTrigger: 'btnPreview', popUpdata: <PreviewPopUpData /> }); // preview popup
+    Popup({ btnTrigger: 'btnPreview', isFilter:false, popUpdata: <PreviewPopUpData/> }); // preview popup
   }
 
   initTinyFormEditor() {
