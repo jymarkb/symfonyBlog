@@ -1,3 +1,4 @@
+import React from 'react';
 import { initSideBarNavigation } from '../components/SidebarNavigation';
 import {
   htmlEditorConfig,
@@ -9,8 +10,8 @@ import { Editor } from '../components/Editor';
 import ThumbnailUploader from '../components/ThumbnailUploader';
 import ScrollListener from '../components/ScrollListener';
 import ToastMessage from '../components/ToastMessage';
-import { Popup } from '../components/Popup';
 import PreviewPopUpData from '../utils/PreviewPopUpData';
+import { Popup } from '../components/Popup';
 
 class PagesCreate {
   constructor() {
@@ -19,11 +20,11 @@ class PagesCreate {
 
   init() {
     initSideBarNavigation();
-    this.initTinyFormEditor(); // for html,css,js editor
+    this.initTinyFormEditor(); // for html,css,js editor, todo: switch to "MONACO EDITOR"
     ThumbnailUploader(fileUploadConfig());
     ScrollListener(); // for header action btn
     ToastMessage();
-    Popup('btnPreview', () => PreviewPopUpData());
+    Popup({ btnTrigger: 'btnPreview', popUpdata: <PreviewPopUpData /> }); // preview popup
   }
 
   initTinyFormEditor() {
