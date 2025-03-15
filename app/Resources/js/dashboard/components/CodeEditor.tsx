@@ -26,7 +26,7 @@ const CodeEditor = ({
       ) as HTMLTextAreaElement;
       setInitialData(targetValue?.value);
     }
-    setTimeout(() => setLoading(false), 300);
+    setTimeout(() => setLoading(true), 300);
   }, [editorReady]);
 
   return (
