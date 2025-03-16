@@ -59,15 +59,30 @@
 		</div>
 	</div>
 	<div class="form-wrapper flex justify-center">
+
 		<div class="form-container lg:max-w-7xl w-[95%]">
+
+			<div role="alert" class="relative w-full rounded-lg border px-4 py-3 text-sm bg-sky-100 text-foreground mb-2 flex gap-2">
+				<i class="icon-paperclip h-4 w-4"></i>
+				<div>
+					<h5 class="mb-1 font-medium leading-none tracking-tight">Heads up!</h5>
+					<div class="text-sm">
+						In the next update, we’ll replace 
+						<a class="font-bold text-sky-500" href="https://www.tiny.cloud/docs/tinymce/latest/" target="_blank" >TinyMCE</a>  
+						with  
+						<a class="font-bold text-sky-500" href="https://microsoft.github.io/monaco-editor/" target="_blank" >Monaco Editor</a>.
+					</div>
+				</div>
+			</div>
+
 			{{ form_start(form, {
-    'attr': {
-        'class': 'flex flex-col gap-4',
-        'id': 'blogForm'
-    },
-    'action': path(submitPath, slug is defined ? { 'slug': slug } : {}),
-    'method': 'POST'
-}) }}
+				'attr': {
+					'class': 'flex flex-col gap-4',
+					'id': 'blogForm'
+				},
+				'action': path(submitPath, slug is defined ? { 'slug': slug } : {}),
+				'method': 'POST'
+			}) }}
 
 			<div class="flex gap-2 lg:flex-row flex-col">
 				<div class="lg:w-[60%] w-full flex-col flex gap-2">
