@@ -13,10 +13,11 @@
 					{% for message in messages %}
 						document.dispatchEvent(new CustomEvent("show-toast", {
 							detail: {
-							type: "{{ label }}",
-							message: "{{ message }}"
-						}
-					}));
+								type: "{{ label }}",
+								title: "{{ message['title']|e('js') }}", 
+								message: "{{ message['message']|e('js') }}"
+							}
+						}));
 					{% endfor %}
 				{% endfor %}
 			}, 250);

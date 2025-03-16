@@ -10,12 +10,17 @@
         document.addEventListener("DOMContentLoaded", function () {
             setTimeout(() => {
                 {% for label, messages in app.flashes(['success', 'error']) %}
-                    {% for message in messages %}
-                        document.dispatchEvent(new CustomEvent("show-toast", {
-                            detail: { type: "{{ label }}", message: "{{ message }}" }
-                        }));
-                    {% endfor %}
-                {% endfor %}
+					{% for message in messages %}
+						document.dispatchEvent(new CustomEvent("show-toast", {
+							detail: {
+								type: "{{ label }}",
+								title: "{{ message['title']|e('js') }}", 
+								message: "{{ message['message']|e('js') }}"
+							}
+						}));
+					{% endfor %}
+				{% endfor %}
+
             }, 500);
         });
     </script>

@@ -58,13 +58,22 @@ final class PagesController extends AbstractController
             try {
                 $data = $this->formatData($form, $request);
                 if ($this->pagesService->CreatePage($data, $blog)) {
-                    $this->addFlash('success', 'Page created successfully!');
+                    $this->addFlash('success', [
+                        'title' => 'Create Page:',
+                        'message' =>  'Page created successfully!'
+                    ]);
                     return $this->redirectToRoute('dashboard.pages');
                 }
 
-                $this->addFlash('error', 'Failed to create the page.');
+                $this->addFlash('error', [
+                    'title' => 'Create Page:',
+                    'message' => 'Failed to create the page.'
+                ]);
             } catch (\Throwable $e) {
-                $this->addFlash('error', 'Error: ' . $e->getMessage());
+                $this->addFlash('error', [
+                    'title' => 'Error:',
+                    'message' => $e->getMessage()
+                ]);
             }
         }
 
@@ -99,7 +108,10 @@ final class PagesController extends AbstractController
         $blog = $this->blogRepository->find($id);
         $this->em->remove($blog);
         $this->em->flush();
-        $this->addFlash('success', 'The blog has been deleted.');
+        $this->addFlash('success', [
+            'title' => 'Delete Page:',
+            'message' => 'The blog has been deleted.'
+        ]);
         return new Response(json_encode(['success' => true]), 200);
     }
 
@@ -122,13 +134,22 @@ final class PagesController extends AbstractController
                 $data = $this->formatData($form, $request);
                 $updateData = $this->pagesService->editPage($data);
                 if ($updateData) {
-                    $this->addFlash('success', 'Page successfully updated!');
+                    $this->addFlash('success', [
+                        'title' => 'Update Page:',
+                        'message' =>  'Page successfully updated!'
+                    ]);
                     return $this->redirectToRoute('dashboard.pages');
                 }
 
-                $this->addFlash('error', 'Failed to update the page.');
+                $this->addFlash('error', [
+                    'title' => 'Update Page:',
+                    'message' => 'Failed to update the page.'
+                ]);
             } catch (\Throwable $e) {
-                $this->addFlash('error', 'Error: ' . $e->getMessage());
+                $this->addFlash('error', [
+                    'title' => 'Error:',
+                    'message' => $e->getMessage()
+                ]);
             }
         }
 
