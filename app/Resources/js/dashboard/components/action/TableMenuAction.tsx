@@ -31,7 +31,7 @@ export const deleteBlog = ({ id, title }: { id: string; title: string }) => {
       location.reload();
     } else {
       toast.error('Deletion Failed', {
-        description: 'The blog could not be deleted. Please try again later.',
+        description: <p className='text-sm font-semibold text-red-900'>The blog could not be deleted. Please try again later.</p>,
         duration: 1500,
       });
     }
@@ -72,7 +72,7 @@ export const shareBlog = async ({ slug }: { slug: string }) => {
   const fullUrl = `${window.location.origin}/blog/${slug}`;
   navigator.clipboard.writeText(fullUrl);
   toast.success('Link Copied!', {
-    description: 'The link has been copied to your clipboard.',
+    description: <p className='text-sm font-semibold text-green-900'>The link has been copied to your clipboard</p>,
     duration: 1500,
   });
 };
