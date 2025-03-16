@@ -24,8 +24,8 @@ const PreviewPopUpData = ({
     const formData = new FormData(form);
     const fields = ValidateFields({ formData });
     if (fields.hasEmptyFields) {
-      toast.error('Form Submission Error', {
-        description: 'Please fill in all required fields.',
+      toast.error('Preview Error', {
+        description:  <p className='text-red-500'>Please fill in all required fields: <strong>Title</strong>, <strong>Category</strong>, <strong>Summary</strong>, and <strong>Blog Content</strong>.</p>,
         duration: 1500,
       });
       onFail?.();
