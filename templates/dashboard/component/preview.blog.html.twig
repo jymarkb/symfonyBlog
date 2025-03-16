@@ -1,4 +1,4 @@
-<div class="container py-8 justify-center {{ category.name|lower }} mb-36">
+<div class="container py-8 justify-center {{ category.name|lower }} mb-36 w-full">
     <h1 class="title text-4xl font-bold my-5 text-center">{{ data.title }}</h1>
 
     <div class="editor-content">
@@ -17,11 +17,15 @@
         }
 
         .editor-content {
-            {{ data.htmlStyle|raw }}
+            {% if data.htmlStyle is defined %}
+            {{ data.htmlStyle }}
+            {% endif %}
         }
     </style>
 
     <script>
-        {{ data.htmlScript|raw }}
+        {% if data.htmlScript is defined %}
+            {{ data.htmlScript|raw }}
+        {% endif %}
     </script>
 </div>

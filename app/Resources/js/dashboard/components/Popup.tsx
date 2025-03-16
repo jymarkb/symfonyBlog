@@ -7,9 +7,9 @@ let root: ReactDOM.Root | null;
 export const Popup = ({
   btnTrigger,
   popUpdata,
-  isFilter
+  isFilter,
 }: {
-  isFilter:boolean;
+  isFilter: boolean;
   btnTrigger: string;
   popUpdata: JSX.Element | null;
 }) => {
@@ -27,7 +27,10 @@ export const Popup = ({
     }
 
     root.render(
-      <PopupWrapper openWrapper={isOpen} onClose={() => renderPop(false, isFilter)}>
+      <PopupWrapper
+        openWrapper={isOpen}
+        onClose={() => renderPop(false, isFilter)}
+      >
         {popUpdata}
       </PopupWrapper>,
     );
@@ -54,11 +57,11 @@ export const Popup = ({
         },
       }),
     );
-
-    
   };
 
-  renderPop(false, isFilter); // todo: on edit/create
+  if (isFilter) {
+    renderPop(false, isFilter); // todo: on edit/create
+  }
 
   btnAction.removeEventListener('click', handleClick);
   btnAction.addEventListener('click', handleClick);
