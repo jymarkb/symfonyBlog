@@ -13,15 +13,12 @@
 				<nav class="flex items-center gap-4 text-sm xl:gap-6">
 					<a class="rounded-md  p-2 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/blog">Blogs</a>
 					<a class="rounded-md  p-2 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/">About</a>
-					<a class="rounded-md  p-2 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/">Contact</a>
+					<a class="rounded-md  p-2 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/">Contact Us</a>
 				</nav>
 			</div>
 
-			<button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:text-accent-foreground py-2 -ml-2 mr-2 h-8 w-8 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-:R15u6ja:" data-state="closed">
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="!size-6">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5"></path>
-				</svg>
-				<span class="sr-only">Toggle Menu</span>
+			<button id="headerBtn" class="rounded-md font-medium transition-colors text-primaryTheme hover:text-primaryTheme-500 md:hidden" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-:R15u6ja:" data-state="closed">
+				<i class="icon-menu icon-menu text-2xl"></i>
 			</button>
 
 			{% if route not in excludeRoute and not app.user %}
