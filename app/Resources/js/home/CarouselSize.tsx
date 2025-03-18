@@ -51,13 +51,13 @@ export function CarouselDemo() {
             >
               <div className="p-1">
                 <Card className="w-full sm:w-auto">
-                  <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6 gap-2">
+                  <CardContent className="flex flex-col items-center justify-center p-2 sm:p-4 md:p-6 gap-1 sm:gap-2">
                     <img
-                      className="h-12 w-12 sm:h-14 sm:w-14 object-cover"
+                      className="h-8 w-8 sm:h-14 sm:w-14 object-cover"
                       src={tech.imgSrc}
                       alt={tech.name}
                     />
-                    <h3 className="text-base sm:text-lg md:text-xl font-semibold text-primaryTheme text-center w-full">
+                    <h3 className="text-xs sm:text-md md:text-lg lg:text-xl font-semibold text-primaryTheme text-center w-full">
                       {tech.name}
                     </h3>
                   </CardContent>
