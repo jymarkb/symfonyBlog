@@ -27,7 +27,7 @@ export const SearchFilter = ({
 
     if (targetBtn?.id !== 'applyFilter') return;
 
-    const closeWrapper = document.getElementById('closePopupWrapper');
+    const closeWrapper = document.getElementById('wrapperPopup');
     if (!closeWrapper) return;
 
     closeWrapper.click();
