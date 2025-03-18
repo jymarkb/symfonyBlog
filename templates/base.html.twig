@@ -12,10 +12,16 @@
 		{% endblock %}
 
 	</head>
-	<body>
-		{% block header %}{% endblock %}
-		{% block body %}{% endblock %}
-		{% block footer %}{% endblock %}
+	<body id="mainBody">
+
+
+		<div id="bodyWrapper" class="transition-transform duration-500 transform scale-100">
+			{% block header %}{% endblock %}
+			{% block body %}{% endblock %}
+			{% block footer %}{% endblock %}
+		</div>
+
+		<div id="popup-container"></div>
 
 		{% block javascripts %}
 			{# {{ encore_entry_script_tags('app') }} #}
