@@ -1,4 +1,5 @@
 import React, { ReactNode, useEffect, useState } from 'react';
+import { CustomEventDispatch } from '../../home/action/HomeEventListener';
 
 export const PopupWrapper = ({
   openWrapper,
@@ -13,6 +14,8 @@ export const PopupWrapper = ({
   const [containerVisible, setContainerVisible] = useState(false);
 
   useEffect(() => {
+    document.body.style.overflow = 'hidden'; // it should disable body to scroll when popup is visible
+
     if (openWrapper) {
       const timer = setTimeout(() => {
         setWrapperVisible(true);
@@ -23,9 +26,15 @@ export const PopupWrapper = ({
   }, [openWrapper]);
 
   const handleClose = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.id !== 'wrapperPopup') return;
+
+    document.body.style.overflow = ''; // revert body scroll behaviour
+
     e.stopPropagation();
     setWrapperVisible(false);
     setContainerVisible(false);
+    CustomEventDispatch({ eventTitle: 'close-toast', message: true });
     setTimeout(() => {
       onClose();
     }, 300);
@@ -33,29 +42,21 @@ export const PopupWrapper = ({
 
   return (
     <div
-      className={`wrapper-popup fixed inset-0 bg-gray-700/70 z-50 flex justify-center items-end 
+      id="wrapperPopup"
+      className={`wrapper-popup fixed inset-0 bg-gray-700/70 z-50 flex justify-center items-end h-screen
       ${wrapperVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} 
       transition-opacity duration-300`}
-      onClick={handleClose}
+      onClickCapture={handleClose}
     >
-      <div className="flex flex-col max-h-[90%] max-w-[90%] md:max-w-[70%]">
-        <div className=" z-[100] w-fit ml-auto">
-          <button
-          id='closePopupWrapper'
-            className="text-red-600 text-3xl font-bold ml-auto w-fit"
-            onClick={handleClose}
-          >
-            <i className="icon-x"></i>
-          </button>
-        </div>
-
+      <div className="max-h-[90%] max-w-[100%] md:max-w-[70%]">
         <div
           className={`popup-container bg-white rounded-t-3xl p-5 shadow-lg transform 
           ${containerVisible ? 'translate-y-0' : 'translate-y-full'} 
-          transition-transform duration-500`}
+          transition-transform duration-300`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="form-wrapper p-4 rounded-lg max-h-[100vh] overflow-y-auto">
+          <div className="form-wrapper p-4 rounded-lg max-h-[100vh] overflow-y-auto w-fit">
+            <div className="mx-auto mt-[-20px] mb-[20px] h-2 w-[100px] rounded-full bg-muted"></div>
             {children}
           </div>
         </div>
