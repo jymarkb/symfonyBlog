@@ -2,7 +2,7 @@
 @import 'header.css';
 @import '../components/blog.css';
 
-body {
+#bodyWrapper {
   background-color: hsl(var(--background) / 0.6);
 }
 

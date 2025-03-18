@@ -1,3 +1,4 @@
 // add the class for dynamic rendering
 import dashboard from './dashboard/dashboard-safelist.js';
-module.exports = [...dashboard];
+import homepage from './home/homepage-safelist.js';
+module.exports = [...dashboard, ...homepage];
