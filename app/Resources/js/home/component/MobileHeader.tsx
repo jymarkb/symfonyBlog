@@ -16,14 +16,15 @@ export const MobileHeader = ({
       onFail?.();
       return;
     }
+    onLoad?.();
 
     mainBody?.classList.add('bg-black');
-    targetBody.classList.add('scale-95');
-    targetBody.classList.add('translate-y-[-100px]');
+    setTimeout(() => {
+      targetBody.classList.add('-translate-y-24');
+      targetBody.classList.add('scale-95');
+    }, 100);
 
     CustomEventListener('close-toast', closePopup);
-
-    onLoad?.();
   }, []);
 
   const closePopup = () => {
@@ -32,7 +33,7 @@ export const MobileHeader = ({
 
     if (targetBody.classList.contains('scale-95')) {
       targetBody.classList.remove('scale-95');
-      targetBody.classList.remove('translate-y-[-100px]');
+      targetBody.classList.remove('-translate-y-24');
       targetBody.classList.add('scale-100');
     }
 
@@ -50,6 +51,10 @@ export const MobileHeader = ({
         </li>
         <li className="flex gap-4">
           <i className="icon-swatch-book"></i>
+          <a href="/blog">Blogs</a>
+        </li>
+        <li className="flex gap-4">
+          <i className="icon-shell"></i>
           <a href="/">About</a>
         </li>
         <li className="flex gap-4">
