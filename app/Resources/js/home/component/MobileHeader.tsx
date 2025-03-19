@@ -21,7 +21,6 @@ export const MobileHeader = ({
     mainBody?.classList.add('bg-black');
     setTimeout(() => {
       targetBody.classList.add('-translate-y-24');
-      targetBody.classList.add('scale-95');
     }, 100);
 
     CustomEventListener('close-toast', closePopup);
@@ -31,11 +30,7 @@ export const MobileHeader = ({
     const targetBody = document.getElementById('bodyWrapper');
     if (!targetBody) return;
 
-    if (targetBody.classList.contains('scale-95')) {
-      targetBody.classList.remove('scale-95');
-      targetBody.classList.remove('-translate-y-24');
-      targetBody.classList.add('scale-100');
-    }
+    targetBody.classList.remove('-translate-y-24');
 
     const mainBody = document.getElementById('mainBody');
     mainBody?.classList.remove('bg-black');
