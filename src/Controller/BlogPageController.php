@@ -26,11 +26,16 @@ final class BlogPageController extends AbstractController
         $this->searchService = $searchService;
     }
 
-    #[Route('/test', name: 'test')]
-    public function test(): Response
+    #[Route('/', name: 'index')]
+    public function index(): Response
     {
-        return $this->render('blog_page/index.html.twig', [
-            'controller_name' => 'BlogPageController',
+        $isAdmin = $this->security->isGranted('IS_AUTHENTICATED_FULLY');
+        $blogs = $isAdmin
+            ? $this->blogRepository->showAllPages()
+            : $this->blogRepository->showPageByStatusId();
+
+        return $this->render('blog/blog.post.html.twig', [
+            'blogs' => $blogs,
         ]);
     }
 
@@ -44,24 +49,11 @@ final class BlogPageController extends AbstractController
         return new Response(json_encode($searchData));
     }
 
-    #[Route('/', name: 'index')]
-    public function index(): Response
-    {
-        $isAdmin = $this->security->isGranted('IS_AUTHENTICATED_FULLY');
-        $blogs = $isAdmin
-            ? $this->blogRepository->showAllPages()
-            : $this->blogRepository->showPageByStatusId();
-
-        return $this->render('blog/index.html.twig', [
-            'blogs' => $blogs,
-        ]);
-    }
-
-    #[Route('/{slug}', name: 'pageView')]
-    public function pageView(string $slug): Response
+    #[Route('/{slug}', name: 'view')]
+    public function view(string $slug): Response
     {
         $blog = $this->blogRepository->findOneBy(['slug' => $slug]);
-        return $this->render('blog/pageView.html.twig', [
+        return $this->render('blog/page.view.html.twig', [
             'blog' => $blog,
         ]);
     }
