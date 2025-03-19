@@ -1,4 +1,4 @@
-# </blog> - Blogging CMS
+# `</blog>` - Blogging CMS
 
 ## Introduction
 </blog> is a modern Blogging CMS built with Symfony 7, React.js 18, TypeScript, and Tailwind CSS, designed to provide a seamless content management experience. It features:
