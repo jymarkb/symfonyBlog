@@ -32,7 +32,8 @@ class Home {
   initProfileBG() {
     const headerProfile = document.querySelector('.randomBg');
     if (headerProfile instanceof HTMLElement) {
-      headerProfile.style.backgroundColor = this.randomProfileBG();
+      const color = localStorage.getItem('profileBG');
+      headerProfile.style.backgroundColor = color ?? this.randomProfileBG();
     }
   }
 
@@ -42,6 +43,7 @@ class Home {
     for (let i = 0; i < 6; i++) {
       color += letters[Math.floor(Math.random() * 16)];
     }
+    localStorage.setItem('profileBG', color);
     return color;
   }
 }
