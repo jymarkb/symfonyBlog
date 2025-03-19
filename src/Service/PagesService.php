@@ -95,6 +95,8 @@ class PagesService
                 $formData->setHtmlThumbnail($thumbnail);
             }
 
+            $formData->setUpdatedAt(new \DateTimeImmutable());
+
             $this->em->persist($formData);
             $this->em->flush();
 
