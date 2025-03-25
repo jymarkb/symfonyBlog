@@ -36,6 +36,8 @@ export default {
           DEFAULT: 'hsl(var(--primary-theme, 220, 90%, 56%))', // Fallback if missing
           50: 'hsl(var(--primary-theme, 220, 90%, 56%) / 0.1)',
           100: 'hsl(var(--primary-theme, 220, 90%, 56%) / 0.2)',
+          600: 'hsl(var(--primary-theme, 220, 90%, 56%) / 0.6)',
+          700: 'hsl(var(--primary-theme, 220, 90%, 56%) / 0.7)',
           900: 'hsl(var(--primary-theme, 220, 90%, 56%) / 0.9)',
         },
         secondaryTheme: 'hsl(var(--secondary-theme))',
