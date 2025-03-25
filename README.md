@@ -34,5 +34,12 @@ With these tools in place, you can easily set up, develop, and test the CMS loca
   - Role-based blog posting
 - **User Features**
   - Account profile page
+    - account profile analytics
+    - temporary profile avatar
+    - AccountType constrain
+    - OTP email/phone verification
+    - password validation with special characters
   - Customizable About Page using TinyMCE
   - Contact Us page & inbox
+- **Account Registration**
+  - UX/UI password validation
