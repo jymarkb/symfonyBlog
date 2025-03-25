@@ -20,15 +20,16 @@ export const initSideBarNavigation = (
   if (!btnSidebar) return;
 
   const SideBarAction = () => {
-    if (window.innerWidth < 1024) {
-      btnSidebar?.classList.toggle('active');
-      sidebarWrapper?.classList.toggle('w-72');
-      sidebarWrapper?.classList.toggle('w-0');
-    } else {
-      btnSidebar?.classList.toggle('active');
-      sidebarWrapper?.classList.toggle('w-72');
-      sidebarWrapper?.classList.toggle('w-0');
-    }
+    btnSidebar?.classList.toggle('active');
+    sidebarWrapper?.classList.toggle('w-72');
+    sidebarWrapper?.classList.toggle('w-0');
+    // if (window.innerWidth < 1024) {
+   
+    // } else {
+    //   btnSidebar?.classList.toggle('active');
+    //   sidebarWrapper?.classList.toggle('w-72');
+    //   sidebarWrapper?.classList.toggle('w-0');
+    // }
   };
 
   btnSidebar.addEventListener('click', () => {

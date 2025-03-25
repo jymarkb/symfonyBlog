@@ -1,0 +1,123 @@
+{% extends '/dashboard/pages/profile.html.twig' %}
+
+{% block javascripts %}
+	{{ encore_entry_script_tags('dashboard/profile/script') }}
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			setTimeout(() => {
+				{% for label, messages in app.flashes(['success', 'error']) %}
+					{% for message in messages %}
+						document.dispatchEvent(new CustomEvent("show-toast", {
+							detail: {
+								type: "{{ label }}",
+								title: "{{ message['title']|e('js') }}", 
+								message: "{{ message['message']|e('js') }}"
+							}
+						}));
+					{% endfor %}
+				{% endfor %}
+			}, 250);
+		});
+	</script>
+{% endblock %}
+
+{% block details_content %}
+
+	{# {{ dump(app.flashes) }} #}
+
+	<div class="details-wrapper">
+		<h3 class="font-semibold text-xl text-primaryTheme mb-4">Security</h3>
+
+		<div class="relative border p-4 border-gray-300 rounded-2xl mb-4">
+			<div class="mb-4 flex flex-col sm:flex-row">
+				<div class="">
+					<h3 class="font-semibold text-primaryTheme">Update Password</h3>
+					<p class="text-gray-500 text-sm">Modify your current password</p>
+				</div>
+				<p class="text-gray-500 text-xs italic sm:ml-auto">Last update
+					{{ user.updatedAt|date('M d, Y', "Asia/Manila") }}</p>
+			</div>
+
+			{{ form_start(form,{
+								'attr':{
+									'id': 'updatePassword',
+									'class':'flex flex-col sm:flex-row gap-4'
+								},
+								'action': path('dashboard.profile.security'),
+								'method': 'POST'
+								}
+						)
+			}}
+
+			<div class="w-full sm:w-1/2 grid grid-row gap-1">
+				{{ form_label(form.oldPassword) }}
+				<div class="flex items-center">
+					{{ form_widget(form.oldPassword,{
+						'attr':{
+							 'id': 'currentPassword', 
+							'placeholder':'••••••••',
+							'class':'border border-input bg-transparent p-3 text-base rounded-lg shadow-sm transition-colors md:text-sm h-10 w-full'
+						}
+					}) }}
+					<button class="h-6 w-6 text-primary ml-[-30px]" data_uri="{{ form.oldPassword.vars.full_name }}"><i class="icon-eye-off text-gray-500 hover:text-gray-700"></i></button>
+				</div>
+			</div>
+			
+			<div class="w-full sm:w-1/2 grid grid-row gap-1">
+				{{ form_label(form.newPassword) }}
+				<div class="flex items-center">
+					{{ form_widget(form.newPassword,{
+						'attr':{
+							 'id': 'currentPassword', 
+							'placeholder':'••••••••',
+							'class':'border border-input bg-transparent p-3 text-base rounded-lg shadow-sm transition-colors md:text-sm h-10 w-full'
+						}
+					}) }}
+					<button class="h-6 w-6 text-primary ml-[-30px]" data_uri="{{  form.newPassword.vars.full_name }}"><i class="icon-eye-off text-gray-500 hover:text-gray-700"></i></button>
+				</div>
+			</div>
+
+			{{ form_end(form) }}
+		</div>
+
+        <div class="relative border p-4 border-gray-300 rounded-2xl mb-4">
+            <div class="mb-4">
+                <div class="flex sm:items-center flex-col sm:flex-row sm:gap-2">
+					<h3 class="font-semibold text-primaryTheme">Connected Account</h3>
+					<p class="text-xs flex items-center text-red-500 gap-1 italic"><i class="icon-circle-alert"></i><span>not working at the moment</span></p>
+				</div>
+                <p class="text-gray-500 text-sm">Manage your current connected accounts.</p>
+            </div>
+
+			<div class="connected-account flex flex-col gap-2">
+				<div class="bg-gray-50 flex p-2 gap-3 items-center rounded w-full">
+					<img src="{{ asset('brand/google.svg') }}" class="object-cover h-6 w-6 sm:h-8 sm:w-8" height="32" width="32" alt="connected account logo">
+					<p class="font-semibold text-gray-700">Google</p>
+					<button class="ml-auto text-green-500 border border-2 p-2 rounded-full border-green-500 text-xs font-bold">Connected</button>
+				</div>
+				<div class="bg-gray-50 flex p-2 gap-3 items-center rounded w-full">
+					<img src="{{ asset('brand/github.svg') }}" class="object-cover h-6 w-6 sm:h-8 sm:w-8"  height="32" width="32" alt="connected account logo">
+					<p class="font-semibold text-gray-700">Github</p>
+					<button class="ml-auto text-green-500 border border-2 p-2 rounded-full border-green-500 text-xs font-bold">Connected</button>
+				</div>
+				<div class="bg-gray-50 flex p-2 gap-3 items-center rounded w-full">
+					<img src="{{ asset('brand/linkedin.svg') }}" class="object-cover h-6 w-6 sm:h-8 sm:w-8"  height="32" width="32" alt="connected account logo">
+					<p class="font-semibold text-gray-700">Linkedin</p>
+					<button class="ml-auto text-green-500 border border-2 p-2 rounded-full border-green-500 text-xs font-bold">Connected</button>
+				</div>
+			</div>
+
+        </div>
+
+		<div class="flex p-4">
+			<button 
+				type="submit" 
+				form="updatePassword"
+				formaction="{{ path('dashboard.profile.security') }}"
+				class="ml-auto bg-primaryTheme px-4 py-2 rounded-md text-white text-sm">Save changes</button>
+		</div>
+
+
+	</div>
+
+{% endblock %}

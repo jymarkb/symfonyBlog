@@ -77,7 +77,7 @@ final class PagesController extends AbstractController
             }
         }
 
-        return $this->render('dashboard/component/form.blog.html.twig', [
+        return $this->render('dashboard/component/pages/form.blog.html.twig', [
             'form' => $form->createView(),
             'titleForm' => 'Create New Blog Page',
             'submitPath' => 'dashboard.pages.create',
@@ -96,7 +96,7 @@ final class PagesController extends AbstractController
             );
         }
 
-        return $this->render('dashboard/component/preview.blog.html.twig', [
+        return $this->render('dashboard/component/pages/preview.blog.html.twig', [
             'data' => $data,
             'category' => $category,
         ]);
@@ -153,7 +153,7 @@ final class PagesController extends AbstractController
             }
         }
 
-        return $this->render('dashboard/component/form.blog.html.twig', [
+        return $this->render('dashboard/component/pages/form.blog.html.twig', [
             'form' => $form->createView(),
             'titleForm' => 'Edit Blog Page',
             'existingThumbnail' => $blog->getHtmlThumbnail()
