@@ -1,0 +1,48 @@
+{% extends '/dashboard/index.html.twig' %}
+{% set activeRoute = app.request.attributes.get('_route')  %}
+
+{% block content %}
+
+	<div class="profile-wrapper flex justify-center">
+
+		<div class="w-full max-w-[99%] xl:max-w-[75%] 2xl:max-w-[57%] mx-auto">
+			<h1 class="text-xl sm:text-2xl mb-4 font-medium text-primaryTheme">Profile Settings</h1>
+			<div class="bg-white shadow-md rounded-2xl p-4 sm:px-6 flex flex-col md:flex-row gap-4 md:gap-6">
+				<div class="nav-profile-wrapper sm:mt-2 md:mt-0 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-1 gap-2 min-w-[155px] h-fit rounded-md">
+					{% set links = [
+                        { label: 'Overview', href: 'dashboard.profile.overview', isDelete: false },
+                        { label: 'My Profile', href: 'dashboard.profile.myprofile', isDelete: false },
+                        { label: 'Security', href: 'dashboard.profile.security', isDelete: false },
+                        { label: 'Delete Account', href: 'dashboard.profile.delete', isDelete: true }
+                    ] %}
+
+					{% for link in links %}
+						<a href="{{ path(link.href) }}" class="px-3 py-1 rounded-2xl flex items-center w-fit text-sm sm:text-base mx-0.5 font-light
+                            {% if link.isDelete %}
+                                text-red-500
+                            {% elseif activePage(link.href, activeRoute) %}
+                                bg-primaryTheme text-white scale-105 font-normal
+                            {% else %}
+                                text-slate-600
+                            {% endif %}">
+							{{ link.label }}
+						</a>
+					{% endfor %}
+				</div>
+
+				<div class="w-full pt-4 sm:pt-6 border-t md:border-l md:border-t-0 md:pl-6">
+					{% block details_content %}
+					<div class="flex justify-center">
+						<div class="flex flex-col items-center justify-center gap-2">
+							<img src="{{asset('brand/maintenance.webp')}}" height="500" width="500" alt="">
+							<h1 class="text-3xl font-semibold text-gray-700">UI Work in Progress</h1>
+							<p class="text-sm text-gray-500">Try exploring other sections in the meantime.</p>
+						</div>
+					</div>
+				{% endblock %}
+				</div>
+			</div>
+		</div>
+
+	</div>
+{% endblock %}

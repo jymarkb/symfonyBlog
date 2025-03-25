@@ -30,14 +30,14 @@
 			</li>
 		</ul>
 		<ul class="mt-auto nav-wrapper-bot">
-			<li class="nav-item">
-				<a class="flex gap-2 items-center flex-nowrap" href="/dashboard">
+			<li class="nav-item {{activePage('dashboard.profile', activeRoute) }}">
+				<a class="pl-2 flex gap-2 items-center flex-nowrap" href="{{ path('dashboard.profile.overview') }}">
 					<i class="icon-user p-1 text-2xl"></i>
 					<span class="transform text-1xl">Profile</span>
 				</a>
 			</li>
 			<li class="nav-item">
-				<a class="flex gap-2 items-center flex-nowrap" href="/logout">
+				<a class="pl-2 flex gap-2 items-center flex-nowrap" href="/logout">
 					<i class="icon-log-out p-1 text-2xl rotate-[180]"></i>
 					<span class="transform text-1xl">Logout</span>
 				</a>
