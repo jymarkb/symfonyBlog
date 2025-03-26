@@ -1,4 +1,4 @@
-FROM composer:lts as composer-build
+FROM composer:lts AS composer-build
 
 WORKDIR /www
 
@@ -8,7 +8,7 @@ RUN composer install --prefer-dist --no-scripts --ignore-platform-reqs --no-dev 
 
 ADD ./ /www
 
-FROM node:20 as asset-build
+FROM node:20 AS asset-build
 
 WORKDIR /www
 
