@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maintenance - The &lt;/blog&gt Blog</title>
+
+    <style>
+      * {
+        margin: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: sans-serif;
+        color: hsl(176 43% 45%);
+      }
+
+      h2,
+      h1 {
+        margin: 0;
+      }
+
+      h2 {
+        font-size: 3.5rem;
+        font-weight: 200;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      .error{
+        font-size: 4rem;
+        -webkit-text-stroke: 2px rgb(30, 88, 80);
+        color: white;
+        position: absolute; /* Centers it on the image */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* Perfect centering */
+      }
+
+      .container-img{
+        position: relative;
+        display: flex;
+        justify-content: center; /* Centers image & text horizontally */
+        align-items: center; /* Centers image & text vertically */
+      }
+
+      img {
+        width: 300px;
+      }
+
+      @media (min-width: 640px) {
+        h1 {
+          font-size: 3rem;
+        }
+
+        h2 {
+          font-size: 2.5rem;
+        }
+
+        img {
+          width: 400px;
+        }
+      }
+
+      /* Large screens (768px and above) */
+      @media (min-width: 768px) {
+        h1 {
+          font-size: 3.5rem;
+        }
+
+        h2 {
+          font-size: 3rem;
+        }
+
+        img {
+          width: 500px;
+        }
+
+        .error{
+          font-size: 6rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-img">
+      <img src="{{asset('brand/maintenance.webp')}}" width="600" alt="maintenance image" />
+      <h1 class="error">404</h1>
+    </div>
+    <h2>WE'RE MAKING</h2>
+    <h1>SOME CHANGES</h1>
+  </body>
+</html>

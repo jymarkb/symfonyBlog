@@ -1,6 +1,6 @@
 services:
   database:
-    image: mysql:8.2 # or mysql:8.2
+    image: mysql:9.0
     container_name: symfonyBlog
     ports:
       - '3306:3306'
