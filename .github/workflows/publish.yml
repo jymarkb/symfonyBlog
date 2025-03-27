@@ -16,7 +16,7 @@ jobs:
       - name: Checkout code with full history
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch full history to get branch info
+          fetch-depth: 0
 
       - name: Get branch name for the tag
         run: |
@@ -46,3 +46,10 @@ jobs:
         run: |
           docker build -f docker/nginx/Dockerfile -t ghcr.io/jymarkb/symfony-blog-nginx:${{ env.TAG_NAME }} .
           docker push ghcr.io/jymarkb/symfony-blog-nginx:${{ env.TAG_NAME }}
+
+      - name: Trigger Deploy Workflow
+        run: |
+          curl -X POST -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy.yml/dispatches \
+            -d '{"ref":"production"}'
