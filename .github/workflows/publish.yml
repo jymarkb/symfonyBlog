@@ -2,8 +2,8 @@ name: Production Build
 
 on:
   push:
-    branches:
-      - "fix-*"
+    tags:
+      - "rc-*"  # Triggers only on tags that start with "rc-"
 
 jobs:
   build-and-push:
