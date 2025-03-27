@@ -1,0 +1,45 @@
+name: Build Production
+
+on:
+  push:
+    tags:
+      - "rc-*"  # Triggers only on tags that start with "rc-"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get branch name
+        run: echo "BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_ENV
+
+      - name: Check if branch is production
+        run: |
+          if [[ "${{ env.BRANCH_NAME }}" != "production" ]]; then
+            echo "Tag was not created from the production branch. Exiting."
+            exit 1
+          fi
+
+      - name: Extract tag name
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push PHP-FPM image
+        run: |
+          docker build -f docker/phpfpm/Dockerfile -t ghcr.io/jymarkb/phpfpm:${{ env.TAG_NAME }} .
+          docker push ghcr.io/jymarkb/phpfpm:${{ env.TAG_NAME }}
+
+      - name: Build and push Nginx image
+        run: |
+          docker build -f docker/nginx/Dockerfile -t ghcr.io/jymarkb/nginx:${{ env.TAG_NAME }} .
+          docker push ghcr.io/jymarkb/nginx:${{ env.TAG_NAME }}
