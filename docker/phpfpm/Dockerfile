@@ -36,6 +36,11 @@ COPY ./docker/phpfpm/php.ini /usr/local/etc/php/conf.d/
 WORKDIR /www
 ADD ./ /www
 
+COPY ./app /www/app
+COPY ./public /www/public
+COPY ./templates /www/templates
+COPY ./migrations /www/migrations
+
 COPY --from=composer-build /www/vendor/ /www/vendor/
 COPY --from=asset-build /www/public/ /www/public/
 
