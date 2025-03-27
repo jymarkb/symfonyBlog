@@ -49,4 +49,4 @@ RUN rm -rf /www/var/cache/* /www/var/logs/*
 
 RUN touch ./.env
 
-VOLUME ["/www"]
+# VOLUME ["/www"]
