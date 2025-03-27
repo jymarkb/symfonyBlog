@@ -1,4 +1,4 @@
-name: Publish to GHCR on Production Tag
+name: Production Build
 
 on:
   push:
@@ -23,6 +23,13 @@ jobs:
           BRANCH_NAME=$(git branch -r --contains $GITHUB_SHA | grep 'origin/' | grep -v 'HEAD' | awk -F'/' '{print $NF}' | head -n 1)
           echo "Detected branch: $BRANCH_NAME"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+      
+      - name: Check if tag is from production branch
+        run: |
+          if [[ "${{ env.BRANCH_NAME }}" != "production" ]]; then
+            echo "Tag was not created from the production branch. Exiting."
+            exit 1
+          fi
 
       - name: Extract tag name
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
@@ -33,9 +40,9 @@ jobs:
       - name: Build and push PHP-FPM image
         run: |
           docker build -f docker/phpfpm/Dockerfile -t ghcr.io/jymarkb/phpfpm:${{ env.TAG_NAME }} .
-          docker push ghcr.io/jymarkb/phpfpm:${{ env.TAG_NAME }}
+          docker push ghcr.io/jymarkb/symfonyBlog-phpfpm:${{ env.TAG_NAME }}
 
       - name: Build and push Nginx image
         run: |
           docker build -f docker/nginx/Dockerfile -t ghcr.io/jymarkb/nginx:${{ env.TAG_NAME }} .
-          docker push ghcr.io/jymarkb/nginx:${{ env.TAG_NAME }}
+          docker push ghcr.io/jymarkb/symfonyBlog-nginx:${{ env.TAG_NAME }}
