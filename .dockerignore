@@ -1,5 +1,4 @@
 Dockerfile
-docker/
 env/
 ./bundles
 node_modules/
