@@ -40,9 +40,9 @@ jobs:
       - name: Build and push PHP-FPM image
         run: |
           docker build -f docker/phpfpm/Dockerfile -t ghcr.io/jymarkb/phpfpm:${{ env.TAG_NAME }} .
-          docker push ghcr.io/jymarkb/symfonyBlog-phpfpm:${{ env.TAG_NAME }}
+          docker push ghcr.io/jymarkb/symfony-blog-phpfpm:${{ env.TAG_NAME }}
 
       - name: Build and push Nginx image
         run: |
           docker build -f docker/nginx/Dockerfile -t ghcr.io/jymarkb/nginx:${{ env.TAG_NAME }} .
-          docker push ghcr.io/jymarkb/symfonyBlog-nginx:${{ env.TAG_NAME }}
+          docker push ghcr.io/jymarkb/symfony-blog-nginx:${{ env.TAG_NAME }}
