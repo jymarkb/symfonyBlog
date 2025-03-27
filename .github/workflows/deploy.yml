@@ -1,0 +1,34 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-to-koyeb:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract tag name
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Deploy PHP-FPM to Koyeb
+        run: |
+          curl -X PATCH "https://app.koyeb.com/v1/services/YOUR_PHPFPM_SERVICE_ID" \
+            -H "Authorization: Bearer ${{ secrets.KOYEB_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "container": {
+                "image": "ghcr.io/jymarkb/symfony-blog-phpfpm:${{ env.TAG_NAME }}"
+              }
+            }'
+
+      - name: Deploy Nginx to Koyeb
+        run: |
+          curl -X PATCH "https://app.koyeb.com/v1/services/YOUR_NGINX_SERVICE_ID" \
+            -H "Authorization: Bearer ${{ secrets.KOYEB_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "container": {
+                "image": "ghcr.io/jymarkb/symfony-blog-nginx:${{ env.TAG_NAME }}"
+              }
+            }'
