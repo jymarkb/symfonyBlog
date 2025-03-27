@@ -24,13 +24,6 @@ jobs:
           echo "Detected branch: $BRANCH_NAME"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
-      - name: Check if tag is from production branch
-        run: |
-          if [[ "${{ env.BRANCH_NAME }}" != "production" ]]; then
-            echo "Tag was not created from the production branch. Exiting."
-            exit 1
-          fi
-
       - name: Extract tag name
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
