@@ -1,4 +1,4 @@
-name: Deploy Production
+name: Deploy to Koyeb
 
 on:
   workflow_dispatch:
@@ -13,22 +13,30 @@ jobs:
 
       - name: Deploy PHP-FPM to Koyeb
         run: |
-          curl -X PATCH "https://app.koyeb.com/v1/services/YOUR_PHPFPM_SERVICE_ID" \
+          SERVICE_ID="YOUR_PHPFPM_SERVICE_ID"
+          DEPLOYMENT=$(curl -s -H "Authorization: Bearer ${{ secrets.KOYEB_API_TOKEN }}" \
+            "https://app.koyeb.com/v1/services/$SERVICE_ID")
+          
+          SERVICE_DEFINITION=$(echo "$DEPLOYMENT" | jq '.service')
+          
+          UPDATED_SERVICE=$(echo "$SERVICE_DEFINITION" | jq --arg img "ghcr.io/jymarkb/symfony-blog-phpfpm:${{ env.TAG_NAME }}" '.container.image = $img')
+
+          curl -X PATCH "https://app.koyeb.com/v1/services/$SERVICE_ID" \
             -H "Authorization: Bearer ${{ secrets.KOYEB_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "container": {
-                "image": "ghcr.io/jymarkb/symfony-blog-phpfpm:${{ env.TAG_NAME }}"
-              }
-            }'
+            -d "{\"service\":$UPDATED_SERVICE}"
 
       - name: Deploy Nginx to Koyeb
         run: |
-          curl -X PATCH "https://app.koyeb.com/v1/services/YOUR_NGINX_SERVICE_ID" \
+          SERVICE_ID="YOUR_NGINX_SERVICE_ID"
+          DEPLOYMENT=$(curl -s -H "Authorization: Bearer ${{ secrets.KOYEB_API_TOKEN }}" \
+            "https://app.koyeb.com/v1/services/$SERVICE_ID")
+          
+          SERVICE_DEFINITION=$(echo "$DEPLOYMENT" | jq '.service')
+
+          UPDATED_SERVICE=$(echo "$SERVICE_DEFINITION" | jq --arg img "ghcr.io/jymarkb/symfony-blog-nginx:${{ env.TAG_NAME }}" '.container.image = $img')
+
+          curl -X PATCH "https://app.koyeb.com/v1/services/$SERVICE_ID" \
             -H "Authorization: Bearer ${{ secrets.KOYEB_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "container": {
-                "image": "ghcr.io/jymarkb/symfony-blog-nginx:${{ env.TAG_NAME }}"
-              }
-            }'
+            -d "{\"service\":$UPDATED_SERVICE}"
