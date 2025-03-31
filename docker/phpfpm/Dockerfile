@@ -39,9 +39,12 @@ ADD ./ /www
 COPY --from=composer-build /www/vendor/ /www/vendor/
 COPY --from=asset-build /www/public/ /www/public/
 
-
-RUN rm -rf /www/var/cache/* /www/var/logs/*
+RUN rm -rf /www/var/cache/* && \
+    rm -rf /www/var/logs/*
 
 RUN touch ./.env
+
+ADD ./docker/phpfpm/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 VOLUME ["/www"]
