@@ -10,6 +10,7 @@ WORKDIR /www
 
 COPY package.json yarn.lock tsconfig.json postcss.config.js webpack.config.js tailwind.config.js /www/
 
-RUN yarn install --frozen-lockfile
+RUN yarn install
+RUN yarn run build
 
 CMD ["nginx", "-g", "daemon off;"]
