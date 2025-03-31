@@ -4,7 +4,8 @@ WORKDIR /www
 
 COPY composer.json composer.lock /www/
 
-RUN composer install --prefer-dist --no-scripts --ignore-platform-reqs --no-dev --optimize-autoloader
+# RUN composer install --prefer-dist --no-scripts --ignore-platform-reqs --no-dev --optimize-autoloader
+RUN composer install --prefer-dist --no-scripts --ignore-platform-reqs
 
 ADD ./ /www
 
