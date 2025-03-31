@@ -21,13 +21,6 @@ jobs:
           BRANCH_NAME=$(git branch -r --contains $GITHUB_SHA | grep 'origin/' | grep -v 'HEAD' | awk -F'/' '{print $NF}' | head -n 1)
           echo "Detected branch: $BRANCH_NAME"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-      
-      - name: Check if tag is from production branch
-        run: |
-          if [[ "${{ env.BRANCH_NAME }}" != "production" ]]; then
-            echo "Tag was not created from the production branch. Exiting."
-            exit 1
-          fi
 
       - name: Extract short commit SHA
         run: echo "SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-4)" >> $GITHUB_ENV
