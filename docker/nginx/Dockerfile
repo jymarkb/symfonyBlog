@@ -11,6 +11,9 @@ WORKDIR /www
 COPY package.json yarn.lock tsconfig.json postcss.config.js webpack.config.js tailwind.config.js /www/
 
 RUN yarn install
+
+ADD ./app/Resources/ /www/app/Resources/
+ADD ./assets/ /www/assets/
 RUN yarn run build
 
 CMD ["nginx", "-g", "daemon off;"]
