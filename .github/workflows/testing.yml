@@ -1,0 +1,46 @@
+name: Test Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get branch name for the tag
+        run: |
+          BRANCH_NAME=$(git branch -r --contains $GITHUB_SHA | grep 'origin/' | grep -v 'HEAD' | awk -F'/' '{print $NF}' | head -n 1)
+          echo "Detected branch: $BRANCH_NAME"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+      
+      - name: Check if tag is from production branch
+        run: |
+          if [[ "${{ env.BRANCH_NAME }}" != "production" ]]; then
+            echo "Tag was not created from the production branch. Exiting."
+            exit 1
+          fi
+
+      - name: Extract short commit SHA
+        run: echo "SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-4)" >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push PHP-FPM image
+        run: |
+          docker build -f docker/phpfpm/Dockerfile -t ghcr.io/jymarkb/symfony-blog-phpfpm:${{ env.SHORT_SHA }} .
+          docker push ghcr.io/jymarkb/symfony-blog-phpfpm:${{ env.SHORT_SHA }}
+
+      - name: Build and push Nginx image
+        run: |
+          docker build -f docker/nginx/Dockerfile -t ghcr.io/jymarkb/symfony-blog-nginx:${{ env.SHORT_SHA }} .
+          docker push ghcr.io/jymarkb/symfony-blog-nginx:${{ env.SHORT_SHA }}
