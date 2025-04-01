@@ -4,7 +4,7 @@ WORKDIR /www
 
 COPY composer.json composer.lock /www/
 
-RUN composer install --prefer-dist --no-scripts --ignore-platform-reqs --no-dev --optimize-autoloader
+RUN composer install --prefer-dist --no-scripts --ignore-platform-reqs
 
 ADD ./ /www
 
@@ -41,5 +41,10 @@ COPY --from=asset-build /www/public/ /www/public/
 RUN rm -rf /www/var/cache/* /www/var/logs/*
 
 RUN touch ./.env
+
+ADD ./docker/phpfpm/entrypoint.sh /www/entrypoint.sh
+RUN chmod +x /www/entrypoint.sh
+
+ENTRYPOINT ["/www/entrypoint.sh"]
 
 VOLUME ["/www"]
