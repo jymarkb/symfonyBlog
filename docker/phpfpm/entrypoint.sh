@@ -12,12 +12,6 @@ echo "Permissions for /www/var fixed."
 
 # Warmup cache
 php bin/console cache:warmup
-retCacheWarmer=$?
-
-if [ $retCacheWarmer -ne 0 ]; then
-  echo "Cannot get cache warmer, exiting"
-  exit $retCacheWarmer
-fi
 
 echo "Entrypoint success"
 

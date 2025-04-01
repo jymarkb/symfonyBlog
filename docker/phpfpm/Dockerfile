@@ -43,7 +43,7 @@ RUN rm -rf /www/var/cache/* && \
 
 RUN touch ./.env
 
-ADD ./docker/phpfpm/entrypoint.sh /entrypoint.sh
+ADD ./docker/phpfpm/entrypoint.sh /www/entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 VOLUME ["/www"]
