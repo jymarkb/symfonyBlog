@@ -16,12 +16,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get branch name for the tag
-        run: |
-          BRANCH_NAME=$(git branch -r --contains $GITHUB_SHA | grep 'origin/' | grep -v 'HEAD' | awk -F'/' '{print $NF}' | head -n 1)
-          echo "Detected branch: $BRANCH_NAME"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
       - name: Extract short commit SHA
         run: echo "SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-4)" >> $GITHUB_ENV
 
@@ -35,5 +29,7 @@ jobs:
 
       - name: Build and push Nginx image
         run: |
-          docker build -f docker/nginx/Dockerfile -t ghcr.io/jymarkb/symfony-blog-nginx:${{ env.SHORT_SHA }} .
+          docker pull ghcr.io/jymarkb/symfony-blog-phpfpm:${{ env.SHORT_SHA }}
+          docker build -f docker/nginx/Dockerfile \
+            -t ghcr.io/jymarkb/symfony-blog-nginx:${{ env.SHORT_SHA }} .
           docker push ghcr.io/jymarkb/symfony-blog-nginx:${{ env.SHORT_SHA }}
