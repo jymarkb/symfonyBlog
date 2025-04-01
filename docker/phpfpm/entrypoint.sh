@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -e
 
 echo "Warming up cache"
 mkdir -p /www/var
@@ -10,10 +10,4 @@ php bin/console cache:clear --env=prod --no-warmup
 php bin/console cache:warmup --env=prod
 
 echo "Entrypoint success"
-
-# Default to PHP-FPM if no command is provided
-if [ "$#" -eq 0 ]; then
-    exec php-fpm -F
-else
-    exec "$@"
-fi
+exec php-fpm -F
