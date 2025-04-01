@@ -11,4 +11,9 @@ php bin/console cache:warmup --env=prod
 
 echo "Entrypoint success"
 
-exec "$@"
+# Default to PHP-FPM if no command is provided
+if [ "$#" -eq 0 ]; then
+    exec php-fpm -F
+else
+    exec "$@"
+fi

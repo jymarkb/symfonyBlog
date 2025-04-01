@@ -46,6 +46,7 @@ RUN touch ./.env
 ADD ./docker/phpfpm/entrypoint.sh /www/entrypoint.sh
 RUN chmod +x /www/entrypoint.sh
 
-# ENTRYPOINT ["/www/entrypoint.sh"]
+ENTRYPOINT ["/www/entrypoint.sh"]
+CMD ["php-fpm", "-F"]
 
 VOLUME ["/www"]
