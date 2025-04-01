@@ -1,6 +1,8 @@
 FROM nginx:stable-alpine
 
-COPY --from=ghcr.io/jymarkb/symfony-blog-phpfpm /www/public /www/public
+ARG PHP_FPM_IMAGE
+# Copy built assets from the PHP-FPM image
+COPY --from=${PHP_FPM_IMAGE} /www/public /usr/share/nginx/html
 
 COPY ./docker/nginx/certs/ /etc/nginx/certs/
 COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
