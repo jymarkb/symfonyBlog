@@ -30,7 +30,8 @@ jobs:
 
       - name: Build and push Nginx image
         run: |
+          docker pull ghcr.io/jymarkb/symfony-blog-phpfpm:${{ env.SHORT_SHA }}
           docker build -f docker/nginx/Dockerfile \
-            --build-arg PHP_FPM_IMAGE=ghcr.io/jymarkb/symfony-blog-phpfpm:${{ env.SHORT_SHA }} \
+            --build-arg PHP_FPM_TAG=${{ env.SHORT_SHA }} \
             -t ghcr.io/jymarkb/symfony-blog-nginx:${{ env.SHORT_SHA }} .
           docker push ghcr.io/jymarkb/symfony-blog-nginx:${{ env.SHORT_SHA }}
