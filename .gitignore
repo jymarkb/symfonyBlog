@@ -21,7 +21,7 @@
 
 ###> symfony/asset-mapper ###
 /public/assets/
-/public/img/blog/thumbnails/
+# /public/img/blog/thumbnails/
 /assets/vendor/
 ###< symfony/asset-mapper ###
 
