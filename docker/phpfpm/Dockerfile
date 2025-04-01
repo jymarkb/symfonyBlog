@@ -44,6 +44,6 @@ RUN rm -rf /www/var/cache/* && \
 RUN touch ./.env
 
 ADD ./docker/phpfpm/entrypoint.sh /www/entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /www/entrypoint.sh
 
 VOLUME ["/www"]
