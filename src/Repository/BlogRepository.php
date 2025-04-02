@@ -51,6 +51,19 @@ class BlogRepository extends ServiceEntityRepository
     public function showPageByStatusId(int $statusId = Blog::PUBLISHED): array
     {
         return $this->createQueryBuilder('b')
+            ->select(
+                'b.title',
+                'b.slug',
+                'b.htmlThumbnail',
+                'b.created_at',
+                'b.summary'
+            )
+            ->leftJoin('b.category', 'c')
+            ->addSelect('c.name', 'c.category_id')
+            ->leftJoin('b.account', 'a')
+            ->addSelect('a.firstName', 'a.lastName', 'a.avatar')
+            ->leftJoin('b.blogAnalytics', 'analytics')
+            ->addSelect('analytics.views', 'analytics.readingTime')
             ->where('b.status = :published')
             ->setParameter('published', $statusId)
             ->orderBy('b.created_at', 'DESC')
@@ -71,7 +84,7 @@ class BlogRepository extends ServiceEntityRepository
             )
             ->addSelect('c.name', 'c.category_id')
             ->leftJoin('b.account', 'a')
-            ->addSelect('a.firstName', 'a.lastName')
+            ->addSelect('a.firstName', 'a.lastName', 'a.avatar')
             ->leftJoin('b.blogAnalytics', 'analytics')
             ->addSelect('analytics.views', 'analytics.readingTime')
             ->orderBy('b.created_at', 'DESC')

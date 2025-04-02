@@ -95,7 +95,7 @@ export const SearchFilter = ({
   };
 
   return (
-    <div className="text-xl w-[350px] flex flex-col gap-2">
+    <div className="text-xl flex flex-col gap-2">
       <Filters dataFilter={dataFilter} onFilterChange={handleFilterChange} />
       <button
         id="applyFilter"

@@ -43,19 +43,20 @@ export const PopupWrapper = ({
   return (
     <div
       id="wrapperPopup"
-      className={`wrapper-popup fixed inset-0 bg-gray-700/70 z-50 flex justify-center items-end h-screen
+      className={`wrapper-popup fixed inset-0 bg-gray-700/70 z-50
       ${wrapperVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} 
       transition-opacity duration-300`}
       onClickCapture={handleClose}
     >
-      <div className="max-h-[90%] max-w-[100%] md:max-w-[70%]">
-        <div
-          className={`popup-container bg-white rounded-t-3xl p-5 shadow-lg transform 
-          ${containerVisible ? 'translate-y-0' : 'translate-y-full'} 
+      <div
+        className={`bg-white rounded-t-3xl max-h-[90%] popup-data-wrapper absolute bottom-0 left-1/2 -translate-x-1/2 transform ${containerVisible ? 'translate-y-0' : 'translate-y-full'} 
           transition-transform duration-300`}
+      >
+        <div
+          className={`popup-container bg-white rounded-t-3xl p-5 shadow-lg`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="form-wrapper p-4 rounded-lg max-h-[100vh] overflow-y-auto w-fit">
+          <div className="form-wrapper p-4 rounded-lg max-h-[100vh] overflow-y-auto">
             <div className="mx-auto mt-[-20px] mb-[20px] h-2 w-[100px] rounded-full bg-muted"></div>
             {children}
           </div>

@@ -43,3 +43,7 @@
 .title-bg {
   background-color: hsl(var(--primary-theme));
 }
+
+.popup-data-wrapper{
+  width: 95%;
+}

@@ -17,7 +17,7 @@ Encore.setOutputPath('public/dist')
   .addEntry('home/style', './app/Resources/css/home/home.css')
 
   // Account
-  // .addEntry('account/account', './app/Resources/js/account/account.tsx')
+  .addEntry('account/script', './app/Resources/js/account/account.tsx')
   .addEntry('account/style', './app/Resources/css/account/account.css')
 
   //Dashboard
