@@ -2,10 +2,11 @@
 
 {% block content %}
 	<div class="container py-8 flex justify-center">
-		<div class="card-container flex gap-8 lg:max-w-[90%] max-w-[95%] flex-col md:flex-row md:flex-wrap justify-center">
+		<div class="card-container flex gap-8 flex-col md:flex-row md:flex-wrap justify-center">
+			{# {{ dump(blogs) }} #}
 			{% for blog in blogs %}
 				<a href="/blog/{{ blog.slug }}">
-					<div class="{{ blog.category.name|lower }} border shadow rounded max-w-sm bg-white hover:scale-105 transition duration-300 flex flex-col gap-2 h-[480px]">
+					<div class="{{ blog.name|lower }} border shadow rounded max-w-[350px] bg-white hover:scale-105 transition duration-300 flex flex-col gap-2 h-[480px]">
 
 						<div class="px-4 mt-4">
 							<img src="{{ asset('img/blog/thumbnails/'~ blog.htmlThumbnail) }}" class="w-full h-[250px] object-cover rounded-md hover:opacity-90 transition" alt="image for card"/>
@@ -13,17 +14,17 @@
 
 						<div class="flex gap-2">
 							<div class="badge inline-flex items-center px-4 py-2 shadow text-xs w-fit">
-								<i class="{{ blogIcon(blog.category.id) }}">&nbsp;</i>
-								{{ blog.category.name }}
+								<i class="{{ blogIcon(blog.category_id) }}">&nbsp;</i>
+								{{ blog.name }}
 							</div>
 
 
 							<div class="border-l pl-2 inline-flex gap-2">
-								<span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-full">
-									<img class="aspect-square h-full w-full" alt="@shadcn" src="https://github.com/shadcn.png">
+								<span class="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-primaryTheme-600 border-primaryTheme border">
+									<img class="aspect-square object-cover" src="{{asset('img/user/'~ blog.avatar)}}" alt="avatar image">
 								</span>
 								<p class="flex items-center name">
-									{{ blog.account.firstName|capitalize ~ ' ' ~ blog.account.lastName|first|capitalize ~ '.' }}
+									{{ blog.firstName|capitalize ~ ' ' ~ blog.lastName|first|capitalize ~ '.' }}
 								</p>
 							</div>
 						</div>
@@ -40,16 +41,16 @@
 						</div>
 
 						<div class="text-xs md:text-sm date flex mt-auto px-4 mb-4 justify-between">
-							<span>{{ blog.createdAt|date('M d, Y') }}</span>
+							<span>{{ blog.created_at|date('M d, Y') }}</span>
 							<div class="bg-border h-4 w-[1px]"></div>
 							<span class="italic flex items-center">
 								<i class="icon-clock mr-1"></i>
-								{{blog.blogAnalytics.readingTime}}
+								{{blog.readingTime}}
 								min read</span>
 							<div class="bg-border h-4 w-[1px]"></div>
 							<span class="flex items-center">
 								<i class="icon-eye mr-1"></i>
-								{{ formatViews(blog.blogAnalytics.views) }}
+								{{ formatViews(blog.views) }}
 								Views</span>
 						</div>
 
