@@ -3,7 +3,6 @@
 {% block content %}
 	<div class="container py-8 flex justify-center">
 		<div class="card-container flex gap-8 flex-col md:flex-row md:flex-wrap justify-center">
-			{# {{ dump(blogs) }} #}
 			{% for blog in blogs %}
 				<a href="/blog/{{ blog.slug }}">
 					<div class="{{ blog.name|lower }} border shadow rounded max-w-[350px] bg-white hover:scale-105 transition duration-300 flex flex-col gap-2 h-[480px]">
