@@ -37,7 +37,7 @@ export const MobileHeader = ({
   };
 
   return (
-    <div className="w-[85vw]" id="homeHeader">
+    <div id="homeHeader">
       {/* <div className="mx-auto mt-[-20px] mb-[20px] h-2 w-[100px] rounded-full bg-muted"></div> */}
       <ul className="text-2xl mb-8 flex flex-col gap-2">
         <li className="flex gap-4">
