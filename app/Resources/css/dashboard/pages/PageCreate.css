@@ -1,2 +1,6 @@
 @import '/assets/styles/app.css';
 @import '../../components/blog.css';
+
+.popup-data-wrapper{
+    width: 70%;
+  }
