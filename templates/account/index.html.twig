@@ -4,6 +4,11 @@
 	{{ encore_entry_link_tags('account/style') }}
 {% endblock %}
 
+{% block javascripts %}
+	{{ encore_entry_script_tags('account/script') }}
+{% endblock  %}
+
+
 {% block header %}
 	{% include 'home/header.html.twig' %}
 {% endblock %}
@@ -16,7 +21,7 @@
 			class="container-wrapper">
 			{# min-h-[calc(100vh-10rem-2px)] header & footer height + border #}
 			<div class="container min-h-[calc(100vh-10rem-2px)] py-0 px-0 h-full flex items-center justify-center">
-				<div class="form-container m-10 h-auto px-4 sm:px-6 md:px-8 py-4  sm:py-6 md:py-8 bg-white shadow rounded w-11/12 sm:w-9/12 md:w-8/12 lg:w-6/12 xl:w-4/12">
+				<div class="form-container my-5 h-auto px-4 sm:px-6 md:px-8 py-4  sm:py-6 md:py-8 bg-white shadow rounded w-full sm:w-9/12 md:w-8/12 lg:w-6/12 xl:w-4/12">
 					{% block content %}{% endblock %}
 				</div>
 			</div>

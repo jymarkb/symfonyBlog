@@ -29,10 +29,7 @@ final class BlogPageController extends AbstractController
     #[Route('/', name: 'index')]
     public function index(): Response
     {
-        $isAdmin = $this->security->isGranted('IS_AUTHENTICATED_FULLY');
-        $blogs = $isAdmin
-            ? $this->blogRepository->showAllPages()
-            : $this->blogRepository->showPageByStatusId();
+        $blogs = $this->blogRepository->showPageByStatusId();
 
         return $this->render('blog/blog.post.html.twig', [
             'blogs' => $blogs,

@@ -50,3 +50,13 @@
 .tr-animate {
   animation: fadeSlideIn 0.3s ease-out;
 }
+
+.popup-data-wrapper{
+  width: 95%;
+}
+
+@media (min-width:768px) {
+  .popup-data-wrapper{
+    width: 350px;
+  }
+}
