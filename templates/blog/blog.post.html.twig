@@ -1,5 +1,8 @@
 {% extends 'blog/index.html.twig' %}
 
+{% block title %}Blogs | The &lt;/blog&gt; Blog
+{% endblock %}
+
 {% block content %}
 	<div class="container py-8 flex justify-center">
 		<div class="card-container flex gap-8 flex-col md:flex-row md:flex-wrap justify-center">
@@ -8,7 +11,7 @@
 					<div class="{{ blog.name|lower }} border shadow rounded max-w-[350px] bg-white hover:scale-105 transition duration-300 flex flex-col gap-2 h-[480px]">
 
 						<div class="px-4 mt-4">
-							<img src="{{ asset('img/blog/thumbnails/'~ blog.htmlThumbnail) }}" class="w-full h-[250px] object-cover rounded-md hover:opacity-90 transition" alt="image for card"/>
+							<img src="{{ asset('img/blog/thumbnails/'~ blog.htmlThumbnail) }}" loading="lazy" class="w-full h-[250px] object-cover rounded-md hover:opacity-90 transition" alt="image for card"/>
 						</div>
 
 						<div class="flex gap-2">
