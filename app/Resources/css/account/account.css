@@ -5,6 +5,11 @@ body {
   background-color: hsl(var(--background) / 0.6);
 }
 
+.border-grid {
+  border-style: dashed;
+  border-color: hsl(var(--border-theme) / 0.3);
+}
+
 .default-btn,
 .title-bg {
   background-color: hsl(var(--primary-theme));
