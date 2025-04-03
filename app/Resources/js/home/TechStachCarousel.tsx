@@ -1,6 +1,5 @@
-// import * as React from 'react';
+;
 import React from 'react';
-// import Autoplay from 'embla-carousel-autoplay';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Carousel,
@@ -10,7 +9,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 
-export function CarouselDemo() {
+export function TechStachCarousel() {
   const techStack = [
     { name: 'Symfony', imgSrc: '/img/techstack/symfony.svg', href: '/' },
     { name: 'React', imgSrc: '/img/techstack/reactjs.svg', href: '/' },
@@ -22,7 +21,7 @@ export function CarouselDemo() {
     { name: 'Docker', imgSrc: '/img/techstack/docker.svg', href: '/' },
     { name: 'MySql', imgSrc: '/img/techstack/mysql.svg', href: '/' },
     { name: 'PHP', imgSrc: '/img/techstack/php.svg', href: '/' },
-    { name: 'AWS', imgSrc: '/img/techstack/aws.svg', href: '/' },
+    { name: 'Railway', imgSrc: '/img/techstack/railway.svg', href: '/' },
     { name: 'Github', imgSrc: '/img/techstack/github.svg', href: '/' },
   ];
 
@@ -34,13 +33,6 @@ export function CarouselDemo() {
         loop: true, // Keeps it scrolling infinitely
         containScroll: 'keepSnaps', // Ensures proper snapping
       }}
-      // plugins={[
-      //   Autoplay({
-      //     delay: 2000, // Slide every 2 seconds
-      //     stopOnInteraction: false, // Keeps autoplay running
-      //     stopOnMouseEnter: true, // Stops when hovering
-      //   }),
-      // ]}
     >
       <CarouselContent>
         {techStack.map((tech, index) => {
