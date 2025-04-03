@@ -7,8 +7,19 @@
 {% endblock %}
 
 {% block javascripts %}
-	{# {{ encore_entry_script_tags('app') }} #}
 	{{ encore_entry_script_tags('home/script') }}
+
+	
+	{% if featureData is defined and featureData is not empty %}
+		<script>
+			window.featuresBlog = {
+				'latest': {{ featureData['latest']|json_encode|raw }},
+				'most': {{ featureData['most']|json_encode|raw }}
+			};
+			window.featuresBlog = Object.assign(window.featuresBlog);
+		</script>
+	{% endif %}
+	
 {% endblock  %}
 
 {% block header %}
@@ -34,18 +45,17 @@
 		</div>
 	</div>
 
-	{% include 'home/featured.html.twig' with data %}
+	{% include 'home/featured.html.twig' with featureData %}
 
 	<div class="border-grid border-b">
 		<div class="container-wrapper">
-			<div class="container py-8 flex flex-col items-center justify-center">
+			<div class="container py-8 flex flex-col items-center justify-center w-[95%] lg:w-full">
 				<h2 class="mr-auto section-title font-heading md:text-3xl text-2xl font-semibold tracking-tight mb-4">Tech Stack</h2>
 
 				<div id="carousel" class="w-[80%] sm:w-[90%]"></div>
 			</div>
 		</div>
 	</div>
-
 {% endblock %}
 
 {% block footer %}
