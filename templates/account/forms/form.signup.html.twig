@@ -16,7 +16,7 @@ not form.vars.valid %}
 {{ form_widget(form.firstName, {
     'attr': {
         'type': 'text',
-        'placeholder': 'Firstname',
+        'placeholder': 'firstname',
         'class': 'border border-input bg-transparent p-3 text-base rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full'
     }
 }) }}
@@ -24,27 +24,36 @@ not form.vars.valid %}
 {{ form_widget(form.lastName, {
     'attr': {
         'type': 'text',
-        'placeholder': 'Lastname',
+        'placeholder': 'lastname',
         'class': 'border border-input bg-transparent p-3 text-base rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full'
     }
 }) }}
 
+
 {{ form_widget(form.email, {
     'attr': {
         'type': 'email',
-        'placeholder': 'Email@domain.com',
+        'placeholder': 'email@domain.com',
         'autocomplete': 'on',
         'class': 'border border-input bg-transparent p-3 text-base rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full'
     }
 }) }}
 
+<div class="flex items-center">
+
 {{ form_widget(form.password, {
     'attr': {
         'type': 'password',
-        'placeholder': 'Password',
-        'class': 'border border-input bg-transparent p-3 text-base rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full'
+        'placeholder': 'password',
+        'class': 'inputPassword border border-input bg-transparent p-3 text-base rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full'
     }
 }) }}
+
+<button class="ml-[-2rem] text-gray-500" id="btnShowPass">
+	<i class="h-8 w-8 icon-eye-off"></i>
+</button>
+
+</div>
 
 <div class="valid-password">
 	<ul class="flex flex-wrap text-sm md:text-sm">
