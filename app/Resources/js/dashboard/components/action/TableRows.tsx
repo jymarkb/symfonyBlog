@@ -1,28 +1,13 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { BlogPost } from '../../utils/props';
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleString('en-PH', {
-    year: 'numeric',
-    month: 'short', // "February"
-    day: '2-digit', // "28"
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true, // 12-hour format with AM/PM
-    timeZone: 'Asia/Manila', // Ensures Manila timezone
-  });
-};
+import { FormatDateTable } from '../../../component/FormatDate';
 
 export const TableRows = ({ fetchData }: { fetchData: BlogPost[] }) => {
   const icons = ['icon-newspaper', 'icon-rss', 'icon-book-text'];
   const status = ['Drafted', 'Published'];
 
   const [renderedRows, setRenderedRows] = useState<BlogPost[]>([]);
-
-  console.log(fetchData);
 
   useEffect(() => {
     setRenderedRows(fetchData);
@@ -33,7 +18,7 @@ export const TableRows = ({ fetchData }: { fetchData: BlogPost[] }) => {
       {renderedRows.length ? (
         renderedRows.map((item, index) => (
           <tr key={index}
-            className={`${item.name} border-b transition-colors hover:bg-secondaryTheme/5 data-[state=selected]:bg-muted`}
+            className={`${item.name} border-b transition-colors hover:bg-secondaryTheme/5 data-[state=selected]:bg-muted tr-animate`}
           >
             <td className="p-2 align-middle whitespace-nowrap">
               <div
@@ -64,10 +49,10 @@ export const TableRows = ({ fetchData }: { fetchData: BlogPost[] }) => {
                 '.'}
             </td>
             <td className="p-2 align-middle hidden lg:table-cell whitespace-nowrap">
-              {formatDate(item.created_at.date)}
+              {FormatDateTable(item.created_at.date)}
             </td>
             <td className="p-2 align-middle hidden xl:table-cell whitespace-nowrap">
-              {formatDate(item.updated_at.date)}
+              {FormatDateTable(item.updated_at.date)}
             </td>
             <td className="p-2 align-middle whitespace-nowrap">
               <button
