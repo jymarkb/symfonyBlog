@@ -6,16 +6,11 @@ type SidebarNavigationProps = {
 export const initSideBarNavigation = (
   props: Partial<SidebarNavigationProps> = {},
 ) => {
-  const {
-    wrapperId = 'side-nav-wrapper',
-    buttonId = 'side-nav-btn',
-    // mainContent = 'main-content',
-  } = props;
+  const { wrapperId = 'side-nav-wrapper', buttonId = 'side-nav-btn' } = props;
 
   const sidebarWrapper = document.getElementById(wrapperId);
-  // const mainContentWrapper = document.getElementById(mainContent);
   const btnSidebar = document.getElementById(buttonId);
-  const isOpen = document.cookie;
+  let isOpen = document.cookie;
 
   if (!btnSidebar) return;
 
@@ -23,24 +18,20 @@ export const initSideBarNavigation = (
     btnSidebar?.classList.toggle('active');
     sidebarWrapper?.classList.toggle('w-72');
     sidebarWrapper?.classList.toggle('w-0');
-    // if (window.innerWidth < 1024) {
-   
-    // } else {
-    //   btnSidebar?.classList.toggle('active');
-    //   sidebarWrapper?.classList.toggle('w-72');
-    //   sidebarWrapper?.classList.toggle('w-0');
-    // }
   };
 
+  if (!isOpen) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+
   btnSidebar.addEventListener('click', () => {
-    console.log(isOpen);
-
-    if (!isOpen) {
-      document.cookie = 'sidebarCookie=1; max-age=31536000;';
-    } else {
-      document.cookie = 'sidebarCookie=; max-age=0;';
-    }
-
+    const cookieValue = isOpen ? '' : '1';
+    const cookieMaxAge = isOpen ? 0 : 604800;
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    document.cookie = `sidebarCookie=${cookieValue}; max-age=${cookieMaxAge};`;
+    isOpen = document.cookie;
     SideBarAction();
   });
 };
