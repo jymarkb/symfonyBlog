@@ -30,7 +30,7 @@ Encore.setOutputPath('public/dist')
   .addEntry('dashboard/pages/create/script', './app/Resources/js/dashboard/pages/PagesCreate.tsx')
   .addEntry('dashboard/pages/create/style', './app/Resources/css/dashboard/pages/PageCreate.css')
 
-  .addEntry('dashboard/profile/script', './app/Resources/js/dashboard/profile/InitProfile.tsx')
+  .addEntry('dashboard/profile/script', './app/Resources/js/dashboard/profile/Profile.tsx')
 
   .splitEntryChunks() // Split common dependencies for smaller bundles
   .enableSingleRuntimeChunk()
