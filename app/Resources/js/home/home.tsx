@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { CarouselDemo } from './CarouselSize';
-import { initSideBarNavigation } from '../dashboard/components/SidebarNavigation';
+import { TechStachCarousel } from './TechStachCarousel';
 import { Popup } from '../dashboard/components/Popup';
 import { MobileHeader } from './component/MobileHeader';
+import FeaturedBlogPost from './component/FeaturedBlogPost';
 
 class Home {
   constructor() {
@@ -13,7 +13,7 @@ class Home {
   init() {
     this.initProfileBG();
     this.initCarousel();
-    initSideBarNavigation();
+    FeaturedBlogPost();
 
     Popup({
       btnTrigger: 'headerBtn',
@@ -25,7 +25,7 @@ class Home {
   initCarousel() {
     const containerDiv = document.querySelector('#carousel');
     if (containerDiv) {
-      ReactDOM.createRoot(containerDiv).render(<CarouselDemo />);
+      ReactDOM.createRoot(containerDiv).render(<TechStachCarousel />);
     }
   }
 

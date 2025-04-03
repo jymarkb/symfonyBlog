@@ -9,8 +9,16 @@
 
 	<input type="email" name="email" id="inputEmail" autocomplete="email" required placeholder="email@domain.com" class="border border-input bg-transparent p-3 text-base  rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full">
 
-	<input type="password" name="password" id="inputPassword" required placeholder="password" class="border border-input bg-transparen p-3 text-base  rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full">
+	<div class="flex items-center">
 
+		<input type="password" name="password" id="inputPassword" required placeholder="password" class="inputPassword border border-input bg-transparen p-3 text-base  rounded-md shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm h-12 w-full">
+
+		<button class="ml-[-2rem] text-gray-500" id="btnShowPass">
+			<i class="h-8 w-8 icon-eye-off"></i>
+		</button>
+
+	
+	</div>
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
 	<div class="control flex">

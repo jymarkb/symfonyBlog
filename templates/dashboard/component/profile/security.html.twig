@@ -54,12 +54,11 @@
 				<div class="flex items-center">
 					{{ form_widget(form.oldPassword,{
 						'attr':{
-							 'id': 'currentPassword', 
 							'placeholder':'••••••••',
-							'class':'border border-input bg-transparent p-3 text-base rounded-lg shadow-sm transition-colors md:text-sm h-10 w-full'
+							'class':'inputOldPass border border-input bg-transparent p-3 text-base rounded-lg shadow-sm transition-colors md:text-sm h-10 w-full'
 						}
 					}) }}
-					<button class="h-6 w-6 text-primary ml-[-30px]" data_uri="{{ form.oldPassword.vars.full_name }}"><i class="icon-eye-off text-gray-500 hover:text-gray-700"></i></button>
+					<button id="btnOldPass" class="h-6 w-6 text-primary ml-[-30px]" data_uri="{{ form.oldPassword.vars.full_name }}"><i class="icon-eye-off text-gray-500 hover:text-gray-700"></i></button>
 				</div>
 			</div>
 			
@@ -68,12 +67,11 @@
 				<div class="flex items-center">
 					{{ form_widget(form.newPassword,{
 						'attr':{
-							 'id': 'currentPassword', 
 							'placeholder':'••••••••',
-							'class':'border border-input bg-transparent p-3 text-base rounded-lg shadow-sm transition-colors md:text-sm h-10 w-full'
+							'class':'inputNewPass border border-input bg-transparent p-3 text-base rounded-lg shadow-sm transition-colors md:text-sm h-10 w-full'
 						}
 					}) }}
-					<button class="h-6 w-6 text-primary ml-[-30px]" data_uri="{{  form.newPassword.vars.full_name }}"><i class="icon-eye-off text-gray-500 hover:text-gray-700"></i></button>
+					<button id="btnNewPass"class="h-6 w-6 text-primary ml-[-30px]" data_uri="{{  form.newPassword.vars.full_name }}"><i class="icon-eye-off text-gray-500 hover:text-gray-700"></i></button>
 				</div>
 			</div>
 
