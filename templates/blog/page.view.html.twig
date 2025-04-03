@@ -1,12 +1,12 @@
 {% extends 'blog/index.html.twig' %}
-{# 
-{% block title %}The &lt;/blog&gt; Blog |
-	{{ blog.title|title }}
-{% endblock %} #}
+{% block title %}
+	{% if blog.title is defined and blog.title is not empty %}
+	{{ blog.title|title }} | The &lt;/blog&gt; Blog
+	{% endif %}
+{% endblock %}
 
 
 {% block content %}
-	{# {{ dump(blog) }} #}
 	<div class="container py-8 justify-center {{blog.category.name|lower}} flex items-center">
 		<div class="w-[90%]">
 		<a href="{{path('blog.index')}}" class="flex items-center gap-2 text-primaryTheme">
