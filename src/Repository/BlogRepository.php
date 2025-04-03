@@ -15,32 +15,7 @@ class BlogRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Blog::class);
     }
-
-    //    /**
-    //     * @return Blog[] Returns an array of Blog objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('b.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Blog
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
-
+    
     public function showAllPages(): array
     {
         return $this->createQueryBuilder('b')
@@ -88,8 +63,8 @@ class BlogRepository extends ServiceEntityRepository
             ->leftJoin('b.blogAnalytics', 'analytics')
             ->addSelect('analytics.views', 'analytics.readingTime')
             ->orderBy('b.created_at', 'DESC')
-            ->setMaxResults(4)
             ->getQuery()
+            ->setMaxResults(4)
             ->getResult();
     }
 

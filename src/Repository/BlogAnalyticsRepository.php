@@ -16,28 +16,27 @@ class BlogAnalyticsRepository extends ServiceEntityRepository
         parent::__construct($registry, BlogAnalytics::class);
     }
 
-    //    /**
-    //     * @return BlogAnalytics[] Returns an array of BlogAnalytics objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('b.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getMostViewBlogPost()
+    {
+        return $this->createQueryBuilder('analytics')
+            ->select('analytics.views', 'analytics.readingTime')
+            ->leftJoin('analytics.blog', 'blog')
+            ->addSelect(
+                'blog.title',
+                'blog.slug',
+                'blog.htmlThumbnail',
+                'blog.created_at',
+                'blog.summary'
+            )
+            ->leftJoin('blog.account', 'account')
+            ->addSelect('account.firstName', 'account.lastName', 'account.avatar')
+            ->leftJoin('blog.category', 'category')
+            ->addSelect('category.name', 'category.category_id')
+            ->orderBy('analytics.views', 'DESC')
+            ->setMaxResults(3)
+            ->getQuery()
+            ->getResult()
 
-    //    public function findOneBySomeField($value): ?BlogAnalytics
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        ;
+    }
 }
