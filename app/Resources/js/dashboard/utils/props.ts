@@ -52,4 +52,33 @@ export type BlogPost = {
   lastName: string;
 };
 
+export type FeaturedBlog = {
+  title: string;
+  slug: string;
+  htmlThumbnail: string;
+  created_at: {
+      date: string;
+      timezone_type: number;
+      timezone: string;
+  };
+  summary: string;
+  name: string;
+  category_id: number;
+  firstName: string;
+  lastName: string;
+  avatar: string;
+  views: number;
+  readingTime: number;
+};
 
+export type FeaturesBlogData = {
+  latest: FeaturedBlog[];
+  most: FeaturedBlog[];
+};
+
+
+declare global {
+  interface Window {
+      featuresBlog: FeaturesBlogData
+  }
+}

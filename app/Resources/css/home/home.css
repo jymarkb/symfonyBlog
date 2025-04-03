@@ -60,7 +60,18 @@
   }
 }
 
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-/* .carousel-item:hover{
-  scale: 1.05
-} */
+
+.featureCard-animate{
+  animation: fadeSlideIn 0.5s ease-out;
+}
