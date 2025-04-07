@@ -38,6 +38,7 @@ final class HomeController extends AbstractController
         ]);
     }
 
+    #[Route('/health-check', name: 'health_check')]
     public function healthCheack(): Response
     {
         return new Response("OK");
