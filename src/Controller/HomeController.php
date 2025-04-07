@@ -13,7 +13,8 @@ final class HomeController extends AbstractController
 {
     private BlogRepository $blogRepository;
     private BlogAnalyticsRepository $blogAnalyticsRepository;
-    public function __construct(BlogRepository $blogRepository, BlogAnalyticsRepository $blogAnalyticsRepository){
+    public function __construct(BlogRepository $blogRepository, BlogAnalyticsRepository $blogAnalyticsRepository)
+    {
         $this->blogRepository = $blogRepository;
         $this->blogAnalyticsRepository = $blogAnalyticsRepository;
     }
@@ -31,9 +32,14 @@ final class HomeController extends AbstractController
             'latest' => $latest,
             'most' => $most
         ];
-        
+
         return $this->render('home/index.html.twig', [
             'featureData' => $data
         ]);
+    }
+
+    public function healthCheack(): Response
+    {
+        return new Response("OK");
     }
 }
