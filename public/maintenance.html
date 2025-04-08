@@ -3,7 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/brand/favicon.ico">
+    <link rel="icon" type="image/png" href="/brand/favicon.png" sizes="32x32">
+    <link rel="icon" type="image/x-webp" href="/brand/favicon.webp">
     <title>Maintenance - The &lt;/blog&gt Blog</title>
+
+    <script
+      src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
+      type="module"
+    ></script>
 
     <style>
       * {
@@ -29,49 +37,100 @@
         font-weight: 200;
       }
       h1 {
-        font-size: 2rem;
+        font-size: 1.3rem;
       }
 
       h2 {
         font-size: 1.5rem;
       }
-      img {
+      dotlottie-player, .container {
         width: 300px;
+        max-width: 300px;
+        max-height: 300px;
+      }
+
+      .container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+      }
+
+      #counter {
+        font-size: 5rem;
+        -webkit-text-stroke: 2px rgb(30, 88, 80);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: 700;
       }
 
       @media (min-width: 640px) {
         h1 {
-          font-size: 3rem;
+          font-size: 2.3rem;
         }
 
         h2 {
           font-size: 2.5rem;
         }
 
-        img {
+        dotlottie-player, .container {
           width: 400px;
+          max-width: 400px;
+          max-height: 400px;
         }
       }
 
       /* Large screens (768px and above) */
       @media (min-width: 768px) {
         h1 {
-          font-size: 3.5rem;
+          font-size: 2.5rem;
         }
 
         h2 {
           font-size: 3rem;
         }
 
-        img {
+        dotlottie-player, .container {
           width: 500px;
+          max-width: 500px;
+          max-height: 500px;
         }
       }
     </style>
   </head>
   <body>
-    <img src="/brand/maintenance.webp" width="500" alt="maintenance image" />
-    <h2>WE'RE MAKING</h2>
-    <h1>SOME CHANGES</h1>
+    <div class="container">
+      <dotlottie-player
+        src="https://lottie.host/84499064-45e2-434d-9293-e5f33fe3f66d/XzAoWLCJbp.lottie"
+        background="transparent"
+        speed="1"
+        loop
+        autoplay
+      ></dotlottie-player>
+      <p id="counter">15</p>
+    </div>
+    <h1>Powered by Railway Serverless</h1>
+    <h2>Booting up — please standby.</h2>
+
+    <script>
+      const counter = document.getElementById('counter');
+      let index = 14;
+
+      const countdown = setInterval(() => {
+        counter.innerHTML = index;
+
+        index--;
+
+        if (index < 0) {
+          clearInterval(countdown);
+          window.location.href = "/";
+        }
+      }, 1000);
+
+
+    </script>
   </body>
 </html>
