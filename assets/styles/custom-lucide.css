@@ -1,11 +1,11 @@
 @font-face {
     font-family: 'lucide';
-    src: url('@font/lucide/lucide.eot');
-    src: url('@font/lucide/lucide.eot?#iefix') format('embedded-opentype'),
-         url('@font/lucide/lucide.woff2') format('woff2'),
-         url('@font/lucide/lucide.woff') format('woff'),
-         url('@font/lucide/lucide.ttf') format('truetype'),
-         url('@font/lucide/lucide.svg#lucide') format('svg');
+    src: url('~lucide-static/font/lucide.eot');
+    src: url('~lucide-static/font/lucide.eot?#iefix') format('embedded-opentype'),
+         url('~lucide-static/font/lucide.woff2') format('woff2'),
+         url('~lucide-static/font/lucide.woff') format('woff'),
+         url('~lucide-static/font/lucide.ttf') format('truetype'),
+         url('~lucide-static/font/lucide.svg#lucide') format('svg');
   }
 
 [class^='icon-'],
