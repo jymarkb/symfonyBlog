@@ -47,6 +47,10 @@ Encore.setOutputPath('public/dist')
     config.useBuiltIns = 'usage';
     config.corejs = '3.38';
   })
+  .copyFiles({ // copy images files from assets to public/dist
+    from: './assets/img',
+    to: '[path][name].[ext]',
+  })
   .enableTypeScriptLoader()
   .enableReactPreset()
   .enablePostCssLoader((options) => {
