@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ encore_entry_link_tags('about/style') }}
+{% endblock %}
+
+{% block javascripts %}
+	{{ encore_entry_script_tags('about/script') }}
+{% endblock  %}
+
+
+{% block header %}
+	{% include 'home/header.html.twig' %}
+{% endblock %}
+
+
+{% block body %}
+
+<main class="border-grid border-b">
+    <div class="container-wrapper">
+       
+       <div class="max-w-4xl mx-auto px-6 py-12">
+      <h1 class="text-4xl font-bold mb-6 text-center text-indigo-700">About This Blog</h1>
+      <p class="mb-8 text-lg">
+        Welcome to our modern blogging platform — a clean, fast, and developer-friendly CMS built with cutting-edge web technologies.
+        Whether you're a casual writer or a seasoned developer, this platform was built to make publishing content simple and delightful.
+      </p>
+
+      <section class="mb-10">
+        <h2 class="text-2xl font-semibold text-indigo-600 mb-4">✨ What Makes This Blog Different?</h2>
+        <ul class="list-disc list-inside space-y-2">
+          <li><strong>Seamless Writing Experience</strong> – Powered by TinyMCE for distraction-free editing.</li>
+          <li><strong>Customizable & Developer-Friendly</strong> – Built with Symfony and React for full flexibility.</li>
+          <li><strong>Beautiful by Default</strong> – Tailwind CSS ensures clean, modern design.</li>
+          <li><strong>Fully Containerized</strong> – Docker makes it easy to deploy anywhere.</li>
+          <li><strong>Secure & Performant</strong> – PHP + MySQL for fast and stable backend.</li>
+        </ul>
+      </section>
+
+      <section class="mb-10">
+        <h2 class="text-2xl font-semibold text-indigo-600 mb-4">🔧 Tech Stack Overview</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <span class="bg-white p-3 rounded shadow text-center">Symfony 7</span>
+          <span class="bg-white p-3 rounded shadow text-center">React + TS</span>
+          <span class="bg-white p-3 rounded shadow text-center">Tailwind CSS</span>
+          <span class="bg-white p-3 rounded shadow text-center">TinyMCE</span>
+          <span class="bg-white p-3 rounded shadow text-center">Docker</span>
+          <span class="bg-white p-3 rounded shadow text-center">MySQL</span>
+        </div>
+      </section>
+
+      <section class="mb-10">
+        <h2 class="text-2xl font-semibold text-indigo-600 mb-4">🚀 Why I Built This</h2>
+        <p>
+          I needed a blog that’s not only fast and flexible but also fully customizable.
+          This CMS is my take on a lean, modern alternative — one where you can shape the experience to match your exact needs.
+        </p>
+      </section>
+
+      <section class="mb-10">
+        <h2 class="text-2xl font-semibold text-indigo-600 mb-4">🛠️ Features at a Glance</h2>
+        <ul class="list-disc list-inside space-y-2">
+          <li>✍️ Rich post editor with WYSIWYG support</li>
+          <li>🏷️ Tags and categories for organization</li>
+          <li>🖼️ Media upload and management</li>
+          <li>🔒 Role-based access control</li>
+          <li>🌐 Responsive and mobile-ready</li>
+          <li>🧩 Easily extendable</li>
+        </ul>
+      </section>
+
+      <section class="mb-10">
+        <h2 class="text-2xl font-semibold text-indigo-600 mb-4">🔭 What’s Next?</h2>
+        <ul class="list-disc list-inside space-y-2">
+          <li>📈 Analytics Dashboard</li>
+          <li>📨 Newsletter & Subscriber Management</li>
+          <li>💬 Commenting System</li>
+          <li>🌍 Multi-language Support</li>
+          <li>🧠 AI-assisted writing tools</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-semibold text-indigo-600 mb-4">🙌 Let’s Connect</h2>
+        <p>
+          This CMS is built in public. Feel free to <a href="https://github.com/yourusername" class="text-indigo-500 underline">check the GitHub repo</a>, suggest ideas, or contribute!
+        </p>
+      </section>
+    </div>
+
+
+    </div>
+</main>
+
+{% endblock %}
+
+
+{% block footer %}
+	{% include 'home/footer.html.twig' %}
+{% endblock %}
