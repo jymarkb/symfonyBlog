@@ -1,0 +1,195 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ encore_entry_link_tags('about/style') }}
+{% endblock %}
+
+{% block javascripts %}
+	{{ encore_entry_script_tags('about/script') }}
+{% endblock  %}
+
+{% block title %}About | The &lt;/blog&gt; Blog
+{% endblock %}
+
+{% block header %}
+	{% include 'home/header.html.twig' %}
+{% endblock %}
+
+
+{% block body %}
+
+<main class="border-grid border-b">
+    <div class="container-wrapper">
+
+    <section class="first-section flex flex-col items-center justify-center py-16 gap-2">
+        <div class="flex items-center bg-white border px-4 py-2 rounded-full shadow">
+            <span class="block h-3 w-3 rounded-full  border-2 border-primaryTheme bg-teal-400 mr-1"></span> ✒️ About <strong>&lt;/blog&gt</strong>
+        </div>
+        
+        <div class="title-intro max-w-3xl px-4 text-center font-semibold flex items-center gap-2 flex-col">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl w-fit ">
+                Welcome to our modern blogging platform — a clean, fast, and developer-friendly CMS built with cutting-edge web technologies.
+            </h1>
+            <p class="text-sm sm:text-base  max-w-lg text-zinc-400 w-fit">
+                Whether you're a casual writer or a seasoned developer, this platform was built to make publishing content simple and delightful.
+            </p>
+        </div>
+    </section>
+
+    <section class="flex flex-col overflow-y-hidden over mb-8">
+        <div class="stack-row w-full flex flex-nowrap gap-8 justify-center overflow-hidden pb-8">
+            <div class="empty shadow-lg"></div>
+            <div class="logo"><img src="{{ asset('/img/techstack/symfony.svg') }}" alt="brand logo" width="48" height="48"><p>Symfony</p></div>
+            <div class="logo"><img src="{{ asset('/img/techstack/react-mono.svg') }}" alt="brand logo" width="48" height="48"><p>React</p></div>
+            <div class="logo"><img src="{{ asset('/img/techstack/tailwind-mono.svg') }}" alt="brand logo" width="48" height="48"><p>Tailwind</p></div>
+            <div class="logo"><img src="{{ asset('/img/techstack/typescript-mono.svg') }}" alt="brand logo" width="48" height="48"><p>Typescript</p></div>
+            <div class="logo"><img src="{{ asset('/img/techstack/shadcn.svg') }}" alt="brand logo" width="48" height="48"><p>shadcn/ui</p></div>
+            <div class="logo"><img src="{{ asset('/img/techstack/lucide-mono.webp') }}" alt="brand logo" width="48" height="48"><p>Lucide</p></div>
+            <div class="empty"></div>
+        </div>
+
+        <div class="stack-row w-full flex flex-nowrap gap-8 justify-center overflow-hidden pb-8">
+            <div class="empty"></div>
+            <div class="empty"></div>
+            <div class="logo"><img src="{{ asset('/img/techstack/docker-mono.svg') }}" alt="brand logo" width="48" height="48"><p>Docker</p></div>
+            <div class="logo"><img src="{{ asset('/img/techstack/mysql-mono.svg') }}" alt="brand logo" width="64" height="64"></div>
+            <div class="logo"><img src="{{ asset('/img/techstack/tiny-mono.webp') }}" alt="brand logo" width="100" height="48"></div>
+            <div class="logo"><img src="{{ asset('/img/techstack/railway-mono.webp') }}" alt="brand logo" width="150" height="48"></div>
+            <div class="logo"><img src="{{ asset('/img/techstack/github.svg') }}" alt="brand logo" width="48" height="48"><p>Github</p></div>
+            <div class="empty"></div>
+            <div class="empty"></div>
+        </div>
+    </section>
+
+    <section class="second-section flex flex-col items-center">
+        <div class="wrapper w-full px-8 sm:px-24 p-16 flex flex-col items-center gap-4">
+            <div class="flex items-center bg-white border px-4 py-2 rounded-full shadow">
+                <span class="block h-3 w-3 rounded-full  border-2 border-primaryTheme bg-teal-400 mr-1"></span> ✨ What Make This Blog Different?
+            </div>
+
+            <div class="stats-container rounded-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="flex justify-center items-center">                
+                    <img loading="lazy" src="{{ asset('img/blog/media/new1.svg') }}" height="380" width="380" alt="image text">
+                </div>
+                <div class="flex justify-center items-center">                
+                    <img loading="lazy" src="{{ asset('img/blog/media/new2.svg') }}" height="380" width="380" alt="image text">
+                </div>
+                <div class="flex justify-center items-center">                
+                    <img loading="lazy" src="{{ asset('img/blog/media/new3.svg') }}" height="380" width="380" alt="image text">
+                </div>
+                <div class="flex justify-center items-center">                
+                    <img loading="lazy" src="{{ asset('img/blog/media/new4.svg') }}" height="380" width="380" alt="image text">
+                </div>
+            </div>
+            
+        </div>
+    
+    </section>
+
+    <section class="third-section flex flex-col items-center">
+
+        <div class="wrapper px-4 py-16 sm:px-16 flex flex-col items-center">
+            <div class="flex items-center bg-white border px-4 py-2 rounded-full shadow mb-4">
+                <span class="block h-3 w-3 rounded-full  border-2 border-primaryTheme bg-teal-400 mr-1"></span> 🚀 Why I Built This
+            </div>
+
+            <h1 class="max-w-3xl font-semibold text-2xl sm:text-3xl lg:text-4xl text-center mb-4">I needed a blog that’s not only fast and flexible but also fully customizable.
+        This CMS is my take on a lean, modern alternative — one where you can shape the experience to match your exact needs.</h1>
+
+            <div class="h-20 w-20 aspect-square p-1 bg-primaryTheme flex items-center justify-center rounded-full">
+                <img loading="lazy"  class="object-cover" src="{{ asset('img/user/admin.webp')}}" alt="admin image" width="80" heigth="80">
+            </div>
+            <h3 class="text-xl font-semibold">Jay Mark B.</h3>
+            <p class="text-md font-semibold text-zinc-600">Admin | Full Stack Developer</p>
+
+        </div>
+    </section>
+
+    <section class="fouth-section flex flex-col items-center">
+
+        <div class="wrapper w-full bg-primaryTheme grid grid-cols-1 lg:grid-cols-2 px-8 sm:px-16 md:px-24 py-16 gap-16">
+            <div class="col-container flex flex-col items-center">
+                <div class="flex items-center bg-white border px-4 py-2 rounded-full shadow">
+                    <span class="block h-3 w-3 rounded-full  border-2 border-primaryTheme bg-teal-400 mr-1"></span> 🛠️ Features at a Glance
+                </div>
+                
+
+                <div class="sm:w-[90%] rounded-md text-white">
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md" src="{{asset('img/blog/media/gif/notebook.gif')}}" width="48" height="48" alt="image">
+                        <p class="text-lg">Rich post editor with <strong>WYSIWYG</strong> support</p>
+                    </div>
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md" src="{{asset('img/blog/media/gif/tag.gif')}}" width="48" height="48" alt="image">
+                        <p class="text-lg"><strong>Tags</strong> and <strong>categories</strong> for organization</p>
+                    </div>
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md" src="{{asset('img/blog/media/gif/media.gif')}}" width="48" height="48" alt="image">
+                        <p class="text-lg">Media <strong>upload</strong> and <strong>management</strong></p>
+                    </div>
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md" src="{{asset('img/blog/media/gif/role.gif')}}" width="48" height="48" alt="image">
+                        <p class="text-lg"><strong>Role-based</strong> access control</p>
+                    </div>
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md" src="{{asset('img/blog/media/gif/responsive.gif')}}" width="48" height="48" alt="image">
+                        <p class="text-lg"><strong>Responsive</strong> and <strong>mobile-ready</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-container flex flex-col items-center">
+                <div class="flex items-center bg-white border px-4 py-2 rounded-full shadow">
+                    <span class="block h-3 w-3 rounded-full  border-2 border-primaryTheme bg-teal-400 mr-1"></span> 🔭 What’s Next?
+                </div>
+
+                <div class="sm:w-[90%] rounded-md text-white">
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md" src="{{asset('img/blog/media/gif/dashboard.gif')}}" width="48" height="48" alt="image">
+                        <p class="text-lg"><strong>Analytics</strong> Dashboard</p>
+                    </div>
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md" src="{{asset('img/blog/media/gif/newspaper.gif')}}" width="48" height="48" alt="image">
+                        <p class="text-lg"><strong>Newsletter</strong> & <strong>Subscriber</strong> Management</p>
+                    </div>
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md" src="{{asset('img/blog/media/gif/comments.gif')}}" width="48" height="48" alt="image">
+                        <p class="text-lg"><strong>Commenting</strong> System</p>
+                    </div>
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md" src="{{asset('img/blog/media/gif/translate.gif')}}" width="48" height="48" alt="image">
+                        <p class="text-lg"><strong>Multi-language</strong> Support</p>
+                    </div>
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md" src="{{asset('img/blog/media/gif/ai.gif')}}" width="48" height="48" alt="image">
+                        <p class="text-lg"><strong>AI-assisted</strong> writing tools</p>
+                    </div>
+                </div>
+            </div>
+
+             <div class="lg:col-span-2 flex flex-col items-center justify-center">
+
+                <div class=" bg-white shadow-xl  px-8 py-4 rounded-xl  flex flex-col gap-4 items-center">
+                    <div class="flex items-center bg-white border px-4 py-2 rounded-full shadow">
+                        <span class="block h-3 w-3 rounded-full  border-2 border-primaryTheme bg-teal-400 mr-1"></span> 🙌 Let’s Connect
+                    </div>
+                    <p class="text-justify">
+                        This CMS is built in public. Feel free to <a href="{{ path('github') }}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 underline">check the GitHub repo</a>, suggest ideas, or contribute!
+                    </p>
+                </div>
+            </div>
+        </div>
+    
+    </section>
+    </div>
+</main>
+
+
+
+
+
+{% endblock %}
+
+{% block footer %}
+	{% include 'home/footer.html.twig' %}
+{% endblock %}
