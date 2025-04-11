@@ -50,11 +50,11 @@ export const MobileHeader = ({
         </li>
         <li className="flex gap-4">
           <i className="icon-shell"></i>
-          <a href="/">About</a>
+          <a href="/about">About</a>
         </li>
         <li className="flex gap-4">
           <i className="icon-send"></i>
-          <a href="/">Contact Us</a>
+          <a href="/contact">Contact</a>
         </li>
       </ul>
     </div>

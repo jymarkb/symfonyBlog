@@ -12,13 +12,13 @@
 				</a>
 				<nav class="flex items-center gap-4 text-sm xl:gap-6">
 					<a class="rounded-md  p-2 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/blog">Blogs</a>
-					<a class="rounded-md  p-2 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/">About</a>
-					<a class="rounded-md  p-2 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/">Contact Us</a>
+					<a class="rounded-md  p-2 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/about">About</a>
+					<a class="rounded-md  p-2 transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none" href="/contact">Contact</a>
 				</nav>
 			</div>
 
-			<button id="headerBtn" class="rounded-md font-medium transition-colors text-primaryTheme hover:text-primaryTheme-500 lg:hidden" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-:R15u6ja:" data-state="closed">
-				<i class="icon-menu icon-menu text-2xl"></i>
+			<button id="headerBtn" class="rounded-md font-medium transition-colors text-primaryTheme hover:text-primaryTheme-500 lg:hidden" aria-label="header button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-:R15u6ja:" data-state="closed">
+				<i class="icon-menu text-2xl"></i>
 			</button>
 
 			{% if route not in excludeRoute and not app.user %}

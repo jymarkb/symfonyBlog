@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@import '~lucide-static/font/lucide.css';
+/* @import '~lucide-static/font/lucide.css'; */
+@import './custom-lucide.css';
 
 @layer base {
   :root {

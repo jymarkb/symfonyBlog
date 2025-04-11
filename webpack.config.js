@@ -10,15 +10,29 @@ if (!Encore.isRuntimeEnvironmentConfigured()) {
 
 Encore.setOutputPath('public/dist')
   .setPublicPath('/dist')
+
+  .copyFiles({ // copy images files from assets to public/dist
+    from: './assets/img',
+    to: '[path][name].[ext]',
+  })
+  // .copyFiles({
+  //   from: './node_modules/lucide-static/font',
+  //   to: '/fonts/lucide/[name].[ext]',
+  // })
+
   .addEntry('app', './assets/app.js')
 
   // Home
   .addEntry('home/script', './app/Resources/js/home/home.tsx')
   .addEntry('home/style', './app/Resources/css/home/home.css')
 
-  // Account
+  // Account (login, register, forgot_password)
   .addEntry('account/script', './app/Resources/js/account/account.tsx')
   .addEntry('account/style', './app/Resources/css/account/account.css')
+
+  // About
+  .addEntry('about/script', './app/Resources/js/about/about.tsx')
+  .addEntry('about/style', './app/Resources/css/about/about.css')
 
   //Dashboard
   .addEntry('dashboard/script', './app/Resources/js/dashboard/dashboard.tsx')
@@ -86,6 +100,7 @@ config.resolve.extensions = ['.tsx', '.ts', '.js', '.jsx'];
 // Enhanced alias configuration
 config.resolve.alias = {
   '@': path.resolve(__dirname, 'assets'),
+  // '@font': path.resolve(__dirname, 'public/dist/fonts'),
   css: path.resolve(__dirname, 'app/Resources/css'),
   js: path.resolve(__dirname, 'app/Resources/js'),
   '~': path.resolve(__dirname, 'node_modules'), // Alias for node_modules
@@ -115,6 +130,8 @@ config.stats = {
   version: false,
   builtAt: false,
   timings: false,
+  errors: true, // Show errors
+  errorDetails: true,
 };
 
 if (!Encore.isProduction()) {

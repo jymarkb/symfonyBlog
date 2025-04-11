@@ -1,0 +1,69 @@
+@font-face {
+    font-family: 'lucide';
+    src: url('~lucide-static/font/lucide.eot');
+    src: url('~lucide-static/font/lucide.eot?#iefix') format('embedded-opentype'),
+         url('~lucide-static/font/lucide.woff2') format('woff2'),
+         url('~lucide-static/font/lucide.woff') format('woff'),
+         url('~lucide-static/font/lucide.ttf') format('truetype'),
+         url('~lucide-static/font/lucide.svg#lucide') format('svg');
+    font-display: swap;
+  }
+
+[class^='icon-'],
+[class*=' icon-'] {
+  font-family: 'lucide' !important;
+  font-size: inherit;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* add needed lucide icon */
+
+.icon-eye-closed:before { content: "\e632"; }
+.icon-eye-off:before { content: "\e0bf"; }
+.icon-eye:before { content: "\e0be"; }
+.icon-loader-circle:before { content: "\e10d"; }
+.icon-loader-pinwheel:before { content: "\e5ea"; }
+.icon-loader:before { content: "\e10c"; }
+.icon-check-check:before { content: "\e391"; }
+.icon-check:before { content: "\e070"; }
+.icon-pencil-line:before { content: "\e4f4"; }
+.icon-pencil-off:before { content: "\e5f3"; }
+.icon-pencil-ruler:before { content: "\e4f5"; }
+.icon-pencil:before { content: "\e1f8"; }
+.icon-trash-2:before { content: "\e18d"; }
+.icon-trash:before { content: "\e18c"; }
+.icon-share-2:before { content: "\e159"; }
+.icon-newspaper:before { content: "\e34b"; }
+.icon-rss:before { content: "\e14d"; }
+.icon-book-text:before { content: "\e54f"; }
+.icon-cog:before { content: "\e30a"; }
+.icon-ellipsis:before { content: "\e0ba"; }
+.icon-clock:before { content: "\e08b"; }
+.icon-house:before { content: "\e0f8"; }
+.icon-swatch-book:before { content: "\e5a3"; }
+.icon-shell:before { content: "\e4fb"; }
+.icon-send:before { content: "\e155"; }
+.icon-mail:before { content: "\e112"; }
+.icon-circle-alert:before { content: "\e07b"; }
+.icon-circle-check:before { content: "\e225"; }
+.icon-move-left:before { content: "\e493"; }
+.icon-menu:before { content: "\e118"; }
+.icon-layout-dashboard:before { content: "\e1c0"; }
+.icon-layers:before { content: "\e52d"; }
+.icon-mails:before { content: "\e36c"; }
+.icon-user-round-cog:before { content: "\e46e"; }
+.icon-user:before { content: "\e19e"; }
+.icon-log-out:before { content: "\e111"; }
+.icon-paperclip:before { content: "\e130"; }
+.icon-cloud-upload:before { content: "\e095"; }
+.icon-x:before { content: "\e1b1"; }
+.icon-circle-plus:before { content: "\e086"; }
+.icon-search:before { content: "\e154"; }
+.icon-plus:before { content: "\e140"; }
+.icon-sliders-horizontal:before { content: "\e299"; }
+.icon-arrow-right:before { content: "\e04d"; }
+.icon-facebook:before { content: "\e0c0"; }
+.icon-github:before { content: "\e0e9"; }
+.icon-linkedin:before { content: "\e10a"; }
