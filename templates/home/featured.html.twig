@@ -17,7 +17,7 @@
 									</div>
 									<div class="border-l pl-4 flex items-center gap-3 text-xs md:text-sm lg:text-base">
 										<span class="lg:h-10 lg:w-10 md:h-9 md:w-9 h-8 w-8 shrink-0 overflow-hidden rounded-full bg-primaryTheme-600 border-primaryTheme border-1">
-											<img class="aspect-square object-cover" src="{{asset('img/user/'~ latest.avatar)}}" alt="avatar image">
+											<img class="aspect-square object-cover" width="40" height="40" src="{{asset('img/user/'~ latest.avatar)}}" alt="avatar image">
 										</span>
 										<p class="name">{{ latest.firstName|capitalize ~ ' ' ~ latest.lastName|capitalize|first ~'.' }}</p>
 									</div>
@@ -73,7 +73,7 @@
 
 												<div class="border-l pl-2 flex gap-2 items-center">
 													<span class="h-8 w-8 lg:h-10 lg:w-10 shrink-0 overflow-hidden rounded-full bg-primaryTheme-600 border-primaryTheme border-1">
-														<img class="aspect-square object-cover" src="{{asset('img/user/'~ latest.avatar)}}" alt="avatar image">
+														<img class="aspect-square object-cover" width="40" height="40" src="{{asset('img/user/'~ latest.avatar)}}" alt="avatar image">
 													</span>
 													<p class="name">{{ item.firstName|capitalize ~ ' ' ~ item.lastName|capitalize|first ~'.'}}</p>
 												</div>
