@@ -15,10 +15,10 @@ Encore.setOutputPath('public/dist')
     from: './assets/img',
     to: '[path][name].[ext]',
   })
-  .copyFiles({
-    from: './node_modules/lucide-static/font',
-    to: '/fonts/lucide/[name].[ext]',
-  })
+  // .copyFiles({
+  //   from: './node_modules/lucide-static/font',
+  //   to: '/fonts/lucide/[name].[ext]',
+  // })
 
   .addEntry('app', './assets/app.js')
 
@@ -100,7 +100,7 @@ config.resolve.extensions = ['.tsx', '.ts', '.js', '.jsx'];
 // Enhanced alias configuration
 config.resolve.alias = {
   '@': path.resolve(__dirname, 'assets'),
-  '@font': path.resolve(__dirname, 'public/dist/fonts'),
+  // '@font': path.resolve(__dirname, 'public/dist/fonts'),
   css: path.resolve(__dirname, 'app/Resources/css'),
   js: path.resolve(__dirname, 'app/Resources/js'),
   '~': path.resolve(__dirname, 'node_modules'), // Alias for node_modules
