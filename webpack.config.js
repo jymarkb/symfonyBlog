@@ -16,9 +16,13 @@ Encore.setOutputPath('public/dist')
   .addEntry('home/script', './app/Resources/js/home/home.tsx')
   .addEntry('home/style', './app/Resources/css/home/home.css')
 
-  // Account
+  // Account (login, register, forgot_password)
   .addEntry('account/script', './app/Resources/js/account/account.tsx')
   .addEntry('account/style', './app/Resources/css/account/account.css')
+
+  // About
+  .addEntry('about/script', './app/Resources/js/about/about.tsx')
+  .addEntry('about/style', './app/Resources/css/about/about.css')
 
   //Dashboard
   .addEntry('dashboard/script', './app/Resources/js/dashboard/dashboard.tsx')
