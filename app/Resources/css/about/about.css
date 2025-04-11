@@ -1,0 +1,85 @@
+@import '/assets/styles/app.css';
+@import '../home/header.css';
+
+body {
+  background-color: hsl(var(--background) / 0.6);
+}
+
+.border-grid {
+  border-style: dashed;
+  border-color: hsl(var(--border-theme) / 0.3);
+}
+
+.stack-row div {
+  display: block;
+  height: 80px;
+  width: 180px;
+  background-color: rgba(151, 151, 151, 0.15);
+  border-radius: 0.3rem;
+  flex: 0 0 auto;
+  font-weight: bold;
+
+  --tw-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored:
+    0 10px 15px -3px var(--tw-shadow-color),
+    0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow:
+    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
+}
+
+.stack-row .empty {
+  background-color: rgba(151, 151, 151, 0.05);
+}
+
+.stack-row .logo {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  line-height: 1.5rem;
+}
+
+.second-section .wrapper {
+  background-color: hsl(var(--primary-theme));
+}
+
+
+.stats-container div {
+  background-color: rgba(255, 255, 255, 0.9);
+  max-height: 400px;
+  max-width: 400px;
+}
+
+.third-section h1 {
+  position: relative;
+  display: inline-block;
+}
+
+.third-section h1::before,
+.third-section h1::after {
+  content: '';
+  display: inline-block;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  vertical-align: middle;
+}
+
+.third-section h1::before {
+  background-image: url('@/img/about/svg/quote-first.svg');
+  margin-right: 0.5rem;
+}
+
+.third-section h1::after {
+  background-image: url('@/img/about/svg/quote-last.svg');
+  margin-left: 0.5rem;
+}
+
+.new-white{
+  background-color: rgba(255, 255, 255, 0.9);
+}
