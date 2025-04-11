@@ -23,7 +23,7 @@
 
 							<div class="border-l pl-2 inline-flex gap-2">
 								<span class="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-primaryTheme-600 border-primaryTheme border">
-									<img class="aspect-square object-cover" src="{{asset('img/user/'~ blog.avatar)}}" alt="avatar image">
+									<img class="aspect-square object-cover" height="32" width="32" src="{{asset('img/user/'~ blog.avatar)}}" alt="avatar image">
 								</span>
 								<p class="flex items-center name">
 									{{ blog.firstName|capitalize ~ ' ' ~ blog.lastName|first|capitalize ~ '.' }}
