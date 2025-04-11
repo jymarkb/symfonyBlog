@@ -51,6 +51,10 @@ Encore.setOutputPath('public/dist')
     from: './assets/img',
     to: '[path][name].[ext]',
   })
+  .copyFiles({
+    from: './node_modules/lucide-static/font',
+    to: '/fonts/lucide/[name].[ext]',
+  })
   .enableTypeScriptLoader()
   .enableReactPreset()
   .enablePostCssLoader((options) => {
@@ -123,6 +127,8 @@ config.stats = {
   version: false,
   builtAt: false,
   timings: false,
+  errors: true, // Show errors
+  errorDetails: true,
 };
 
 if (!Encore.isProduction()) {
