@@ -17,7 +17,7 @@ COPY package.json yarn.lock tsconfig.json postcss.config.js webpack.config.js ta
 RUN yarn install --frozen-lockfile
 
 ADD ./app/Resources/ /www/app/Resources/
-ADD ./public/img/ /www/public/img/
+ADD ./public/ /www/public/
 ADD ./templates/ /www/templates/
 ADD ./assets/ /www/assets/
 
