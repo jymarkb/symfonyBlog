@@ -8,11 +8,12 @@
 	{{ encore_entry_script_tags('contact/script') }}
 {% endblock  %}
 
-
 {% block header %}
 	{% include 'home/header.html.twig' %}
 {% endblock %}
 
+{% block title %}Contact | The &lt;/blog&gt; Blog
+{% endblock %}
 
 {% set  faqs = [
 	{
@@ -33,7 +34,7 @@
 	},
 	{
 		'question': 'Is this open source?',
-		'answer': 'If you\'re releasing it as open-source: Yes! You can view the source code, fork it, or contribute on <a href="' ~ path('github') ~ '" class="text-indigo-600 underline"  target="_blank" rel="noopener noreferrer" >GitHub</a>.'
+		'answer': 'Yes! You can view the source code, fork it, or contribute on <a href="' ~ path('github') ~ '" class="text-indigo-600 underline"  target="_blank" rel="noopener noreferrer" >GitHub</a>.'
 	}
 ] %}
 
