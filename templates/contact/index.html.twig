@@ -65,13 +65,13 @@
 							<h1 class="text-3xl font-semibold">Get in Touch</h1>
 
 							<div>
-								<h3 class="text-lg font-semibold">Direct Chat</h3>
+								<h2 class="text-lg font-semibold">Direct Chat</h2>
 								<p class="text-sm">Get a response within 24 hours.</p>
 								<p class="text-sm font-semibold">dev.jymarkb@gmail.com</p>
 							</div>
 
 							<div>
-								<h3 class="text-lg font-semibold">Direct Call</h3>
+								<h2 class="text-lg font-semibold">Direct Call</h2>
 								<p class="text-sm">Available Mon-Fri, from 10 AM to 8 PM.</p>
 								<p class="text-sm font-semibold">(+63) 962-2633-264</p>
 							</div>
@@ -114,7 +114,7 @@
 
 								<input type="email" class="border border-input bg-white/50 px-3 text-base rounded-md shadow placeholder:text-muted-foreground text-sm h-10 w-full" placeholder="Email@domain.com" required name="entry.1006288430">
 
-								<select type="select" class="border border-input bg-white px-3 text-base rounded-md shadow text-sm h-10 w-full text-muted-foreground " required name="entry.482077460">
+								<select type="select" class="border border-input bg-white px-3 text-base rounded-md shadow text-sm h-10 w-full text-muted-foreground " required name="entry.482077460" aria-label="category">
 									<option class="hidden" value="" disabled selected="selected">Subject</option>
 									<option value="Content creation">Content creation</option>
 									<option value="Account">Account Issue</option>
@@ -142,12 +142,12 @@
 
 						<div class="faq-row-container bg-white/50 shadow p-4 rounded ">
 							<div class="flex justify-between items-center">
-								<h3 class="font-semibold text-lg">{{ faq.question }}</h3>
-								<button class="h-8 w-8 transition duration-300 hover:bg-primaryTheme hover:text-white rounded"><i class="icon-chevron-down"></i></button>
+								<h2 class="font-semibold text-lg">{{ faq.question }}</h2>
+								<button class="transition duration-300 hover:bg-primaryTheme hover:text-white rounded" aria-label="dropdown button">
+									<i class="flex items-center justify-center h-8 w-8 font-bold icon-chevron-down"></i>
+								</button>
 							</div>
 
-
-							
 							<p class=" transition-all duration-300 ease-in-out overflow-hidden faq-text {{ loop.first ? 'show' : '' }}">{{ faq.answer|raw }}</p>
 						</div>
 							
