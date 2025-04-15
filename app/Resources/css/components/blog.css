@@ -64,10 +64,6 @@
   color: hsl(var(--information-theme));
 }
 
-.container-wrapper-card-feature {
-  gap: 2rem;
-}
-
 .article-feature {
   background-color: hsl(var(--article-theme) / 0.02);
 }

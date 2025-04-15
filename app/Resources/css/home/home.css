@@ -1,6 +1,7 @@
 @import '/assets/styles/app.css';
 @import 'header.css';
 @import '../components/blog.css';
+@import '../contact/faq.section.css';
 
 #bodyWrapper {
   background-color: hsl(var(--background) / 0.6);
@@ -33,30 +34,32 @@
 
 .blog-navigation {
   border-radius: 2em;
-  /* min-width: 180px; */
   text-align: center;
-  color: hsl(var(--secondary-theme));
+  color: hsl(var(--primary-theme));
 }
 
 .blog-navigation.active {
-  background-color: hsl(var(--border-theme) / 0.3);
+  background-color: hsl(var(--primary-theme));
+  color: white;
+  font-weight: 500;
+  scale: 1.1;
 }
 
 .carousel-item {
-  flex: 0 0 33.33% !important; /* 3 items per row on small screens */
+  flex: 0 0 33.33% !important;
   max-width: 33.33% !important;
 }
 
 @media (min-width: 640px) {
   .carousel-item {
-    flex: 0 0 25% !important; /* 4 items per row on tablets */
+    flex: 0 0 25% !important; 
     max-width: 25% !important;
   }
 }
 
 @media (min-width: 1024px) {
   .carousel-item {
-    flex: 0 0 20% !important; /* 5 items per row on desktops */
+    flex: 0 0 20% !important;
     max-width: 20% !important;
   }
 }
@@ -64,7 +67,7 @@
 @keyframes fadeSlideIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(50px);
   }
   to {
     opacity: 1;
@@ -72,7 +75,28 @@
   }
 }
 
+.featureCard-animate {
+  animation: fadeSlideIn 0.3s ease-out;
+}
 
-.featureCard-animate{
-  animation: fadeSlideIn 0.5s ease-out;
+.bg-contact {
+  background: linear-gradient(
+    135deg,
+    hsl(176, 43%, 45%) 0%,
+    hsl(176, 43%, 47%) 40%,
+    hsl(176, 43%, 53%) 60%,
+    hsl(176, 43%, 55%) 100%
+  );
+}
+
+.link-contact:hover{
+  background: linear-gradient(
+    135deg,
+    rgb(215 217 221) 0%,
+    rgb(222 224 229) 25%,
+    rgb(229 231 235) 50%,
+    rgb(236 238 242) 75%,
+    rgb(242 244 248) 100%
+  );
+  opacity: 0.9;
 }

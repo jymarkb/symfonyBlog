@@ -49,13 +49,21 @@
 
 	<div class="border-grid border-b">
 		<div class="container-wrapper">
-			<div class="container py-8 flex flex-col items-center justify-center w-[95%] lg:w-full">
+			{# <div class="container py-8 flex flex-col items-center justify-center w-[95%] lg:w-full">
 				<h2 class="mr-auto section-title font-heading md:text-3xl text-2xl font-semibold tracking-tight mb-4">Tech Stack</h2>
 
 				<div id="carousel" class="w-[80%] sm:w-[90%]"></div>
-			</div>
+			</div> #}
+
+			{% include 'about/about.features.html.twig'%}
+
+			<div class="flex-1 h-2 bg-gray-800"></div>
+
+			{% include 'home/home.faq.html.twig'%}
+
 		</div>
 	</div>
+
 {% endblock %}
 
 {% block footer %}
