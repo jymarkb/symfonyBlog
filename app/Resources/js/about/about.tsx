@@ -1,6 +1,8 @@
 import React from 'react';
 import { Popup } from '../dashboard/components/Popup';
 import { MobileHeader } from '../home/component/MobileHeader';
+import FAQAction from '../contact/action/FAQAction';
+
 class About {
   constructor() {
     this.init();
@@ -12,6 +14,7 @@ class About {
       isFilter: false,
       popUpdata: <MobileHeader />,
     });
+    FAQAction();
   }
 }
 
