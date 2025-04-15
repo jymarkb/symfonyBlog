@@ -1,5 +1,6 @@
 @import '/assets/styles/app.css';
 @import '../home/header.css';
+@import '../contact/faq.section.css';
 
 body {
   background-color: hsl(var(--background) / 0.6);
@@ -82,4 +83,26 @@ body {
 
 .new-white{
   background-color: rgba(255, 255, 255, 0.9);
+}
+
+.bg-contact {
+  background: linear-gradient(
+    135deg,
+    hsl(176, 43%, 45%) 0%,
+    hsl(176, 43%, 47%) 40%,
+    hsl(176, 43%, 53%) 60%,
+    hsl(176, 43%, 55%) 100%
+  );
+}
+
+.link-contact:hover{
+  background: linear-gradient(
+    135deg,
+    rgb(215 217 221) 0%,
+    rgb(222 224 229) 25%,
+    rgb(229 231 235) 50%,
+    rgb(236 238 242) 75%,
+    rgb(242 244 248) 100%
+  );
+  opacity: 0.9;
 }
