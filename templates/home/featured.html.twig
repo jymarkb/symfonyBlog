@@ -2,10 +2,10 @@
 {% set mostView = featureData['most'] %}
 <main class="border-grid border-b">
 	<div class="container-wrapper">
-		<div class="container py-8">
-			<div class="flex flex-col 2xl:flex-row container-wrapper-card-feature items-center">
-				<div class="container-blog-card-feature w-[95%] lg:w-full 2xl:w-[65%]">
-					<h2 class="section-title font-heading md:text-3xl text-2xl font-semibold tracking-tight mb-4 mt-2">Latest blog posts</h2>
+		<div class="py-12">
+			<div class="flex flex-col gap-8 lg:gap-12 2xl:gap-16 2xl:flex-row">
+				<div class="container-blog-card-feature w-full 2xl:w-[60%] px-4 sm:px-8 2xl:px-0 2xl:pl-16">
+					<h2 class="section-title font-heading md:text-3xl text-2xl font-semibold tracking-tight mb-6">Latest blog posts</h2>
 					<div class="{{latest.name}}-feature card shadow rounded-xl sm:rounded-3xl">
 						<div class="flex flex-col sm:flex-row p-0 gap-0 sm:gap-6 sm:p-4 md:p-6 lg:p-8">
 							<div class="container-card-feature w-full sm:w-[60%] md:w-1/2 flex flex-col p-4 gap-2 sm:p-0 gap-2 sm:gap-3 lg:gap-4 order-2 sm:order-1 flex flex-col">
@@ -19,7 +19,7 @@
 										<span class="lg:h-10 lg:w-10 md:h-9 md:w-9 h-8 w-8 shrink-0 overflow-hidden rounded-full bg-primaryTheme-600 border-primaryTheme border-1">
 											<img class="aspect-square object-cover" width="40" height="40" src="{{asset('img/user/'~ latest.avatar)}}" alt="avatar image">
 										</span>
-										<p class="name">{{ latest.firstName|capitalize ~ ' ' ~ latest.lastName|capitalize|first ~'.' }}</p>
+										<p class="name">{{ latest.firstName|title ~ ' ' ~ latest.lastName|capitalize|first ~'.' }}</p>
 									</div>
 								</div>
 
@@ -53,21 +53,21 @@
 					</div>
 				</div>
 				
-				<div class="container-blog-card-side 2xl:w-[35%] justify-center items-center flex flex-col">
+				<div class="container-blog-card-side 2xl:w-[40%] justify-center items-center flex flex-col px-4 2xl:px-0 2xl:pr-16">
 					<div class="flex container-blog-navigation justify-center 2xl:mb-3 mb-5 w-full">
 						<div class="flex round-corner" id="blogPostBtnContainer">
 							<button disabled class="blog-navigation transition-colors duration-500 ease-in-out py-3 active w-1/2 w-[180px]"  data-name="most">Most Popular</button>
 							<button class="blog-navigation transition-colors duration-500 ease-in-out py-3 w-1/2 w-[180px] ml-[-20px]" data-name="latest">Latest Post</button>
 						</div>
 					</div>
-					<div id="blogPostsContainer" class="container-blog-card justify-center flex flex-col lg:flex-row 2xl:flex-col max-w-sm lg:max-w-full w-full gap-5 lg:gap-3 xl:gap-6 2xl:gap-3">
+					<div id="blogPostsContainer" class="container-blog-card justify-center flex flex-col lg:flex-row 2xl:flex-col max-w-[520px] lg:max-w-full w-full gap-5 lg:gap-3 xl:gap-6 2xl:gap-3">
 						{% for item in mostView %}
 							<a href="blog/{{ item.slug }}" class="flex justify-center">
-								<div class="{{item.name}} card card-post w-full max-w-[330px] h-[370px] 2xl:h-fit 2xl:w-full 2xl:max-w-full border rounded xl:rounded-lg shadow transition duration-300 hover:scale-105 ">
-									<div class="flex 2xl:flex-row flex-col h-full">
-										<div class="left w-full 2xl:w-[65%] 2xl:my-4 mb-4 2xl:order-1 order-2 flex flex-col h-full">
+								<div class="{{item.name}} card card-post w-full max-w-[330px] h-[370px] lg:max-w-[330px] lg:h-[370px] sm:h-fit sm:max-w-full 2xl:h-fit 2xl:min-w-[500px] 2xl:max-w-full border rounded xl:rounded-lg shadow transition duration-300 hover:scale-105 ">
+									<div class="flex 2xl:flex-row sm:flex-row flex-col lg:flex-col h-full">
+										<div class="left w-full lg:w-full mb-4 2xl:w-[65%] 2xl:my-4 2xl:order-1 sm:w-[65%] sm:my-4 sm:order-1 lg:my-0 lg:mb-4 order-2 lg:order-2 flex flex-col h-full">
 											<div class="flex h-fit items-center">
-												<div class="badge mr-2 2xl:px-4 2xl:py-2 py-1 px-2 text-sm h-fit">
+												<div class="badge mr-2 2xl:px-4 2xl:py-2 py-1 px-2 sm:px-4 sm:py-2 lg:py-1 lg:px-2 text-sm h-fit">
 													<i class="{{ blogIcon(item.category_id) }}"></i>&nbsp;{{ item.name|capitalize }}
 												</div>
 
@@ -75,11 +75,11 @@
 													<span class="h-8 w-8 lg:h-10 lg:w-10 shrink-0 overflow-hidden rounded-full bg-primaryTheme-600 border-primaryTheme border-1">
 														<img class="aspect-square object-cover" width="40" height="40" src="{{asset('img/user/'~ latest.avatar)}}" alt="avatar image">
 													</span>
-													<p class="name">{{ item.firstName|capitalize ~ ' ' ~ item.lastName|capitalize|first ~'.'}}</p>
+													<p class="name">{{ item.firstName|title ~ ' ' ~ item.lastName|capitalize|first ~'.'}}</p>
 												</div>
 											</div>
 
-											<div class="mx-4 my-2 2xl:mr-2 flex flex-col gap-2 mt-auto 2xl:mt-none">
+											<div class="mx-4 lg:mx-4 my-2 lg:my-2 2xl:mr-2 sm:mr-2 flex flex-col gap-2">
 												<p class="font-semibold text-foreground title text-md text-justify h-12 line-clamp-2">{{item.title}}</p> 
 												<div class="text-xs md:text-sm date flex items-center justify-between gap-1 2xl:gap-1">
 													<span>{{ item.created_at|date('M d, Y', "Asia/Manila") }}</span>
@@ -91,8 +91,10 @@
 
 											</div>
 										</div>
-										<div class="right w-full 2xl:w-[35%] 2xl:p-4 2xl:pl-0 p-4 pb-2 flex 2xl:justify-end justfiy-center 2xl:order-2 order-1">
-											<img class="rounded-md 2xl:rounded-xl 2xl:w-[120px] 2xl:h-[120px] w-full h-[205px] aspect-square object-cover"
+										<div class="right w-full lg:w-full 2xl:w-[35%] 2xl:p-4 2xl:pl-0 sm:w-[35%] sm:p-4 sm:pl-0 p-4 pb-2 lg:p-4 lg:pb-2 flex 2xl:justify-end sm:justify-end justfiy-center lg:justfiy-center 2xl:order-2 sm:order-2 order-1 lg:order-1">
+											<img class="rounded-md 2xl:rounded-xl
+											2xl:w-[120px] 2xl:h-[120px] w-full h-[205px] sm:rounded-xl
+											sm:w-[120px] sm:h-[120px] lg:w-full lg:h-[205px] aspect-square object-cover"
 											width="120" height="120" src="/img/blog/thumbnails/{{ asset(item.htmlThumbnail) }}" alt="most popular image thumbnail">
 										</div>
 									</div>
