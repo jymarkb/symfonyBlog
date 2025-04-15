@@ -1,0 +1,68 @@
+{% set featuresGroups1 = [
+    { img: 'notebook.gif', text: 'Rich post editor with <strong>WYSIWYG</strong> support' },
+    { img: 'tag.gif', text: '<strong>Tags</strong> and <strong>categories</strong> for organization' },
+    { img: 'media.gif', text: 'Media <strong>upload</strong> and <strong>management</strong>' },
+    { img: 'role.gif', text: '<strong>Role-based</strong> access control' },
+    { img: 'responsive.gif', text: '<strong>Responsive</strong> and <strong>mobile-ready</strong>' },
+] %}
+
+{% set featuresGroups2 = [
+    { img: 'dashboard.gif', text: '<strong>Analytics</strong> Dashboard' },
+    { img: 'newspaper.gif', text: '<strong>Newsletter</strong> & <strong>Subscriber</strong> Management' },
+    { img: 'comments.gif', text: '<strong>Commenting</strong> System' },
+    { img: 'translate.gif', text: '<strong>Multi-language</strong> Support' },
+    { img: 'ai.gif', text: '<strong>AI-assisted</strong> writing tools' },
+]
+%}
+
+<section class="fouth-section flex flex-col items-center">
+
+    <div class="wrapper w-full bg-primaryTheme grid grid-cols-1 lg:grid-cols-2 px-8 sm:px-16 md:px-24 py-16 gap-16">
+        <div class="col-container flex flex-col items-center">
+            <div class="flex items-center bg-white border px-4 py-2 rounded-full shadow">
+                <span class="block h-3 w-3 rounded-full  border-2 border-primaryTheme bg-teal-400 mr-1"></span> 🛠️ Features at a Glance
+            </div>
+            
+            <div class="sm:w-[90%] rounded-md text-white">
+                {% for feature in featuresGroups1 %}
+
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md"  src="{{ asset('dist/about/gif/' ~ feature.img) }}" width="48" height="48" alt="image">
+                        <p class="text-lg">{{ feature.text|raw }}</p>
+                    </div>
+                    
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-container flex flex-col items-center">
+            <div class="flex items-center bg-white border px-4 py-2 rounded-full shadow">
+                <span class="block h-3 w-3 rounded-full  border-2 border-primaryTheme bg-teal-400 mr-1"></span> 🔭 What’s Next?
+            </div>
+
+            <div class="sm:w-[90%] rounded-md text-white">
+                {% for feature in featuresGroups2 %}
+
+                    <div class="flex gap-4 items-center border-b py-4">
+                        <img loading="lazy" class="bg-white p-2 rounded-md shadow-md"  src="{{ asset('dist/about/gif/' ~ feature.img) }}" width="48" height="48" alt="image">
+                        <p class="text-lg">{{ feature.text|raw }}</p>
+                    </div>
+                    
+                {% endfor %}
+            </div>
+        </div>
+
+            <div class="lg:col-span-2 flex flex-col items-center justify-center">
+
+            <div class=" bg-white shadow-xl  px-8 py-4 rounded-xl  flex flex-col gap-4 items-center">
+                <div class="flex items-center bg-white border px-4 py-2 rounded-full shadow">
+                    <span class="block h-3 w-3 rounded-full  border-2 border-primaryTheme bg-teal-400 mr-1"></span> 🙌 Let’s Connect
+                </div>
+                <p class="text-justify">
+                    This CMS is built in public. Feel free to check the <a href="{{ path('github') }}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 underline">GitHub</a> repo, suggest ideas, or contribute!
+                </p>
+            </div>
+        </div>
+    </div>
+
+</section>

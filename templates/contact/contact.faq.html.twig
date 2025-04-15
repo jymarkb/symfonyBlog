@@ -1,0 +1,44 @@
+{% set  faqs = [
+	{
+		'question': 'What is this CMS built with?',
+		'answer': 'This CMS is built using Symfony 7 for the backend and React + TypeScript on the frontend. It uses Tailwind CSS for styling, TinyMCE for the editor, and Docker for containerization.'
+	},
+	{
+		'question': 'Can I customize the design and layout?',
+		'answer': 'Yes! The entire UI is built with Tailwind CSS and React, making it super easy to customize components, themes, or layout structure.'
+	},
+	{
+		'question': 'Is there a rich text editor?',
+		'answer': 'Definitely! We use TinyMCE for a seamless WYSIWYG writing experience. It supports links, images, formatting, and custom plugins.'
+	},
+	{
+		'question': 'Can I manage images and uploads?',
+		'answer': 'Yes, image uploading is supported.'
+	},
+	{
+		'question': 'Is this open source?',
+		'answer': 'Yes! You can view the source code, fork it, or contribute on <a href="' ~ path('github') ~ '" class="text-indigo-600 underline"  target="_blank" rel="noopener noreferrer" >GitHub</a>.'
+	}
+] %}
+
+<div class="faq-container">
+    <h1 class="font-bold text-3xl text-gray-800 text-center 2xl:text-left">Frequently Asked Questions (FAQs)</h1>
+
+    <div id="faq-row-wrapper" class="flex flex-col gap-2 pt-4">
+
+    {% for faq in faqs %}
+
+        <div class="faq-row-container bg-white/50 shadow p-4 rounded ">
+            <div class="flex justify-between items-center">
+                <h2 class="font-semibold text-lg">{{ faq.question }}</h2>
+                <button class="transition duration-300 hover:bg-primaryTheme hover:text-white rounded" aria-label="dropdown button">
+                    <i class="flex items-center justify-center h-8 w-8 font-bold {{ loop.first ? 'icon-chevron-down' : 'icon-chevron-up' }}"></i>
+                </button>
+            </div>
+
+            <p class=" transition-all duration-300 ease-in-out overflow-hidden faq-text {{ loop.first ? 'show' : '' }}">{{ faq.answer|raw }}</p>
+        </div>
+        
+    {% endfor %}
+    </div>
+</div>
