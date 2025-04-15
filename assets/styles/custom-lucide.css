@@ -67,3 +67,6 @@
 .icon-facebook:before { content: "\e0c0"; }
 .icon-github:before { content: "\e0e9"; }
 .icon-linkedin:before { content: "\e10a"; }
+.icon-send:before { content: "\e155"; }
+.icon-chevron-down:before { content: "\e071"; }
+.icon-chevron-up:before { content: "\e074"; }
