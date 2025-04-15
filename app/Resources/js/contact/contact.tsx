@@ -69,12 +69,15 @@ class Contact {
         return;
       }
 
-      const targetP = btnTarget.parentElement?.nextElementSibling as HTMLElement;
+      const targetP = btnTarget.parentElement
+        ?.nextElementSibling as HTMLElement;
 
       if (!targetP) {
         return;
       }
 
+      target.classList.toggle('icon-chevron-down');
+      target.classList.toggle('icon-chevron-up');
       targetP.classList.toggle('show');
     });
   }
