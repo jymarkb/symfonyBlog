@@ -3,6 +3,8 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="default">
 		<title>
 			{% block title %}Welcome!
 			{% endblock %}
@@ -16,10 +18,10 @@
 		{% endblock %}
 
 	</head>
-	<body id="mainBody">
+	<body id="mainBody" >
 
 
-		<div id="bodyWrapper" class="transition-transform duration-500 transform">
+		<div id="bodyWrapper" class="transition-transform duration-500 transform bg-white">
 			{% block header %}{% endblock %}
 			{% block body %}{% endblock %}
 			{% block footer %}{% endblock %}

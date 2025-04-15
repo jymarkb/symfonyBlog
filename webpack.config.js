@@ -34,6 +34,9 @@ Encore.setOutputPath('public/dist')
   .addEntry('about/script', './app/Resources/js/about/about.tsx')
   .addEntry('about/style', './app/Resources/css/about/about.css')
 
+  .addEntry('contact/script', './app/Resources/js/contact/contact.tsx')
+  .addEntry('contact/style', './app/Resources/css/contact/contact.css')
+
   //Dashboard
   .addEntry('dashboard/script', './app/Resources/js/dashboard/dashboard.tsx')
   .addEntry('dashboard/style', './app/Resources/css/dashboard/dashboard.css')
