@@ -23,8 +23,6 @@ const FeaturedBlogPost = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    console.log();
-
     const childButton = btnWrapper.querySelectorAll("button.blog-navigation");
 
     childButton.forEach((btn) => {
