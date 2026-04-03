@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace App\Service;
 
@@ -8,10 +8,8 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
-
 class PagesService
 {
-
     private EntityManagerInterface $em;
     private Security $security;
     private SluggerInterface $slugger;

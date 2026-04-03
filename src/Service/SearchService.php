@@ -1,10 +1,8 @@
-<?
+<?php
 
 namespace App\Service;
 
 use App\Repository\BlogRepository;
-use Doctrine\ORM\EntityManagerInterface;
-
 class SearchService
 {
     private BlogRepository $blogRepository;
