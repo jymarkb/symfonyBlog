@@ -1,12 +1,9 @@
-<?
+<?php
 
 namespace App\Service\Account;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-
-use function PHPUnit\Framework\isEmpty;
-
 class UpdatePasswordService
 {
     private EntityManagerInterface $em;
