@@ -42,7 +42,7 @@
 									<div class="bg-border h-4 w-px"></div>
 									<span class="flex items-center gap-1"><i class="icon-clock"></i> {{latest.readingTime}} min read</span>
 									<div class="bg-border h-4 w-px"></div>
-									<span class="flex items-center gap-1"><i class="icon-eye"></i> {{formatViews(latest.views)}} Views</span>
+									<span class="flex items-center gap-1"><i class="icon-eye"></i> {{formatViews(latest.views ?? 0)}} Views</span>
 								</div>
 
 							</div>
@@ -86,7 +86,7 @@
 													<div class="bg-border h-4 w-[1px]"></div>
 													<span class="italic flex items-center"><i class="icon-clock mr-1"></i>{{ item.readingTime }} min read</span>
 													<div class="bg-border h-4 w-[1px]"></div>
-													<span class="flex items-center"><i class="icon-eye mr-1"></i>{{ formatViews(item.views) }} Views</span>
+													<span class="flex items-center"><i class="icon-eye mr-1"></i>{{ formatViews(item.views ?? 0) }} Views</span>
 												</div>
 
 											</div>
