@@ -7,7 +7,8 @@ Initialize `apps/web` as a Vite-based React frontend that serves public marketin
 ## Rendering Strategy
 
 - Public routes are SEO-first and must use SSR or prerender
-- Recommended implementation direction: a Vite-native SSR/prerender framework such as Vike
+- Recommended implementation direction: Vite + React with a Vite-native SSR/prerender layer such as Vike
+- Do not ship the public blog routes as SPA-only pages
 - Authenticated dashboard routes may behave like a client-heavy app as long as session protection and routing stay consistent
 
 ## Route Split
@@ -52,6 +53,6 @@ Initialize `apps/web` as a Vite-based React frontend that serves public marketin
 
 - Frontend initializes in `apps/web`
 - Public route rendering approach is fixed before page implementation
+- Public blog routes render with SSR or prerender instead of SPA-only delivery
 - Auth flow is compatible with Laravel API expectations
 - Design-system work follows `docs/product/redesign-brief.md`
-
