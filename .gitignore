@@ -4,5 +4,10 @@
 /apps/web/node_modules/
 /apps/web/.env
 /apps/web/.env.*
+/.local/
+/\.codex
+/\.codex/
+/codex/
 /.DS_Store
 
+codex/*
