@@ -6,6 +6,7 @@ This repository is being rebuilt as a split platform:
 
 - `apps/api`: Laravel API on Render
 - `apps/web`: Vite-based React frontend on Vercel
+- `packages/`: reserved shared workspace for cross-app contracts, configs, and utilities
 - Supabase for Postgres, Auth, and Storage
 - `legacy/symfony-blog`: preserved Symfony reference application
 
@@ -15,6 +16,7 @@ This pass creates only the workspace scaffold, planning docs, and repo-local Cod
 
 - Backend app path: `apps/api`
 - Frontend app path: `apps/web`
+- Shared workspace path: `packages/`
 - Legacy reference path: `legacy/symfony-blog`
 - API prefix: `/api/v1`
 - Frontend rendering: SEO-first SSR/prerender for public pages
@@ -49,17 +51,24 @@ This pass creates only the workspace scaffold, planning docs, and repo-local Cod
 
 - Legacy code preserved under `legacy/symfony-blog`
 - Empty targets at `apps/api` and `apps/web`
+- Reserved shared workspace at `packages/`
 - Decision-complete docs under `docs/`
 - Repo-local skill set under `codex/skills`
+
+## Developer System
+
+- Human-readable task templates live in `docs/prompts` and `docs/templates`
+- Agent-operational workflows live in `codex/skills`
+- Cross-app reuse goes into `packages/`, not directly from one app into another
+- Architecture-affecting changes must update the relevant docs in the same task
 
 ## Acceptance Criteria
 
 - Root layout clearly separates legacy and rebuild work
-- All roadmap and architecture docs exist and use the same conventions
+- All roadmap, setup, prompt, and architecture docs exist and use the same conventions
 - Each repo-local skill contains trigger conditions, workflow, touched files, and acceptance checks
 - A future implementation pass can start without re-deciding structure, providers, or path layout
 
 ## Environment Note
 
 The intended in-repo skill path is `.codex/skills`. In this workspace, root `.codex` is a read-only placeholder file, so the tracked skill path for this scaffold is `codex/skills`. If that placeholder is removed in a later environment, move `codex/skills` to `.codex/skills` without changing skill contents.
-
