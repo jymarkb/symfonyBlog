@@ -1,45 +1,11 @@
-# `</blog>` - Blogging CMS
+# Rebuild Workspace
 
-## Introduction
-</blog> is a modern Blogging CMS built with Symfony 7, React.js 18, TypeScript, and Tailwind CSS, designed to provide a seamless content management experience. It features:
-- **ShadCN/UI** for a polished UI component system
-- **TinyMCE** editor for rich text editing
-- **Dockerized deployment** with Nginx for reliability
-- **MySQL on AWS** for scalability and performance
+This repository now tracks two parallel tracks:
 
-This CMS is built for flexibility, efficiency, and performance, making it an ideal solution for content creators and developers alike.
+- `legacy/symfony-blog`: the preserved Symfony application
+- `apps/api` and `apps/web`: the new Laravel + Vite rebuild targets
 
-## Deployment
-</blog> is designed for smooth, scalable, and efficient deployment using **Amazon ECS (Elastic Container Service) on EC2**. The deployment process is fully automated with **GitHub Actions** and **AWS CodeBuild**, ensuring a robust CI/CD pipeline.
+Planning and architecture live under `docs/`.
 
-## Local Development
-### Requirements
-Ensure you have the following dependencies installed:
+Repo-local Codex skills are intended to live under `.codex/skills`, but this environment ships with a read-only root `.codex` placeholder file. For this scaffold pass, the tracked skill files live under `codex/skills` and the docs below treat that as the active repo-local fallback path.
 
-- **WSL 2** / Ubuntu 22
-- **Node.js** 22.3.0
-- **Yarn** 4.6.0
-- **Docker** 27.3.1
-- **Composer** 2.7.7
-- **PHP** 8.3.11
-
-With these tools in place, you can easily set up, develop, and test the CMS locally before deploying it to production.
-
-## Todo(s):
-- **Dashboard Analytics** for blog pages
-- **Custom Events** for blog page interactions (views, likes, dislikes, read time)
-- **Upgrade Rich Text Editor** from TinyMCE to Monaco Editor
-  - Drag & Drop components
-- **Account Management**
-  - Role-based blog posting
-- **User Features**
-  - Account profile page
-    - account profile analytics
-    - temporary profile avatar
-    - AccountType constrain
-    - OTP email/phone verification
-    - password validation with special characters
-  - Customizable About Page using TinyMCE
-  - Contact Us page & inbox
-- **Account Registration**
-  - UX/UI password validation
