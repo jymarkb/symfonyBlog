@@ -4,6 +4,13 @@
 
 Provide a first-class local development stack that preserves the familiar container-based workflow while supporting the new split architecture.
 
+## Incremental Rollout
+
+- Start with a Postgres-only compose setup at the repo root
+- Add `php` after the Laravel app is initialized
+- Add `node` after the frontend SSR stack is initialized
+- Add `nginx` last, once both app services can be proxied cleanly
+
 ## Target Services
 
 - `nginx`: reverse proxy for local integration
@@ -41,8 +48,8 @@ Provide a first-class local development stack that preserves the familiar contai
 
 ## Acceptance Criteria
 
+- The first increment can boot local Postgres independently
 - Containers boot the new split stack locally
 - Laravel and Vite are reachable through the local proxy
 - Local Postgres works independently of production Supabase
 - Environment values align with `docs/setup/environment-matrix.md`
-
