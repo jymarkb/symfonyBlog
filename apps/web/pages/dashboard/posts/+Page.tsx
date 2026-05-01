@@ -1,3 +1,9 @@
+import { AppShell } from '@/layouts/AppShell'
+
 export default function Page() {
-  return <h1>Dashboard posts page</h1>
+  return (
+    <AppShell>
+      <h1>Dashboard posts page</h1>
+    </AppShell>
+  )
 }

@@ -15,8 +15,11 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@tailwindcss/vite": "^4.2.4",
+    "lucide-react": "^1.14.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "tailwindcss": "^4.2.4",
     "vike": "^0.4.258",
     "vike-react": "^0.6.21"
   },

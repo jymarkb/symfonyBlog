@@ -16,10 +16,11 @@
     "jsx": "react-jsx",
     "strict": true,
     "ignoreDeprecations": "6.0",
+    "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["vite/client"]
+    "types": ["vite/client", "node"]
   },
   "include": ["pages", "src", "vite.config.ts"]
 }
