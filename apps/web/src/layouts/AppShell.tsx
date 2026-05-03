@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { Footer } from '@/components/layout/Footer/Footer'
 import { Header } from '@/components/layout/Header/Header'
 import '@/styles/global.css'
 
@@ -12,6 +13,7 @@ export function AppShell({ children }: AppShellProps) {
     <div className="min-h-screen bg-paper text-ink">
       <Header />
       <main>{children}</main>
+      <Footer />
     </div>
   )
 }
