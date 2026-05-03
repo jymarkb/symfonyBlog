@@ -1,16 +1,16 @@
+import type { SyntheticEvent } from 'react';
 import { useState } from 'react';
 
+import type { ForgotPasswordErrors } from '@/features/auth/authTypes';
 import { AuthFooterLinks } from '@/features/auth/components/AuthFooterLinks';
 import { validateEmail } from '@/features/auth/lib/validation';
 
-type Errors = { email?: string; server?: string };
-
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
-  const [errors, setErrors] = useState<Errors>({});
+  const [errors, setErrors] = useState<ForgotPasswordErrors>({});
   const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+  function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const emailError = validateEmail(email);
     if (emailError) { setErrors({ email: emailError }); return; }
