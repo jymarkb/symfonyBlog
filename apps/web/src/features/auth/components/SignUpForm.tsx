@@ -1,5 +1,7 @@
+import type { SyntheticEvent } from 'react';
 import { useState } from 'react';
 
+import type { SignUpErrors, SignUpFields } from '@/features/auth/authTypes';
 import { AuthFooterLinks } from '@/features/auth/components/AuthFooterLinks';
 import { AuthProviderButtons } from '@/features/auth/components/AuthProviderButtons';
 import {
@@ -11,34 +13,25 @@ import {
   validateNewPassword,
 } from '@/features/auth/lib/validation';
 
-type Fields = {
-  displayName: string;
-  handle: string;
-  email: string;
-  password: string;
-  terms: boolean;
-};
-type Errors = Partial<Record<keyof Fields, string> & { server: string }>;
-
 export function SignUpForm() {
-  const [fields, setFields] = useState<Fields>({
+  const [fields, setFields] = useState<SignUpFields>({
     displayName: '',
     handle: '',
     email: '',
     password: '',
     terms: false,
   });
-  const [errors, setErrors] = useState<Errors>({});
+  const [errors, setErrors] = useState<SignUpErrors>({});
   const [submitting, setSubmitting] = useState(false);
 
   const strength = passwordStrength(fields.password);
 
-  function setField<K extends keyof Fields>(field: K, value: Fields[K]) {
+  function setField<K extends keyof SignUpFields>(field: K, value: SignUpFields[K]) {
     setFields((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
-  function validate(): Errors {
+  function validate(): SignUpErrors {
     return {
       displayName: validateDisplayName(fields.displayName) ?? undefined,
       handle: validateHandle(fields.handle) ?? undefined,
@@ -48,7 +41,7 @@ export function SignUpForm() {
     };
   }
 
-  function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+  function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const errs = validate();
     if (Object.values(errs).some(Boolean)) { setErrors(errs); return; }

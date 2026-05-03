@@ -1,32 +1,31 @@
+import type { ChangeEvent, SyntheticEvent } from 'react';
 import { useState } from 'react';
 
+import type { SignInErrors, SignInFields } from '@/features/auth/authTypes';
 import { AuthFooterLinks } from '@/features/auth/components/AuthFooterLinks';
 import { AuthProviderButtons } from '@/features/auth/components/AuthProviderButtons';
 import { validateEmail, validatePassword } from '@/features/auth/lib/validation';
 
-type Fields = { email: string; password: string };
-type Errors = Partial<Fields & { server: string }>;
-
 export function SignInForm() {
-  const [fields, setFields] = useState<Fields>({ email: '', password: '' });
-  const [errors, setErrors] = useState<Errors>({});
+  const [fields, setFields] = useState<SignInFields>({ email: '', password: '' });
+  const [errors, setErrors] = useState<SignInErrors>({});
   const [submitting, setSubmitting] = useState(false);
 
-  function set(field: keyof Fields) {
-    return (e: React.ChangeEvent<HTMLInputElement>) => {
+  function set(field: keyof SignInFields) {
+    return (e: ChangeEvent<HTMLInputElement>) => {
       setFields((prev) => ({ ...prev, [field]: e.target.value }));
       if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
     };
   }
 
-  function validate(): Errors {
+  function validate(): SignInErrors {
     return {
       email: validateEmail(fields.email) ?? undefined,
       password: validatePassword(fields.password) ?? undefined,
     };
   }
 
-  function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+  function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const errs = validate();
     if (errs.email || errs.password) { setErrors(errs); return; }
