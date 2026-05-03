@@ -753,6 +753,52 @@
     margin-bottom: 2px;
   }
 
+  .side-reset h2 {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 26px;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    color: #fafaf7;
+    margin: 0 0 16px;
+  }
+
+  .side-reset h2 em {
+    font-style: normal;
+    font-weight: 400;
+    color: oklch(0.78 0.12 255);
+  }
+
+  .side-reset p {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    line-height: 1.6;
+    color: oklch(0.75 0.01 255);
+    margin: 0 0 28px;
+  }
+
+  .side-steps {
+    display: grid;
+    gap: 16px;
+  }
+
+  .side-step {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: oklch(0.85 0.01 255);
+    line-height: 1.4;
+  }
+
+  .side-step .num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: oklch(0.7 0.16 255);
+    padding-top: 1px;
+  }
+
   .side-meta {
     font-family: var(--font-mono);
     font-size: 11px;
