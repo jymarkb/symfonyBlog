@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { Header } from '@/components/common/Header/Header'
+import { Header } from '@/components/layout/Header/Header'
 import '@/styles/global.css'
 
 type AppShellProps = {

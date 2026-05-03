@@ -1,7 +1,7 @@
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import type { ThemeMode } from "@/components/common/Header/headerTypes";
+import type { ThemeMode } from "@/components/layout/Header/headerTypes";
 
 export function HeaderThemeToggle() {
   const [themeMode, setThemeMode] = useState<ThemeMode>("light");

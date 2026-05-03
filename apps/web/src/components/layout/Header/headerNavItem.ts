@@ -1,4 +1,4 @@
-import type { HeaderNavItem } from "@/components/common/Header/headerTypes";
+import type { HeaderNavItem } from "@/components/layout/Header/headerTypes";
 
 export const headerNavItems: HeaderNavItem[] = [
   { label: "Home", href: "/" },

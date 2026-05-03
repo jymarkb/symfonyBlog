@@ -3,9 +3,9 @@ import { useState } from "react";
 import {
   HeaderMobileMenuButton,
   HeaderMobileMenuPanel,
-} from "@/components/common/Header/HeaderMobileMenu";
-import { HeaderThemeToggle } from "@/components/common/Header/HeaderThemeToggle";
-import { headerNavItems } from "@/components/common/Header/headerNavItem";
+} from "@/components/layout/Header/HeaderMobileMenu";
+import { HeaderThemeToggle } from "@/components/layout/Header/HeaderThemeToggle";
+import { headerNavItems } from "@/components/layout/Header/headerNavItem";
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
