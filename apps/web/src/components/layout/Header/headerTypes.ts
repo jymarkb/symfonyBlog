@@ -1,9 +1,26 @@
+import type { ThemeMode } from "@/lib/theme/themeTypes";
+
 export interface HeaderNavItem {
   label: string;
   href: string;
 }
 
-export type ThemeMode = "light" | "dark";
+export type HeaderAuthCta = HeaderNavItem;
+
+export interface HeaderAuthButtons {
+  signIn: HeaderAuthCta;
+  signUp: HeaderAuthCta;
+}
+
+export interface HeaderProps {
+  themeMode: ThemeMode;
+  onToggleThemeMode: () => void;
+}
+
+export interface HeaderThemeToggleProps {
+  themeMode: ThemeMode;
+  onToggleThemeMode: () => void;
+}
 
 export interface HeaderMobileMenuButtonProps {
   isOpen: boolean;
@@ -12,6 +29,6 @@ export interface HeaderMobileMenuButtonProps {
 
 export interface HeaderMobileMenuPanelProps {
   items: HeaderNavItem[];
+  authCta: HeaderAuthCta;
   onClose: () => void;
 }
-

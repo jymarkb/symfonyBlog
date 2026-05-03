@@ -1,4 +1,7 @@
-import type { HeaderNavItem } from "@/components/layout/Header/headerTypes";
+import type {
+  HeaderAuthButtons,
+  HeaderNavItem,
+} from "@/components/layout/Header/headerTypes";
 
 export const headerNavItems: HeaderNavItem[] = [
   { label: "Home", href: "/" },
@@ -7,3 +10,8 @@ export const headerNavItems: HeaderNavItem[] = [
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
+
+export const headerAuthButtons: HeaderAuthButtons = {
+  signIn: { label: "Sign in", href: "/signin" },
+  signUp: { label: "Create account", href: "/signup" },
+};
