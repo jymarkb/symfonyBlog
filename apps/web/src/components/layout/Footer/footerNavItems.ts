@@ -15,7 +15,7 @@ export const footerLinkGroups: FooterLinkGroup[] = [
     links: [
       { label: "About", href: "/about" },
       { label: "Contact", href: "/contact" },
-      { label: "Sign in", href: "/login" },
+      { label: "Sign in", href: "/signin" },
       { label: "Create account", href: "/signup" },
     ],
   },
