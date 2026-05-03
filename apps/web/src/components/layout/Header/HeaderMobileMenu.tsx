@@ -27,6 +27,7 @@ export function HeaderMobileMenuButton({
 }
 
 export function HeaderMobileMenuPanel({
+  authCta,
   items,
   onClose,
 }: HeaderMobileMenuPanelProps) {
@@ -46,10 +47,10 @@ export function HeaderMobileMenuPanel({
           ))}
           <a
             className="btn btn-primary justify-start"
-            href="/login"
+            href={authCta.href}
             onClick={onClose}
           >
-            Sign in
+            {authCta.label}
           </a>
         </div>
       </div>
