@@ -1,5 +1,5 @@
 import { AppShell } from '@/layouts/AppShell'
-import { Header } from '@/components/common/Header'
+import { Header } from '@/components/common/Header/Header'
 
 export default function Page() {
   return (

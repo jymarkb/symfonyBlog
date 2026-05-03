@@ -1,6 +1,6 @@
 import { AppShell } from '@/layouts/AppShell'
 // import { SiteHeader } from '@/components/common/SiteHeader'
-import { Header } from '@/components/common/Header'
+import { Header } from '@/components/common/Header/Header'
 
 export default function Page() {
   return (
