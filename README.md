@@ -1,10 +1,19 @@
-# Rebuild Workspace
+# Laravel + Vike React Rebuild Workspace
 
-This repository now tracks two parallel tracks:
+This repository is being rebuilt on Laravel and Vike React.
 
-- `legacy/symfony-blog`: the preserved Symfony application
-- `apps/api` and `apps/web`: the new Laravel + Vite rebuild targets
-- `packages`: the reserved shared workspace for future cross-app contracts, configs, and utilities
+Active app:
+
+- `apps/api`: Laravel API
+- `apps/web`: Vike React frontend
+
+Legacy reference only:
+
+- `legacy/symfony-blog`
+
+Shared workspace:
+
+- `packages`: reserved for future cross-app contracts, configs, and utilities
 
 Planning, prompts, templates, and architecture live under `docs/`.
 

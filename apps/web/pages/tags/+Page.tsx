@@ -3,7 +3,7 @@ import { AppShell } from '@/layouts/AppShell'
 export default function Page() {
   return (
     <AppShell>
-      <h1>Signup page</h1>
+      <h1>Tags</h1>
     </AppShell>
   )
 }

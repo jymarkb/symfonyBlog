@@ -1,11 +1,22 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from "react";
 
-import '@/styles/global.css'
+import { Footer } from "@/components/layout/Footer/Footer";
+import { Header } from "@/components/layout/Header/Header";
+import { useThemeMode } from "@/lib/theme/useThemeMode";
+import "@/styles/global.css";
 
 type AppShellProps = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
 export function AppShell({ children }: AppShellProps) {
-  return <>{children}</>
+  const { themeMode, toggleThemeMode } = useThemeMode();
+
+  return (
+    <>
+      <Header themeMode={themeMode} onToggleThemeMode={toggleThemeMode} />
+      <main>{children}</main>
+      <Footer />
+    </>
+  );
 }
