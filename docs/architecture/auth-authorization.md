@@ -4,13 +4,13 @@
 
 This document defines the target frontend authentication and authorization structure for the Laravel + Vike React rebuild.
 
-- `apps/web` owns login, signup, public profile, user account, and admin dashboard screens.
+- `apps/web` owns signin, signup, password reset, public profile, user account, and admin dashboard screens.
 - `apps/api` owns JSON APIs, Supabase token verification, authorization, policies, models, and persistence.
 - `legacy/symfony-blog` is reference-only and must not drive the new auth structure.
 
 ## Route Structure
 
-Use one centralized login and signup experience for every account type.
+Use one centralized signin and signup experience for every account type.
 
 ```text
 apps/web
@@ -19,8 +19,9 @@ apps/web
 │   ├── /blog
 │   ├── /blog/:slug
 │   ├── /profile/:username
-│   ├── /login
-│   └── /signup
+│   ├── /signin
+│   ├── /signup
+│   └── /forgot-password
 │
 ├── User account area
 │   ├── /me
@@ -45,7 +46,7 @@ Guest
 ├── Read blog posts
 ├── View public profiles
 ├── View approved comments
-└── Redirect to /login when trying to comment
+└── Redirect to /signin when trying to comment
 
 User
 ├── Everything Guest can do
@@ -62,11 +63,11 @@ Admin
 └── Manage categories
 ```
 
-## Login Flow
+## Signin Flow
 
 ```text
-/login
-└── Supabase login
+/signin
+└── Supabase signin
     └── frontend receives auth session/token
         └── call Laravel: GET /api/v1/me
             ├── role: admin -> redirect /dashboard
@@ -93,10 +94,10 @@ apps/web/src
 │   └── profile
 │
 ├── layouts
-│   ├── PublicLayout.tsx
-│   ├── AuthLayout.tsx
+│   ├── AppShell.tsx
+│   ├── AuthShell.tsx
 │   ├── AccountLayout.tsx
-│   └── DashboardLayout.tsx
+│   └── DashboardShell.tsx
 │
 ├── lib
 │   ├── api
@@ -105,7 +106,8 @@ apps/web/src
 │
 └── components
     ├── ui
-    └── common
+    ├── common
+    └── layout
 ```
 
 ## API Touchpoints
@@ -158,13 +160,13 @@ flowchart TD
   C --> C2["Blog List"]
   C --> C3["Blog Detail"]
   C --> C4["Public Profile"]
-  C --> C5["Login / Signup"]
+  C --> C5["Signin / Signup / Forgot Password"]
 
   C3 --> H{"Wants to Comment?"}
-  H -->|Guest| I["Redirect to /login"]
+  H -->|Guest| I["Redirect to /signin"]
   H -->|Logged in User| J["Submit Comment"]
 
-  I --> K["Central Login Form"]
+  I --> K["Central Signin Form"]
   K --> L["Supabase Auth"]
   L --> D
 
@@ -188,8 +190,8 @@ flowchart TD
 ## Acceptance Checks
 
 - Guest users can read posts and public profiles.
-- Guest users are redirected to `/login` when trying to comment.
+- Guest users are redirected to `/signin` when trying to comment.
 - Normal users can comment and view their own comment history.
 - Normal users cannot access `/dashboard`.
-- Admin users can access `/dashboard` from the same login flow.
+- Admin users can access `/dashboard` from the same signin flow.
 - Admin-only API calls are rejected unless `GET /api/v1/me` resolves an admin role.

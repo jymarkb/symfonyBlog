@@ -25,7 +25,7 @@ This structure is designed for `Vite + React + Vike` and should support both:
 
 - public marketing pages
 - blog index and article pages
-- login and signup screens
+- signin, signup, and password reset screens
 - dashboard and admin UI
 - frontend layouts, components, client state, and API integration
 
@@ -72,10 +72,13 @@ apps/web/
       +Page.tsx
     blog/@slug/
       +Page.tsx
-    login/
-      +Page.tsx
-    signup/
-      +Page.tsx
+    (auth)/
+      signin/
+        +Page.tsx
+      signup/
+        +Page.tsx
+      forgot-password/
+        +Page.tsx
     dashboard/
       +Page.tsx
     dashboard/posts/
@@ -87,6 +90,7 @@ apps/web/
     components/
       ui/
       common/
+      layout/
     features/
       blog/
       auth/
@@ -112,14 +116,17 @@ The canonical route ownership in `apps/web` is:
 /contact                -> pages/contact/+Page.tsx
 /blog                   -> pages/blog/+Page.tsx
 /blog/:slug             -> pages/blog/@slug/+Page.tsx
-/login                  -> pages/login/+Page.tsx
-/signup                 -> pages/signup/+Page.tsx
+/signin                 -> pages/(auth)/signin/+Page.tsx
+/signup                 -> pages/(auth)/signup/+Page.tsx
+/forgot-password        -> pages/(auth)/forgot-password/+Page.tsx
 /dashboard              -> pages/dashboard/+Page.tsx
 /dashboard/posts        -> pages/dashboard/posts/+Page.tsx
 /dashboard/profile      -> pages/dashboard/profile/+Page.tsx
 ```
 
 `pages/` is for route entry files only. It should not become a dumping ground for reusable components or feature logic.
+
+Use Vike route groups such as `(auth)` when related public routes should be organized together without changing their URL paths.
 
 ## Directory Responsibilities
 
@@ -159,14 +166,23 @@ Rules:
 
 This is for shared non-primitive UI used across multiple features:
 
-- site header
-- site footer
 - SEO helpers
 - empty states
 - shared page sections
 - loading states
 
 Use `common/` only for real cross-feature reuse. If a component only belongs to one area, keep it in that feature instead.
+
+### `src/components/layout/`
+
+This is for shared page-frame components:
+
+- `Header/`
+- `Footer/`
+- dashboard sidebars
+- persistent navigation regions
+
+Layout components may know about app routes, branding, and shell-level controls such as theme toggles. Keep their static data and types colocated with the owning layout component unless they become cross-layout shared data.
 
 ### `src/features/`
 
@@ -203,15 +219,33 @@ src/features/blog/
 
 Feature folders are the default place for page sections and feature behavior.
 
+Auth-specific page content belongs in `src/features/auth/`, not in layout shells or route files. For example:
+
+```text
+src/features/auth/
+  components/
+    SignInIntro.tsx
+    SignInSidePanel.tsx
+    SignUpIntro.tsx
+    SignUpSidePanel.tsx
+    ForgotPasswordIntro.tsx
+    ForgotPasswordSidePanel.tsx
+    SignInForm.tsx
+    SignUpForm.tsx
+    ForgotPasswordForm.tsx
+```
+
 ### `src/layouts/`
 
 Layouts define shared shells and structure, such as:
 
-- `PublicLayout.tsx`
-- `AuthLayout.tsx`
-- `DashboardLayout.tsx`
+- `AppShell.tsx`
+- `AuthShell.tsx`
+- `DashboardShell.tsx`
 
 Layouts may compose shared navigation, sidebars, footers, and route wrappers, but should not own backend data logic that belongs to a feature.
+
+Shells own page frames. For example, `AuthShell` owns the auth grid, form column, side column, and side placement. The signin/signup copy, side-panel content, and form behavior stay in `src/features/auth/`.
 
 ### `src/lib/`
 
@@ -326,6 +360,7 @@ The following rules are mandatory:
 Use these naming defaults:
 
 - kebab-case for directories
+- PascalCase is allowed for component module directories such as `Header/` and `Footer/`
 - PascalCase for React component filenames
 - lowercase utility filenames unless the file exports a component
 - Vike route files follow Vike conventions such as `+Page.tsx` and `+config.ts`
@@ -333,7 +368,7 @@ Use these naming defaults:
 Examples:
 
 - `src/components/ui/Button.tsx`
-- `src/components/common/SiteHeader.tsx`
+- `src/components/layout/Header/Header.tsx`
 - `src/features/blog/components/BlogCard.tsx`
 - `src/lib/api/client.ts`
 
@@ -357,7 +392,7 @@ When starting a new page:
 2. compose the page from layout and feature components
 3. place page-specific sections in the relevant feature folder
 4. place reusable primitives in `src/components/ui/`
-5. place shared cross-feature UI in `src/components/common/`
+5. place shared page-frame UI in `src/components/layout/`
 6. place API calls in `src/lib/api/` or the owning feature's `api/` directory
 
 When in doubt, prefer clear ownership over convenience.
