@@ -6,7 +6,7 @@ export default function Page() {
     <AppShell>
       <main>
         <Header />
-        <h1>Contact</h1>
+        <h1>Archive</h1>
       </main>
     </AppShell>
   )
