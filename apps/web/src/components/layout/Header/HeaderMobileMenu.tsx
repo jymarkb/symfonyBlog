@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import type {
   HeaderMobileMenuButtonProps,
   HeaderMobileMenuPanelProps,
-} from "@/components/common/Header/headerTypes";
+} from "@/components/layout/Header/headerTypes";
 
 export function HeaderMobileMenuButton({
   isOpen,
