@@ -12,4 +12,11 @@
 
 codex/*
 docs/*
+!docs/
+!docs/architecture/
+docs/architecture/*
+!docs/architecture/auth-authorization.md
+!docs/setup/
+docs/setup/*
+!docs/setup/frontend-structure.md
 design/*
