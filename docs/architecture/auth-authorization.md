@@ -8,6 +8,58 @@ This document defines the target frontend authentication and authorization struc
 - `apps/api` owns JSON APIs, Supabase token verification, authorization, policies, models, and persistence.
 - `legacy/symfony-blog` is reference-only and must not drive the new auth structure.
 
+## Implementation Progress
+
+```text
+1. Frontend auth UI foundation     done
+2. Backend/Supabase auth setup     done
+3. Frontend auth wiring            next
+4. Authorization guards/roles      partially started
+```
+
+Backend/Supabase setup currently includes the `auth:api` guard, Supabase bearer-token verification through JWKS, local `users.supabase_user_id` mapping, `GET /api/v1/me`, CORS config, JSON `401` behavior for API routes, and the initial admin middleware/role helpers.
+
+## Backend Auth Implementation
+
+Protected API routes use Laravel's built-in `auth` middleware with the custom `api` guard:
+
+```php
+Route::middleware('auth:api')->group(function () {
+    Route::get('/me', \App\Http\Controllers\Api\V1\CurrentUserController::class);
+});
+```
+
+The backend request flow is:
+
+```text
+GET /api/v1/me
+└── auth:api middleware
+    └── api guard from apps/api/config/auth.php
+        └── supabase driver registered in AppServiceProvider
+            └── read Authorization: Bearer <token>
+                └── SupabaseTokenVerifier verifies token through JWKS
+                    └── claims.sub maps to users.supabase_user_id
+                        └── User::firstOrCreate resolves local app user
+                            └── CurrentUserController reads $request->user()
+```
+
+Authentication outcomes:
+
+```text
+No token      -> guard returns null -> 401
+Invalid token -> guard returns null -> 401
+Valid token   -> guard returns User -> controller runs
+```
+
+Supabase Auth remains the identity source. Laravel does not store passwords or implement password login/register for this rebuild. Laravel stores the local app user record, role, profile metadata, and future relationships such as post authorship.
+
+```text
+Supabase Auth user id
+└── token claims.sub
+    └── users.supabase_user_id
+        └── local users.id for Laravel relationships
+```
+
 ## Route Structure
 
 Use one centralized signin and signup experience for every account type.
