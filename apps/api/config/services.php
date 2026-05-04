@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'supabase' => [
+        'url' => env('SUPABASE_URL'),
+        'jwks_url' => env('SUPABASE_JWKS_URL'),
+        'issuer' => env('SUPABASE_JWT_ISSUER'),
+        'audience' => env('SUPABASE_JWT_AUDIENCE', 'authenticated'),
+    ],
+
+
 ];
