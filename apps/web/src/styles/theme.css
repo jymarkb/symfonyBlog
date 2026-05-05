@@ -843,6 +843,27 @@
     justify-items: start;
   }
 
+  .auth-confirm {
+    display: grid;
+    justify-items: start;
+  }
+
+  .auth-confirm-mark {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 22px;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--accent) 14%, transparent);
+    color: var(--accent-ink);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
   .callback-mark {
     display: grid;
     place-items: center;

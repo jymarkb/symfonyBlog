@@ -37,6 +37,9 @@ export function SignUpForm() {
   const [submitting, setSubmitting] = useState(false);
   const [socialSubmitting, setSocialSubmitting] =
     useState<SocialAuthProvider | null>(null);
+  const [confirmationMessage, setConfirmationMessage] = useState<string | null>(
+    null,
+  );
   const [lastUsedProvider] = useState<SocialAuthProvider | null>(
     getLastAuthProvider,
   );
@@ -90,13 +93,11 @@ export function SignUpForm() {
       });
 
       if (result.needsEmailConfirmation || !result.currentUser) {
-        setErrors({
-          server: getPendingSignupMessage(),
-        });
+        setConfirmationMessage(getPendingSignupMessage());
         return;
       }
 
-      window.location.href = "/me";
+      window.location.href = "/";
     } catch (error) {
       setErrors({
         server:
@@ -122,6 +123,57 @@ export function SignUpForm() {
       });
       setSocialSubmitting(null);
     }
+  }
+
+  if (confirmationMessage) {
+    return (
+      <>
+        <div className="auth-confirm">
+          <div aria-hidden="true" className="auth-confirm-mark">
+            OK
+          </div>
+
+          <div className="eyebrow mb-4">Email confirmation</div>
+
+          <h1>
+            Check your <em>email</em>.
+          </h1>
+
+          <p className="lede">{confirmationMessage}</p>
+
+          {errors.server && <div className="form-alert">{errors.server}</div>}
+
+          <div className="callback-actions">
+            {lastUsedProvider ? (
+              <button
+                className="btn btn-primary"
+                disabled={socialSubmitting !== null}
+                onClick={() => handleSocialRegister(lastUsedProvider)}
+                type="button"
+              >
+                {socialSubmitting === lastUsedProvider
+                  ? `Opening ${formatAuthProvider(lastUsedProvider)}...`
+                  : `Continue with ${formatAuthProvider(lastUsedProvider)}`}
+              </button>
+            ) : (
+              <a className="btn btn-primary" href="/signin">
+                Back to sign in
+              </a>
+            )}
+
+            <button
+              className="btn btn-ghost"
+              onClick={() => setConfirmationMessage(null)}
+              type="button"
+            >
+              Try another email
+            </button>
+          </div>
+        </div>
+
+        <AuthFooterLinks label="No tracking pixels · no third-party scripts" />
+      </>
+    );
   }
 
   return (
