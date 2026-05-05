@@ -4,7 +4,7 @@
 
 This document defines the target frontend authentication and authorization structure for the Laravel + Vike React rebuild.
 
-- `apps/web` owns signin, signup, password reset, public profile, user account, and admin dashboard screens.
+- `apps/web` owns signin, signup, password reset, private profile, public profile, and admin dashboard screens.
 - `apps/api` owns JSON APIs, Supabase token verification, authorization, policies, models, and persistence.
 - `legacy/symfony-blog` is reference-only and must not drive the new auth structure.
 
@@ -17,7 +17,7 @@ This document defines the target frontend authentication and authorization struc
 4. Authorization guards/roles      partially started
 ```
 
-Backend/Supabase setup currently includes the `auth:api` guard, Supabase bearer-token verification through JWKS, local `users.supabase_user_id` mapping, `GET /api/v1/me`, CORS config, JSON `401` behavior for API routes, and the initial admin middleware/role helpers.
+Backend/Supabase setup currently includes the `auth:api` guard, Supabase bearer-token verification through JWKS, local `users.supabase_user_id` mapping, the current-user session endpoint, CORS config, JSON `401` behavior for API routes, and the initial admin middleware/role helpers.
 
 Frontend auth wiring currently includes email signup, email confirmation callback handling, Google/GitHub social auth, email/password signin, existing-session signin redirects, last-used social provider hints, forgot-password email requests, and reset-password completion through Supabase Auth.
 
@@ -27,14 +27,14 @@ Protected API routes use Laravel's built-in `auth` middleware with the custom `a
 
 ```php
 Route::middleware('auth:api')->group(function () {
-    Route::get('/me', \App\Http\Controllers\Api\V1\CurrentUserController::class);
+    Route::get('/session', [\App\Http\Controllers\Api\V1\SessionController::class, 'show']);
 });
 ```
 
 The backend request flow is:
 
 ```text
-GET /api/v1/me
+GET /api/v1/session
 └── auth:api middleware
     └── api guard from apps/api/config/auth.php
         └── supabase driver registered in AppServiceProvider
@@ -43,7 +43,7 @@ GET /api/v1/me
                     └── claims.sub maps to users.supabase_user_id
                         └── existing user is resolved by Supabase id or email
                             └── missing local profile fields are synced
-                            └── CurrentUserController reads $request->user()
+                            └── SessionController reads $request->user()
 ```
 
 Authentication outcomes:
@@ -56,7 +56,7 @@ Valid token   -> guard returns User -> controller runs
 
 Supabase Auth remains the identity source. Laravel does not store passwords or implement password login/register for this rebuild. Laravel stores the local app user record, role, profile metadata, and future relationships such as post authorship.
 
-Local users include a unique `handle`. Email signup sends the requested handle in Supabase metadata. Social signup/signin generates a local handle from provider metadata or email when one is missing; users can change this later from the account profile flow.
+Local users include a unique `handle`. Email signup sends the requested handle in Supabase metadata. Social signup/signin generates a local handle from provider metadata or email when one is missing; users can change this later from the private profile flow.
 
 ```text
 Supabase Auth user id
@@ -75,28 +75,31 @@ apps/web
 │   ├── /
 │   ├── /blog
 │   ├── /blog/:slug
-│   ├── /profile/:username
+│   ├── /profile/:handle
 │   ├── /signin
 │   ├── /signup
 │   ├── /forgot-password
 │   ├── /reset-password
 │   └── /auth/callback
 │
-├── User account area
-│   ├── /me
-│   ├── /me/profile
-│   ├── /me/comments
-│   └── /me/security
+├── Private user profile
+│   └── /profile
 │
-└── Admin dashboard
+└── Admin dashboard, admin only
     ├── /dashboard
     ├── /dashboard/posts
     ├── /dashboard/posts/new
     ├── /dashboard/posts/:id/edit
+    ├── /dashboard/users
     ├── /dashboard/comments
-    ├── /dashboard/categories
-    └── /dashboard/profile
+    └── /dashboard/categories
 ```
+
+`/profile` is the signed-in user's private profile/settings page. It can include fields from `design/profile.html`, such as email, password update, notification settings, comment history, reading history, and account deletion.
+
+`/profile/:handle` is a public user profile page. It must expose only safe public fields such as display name, handle, avatar, bio, public links, public comment count, and member-since date. It must not expose email, password controls, notification settings, reading history, or account deletion.
+
+There is no frontend `/me` route. Current-user identity is an API concern.
 
 ## Role Behavior
 
@@ -110,17 +113,48 @@ Guest
 User
 ├── Everything Guest can do
 ├── Add comments
-├── Track own comments
-├── Manage own profile
+├── View and update own private /profile
 └── Cannot access /dashboard
 
 Admin
 ├── Everything User can do
 ├── Access /dashboard
 ├── Create/edit/delete posts
+├── Manage users
 ├── Moderate comments
 └── Manage categories
 ```
+
+## Backend Authorization Scaffold
+
+The backend authorization scaffold is intentionally separate from future admin product logic.
+
+Done in this phase:
+
+```text
+GET /api/v1/session
+GET /api/v1/profile
+PATCH /api/v1/profile
+DELETE /api/v1/profile
+GET /api/v1/profiles/{handle}
+GET /api/v1/admin/posts
+POST /api/v1/admin/posts
+PATCH /api/v1/admin/posts/{post}
+DELETE /api/v1/admin/posts/{post}
+GET /api/v1/admin/users
+PATCH /api/v1/admin/users/{user}
+GET /api/v1/admin/comments
+PATCH /api/v1/admin/comments/{comment}
+GET /api/v1/admin/categories
+POST /api/v1/admin/categories
+PATCH /api/v1/admin/categories/{category}
+DELETE /api/v1/admin/categories/{category}
+POST /api/v1/admin/uploads
+```
+
+Admin controller placeholders prove the route and middleware boundary. Real admin business logic comes later by feature area: post publishing, user moderation, comment moderation, category management, media uploads, and website stats.
+
+Controllers should use resource-style method names: `index`, `store`, `show`, `update`, and `destroy`. Avoid action-specific method names such as `moderate`; represent moderation as a resource update unless the action truly needs a separate endpoint.
 
 ## Signin Flow
 
@@ -129,21 +163,18 @@ Admin
 ├── Email/password signin
 │   └── Supabase signInWithPassword
 │       └── frontend receives auth session/token
-│           └── call Laravel: GET /api/v1/me
-│               ├── role: admin -> redirect /dashboard
-│               └── role: user -> redirect /
+│           └── call Laravel: GET /api/v1/session
+│               └── redirect /
 │
 ├── Existing Supabase session
-│   └── call Laravel: GET /api/v1/me
-│       ├── role: admin -> redirect /dashboard
-│       └── role: user -> redirect /
+│   └── call Laravel: GET /api/v1/session
+│       └── redirect /
 │
 └── Google/GitHub social signin
     └── Supabase OAuth redirects to /auth/callback
         └── callback silently exchanges provider code/token
-            └── call Laravel: GET /api/v1/me
-                ├── role: admin -> redirect /dashboard
-                └── role: user -> redirect /
+            └── call Laravel: GET /api/v1/session
+                └── redirect /
 ```
 
 The `/auth/callback` route is user-visible for email confirmation and error states. Normal social signin/signup provider callbacks are processed silently and redirected immediately.
@@ -155,16 +186,15 @@ The `/auth/callback` route is user-visible for email confirmation and error stat
 ├── Email/password signup
 │   └── Supabase signUp with display_name and handle metadata
 │       ├── no session -> show email confirmation state
-│       └── session -> call Laravel: GET /api/v1/me -> redirect /
+│       └── session -> call Laravel: GET /api/v1/session -> redirect /
 │
 └── Google/GitHub social signup
     └── Supabase OAuth redirects to /auth/callback
         └── callback exchanges provider code/token
-            └── call Laravel: GET /api/v1/me
+            └── call Laravel: GET /api/v1/session
                 ├── create/sync local user
                 ├── remember last used provider
-                ├── role: admin -> redirect /dashboard
-                └── role: user -> redirect /
+                └── redirect /
 ```
 
 Email confirmation links also return to `/auth/callback`, which restores the Supabase session, syncs the local Laravel user, and redirects by role.
@@ -202,9 +232,9 @@ http://localhost:3000/reset-password
 
 Production should add the matching HTTPS URLs. Auth emails are sent through Supabase Auth. When using Mailtrap or another SMTP provider, configure custom SMTP in Supabase, not Laravel.
 
-## Current Account Redirect Note
+## Current Login Redirect Note
 
-The target account area includes `/me`, but the current frontend implementation redirects normal authenticated users to `/` until the account overview screen exists. Admin users redirect to `/dashboard`.
+All successful signin, signup, and auth callback flows should redirect to `/` for now. Admin users should not be sent to `/dashboard` automatically. The frontend can show an admin dashboard link only after `GET /api/v1/session` resolves admin permissions.
 
 ## Frontend Folder Structure
 
@@ -218,7 +248,6 @@ apps/web/src
 │   │   ├── hooks
 │   │   ├── api
 │   │   └── types.ts
-│   ├── account
 │   ├── admin
 │   ├── blog
 │   ├── comments
@@ -227,7 +256,6 @@ apps/web/src
 ├── layouts
 │   ├── AppShell.tsx
 │   ├── AuthShell.tsx
-│   ├── AccountLayout.tsx
 │   └── DashboardShell.tsx
 │
 ├── lib
@@ -250,13 +278,15 @@ Public
 ├── GET /api/v1/posts
 ├── GET /api/v1/posts/{slug}
 ├── GET /api/v1/posts/{slug}/comments
-├── GET /api/v1/profiles/{username}
+├── GET /api/v1/profiles/{handle}
 └── GET /api/v1/categories
 
 Authenticated user
-├── GET /api/v1/me
-├── PATCH /api/v1/me
-├── GET /api/v1/me/comments
+├── GET /api/v1/session
+├── GET /api/v1/profile
+├── PATCH /api/v1/profile
+├── PATCH /api/v1/profile/password
+├── DELETE /api/v1/profile
 ├── POST /api/v1/posts/{slug}/comments
 ├── PATCH /api/v1/comments/{id}
 └── DELETE /api/v1/comments/{id}
@@ -267,7 +297,9 @@ Admin
 ├── PATCH /api/v1/admin/posts/{id}
 ├── DELETE /api/v1/admin/posts/{id}
 ├── GET /api/v1/admin/comments
-├── PATCH /api/v1/admin/comments/{id}/moderation
+├── PATCH /api/v1/admin/comments/{id}
+├── GET /api/v1/admin/users
+├── PATCH /api/v1/admin/users/{id}
 └── CRUD /api/v1/admin/categories
 ```
 
@@ -280,11 +312,11 @@ flowchart TD
   A["Visitor Opens App"] --> B{"Authenticated?"}
 
   B -->|No| C["Guest/Public Area"]
-  B -->|Yes| D["GET /api/v1/me"]
+  B -->|Yes| D["GET /api/v1/session"]
 
   D --> E{"User Role"}
 
-  E -->|user| F["User Account Area"]
+  E -->|user| F["Private Profile"]
   E -->|admin| G["Admin Dashboard"]
 
   C --> C1["Home"]
@@ -305,17 +337,14 @@ flowchart TD
   P --> Q["/auth/callback or /reset-password"]
   Q --> D
 
-  F --> F1["/me Overview"]
-  F --> F2["/me/profile"]
-  F --> F3["/me/comments"]
-  F --> F4["/me/security"]
+  F --> F1["/profile"]
 
   G --> G1["/dashboard Overview"]
   G --> G2["Manage Posts"]
   G --> G3["Create/Edit Post"]
   G --> G4["Moderate Comments"]
   G --> G5["Manage Categories"]
-  G --> G6["Admin Profile"]
+  G --> G6["Manage Users"]
 
   J --> M["Laravel API: Create Comment"]
   G2 --> N["Laravel API: Admin Posts"]
@@ -326,12 +355,13 @@ flowchart TD
 
 - Guest users can read posts and public profiles.
 - Guest users are redirected to `/signin` when trying to comment.
-- Normal users can comment and view their own comment history.
+- Normal users can comment and manage their private `/profile`.
+- Public `/profile/:handle` never exposes private profile settings or auth fields.
 - Normal users cannot access `/dashboard`.
-- Admin users can access `/dashboard` from the same signin flow.
-- Admin-only API calls are rejected unless `GET /api/v1/me` resolves an admin role.
+- Admin users can access `/dashboard` after signing in, but signin success redirects to `/`.
+- Admin-only API calls are rejected unless `GET /api/v1/session` resolves an admin role.
 - Email signup can request a handle and sync a local user after confirmation.
 - Google/GitHub signup and signin create or sync the same local Laravel user.
-- Email/password signin redirects normal users to `/` and admins to `/dashboard`.
+- Email/password signin redirects all users to `/`.
 - Forgot-password requests do not reveal whether the email exists.
 - Reset-password links land on `/reset-password`, update the Supabase password, sign out, and return the user to signin.
