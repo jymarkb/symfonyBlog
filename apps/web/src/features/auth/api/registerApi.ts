@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/auth/supabaseClient';
 import { fetchCurrentUser } from '@/features/auth/api/currentUserApi';
+import type { SocialAuthProvider } from '@/features/auth/authTypes';
+import { setPendingAuthProvider } from '@/features/auth/lib/lastAuthProvider';
 
 type RegisterInput = {
     displayName: string;
@@ -38,4 +40,19 @@ export async function registerWithEmail(params: RegisterInput) {
         needsEmailConfirmation: false,
         currentUser: await fetchCurrentUser(accessToken),
     };
+}
+
+export async function registerWithSocialProvider(provider: SocialAuthProvider) {
+    setPendingAuthProvider(provider);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+        },
+    });
+
+    if (error) {
+        throw new Error(error.message);
+    }
 }

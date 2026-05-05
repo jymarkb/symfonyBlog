@@ -1,12 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { fetchCurrentUser } from "@/features/auth/api/currentUserApi";
 import { AuthShell } from "@/layouts/AuthShell";
 import { supabase } from "@/lib/auth/supabaseClient";
-
-type CallbackStatus = "loading" | "error";
+import type { CallbackStatus, SocialAuthProvider } from "@/features/auth/authTypes";
+import {
+  clearPendingAuthProvider,
+  getPendingAuthProvider,
+  setLastAuthProvider,
+} from "@/features/auth/lib/lastAuthProvider";
 
 export default function Page() {
+  const hasStarted = useRef(false);
   const [status, setStatus] = useState<CallbackStatus>("loading");
   const [message, setMessage] = useState("Confirming your account and opening your session.");
 
@@ -16,14 +21,26 @@ export default function Page() {
   }
 
   useEffect(() => {
+    if (hasStarted.current) return;
+    hasStarted.current = true;
+
     async function finishAuth() {
+      const url = new URL(window.location.href);
+      const authCode = url.searchParams.get("code");
       const hashParams = new URLSearchParams(
         window.location.hash.replace(/^#/, ""),
       );
       const hashAccessToken = hashParams.get("access_token");
       const hashRefreshToken = hashParams.get("refresh_token");
 
-      if (hashAccessToken && hashRefreshToken) {
+      if (authCode) {
+        const { error } = await supabase.auth.exchangeCodeForSession(authCode);
+
+        if (error) {
+          showError(error.message);
+          return;
+        }
+      } else if (hashAccessToken && hashRefreshToken) {
         const { error } = await supabase.auth.setSession({
           access_token: hashAccessToken,
           refresh_token: hashRefreshToken,
@@ -48,6 +65,13 @@ export default function Page() {
       }
 
       const currentUser = await fetchCurrentUser(data.session.access_token);
+      const provider = getPendingAuthProvider() ?? data.session.user.app_metadata.provider;
+
+      if (provider === "github" || provider === "google") {
+        setLastAuthProvider(provider as SocialAuthProvider);
+      }
+
+      clearPendingAuthProvider();
 
       window.history.replaceState({}, document.title, "/auth/callback");
 
@@ -56,7 +80,7 @@ export default function Page() {
         return;
       }
 
-      window.location.href = "/me";
+      window.location.href = "/";
     }
 
     finishAuth().catch(() => {
