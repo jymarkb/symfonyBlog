@@ -20,6 +20,15 @@ export type ForgotPasswordErrors = {
   server?: string;
 };
 
+export type ResetPasswordFields = {
+  password: string;
+  confirmPassword: string;
+};
+
+export type ResetPasswordErrors = Partial<
+  ResetPasswordFields & { server: string }
+>;
+
 export type CallbackStatus = "loading" | "error";
 
 export type AuthProviderButtonsProps = {
