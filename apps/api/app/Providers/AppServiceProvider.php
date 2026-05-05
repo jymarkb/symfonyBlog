@@ -53,8 +53,8 @@ class AppServiceProvider extends ServiceProvider
                 $user->fill([
                     'supabase_user_id' => $user->supabase_user_id ?? $claims->sub,
                     'handle' => $user->handle ?? $this->resolveHandle($userMetadata, $email, $user),
-                    'display_name' => $user->display_name ?? $userMetadata->display_name ?? $userMetadata->full_name ?? null,
-                    'avatar_url' => $user->avatar_url ?? $userMetadata->avatar_url ?? $userMetadata->picture ?? null,
+                    'display_name' => $user->display_name ?? $userMetadata?->display_name ?? $userMetadata?->full_name,
+                    'avatar_url' => $user->avatar_url ?? $userMetadata?->avatar_url ?? $userMetadata?->picture,
                 ])->save();
 
                 return $user;
@@ -64,8 +64,8 @@ class AppServiceProvider extends ServiceProvider
                 'supabase_user_id' => $claims->sub,
                 'email' => $email,
                 'handle' => $this->resolveHandle($userMetadata, $email),
-                'display_name' => $userMetadata->display_name ?? $userMetadata->full_name ?? null,
-                'avatar_url' => $userMetadata->avatar_url ?? $userMetadata->picture ?? null,
+                'display_name' => $userMetadata?->display_name ?? $userMetadata?->full_name,
+                'avatar_url' => $userMetadata?->avatar_url ?? $userMetadata?->picture,
                 'role' => 'user',
             ]);
         });
@@ -73,11 +73,11 @@ class AppServiceProvider extends ServiceProvider
 
     private function resolveHandle(?object $userMetadata, string $email, ?User $currentUser = null): string
     {
-        $source = $userMetadata->handle
-            ?? $userMetadata->user_name
-            ?? $userMetadata->preferred_username
-            ?? $userMetadata->full_name
-            ?? $userMetadata->name
+        $source = $userMetadata?->handle
+            ?? $userMetadata?->user_name
+            ?? $userMetadata?->preferred_username
+            ?? $userMetadata?->full_name
+            ?? $userMetadata?->name
             ?? Str::before($email, '@')
             ?? 'user';
 
