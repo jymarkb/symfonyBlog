@@ -22,7 +22,7 @@ import {
 } from "@/features/auth/lib/lastAuthProvider";
 import {
   registerWithEmail,
-  registerWithSocialProvider,
+  startSocialAuth,
 } from "@/features/auth/api/registerApi";
 
 export function SignUpForm() {
@@ -113,7 +113,7 @@ export function SignUpForm() {
     setErrors({});
 
     try {
-      await registerWithSocialProvider(provider);
+      await startSocialAuth(provider);
     } catch (error) {
       setErrors({
         server:

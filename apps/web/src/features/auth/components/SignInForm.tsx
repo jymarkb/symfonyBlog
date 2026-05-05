@@ -1,15 +1,49 @@
-import type { ChangeEvent, SyntheticEvent } from 'react';
-import { useState } from 'react';
+import type { ChangeEvent, SyntheticEvent } from "react";
+import { useEffect, useState } from "react";
 
-import type { SignInErrors, SignInFields } from '@/features/auth/authTypes';
-import { AuthFooterLinks } from '@/features/auth/components/AuthFooterLinks';
-import { AuthProviderButtons } from '@/features/auth/components/AuthProviderButtons';
-import { validateEmail, validatePassword } from '@/features/auth/lib/validation';
+import type {
+  SignInErrors,
+  SignInFields,
+  SocialAuthProvider,
+} from "@/features/auth/authTypes";
+import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
+import { AuthProviderButtons } from "@/features/auth/components/AuthProviderButtons";
+import { startSocialAuth } from "@/features/auth/api/registerApi";
+import { getSignedInUser, signInWithEmail } from "@/features/auth/api/signInApi";
+import {
+  validateEmail,
+  validatePassword,
+} from "@/features/auth/lib/validation";
 
 export function SignInForm() {
-  const [fields, setFields] = useState<SignInFields>({ email: '', password: '' });
+  const [fields, setFields] = useState<SignInFields>({
+    email: "",
+    password: "",
+  });
   const [errors, setErrors] = useState<SignInErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [socialSubmitting, setSocialSubmitting] =
+    useState<SocialAuthProvider | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function redirectExistingSession() {
+      const currentUser = await getSignedInUser();
+
+      if (!isMounted || !currentUser) return;
+
+      window.location.href = currentUser.permissions.admin ? "/dashboard" : "/";
+    }
+
+    redirectExistingSession().catch(() => {
+      // Stay on sign in if the existing session cannot be resolved.
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   function set(field: keyof SignInFields) {
     return (e: ChangeEvent<HTMLInputElement>) => {
@@ -25,19 +59,61 @@ export function SignInForm() {
     };
   }
 
-  function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
+  async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const errs = validate();
-    if (errs.email || errs.password) { setErrors(errs); return; }
+    if (errs.email || errs.password) {
+      setErrors(errs);
+      return;
+    }
 
     setSubmitting(true);
     setErrors({});
-    // TODO: call sign-in API endpoint
+
+    try {
+      const currentUser = await signInWithEmail({
+        email: fields.email,
+        password: fields.password,
+      });
+
+      if (currentUser.permissions.admin) {
+        window.location.href = "/dashboard";
+        return;
+      }
+
+      window.location.href = "/";
+    } catch (error) {
+      setErrors({
+        server: error instanceof Error ? error.message : "Unable to sign in.",
+      });
+      setSubmitting(false);
+    }
+  }
+
+  async function handleSocialSignIn(provider: SocialAuthProvider) {
+    setSocialSubmitting(provider);
+    setErrors({});
+
+    try {
+      await startSocialAuth(provider);
+    } catch (error) {
+      setErrors({
+        server:
+          error instanceof Error
+            ? error.message
+            : "Unable to start social sign in.",
+      });
+      setSocialSubmitting(null);
+    }
   }
 
   return (
     <>
-      <AuthProviderButtons />
+      <AuthProviderButtons
+        disabled={submitting || socialSubmitting !== null}
+        loadingProvider={socialSubmitting}
+        onProviderSelect={handleSocialSignIn}
+      />
 
       <div className="divider">or with email</div>
 
@@ -48,9 +124,9 @@ export function SignInForm() {
           <label htmlFor="signin-email">Email</label>
           <input
             autoComplete="email"
-            className={errors.email ? 'is-error' : ''}
+            className={errors.email ? "is-error" : ""}
             id="signin-email"
-            onChange={set('email')}
+            onChange={set("email")}
             placeholder="you@somewhere.com"
             type="email"
             value={fields.email}
@@ -64,14 +140,16 @@ export function SignInForm() {
           </label>
           <input
             autoComplete="current-password"
-            className={errors.password ? 'is-error' : ''}
+            className={errors.password ? "is-error" : ""}
             id="signin-password"
-            onChange={set('password')}
+            onChange={set("password")}
             placeholder="••••••••••••"
             type="password"
             value={fields.password}
           />
-          {errors.password && <span className="field-error">{errors.password}</span>}
+          {errors.password && (
+            <span className="field-error">{errors.password}</span>
+          )}
         </div>
 
         <label className="check-row">
@@ -79,14 +157,24 @@ export function SignInForm() {
           <span>Keep me signed in on this device</span>
         </label>
 
-        <button className="btn btn-primary submit-btn" disabled={submitting} type="submit">
-          {submitting ? 'Signing in…' : 'Sign in →'}
+        <button
+          className="btn btn-primary submit-btn"
+          disabled={submitting}
+          type="submit"
+        >
+          {submitting ? "Signing in…" : "Sign in →"}
         </button>
       </form>
 
       <div className="alt-row">
-        New here? <a className="link" href="/signup">Create an account</a> · or{' '}
-        <a className="link" href="/">read without signing in</a>
+        New here?{" "}
+        <a className="link" href="/signup">
+          Create an account
+        </a>{" "}
+        · or{" "}
+        <a className="link" href="/">
+          read without signing in
+        </a>
       </div>
 
       <AuthFooterLinks label="jymb.blog · auth v3.2" />

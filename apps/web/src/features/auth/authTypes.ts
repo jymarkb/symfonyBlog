@@ -31,3 +31,8 @@ export type AuthProviderButtonsProps = {
 }
 
 export type SocialAuthProvider = 'github' | 'google';
+
+export type SignInInput = {
+  email: string;
+  password: string;
+};

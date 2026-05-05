@@ -42,7 +42,7 @@ export async function registerWithEmail(params: RegisterInput) {
     };
 }
 
-export async function registerWithSocialProvider(provider: SocialAuthProvider) {
+export async function startSocialAuth(provider: SocialAuthProvider) {
     setPendingAuthProvider(provider);
 
     const { error } = await supabase.auth.signInWithOAuth({
