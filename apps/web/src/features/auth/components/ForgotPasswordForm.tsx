@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import type { ForgotPasswordErrors } from "@/features/auth/authTypes";
 import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
+import { ForgotPasswordIntro } from "@/features/auth/components/ForgotPasswordIntro";
 import { validateEmail } from "@/features/auth/lib/validation";
 import { sendPasswordResetEmail } from "@/features/auth/api/resetPasswordApi";
 
@@ -26,6 +27,7 @@ export function ForgotPasswordForm() {
     try {
       await sendPasswordResetEmail(email);
       setSent(true);
+      setEmail("");
     } catch (error) {
       setErrors({
         server:
@@ -62,7 +64,10 @@ export function ForgotPasswordForm() {
 
             <button
               className="btn btn-ghost"
-              onClick={() => setSent(false)}
+              onClick={() => {
+                setSent(false);
+                setErrors({});
+              }}
               type="button"
             >
               Send another email
@@ -77,6 +82,8 @@ export function ForgotPasswordForm() {
 
   return (
     <>
+      <ForgotPasswordIntro />
+
       {errors.server && <div className="form-alert">{errors.server}</div>}
 
       <form noValidate onSubmit={handleSubmit}>

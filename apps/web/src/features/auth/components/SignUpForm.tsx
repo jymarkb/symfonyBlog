@@ -24,6 +24,7 @@ import {
   registerWithEmail,
   startSocialAuth,
 } from "@/features/auth/api/registerApi";
+import { SignUpIntro } from "@/features/auth/components/SignUpIntro";
 
 export function SignUpForm() {
   const [fields, setFields] = useState<SignUpFields>({
@@ -94,6 +95,13 @@ export function SignUpForm() {
 
       if (result.needsEmailConfirmation || !result.currentUser) {
         setConfirmationMessage(getPendingSignupMessage());
+        setFields({
+          displayName: "",
+          handle: "",
+          email: "",
+          password: "",
+          terms: false,
+        });
         return;
       }
 
@@ -163,7 +171,10 @@ export function SignUpForm() {
 
             <button
               className="btn btn-ghost"
-              onClick={() => setConfirmationMessage(null)}
+              onClick={() => {
+                setConfirmationMessage(null);
+                setErrors({});
+              }}
               type="button"
             >
               Try another email
@@ -178,6 +189,8 @@ export function SignUpForm() {
 
   return (
     <>
+      <SignUpIntro />
+
       <AuthProviderButtons
         compact
         disabled={submitting || socialSubmitting !== null}
