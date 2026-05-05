@@ -12,10 +12,12 @@ import {
 
 export default function Page() {
   const hasStarted = useRef(false);
+  const [isSilent, setIsSilent] = useState(true);
   const [status, setStatus] = useState<CallbackStatus>("loading");
   const [message, setMessage] = useState("Confirming your account and opening your session.");
 
   function showError(nextMessage: string) {
+    setIsSilent(false);
     setStatus("error");
     setMessage(nextMessage);
   }
@@ -32,6 +34,12 @@ export default function Page() {
       );
       const hashAccessToken = hashParams.get("access_token");
       const hashRefreshToken = hashParams.get("refresh_token");
+      const pendingProvider = getPendingAuthProvider();
+      const shouldShowCallbackUi = !authCode && !pendingProvider;
+
+      if (shouldShowCallbackUi) {
+        setIsSilent(false);
+      }
 
       if (authCode) {
         const { error } = await supabase.auth.exchangeCodeForSession(authCode);
@@ -65,7 +73,7 @@ export default function Page() {
       }
 
       const currentUser = await fetchCurrentUser(data.session.access_token);
-      const provider = getPendingAuthProvider() ?? data.session.user.app_metadata.provider;
+      const provider = pendingProvider ?? data.session.user.app_metadata.provider;
 
       if (provider === "github" || provider === "google") {
         setLastAuthProvider(provider as SocialAuthProvider);
@@ -89,6 +97,10 @@ export default function Page() {
       );
     });
   }, []);
+
+  if (isSilent && status === "loading") {
+    return null;
+  }
 
   return (
     <AuthShell side={<CallbackSidePanel />} sidePlacement="start">
