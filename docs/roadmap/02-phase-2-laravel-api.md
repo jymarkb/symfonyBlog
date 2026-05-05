@@ -31,11 +31,22 @@ Initialize `apps/api` as a Laravel application that serves as the system of busi
 - `GET /api/v1/posts`
 - `GET /api/v1/posts/{slug}`
 - `GET /api/v1/categories`
-- `GET /api/v1/me`
+- `GET /api/v1/session`
+- `GET /api/v1/profile`
+- `PATCH /api/v1/profile`
+- `GET /api/v1/profiles/{handle}`
 - `GET /api/v1/admin/posts`
 - `POST /api/v1/admin/posts`
-- `PUT /api/v1/admin/posts/{id}`
+- `PATCH /api/v1/admin/posts/{id}`
 - `DELETE /api/v1/admin/posts/{id}`
+- `GET /api/v1/admin/users`
+- `PATCH /api/v1/admin/users/{id}`
+- `GET /api/v1/admin/comments`
+- `PATCH /api/v1/admin/comments/{id}`
+- `GET /api/v1/admin/categories`
+- `POST /api/v1/admin/categories`
+- `PATCH /api/v1/admin/categories/{id}`
+- `DELETE /api/v1/admin/categories/{id}`
 - `POST /api/v1/admin/uploads`
 - `POST /api/v1/posts/{slug}/view`
 
@@ -61,4 +72,3 @@ Initialize `apps/api` as a Laravel application that serves as the system of busi
 - Auth boundary with Supabase is explicit
 - API namespaces and versioning are consistent with this doc
 - Domain model matches `docs/architecture/domain-model.md`
-
