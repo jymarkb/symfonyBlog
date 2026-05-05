@@ -6,6 +6,7 @@ import type {
   ResetPasswordFields,
 } from "@/features/auth/authTypes";
 import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
+import { ResetPasswordIntro } from "@/features/auth/components/ResetPasswordIntro";
 import {
   signOutAfterPasswordUpdate,
   startPasswordRecoverySession,
@@ -86,6 +87,10 @@ export function ResetPasswordForm() {
     try {
       await updatePassword(fields.password);
       await signOutAfterPasswordUpdate();
+      setFields({
+        password: "",
+        confirmPassword: "",
+      });
       setIsComplete(true);
     } catch (error) {
       setErrors({
@@ -155,6 +160,8 @@ export function ResetPasswordForm() {
 
   return (
     <>
+      <ResetPasswordIntro />
+
       {errors.server && <div className="form-alert">{errors.server}</div>}
 
       <form noValidate onSubmit={handleSubmit}>
