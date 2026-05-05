@@ -1,16 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { ThemeMode } from "@/lib/theme/themeTypes";
 
 const themeModeStorageKey = "theme-mode";
 
 function getInitialTheme(): ThemeMode {
-  if (typeof document === "undefined") return "light";
-  return document.documentElement.dataset.mode === "dark" ? "dark" : "light";
+  return "light";
 }
 
 export function useThemeMode() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
+
+  useEffect(() => {
+    setThemeMode(
+      document.documentElement.dataset.mode === "dark" ? "dark" : "light",
+    );
+  }, []);
 
   function toggleThemeMode() {
     const nextTheme = themeMode === "dark" ? "light" : "dark";
