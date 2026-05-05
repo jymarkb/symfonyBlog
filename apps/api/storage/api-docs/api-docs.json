@@ -1,0 +1,113 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Symfony Blog Rebuild API",
+        "description": "Laravel API for the Vike React rebuild.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/api/v1",
+            "description": "Local API v1"
+        }
+    ],
+    "paths": {
+        "/session": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Return the current signed-in user and permissions.",
+                "operationId": "getSession",
+                "responses": {
+                    "200": {
+                        "description": "Current session"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/profiles/{handle}": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Return a public profile by handle.",
+                "operationId": "getPublicProfile",
+                "parameters": [
+                    {
+                        "name": "handle",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Public profile"
+                    },
+                    "404": {
+                        "description": "Profile not found"
+                    }
+                }
+            }
+        },
+        "/admin/posts": {
+            "get": {
+                "tags": [
+                    "Admin Posts"
+                ],
+                "summary": "List admin posts.",
+                "operationId": "listAdminPosts",
+                "responses": {
+                    "200": {
+                        "description": "Post list"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Profile",
+            "description": "Profile"
+        },
+        {
+            "name": "Admin Posts",
+            "description": "Admin Posts"
+        }
+    ]
+}
