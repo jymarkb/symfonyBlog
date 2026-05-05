@@ -19,3 +19,15 @@ export type ForgotPasswordErrors = {
   email?: string;
   server?: string;
 };
+
+export type CallbackStatus = "loading" | "error";
+
+export type AuthProviderButtonsProps = {
+  compact?: boolean;
+  disabled?: boolean;
+  lastUsedProvider?: SocialAuthProvider | null;
+  loadingProvider?: SocialAuthProvider | null;
+  onProviderSelect?: (provider: SocialAuthProvider) => void;
+}
+
+export type SocialAuthProvider = 'github' | 'google';

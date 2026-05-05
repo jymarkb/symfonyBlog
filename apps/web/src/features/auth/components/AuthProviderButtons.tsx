@@ -1,21 +1,57 @@
 import GithubIcon from "@/assets/image/github.svg?react";
 import GoogleIcon from "@/assets/image/google.svg?react";
+import type { AuthProviderButtonsProps } from "@/features/auth/authTypes";
 
-interface AuthProviderButtonsProps {
-  compact?: boolean;
-}
+export function AuthProviderButtons({
+  compact = false,
+  disabled = false,
+  lastUsedProvider = null,
+  loadingProvider = null,
+  onProviderSelect,
+}: AuthProviderButtonsProps) {
+  function providerLabel(provider: "github" | "google") {
+    if (loadingProvider === provider) {
+      return `Opening ${provider === "github" ? "GitHub" : "Google"}...`;
+    }
 
-export function AuthProviderButtons({ compact = false }: AuthProviderButtonsProps) {
+    if (compact) {
+      return provider === "github" ? "GitHub" : "Google";
+    }
+
+    return `Continue with ${provider === "github" ? "GitHub" : "Google"}`;
+  }
+
   return (
     <div className={compact ? "oauth-btns oauth-btns-compact" : "oauth-btns"}>
-      <button className="oauth-btn" type="button">
-        <GithubIcon aria-hidden className="oauth-icon" />
-        {compact ? "GitHub" : "Continue with GitHub"}
-      </button>
-      <button className="oauth-btn" type="button">
-        <GoogleIcon aria-hidden className="oauth-icon" />
-        {compact ? "Google" : "Continue with Google"}
-      </button>
+      <div className="oauth-option">
+        <button
+          className="oauth-btn"
+          disabled={disabled}
+          onClick={() => onProviderSelect?.("github")}
+          type="button"
+        >
+          <GithubIcon aria-hidden className="oauth-icon" />
+          {providerLabel("github")}
+        </button>
+        {lastUsedProvider === "github" ? (
+          <div className="oauth-last-used">Last used</div>
+        ) : null}
+      </div>
+
+      <div className="oauth-option">
+        <button
+          className="oauth-btn"
+          disabled={disabled}
+          onClick={() => onProviderSelect?.("google")}
+          type="button"
+        >
+          <GoogleIcon aria-hidden className="oauth-icon" />
+          {providerLabel("google")}
+        </button>
+        {lastUsedProvider === "google" ? (
+          <div className="oauth-last-used">Last used</div>
+        ) : null}
+      </div>
     </div>
   );
 }

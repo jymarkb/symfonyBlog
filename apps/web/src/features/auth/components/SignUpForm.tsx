@@ -1,7 +1,11 @@
 import type { SyntheticEvent } from "react";
 import { useState } from "react";
 
-import type { SignUpErrors, SignUpFields } from "@/features/auth/authTypes";
+import type {
+  SignUpErrors,
+  SignUpFields,
+  SocialAuthProvider,
+} from "@/features/auth/authTypes";
 import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
 import { AuthProviderButtons } from "@/features/auth/components/AuthProviderButtons";
 import {
@@ -12,7 +16,14 @@ import {
   validateHandle,
   validateNewPassword,
 } from "@/features/auth/lib/validation";
-import { registerWithEmail } from "@/features/auth/api/registerApi";
+import {
+  formatAuthProvider,
+  getLastAuthProvider,
+} from "@/features/auth/lib/lastAuthProvider";
+import {
+  registerWithEmail,
+  registerWithSocialProvider,
+} from "@/features/auth/api/registerApi";
 
 export function SignUpForm() {
   const [fields, setFields] = useState<SignUpFields>({
@@ -24,6 +35,11 @@ export function SignUpForm() {
   });
   const [errors, setErrors] = useState<SignUpErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [socialSubmitting, setSocialSubmitting] =
+    useState<SocialAuthProvider | null>(null);
+  const [lastUsedProvider] = useState<SocialAuthProvider | null>(
+    getLastAuthProvider,
+  );
 
   const strength = passwordStrength(fields.password);
 
@@ -47,6 +63,14 @@ export function SignUpForm() {
     };
   }
 
+  function getPendingSignupMessage() {
+    if (lastUsedProvider) {
+      return `Almost there. A confirmation email may have been sent. If you do not see one, continue with ${formatAuthProvider(lastUsedProvider)}, your last used sign-in method.`;
+    }
+
+    return "Almost there. A confirmation email may have been sent, open it to finish creating your account.";
+  }
+
   async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const errs = validate();
@@ -67,7 +91,7 @@ export function SignUpForm() {
 
       if (result.needsEmailConfirmation || !result.currentUser) {
         setErrors({
-          server: "Check your email to confirm your account, then sign in.",
+          server: getPendingSignupMessage(),
         });
         return;
       }
@@ -83,9 +107,32 @@ export function SignUpForm() {
     }
   }
 
+  async function handleSocialRegister(provider: SocialAuthProvider) {
+    setSocialSubmitting(provider);
+    setErrors({});
+
+    try {
+      await registerWithSocialProvider(provider);
+    } catch (error) {
+      setErrors({
+        server:
+          error instanceof Error
+            ? error.message
+            : "Unable to start social registration.",
+      });
+      setSocialSubmitting(null);
+    }
+  }
+
   return (
     <>
-      <AuthProviderButtons compact />
+      <AuthProviderButtons
+        compact
+        disabled={submitting || socialSubmitting !== null}
+        lastUsedProvider={lastUsedProvider}
+        loadingProvider={socialSubmitting}
+        onProviderSelect={handleSocialRegister}
+      />
 
       <div className="divider">or with email</div>
 
