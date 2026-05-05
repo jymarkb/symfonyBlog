@@ -578,6 +578,12 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  .oauth-option {
+    display: grid;
+    gap: 0;
+    grid-template-rows: auto 18px;
+  }
+
   .oauth-btn {
     display: flex;
     align-items: center;
@@ -592,12 +598,14 @@
     font-weight: 500;
     color: var(--ink-2);
     transition: all 0.15s;
+    min-height: 43px;
   }
 
   .oauth-btns-compact .oauth-btn {
     gap: 8px;
     padding: 10px 12px;
     font-size: 13px;
+    min-height: 41px;
   }
 
   .oauth-btns-compact .oauth-icon {
@@ -608,6 +616,23 @@
   .oauth-btn:hover {
     background: var(--paper-2);
     border-color: var(--ink-4);
+  }
+
+  .oauth-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.72;
+  }
+
+  .oauth-last-used {
+    display: grid;
+    place-items: center;
+    min-height: 18px;
+    background: var(--accent);
+    color: white;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
   }
 
   .oauth-icon {
@@ -811,6 +836,111 @@
 
   .auth-foot a:hover {
     color: var(--ink);
+  }
+
+  .auth-callback {
+    display: grid;
+    justify-items: start;
+  }
+
+  .auth-confirm {
+    display: grid;
+    justify-items: start;
+  }
+
+  .auth-confirm-mark {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 22px;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--accent) 14%, transparent);
+    color: var(--accent-ink);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .callback-mark {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 22px;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    color: var(--accent-ink);
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .callback-mark.is-loading {
+    border-top-color: var(--accent);
+    animation: callback-spin 900ms linear infinite;
+  }
+
+  .callback-mark.is-error {
+    border-color: oklch(0.55 0.18 25);
+    background: oklch(0.96 0.04 25);
+    color: oklch(0.42 0.18 25);
+  }
+
+  :root[data-mode="dark"] .callback-mark.is-error {
+    background: oklch(0.22 0.06 25);
+    color: oklch(0.78 0.12 25);
+    border-color: oklch(0.38 0.12 25);
+  }
+
+  .callback-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .callback-progress {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .callback-progress span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: callback-pulse 900ms ease-in-out infinite;
+  }
+
+  .callback-progress span:nth-child(2) {
+    animation-delay: 120ms;
+  }
+
+  .callback-progress span:nth-child(3) {
+    animation-delay: 240ms;
+  }
+
+  @keyframes callback-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes callback-pulse {
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: translateY(0);
+    }
+
+    50% {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
   }
 
   .auth-side {

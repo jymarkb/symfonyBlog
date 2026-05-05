@@ -13,11 +13,13 @@ This document defines the target frontend authentication and authorization struc
 ```text
 1. Frontend auth UI foundation     done
 2. Backend/Supabase auth setup     done
-3. Frontend auth wiring            next
+3. Frontend auth wiring            done for signup/signin/password recovery
 4. Authorization guards/roles      partially started
 ```
 
 Backend/Supabase setup currently includes the `auth:api` guard, Supabase bearer-token verification through JWKS, local `users.supabase_user_id` mapping, `GET /api/v1/me`, CORS config, JSON `401` behavior for API routes, and the initial admin middleware/role helpers.
+
+Frontend auth wiring currently includes email signup, email confirmation callback handling, Google/GitHub social auth, email/password signin, existing-session signin redirects, last-used social provider hints, forgot-password email requests, and reset-password completion through Supabase Auth.
 
 ## Backend Auth Implementation
 
@@ -39,7 +41,8 @@ GET /api/v1/me
             └── read Authorization: Bearer <token>
                 └── SupabaseTokenVerifier verifies token through JWKS
                     └── claims.sub maps to users.supabase_user_id
-                        └── User::firstOrCreate resolves local app user
+                        └── existing user is resolved by Supabase id or email
+                            └── missing local profile fields are synced
                             └── CurrentUserController reads $request->user()
 ```
 
@@ -52,6 +55,8 @@ Valid token   -> guard returns User -> controller runs
 ```
 
 Supabase Auth remains the identity source. Laravel does not store passwords or implement password login/register for this rebuild. Laravel stores the local app user record, role, profile metadata, and future relationships such as post authorship.
+
+Local users include a unique `handle`. Email signup sends the requested handle in Supabase metadata. Social signup/signin generates a local handle from provider metadata or email when one is missing; users can change this later from the account profile flow.
 
 ```text
 Supabase Auth user id
@@ -73,7 +78,9 @@ apps/web
 │   ├── /profile/:username
 │   ├── /signin
 │   ├── /signup
-│   └── /forgot-password
+│   ├── /forgot-password
+│   ├── /reset-password
+│   └── /auth/callback
 │
 ├── User account area
 │   ├── /me
@@ -119,13 +126,85 @@ Admin
 
 ```text
 /signin
-└── Supabase signin
-    └── frontend receives auth session/token
-        └── call Laravel: GET /api/v1/me
-            ├── role: admin -> redirect /dashboard
-            ├── role: user + returnUrl -> redirect back
-            └── role: user no returnUrl -> redirect /me
+├── Email/password signin
+│   └── Supabase signInWithPassword
+│       └── frontend receives auth session/token
+│           └── call Laravel: GET /api/v1/me
+│               ├── role: admin -> redirect /dashboard
+│               └── role: user -> redirect /
+│
+├── Existing Supabase session
+│   └── call Laravel: GET /api/v1/me
+│       ├── role: admin -> redirect /dashboard
+│       └── role: user -> redirect /
+│
+└── Google/GitHub social signin
+    └── Supabase OAuth redirects to /auth/callback
+        └── callback silently exchanges provider code/token
+            └── call Laravel: GET /api/v1/me
+                ├── role: admin -> redirect /dashboard
+                └── role: user -> redirect /
 ```
+
+The `/auth/callback` route is user-visible for email confirmation and error states. Normal social signin/signup provider callbacks are processed silently and redirected immediately.
+
+## Signup Flow
+
+```text
+/signup
+├── Email/password signup
+│   └── Supabase signUp with display_name and handle metadata
+│       ├── no session -> show email confirmation state
+│       └── session -> call Laravel: GET /api/v1/me -> redirect /
+│
+└── Google/GitHub social signup
+    └── Supabase OAuth redirects to /auth/callback
+        └── callback exchanges provider code/token
+            └── call Laravel: GET /api/v1/me
+                ├── create/sync local user
+                ├── remember last used provider
+                ├── role: admin -> redirect /dashboard
+                └── role: user -> redirect /
+```
+
+Email confirmation links also return to `/auth/callback`, which restores the Supabase session, syncs the local Laravel user, and redirects by role.
+
+## Password Recovery Flow
+
+Password recovery is Supabase-owned and does not use a Laravel password reset endpoint.
+
+```text
+/forgot-password
+└── Supabase resetPasswordForEmail
+    └── redirectTo: <frontend origin>/reset-password
+        └── show neutral "check your email" confirmation state
+
+/reset-password
+└── restore Supabase recovery session from ?code=... or #access_token=...
+    └── user enters new password and confirmation
+        └── Supabase updateUser({ password })
+            └── sign out after password update
+                └── show success state with link to /signin
+```
+
+Recovery UI must not reveal whether an email address exists. Use neutral copy such as:
+
+```text
+If an account exists for that email, we sent a reset link.
+```
+
+Supabase dashboard configuration must allow these frontend redirect URLs during local development:
+
+```text
+http://localhost:3000/auth/callback
+http://localhost:3000/reset-password
+```
+
+Production should add the matching HTTPS URLs. Auth emails are sent through Supabase Auth. When using Mailtrap or another SMTP provider, configure custom SMTP in Supabase, not Laravel.
+
+## Current Account Redirect Note
+
+The target account area includes `/me`, but the current frontend implementation redirects normal authenticated users to `/` until the account overview screen exists. Admin users redirect to `/dashboard`.
 
 ## Frontend Folder Structure
 
@@ -212,7 +291,7 @@ flowchart TD
   C --> C2["Blog List"]
   C --> C3["Blog Detail"]
   C --> C4["Public Profile"]
-  C --> C5["Signin / Signup / Forgot Password"]
+  C --> C5["Signin / Signup / Forgot Password / Reset Password"]
 
   C3 --> H{"Wants to Comment?"}
   H -->|Guest| I["Redirect to /signin"]
@@ -221,6 +300,10 @@ flowchart TD
   I --> K["Central Signin Form"]
   K --> L["Supabase Auth"]
   L --> D
+
+  C5 --> P["Supabase Auth Emails"]
+  P --> Q["/auth/callback or /reset-password"]
+  Q --> D
 
   F --> F1["/me Overview"]
   F --> F2["/me/profile"]
@@ -247,3 +330,8 @@ flowchart TD
 - Normal users cannot access `/dashboard`.
 - Admin users can access `/dashboard` from the same signin flow.
 - Admin-only API calls are rejected unless `GET /api/v1/me` resolves an admin role.
+- Email signup can request a handle and sync a local user after confirmation.
+- Google/GitHub signup and signin create or sync the same local Laravel user.
+- Email/password signin redirects normal users to `/` and admins to `/dashboard`.
+- Forgot-password requests do not reveal whether the email exists.
+- Reset-password links land on `/reset-password`, update the Supabase password, sign out, and return the user to signin.
