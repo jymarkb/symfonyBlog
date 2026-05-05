@@ -1,24 +1,78 @@
-import type { SyntheticEvent } from 'react';
-import { useState } from 'react';
+import type { SyntheticEvent } from "react";
+import { useState } from "react";
 
-import type { ForgotPasswordErrors } from '@/features/auth/authTypes';
-import { AuthFooterLinks } from '@/features/auth/components/AuthFooterLinks';
-import { validateEmail } from '@/features/auth/lib/validation';
+import type { ForgotPasswordErrors } from "@/features/auth/authTypes";
+import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
+import { validateEmail } from "@/features/auth/lib/validation";
+import { sendPasswordResetEmail } from "@/features/auth/api/resetPasswordApi";
 
 export function ForgotPasswordForm() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [errors, setErrors] = useState<ForgotPasswordErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
 
-  function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
+  async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     const emailError = validateEmail(email);
-    if (emailError) { setErrors({ email: emailError }); return; }
+    if (emailError) {
+      setErrors({ email: emailError });
+      return;
+    }
 
     setSubmitting(true);
     setErrors({});
-    // TODO: call password-reset API endpoint
-    // On success: render a confirmation view with the submitted email
+
+    try {
+      await sendPasswordResetEmail(email);
+      setSent(true);
+    } catch (error) {
+      setErrors({
+        server:
+          error instanceof Error ? error.message : "Unable to send reset link.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (sent) {
+    return (
+      <>
+        <div className="auth-confirm">
+          <div aria-hidden="true" className="auth-confirm-mark">
+            OK
+          </div>
+
+          <div className="eyebrow mb-4">Check your email</div>
+
+          <h1>
+            Recovery link <em>sent</em>.
+          </h1>
+
+          <p className="lede">
+            If an account exists for that email, we sent a reset link. Check
+            your inbox and spam folder.
+          </p>
+
+          <div className="callback-actions">
+            <a className="btn btn-primary" href="/signin">
+              Back to sign in
+            </a>
+
+            <button
+              className="btn btn-ghost"
+              onClick={() => setSent(false)}
+              type="button"
+            >
+              Send another email
+            </button>
+          </div>
+        </div>
+
+        <AuthFooterLinks label="No account lookup · private by design" />
+      </>
+    );
   }
 
   return (
@@ -30,7 +84,7 @@ export function ForgotPasswordForm() {
           <label htmlFor="forgot-password-email">Email address</label>
           <input
             autoComplete="email"
-            className={errors.email ? 'is-error' : ''}
+            className={errors.email ? "is-error" : ""}
             id="forgot-password-email"
             onChange={(e) => {
               setEmail(e.target.value);
@@ -40,17 +94,26 @@ export function ForgotPasswordForm() {
             type="email"
             value={email}
           />
-          <span className="hint">We'll send a one-time reset link to this address.</span>
+          <span className="hint">
+            We'll send a one-time reset link to this address.
+          </span>
           {errors.email && <span className="field-error">{errors.email}</span>}
         </div>
 
-        <button className="btn btn-primary submit-btn mt-1" disabled={submitting} type="submit">
-          {submitting ? 'Sending…' : 'Send reset link →'}
+        <button
+          className="btn btn-primary submit-btn mt-1"
+          disabled={submitting}
+          type="submit"
+        >
+          {submitting ? "Sending…" : "Send reset link →"}
         </button>
       </form>
 
       <div className="alt-row">
-        Remembered it? <a className="link" href="/signin">Back to sign in</a>
+        Remembered it?{" "}
+        <a className="link" href="/signin">
+          Back to sign in
+        </a>
       </div>
 
       <AuthFooterLinks label="Link expires after 30 min" />
