@@ -14,12 +14,17 @@ This document defines the target frontend authentication and authorization struc
 1. Frontend auth UI foundation     done
 2. Backend/Supabase auth setup     done
 3. Frontend auth wiring            done for signup/signin/password recovery
-4. Authorization guards/roles      partially started
+4. Backend authorization scaffold  done for current routes
+5. Backend authorization tests     done with Pest route and role coverage
+6. Frontend session provider       done
+7. Frontend route guards           done for guest/user/admin route groups
+8. Frontend profile wiring         done for private /profile
+9. Frontend auth visibility        done for header account/admin states
 ```
 
 Backend/Supabase setup currently includes the `auth:api` guard, Supabase bearer-token verification through JWKS, local `users.supabase_user_id` mapping, the current-user session endpoint, CORS config, JSON `401` behavior for API routes, and the initial admin middleware/role helpers.
 
-Frontend auth wiring currently includes email signup, email confirmation callback handling, Google/GitHub social auth, email/password signin, existing-session signin redirects, last-used social provider hints, forgot-password email requests, and reset-password completion through Supabase Auth.
+Frontend auth wiring currently includes email signup, email confirmation callback handling, Google/GitHub social auth, email/password signin, guest-only auth pages, last-used social provider hints, forgot-password email requests, reset-password completion through Supabase Auth, a current-session provider, role-aware header state, protected user/admin route groups, and private profile load/update wiring.
 
 ## Backend Auth Implementation
 
@@ -234,7 +239,14 @@ Production should add the matching HTTPS URLs. Auth emails are sent through Supa
 
 ## Current Login Redirect Note
 
-All successful signin, signup, and auth callback flows should redirect to `/` for now. Admin users should not be sent to `/dashboard` automatically. The frontend can show an admin dashboard link only after `GET /api/v1/session` resolves admin permissions.
+Successful signin, signup, and auth callback flows redirect by resolved backend permissions:
+
+```text
+Normal user -> /
+Admin user  -> /dashboard
+```
+
+Guest-only auth pages (`/signin`, `/signup`, `/forgot-password`, and `/reset-password`) do not render their auth UI for already signed-in users. They use the current frontend session state to send normal users to `/` and admins to `/dashboard`.
 
 ## Frontend Folder Structure
 
@@ -276,20 +288,15 @@ The frontend should rely on these backend capabilities:
 ```text
 Public
 ├── GET /api/v1/posts
-├── GET /api/v1/posts/{slug}
-├── GET /api/v1/posts/{slug}/comments
 ├── GET /api/v1/profiles/{handle}
-└── GET /api/v1/categories
+├── GET /api/v1/categories
+└── POST /api/v1/posts/{slug}/view
 
 Authenticated user
 ├── GET /api/v1/session
 ├── GET /api/v1/profile
 ├── PATCH /api/v1/profile
-├── PATCH /api/v1/profile/password
-├── DELETE /api/v1/profile
-├── POST /api/v1/posts/{slug}/comments
-├── PATCH /api/v1/comments/{id}
-└── DELETE /api/v1/comments/{id}
+└── DELETE /api/v1/profile
 
 Admin
 ├── GET /api/v1/admin/posts
@@ -300,7 +307,8 @@ Admin
 ├── PATCH /api/v1/admin/comments/{id}
 ├── GET /api/v1/admin/users
 ├── PATCH /api/v1/admin/users/{id}
-└── CRUD /api/v1/admin/categories
+├── CRUD /api/v1/admin/categories
+└── POST /api/v1/admin/uploads
 ```
 
 ## Mermaid Visualization
@@ -351,17 +359,25 @@ flowchart TD
   G4 --> O["Laravel API: Admin Comment Moderation"]
 ```
 
-## Acceptance Checks
+## Current Branch Acceptance Checks
 
 - Guest users can read posts and public profiles.
-- Guest users are redirected to `/signin` when trying to comment.
-- Normal users can comment and manage their private `/profile`.
+- Guest users are rejected from authenticated API endpoints.
+- Normal users can manage their private `/profile`.
 - Public `/profile/:handle` never exposes private profile settings or auth fields.
 - Normal users cannot access `/dashboard`.
-- Admin users can access `/dashboard` after signing in, but signin success redirects to `/`.
+- Admin users can access `/dashboard` after signing in.
 - Admin-only API calls are rejected unless `GET /api/v1/session` resolves an admin role.
 - Email signup can request a handle and sync a local user after confirmation.
 - Google/GitHub signup and signin create or sync the same local Laravel user.
-- Email/password signin redirects all users to `/`.
+- Email/password signin redirects normal users to `/` and admin users to `/dashboard`.
+- Signed-in users cannot view guest-only auth pages.
 - Forgot-password requests do not reveal whether the email exists.
 - Reset-password links land on `/reset-password`, update the Supabase password, sign out, and return the user to signin.
+
+## Future Feature Acceptance Checks
+
+- Guest users are redirected to `/signin` when trying to comment.
+- Normal users can add comments.
+- Comment edit/delete buttons are visible only to the comment owner or an admin.
+- Admin users can create/edit/delete posts, manage users, moderate comments, manage categories, upload media, and review dashboard stats once those business features are implemented.
