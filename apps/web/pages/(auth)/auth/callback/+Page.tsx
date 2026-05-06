@@ -84,11 +84,11 @@ export default function Page() {
       window.history.replaceState({}, document.title, "/auth/callback");
 
       if (currentUser.permissions.admin) {
-        window.location.href = "/dashboard";
+        window.location.replace("/dashboard");
         return;
       }
 
-      window.location.href = "/";
+      window.location.replace("/");
     }
 
     finishAuth().catch(() => {

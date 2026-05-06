@@ -25,12 +25,12 @@ export function AuthGuard({
     if (isLoading || status === "error") return;
 
     if (!isAuthenticated) {
-      window.location.href = guestRedirectTo;
+      window.location.replace(guestRedirectTo);
       return;
     }
 
     if (isForbidden) {
-      window.location.href = forbiddenRedirectTo;
+      window.location.replace(forbiddenRedirectTo);
     }
   }, [
     forbiddenRedirectTo,

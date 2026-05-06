@@ -43,7 +43,7 @@ export function Header({ themeMode, onToggleThemeMode }: HeaderProps) {
     await signOut();
 
     if (pathname.startsWith("/dashboard") || pathname === "/profile") {
-      window.location.href = "/signin";
+      window.location.replace("/signin");
     }
   }
 
