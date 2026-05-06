@@ -121,28 +121,26 @@ export function ProfilePage() {
 
   if (isLoading) {
     return (
-      <section className="shell py-12">
-        <p className="text-muted">Loading your profile...</p>
-      </section>
+      <div className="profile-section">
+        <p style={{ color: 'var(--ink-4)', fontSize: '14px', margin: 0 }}>Loading your profile…</p>
+      </div>
     );
   }
 
   if (!profile) {
     return (
-      <section className="shell py-12">
-        <div className="card">
-          <h1>Profile unavailable</h1>
-          {errors.server ? <p className="text-muted">{errors.server}</p> : null}
-          <button className="btn btn-primary" onClick={() => void loadProfile()} type="button">
-            Try again
-          </button>
-        </div>
-      </section>
+      <div className="profile-section">
+        <h2>Account</h2>
+        {errors.server && <p style={{ color: 'var(--ink-4)', fontSize: '14px' }}>{errors.server}</p>}
+        <button className="btn btn-primary" onClick={() => void loadProfile()} type="button">
+          Try again
+        </button>
+      </div>
     );
   }
 
   return (
-    <section className="shell py-12">
+    <div className="profile-section">
       <ProfileForm
         errors={errors}
         fields={fields}
@@ -152,6 +150,6 @@ export function ProfilePage() {
         profile={profile}
         successMessage={successMessage}
       />
-    </section>
+    </div>
   );
 }

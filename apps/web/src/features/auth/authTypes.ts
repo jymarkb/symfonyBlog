@@ -53,6 +53,7 @@ export type SessionUser = {
   display_name: string | null;
   avatar_url: string | null;
   role: string;
+  created_at: string | null;
 };
 
 export type UserPermissions = {

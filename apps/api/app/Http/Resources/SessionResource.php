@@ -18,6 +18,7 @@ class SessionResource extends JsonResource
                 'display_name' => $this->display_name,
                 'avatar_url' => $this->avatar_url,
                 'role' => $this->role,
+                'created_at' => $this->created_at?->toISOString(),
             ],
             'permissions' => app(UserPermissionService::class)->permissionsFor($this->resource),
         ];
