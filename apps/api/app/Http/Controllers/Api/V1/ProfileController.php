@@ -4,19 +4,18 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProfileResource;
+use App\Services\Profile\ProfileService;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
-    public function show(Request $request)
+    public function show(Request $request): ProfileResource
     {
         return new ProfileResource($request->user());
     }
 
-    public function update(Request $request)
+    public function update(Request $request, ProfileService $profiles): ProfileResource
     {
-        $user = $request->user();
-
         $validatedData = $request->validate([
             'display_name' => ['nullable', 'string', 'max:120'],
             'first_name' => ['nullable', 'string', 'max:120'],
@@ -24,9 +23,9 @@ class ProfileController extends Controller
             'avatar_url' => ['nullable', 'url', 'max:2048'],
         ]);
 
-        $user->fill($validatedData)->save();
-
-        return new ProfileResource($user->refresh());
+        return new ProfileResource(
+            $profiles->updatePrivateProfile($request->user(), $validatedData)
+        );
     }
 
     public function destroy()

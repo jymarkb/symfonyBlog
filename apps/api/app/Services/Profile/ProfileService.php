@@ -28,5 +28,4 @@ class ProfileService
 
         return $user->refresh();
     }
-
 }
