@@ -1,12 +1,13 @@
 import { RequireAuth } from "@/features/auth/guards";
+import { ProfilePage } from "@/features/profile/components/ProfilePage";
 import { AppShell } from "@/layouts/AppShell";
 
 export default function Page() {
   return (
-    <RequireAuth>
-      <AppShell>
-        <h1>Profile</h1>
-      </AppShell>
-    </RequireAuth>
+    <AppShell>
+      <RequireAuth>
+        <ProfilePage />
+      </RequireAuth>
+    </AppShell>
   );
 }
