@@ -18,7 +18,7 @@ export async function registerWithEmail(params: RegisterInput) {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
             data: {
                 display_name: params.displayName,
-                handle: params.handle,
+                handle: params.handle.trim().toLowerCase(),
             },
         },
     });
