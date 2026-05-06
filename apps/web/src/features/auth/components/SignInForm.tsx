@@ -57,11 +57,11 @@ export function SignInForm() {
       });
 
       if (currentUser.permissions.admin) {
-        window.location.href = "/dashboard";
+        window.location.replace("/dashboard");
         return;
       }
 
-      window.location.href = "/";
+      window.location.replace("/");
     } catch (error) {
       setErrors({
         server: error instanceof Error ? error.message : "Unable to sign in.",

@@ -105,7 +105,7 @@ export function SignUpForm() {
         return;
       }
 
-      window.location.href = "/";
+      window.location.replace("/");
     } catch (error) {
       setErrors({
         server:
