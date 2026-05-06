@@ -27,7 +27,7 @@ export function HeaderMobileMenuButton({
 }
 
 export function HeaderMobileMenuPanel({
-  authCta,
+  actions,
   items,
   onClose,
 }: HeaderMobileMenuPanelProps) {
@@ -45,13 +45,36 @@ export function HeaderMobileMenuPanel({
               {item.label}
             </a>
           ))}
-          <a
-            className="btn btn-primary justify-start"
-            href={authCta.href}
-            onClick={onClose}
-          >
-            {authCta.label}
-          </a>
+
+          {actions.map((action) =>
+            action.type === "link" ? (
+              <a
+                key={action.href}
+                className={`btn justify-start ${
+                  action.variant === "primary" ? "btn-primary" : "btn-ghost"
+                }`}
+                href={action.href}
+                onClick={onClose}
+              >
+                {action.label}
+              </a>
+            ) : (
+              <button
+                key={action.label}
+                className={`btn justify-start ${
+                  action.variant === "primary" ? "btn-primary" : "btn-ghost"
+                }`}
+                disabled={action.disabled}
+                onClick={() => {
+                  onClose();
+                  void action.onClick();
+                }}
+                type="button"
+              >
+                {action.label}
+              </button>
+            ),
+          )}
         </div>
       </div>
     </div>

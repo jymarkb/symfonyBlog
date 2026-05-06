@@ -45,3 +45,30 @@ export type SignInInput = {
   email: string;
   password: string;
 };
+
+export type SessionUser = {
+  id: number;
+  email: string;
+  handle: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  role: string;
+};
+
+export type UserPermissions = {
+  admin: boolean;
+  comment: boolean;
+  manage_posts?: boolean;
+  manage_users?: boolean;
+  moderate_comments?: boolean;
+  [key: string]: boolean | undefined;
+};
+
+export type CurrentSession = {
+  user: SessionUser;
+  permissions: UserPermissions;
+};
+
+export type CurrentSessionResponse = {
+  data: CurrentSession;
+};

@@ -27,8 +27,23 @@ export interface HeaderMobileMenuButtonProps {
   onToggle: () => void;
 }
 
+export type HeaderActionItem =
+  | {
+      type: "link";
+      label: string;
+      href: string;
+      variant?: "ghost" | "primary";
+    }
+  | {
+      type: "button";
+      label: string;
+      onClick: () => void;
+      variant?: "ghost" | "primary";
+      disabled?: boolean;
+    };
+
 export interface HeaderMobileMenuPanelProps {
   items: HeaderNavItem[];
-  authCta: HeaderAuthCta;
+  actions: HeaderActionItem[];
   onClose: () => void;
 }

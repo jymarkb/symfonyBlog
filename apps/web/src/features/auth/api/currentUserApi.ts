@@ -1,14 +1,15 @@
-export async function fetchCurrentUser(accessToken: string) {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/me`, {
-        headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-        },
-    });
+import type {
+  CurrentSession,
+  CurrentSessionResponse,
+} from "@/features/auth/authTypes";
+import { apiRequest } from "@/lib/api/apiClient";
 
-    if (!response.ok) {
-        throw new Error('Unable to load current user.');
-    }
+export async function fetchCurrentUser(
+  accessToken: string,
+): Promise<CurrentSession> {
+  const response = await apiRequest<CurrentSessionResponse>("/session", {
+    accessToken,
+  });
 
-    return response.json();
+  return response.data;
 }

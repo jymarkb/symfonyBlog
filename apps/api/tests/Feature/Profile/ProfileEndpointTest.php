@@ -1,0 +1,81 @@
+<?php
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+it('rejects guests from the private profile endpoint', function () {
+    $this->getJson('/api/v1/profile')
+        ->assertUnauthorized();
+});
+
+it('returns the signed-in user private profile', function () {
+    $user = User::factory()->create([
+        'email' => 'reader@example.com',
+        'display_name' => 'Reader One',
+        'role' => User::ROLE_USER,
+    ]);
+
+    $this->actingAs($user, 'api')
+        ->getJson('/api/v1/profile')
+        ->assertOk()
+        ->assertJsonPath('data.id', $user->id)
+        ->assertJsonPath('data.email', 'reader@example.com')
+        ->assertJsonPath('data.display_name', 'Reader One')
+        ->assertJsonPath('data.role', User::ROLE_USER);
+});
+
+it('updates allowed private profile fields', function () {
+    $user = User::factory()->create([
+        'display_name' => 'Old Name',
+        'first_name' => null,
+        'last_name' => null,
+    ]);
+
+    $this->actingAs($user, 'api')
+        ->patchJson('/api/v1/profile', [
+            'display_name' => 'New Name',
+            'first_name' => 'New',
+            'last_name' => 'Reader',
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.display_name', 'New Name')
+        ->assertJsonPath('data.first_name', 'New')
+        ->assertJsonPath('data.last_name', 'Reader');
+
+    expect($user->refresh())
+        ->display_name->toBe('New Name')
+        ->first_name->toBe('New')
+        ->last_name->toBe('Reader');
+});
+
+it('does not update role from the private profile endpoint', function () {
+    $user = User::factory()->create([
+        'role' => User::ROLE_USER,
+    ]);
+
+    $this->actingAs($user, 'api')
+        ->patchJson('/api/v1/profile', [
+            'display_name' => 'Still A User',
+            'role' => User::ROLE_ADMIN,
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.role', User::ROLE_USER);
+
+    expect($user->refresh()->role)->toBe(User::ROLE_USER);
+});
+
+it('does not implement private profile deletion yet', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user, 'api')
+        ->deleteJson('/api/v1/profile')
+        ->assertStatus(501)
+        ->assertJsonPath('message', 'Profile deletion is not implemented yet.');
+});
+
+it('rejects guests from deleting the private profile', function () {
+    $this->deleteJson('/api/v1/profile')
+        ->assertUnauthorized();
+});
