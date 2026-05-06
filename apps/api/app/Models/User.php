@@ -10,6 +10,9 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    public const ROLE_USER = 'user';
+    public const ROLE_ADMIN = 'admin';
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
@@ -36,16 +39,6 @@ class User extends Authenticatable
         return [
             'supabase_user_id' => 'string',
         ];
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
-    }
-
-    public function isEditor(): bool
-    {
-        return in_array($this->role, ['admin', 'editor'], true);
     }
 
 }

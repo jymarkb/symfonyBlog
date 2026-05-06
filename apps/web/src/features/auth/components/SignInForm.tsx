@@ -1,5 +1,5 @@
 import type { ChangeEvent, SyntheticEvent } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import type {
   SignInErrors,
@@ -9,7 +9,7 @@ import type {
 import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
 import { AuthProviderButtons } from "@/features/auth/components/AuthProviderButtons";
 import { startSocialAuth } from "@/features/auth/api/registerApi";
-import { getSignedInUser, signInWithEmail } from "@/features/auth/api/signInApi";
+import { signInWithEmail } from "@/features/auth/api/signInApi";
 import {
   validateEmail,
   validatePassword,
@@ -24,26 +24,6 @@ export function SignInForm() {
   const [submitting, setSubmitting] = useState(false);
   const [socialSubmitting, setSocialSubmitting] =
     useState<SocialAuthProvider | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function redirectExistingSession() {
-      const currentUser = await getSignedInUser();
-
-      if (!isMounted || !currentUser) return;
-
-      window.location.href = currentUser.permissions.admin ? "/dashboard" : "/";
-    }
-
-    redirectExistingSession().catch(() => {
-      // Stay on sign in if the existing session cannot be resolved.
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   function set(field: keyof SignInFields) {
     return (e: ChangeEvent<HTMLInputElement>) => {
@@ -77,11 +57,11 @@ export function SignInForm() {
       });
 
       if (currentUser.permissions.admin) {
-        window.location.href = "/dashboard";
+        window.location.replace("/dashboard");
         return;
       }
 
-      window.location.href = "/";
+      window.location.replace("/");
     } catch (error) {
       setErrors({
         server: error instanceof Error ? error.message : "Unable to sign in.",

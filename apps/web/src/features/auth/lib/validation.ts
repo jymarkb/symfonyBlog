@@ -1,5 +1,5 @@
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const HANDLE_RE = /^@[a-zA-Z0-9_]{2,19}$/;
+const HANDLE_RE = /^@[a-z0-9_]{2,19}$/;
 
 export function validateEmail(value: string): string | null {
   if (!value.trim()) return 'Email is required.';
@@ -27,9 +27,11 @@ export function validateDisplayName(value: string): string | null {
 }
 
 export function validateHandle(value: string): string | null {
-  const v = value.trim().startsWith('@') ? value.trim() : `@${value.trim()}`;
-  if (!value.trim()) return 'Handle is required.';
-  if (!HANDLE_RE.test(v)) return 'Use 2–19 letters, numbers, or underscores.';
+  const trimmed = value.trim();
+  if (!trimmed) return 'Handle is required.';
+  const normalized = trimmed.toLowerCase();
+  const v = normalized.startsWith('@') ? normalized : `@${normalized}`;
+  if (!HANDLE_RE.test(v)) return 'Use 2–19 lowercase letters, numbers, or underscores.';
   return null;
 }
 
