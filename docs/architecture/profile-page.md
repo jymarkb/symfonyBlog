@@ -11,15 +11,23 @@ This document defines the structure, data flow, and implementation plan for the 
 ## Implementation Progress
 
 ```text
-1. Profile page layout and CSS        done
-2. Profile head (avatar, name, handle, member since) done — reads from session
-3. Account form (display name, email)  done — wired to PATCH /api/v1/profile
-4. Password section                    stub — UI only, not wired
-5. Comment history                     stub — no data yet
-6. Recently viewed                     stub — no data yet
-7. Danger zone (delete account)        stub — UI only, disabled
-8. Sidebar (stats, notifications)      stub — reads member-since from session
+1. Frontend profile UI              done — layout, all components, CSS ported from design
+2. Backend profile endpoints        done — GET/PATCH/DELETE /api/v1/profile wired and auth-gated
+3. Frontend account form wiring     done — reads PrivateProfile, writes via PATCH, refreshes session
+4. Password change                  pending — UI stub only; needs Supabase updateUser wiring
+5. Comment history                  pending — needs GET /api/v1/profile/comments backend endpoint
+6. Recently viewed                  pending — needs GET /api/v1/profile/reading-history endpoint
+7. Notifications                    pending — UI stub only; no backend endpoint yet
+8. Delete account                   pending — UI stub only; DELETE /api/v1/profile not wired
+9. Security review                  pending — ownership checks, rate limiting on profile mutations
+10. Cleanup                         pending — remove stubs, wire real data, remove disabled states
 ```
+
+Frontend profile UI covers all eight components (`ProfileHead`, `ProfilePage`, `ProfilePasswordSection`, `ProfileCommentHistory`, `ProfileRecentlyViewed`, `ProfileDangerZone`, `ProfileSidebar`, `ProfileForm`), the full CSS port from `design/profile.html`, and session data displayed without extra fetches (`display_name`, `handle`, `avatar_url`, `created_at`).
+
+Backend profile endpoints cover `ProfileController` behind `auth:api` middleware, `ProfileResource` and `ProfileService`, the `GET /api/v1/profile` load, `PATCH /api/v1/profile` update, and the `DELETE /api/v1/profile` route stub. The session endpoint (`GET /api/v1/session`) returns `created_at` via `SessionResource` so `ProfileHead` has member-since without a separate fetch.
+
+Pending phases require backend endpoints for comment history and reading history before the corresponding frontend components can be wired. Password change goes through Supabase `updateUser` — no new Laravel endpoint needed, only frontend wiring. Notifications and delete account need both backend endpoints and frontend wiring.
 
 ## Route and Auth
 
@@ -37,15 +45,15 @@ The page lives at `pages/(user)/profile/+Page.tsx`. The `(user)` route group lay
 
 ```text
 /profile
-├── ProfileHead              — avatar, display name, handle
+├── ProfileHead              — avatar, display name, handle, member since
 │
 └── .shell.profile-layout    — two-column grid (1fr 300px, collapses at 900px)
     ├── Left column
-    │   ├── ProfilePage          — account form (display name, avatar, name fields)
+    │   ├── ProfilePage          — account form (display name, first/last name, avatar URL, email)
     │   ├── ProfilePasswordSection — change password (stub)
     │   ├── ProfileCommentHistory  — user's past comments (stub)
     │   ├── ProfileRecentlyViewed  — reading history (stub)
-    │   └── ProfileDangerZone      — delete account (disabled)
+    │   └── ProfileDangerZone      — delete account (stub)
     │
     └── Right column
         └── ProfileSidebar     — reading stats, notifications, quick links
@@ -87,20 +95,20 @@ The page lives at `pages/(user)/profile/+Page.tsx`. The `(user)` route group lay
 
 - Source: `src/features/profile/components/ProfileRecentlyViewed.tsx`
 - Status: **stub** — shows empty state.
-- Future: `GET /api/v1/profile/reading-history` or local storage tracking.
+- Future: `GET /api/v1/profile/reading-history` with read progress percentage per post.
 
 ### ProfileDangerZone
 
 - Source: `src/features/profile/components/ProfileDangerZone.tsx`
 - Status: **stub** — delete button disabled.
-- Future: `DELETE /api/v1/profile` with a confirmation modal.
+- Future: `DELETE /api/v1/profile` with a confirmation modal before calling the endpoint.
 
 ### ProfileSidebar
 
 - Source: `src/features/profile/components/ProfileSidebar.tsx`
-- Status: reading stats and notifications are placeholder values.
+- Status: reading stats show `—` placeholders; notifications dropdowns are disabled.
 - Quick links (Browse posts, Contact support) are live.
-- Future: stats wired to comment count and reading history API.
+- Future: stats wired to comment count and reading history endpoints; notifications saved via backend.
 
 ## API Touchpoints
 
@@ -108,11 +116,12 @@ The page lives at `pages/(user)/profile/+Page.tsx`. The `(user)` route group lay
 Authenticated user (/profile)
 ├── GET  /api/v1/profile        — load private profile fields
 ├── PATCH /api/v1/profile       — update display_name, first_name, last_name, avatar_url
-└── DELETE /api/v1/profile      — delete account (not yet wired)
+└── DELETE /api/v1/profile      — delete account (route exists, not wired on frontend)
 
 Future
 ├── GET /api/v1/profile/comments         — comment history list
-└── GET /api/v1/profile/reading-history  — recently viewed posts
+├── GET /api/v1/profile/reading-history  — recently viewed posts with progress
+└── PATCH /api/v1/profile/notifications  — save notification preferences
 ```
 
 ## Data Flow
@@ -151,18 +160,21 @@ All profile page styles live in `src/styles/theme.css` under the `/* ── Prof
 .field select        — styled dropdown (width, border, padding, appearance reset)
 ```
 
-## Acceptance Checks
+## Current Acceptance Checks
 
 - Signed-out users visiting `/profile` are redirected to `/signin`.
 - Signed-in users see their avatar initial (or image if set), display name, handle, and member-since date in the header.
-- The account form pre-fills with current profile data from the API.
-- Saving the account form updates the API and refreshes the session so the header name updates.
-- Password section, comment history, recently viewed, and delete account are visible but clearly marked as coming soon or disabled.
+- The account form pre-fills with current profile data from `GET /api/v1/profile`.
+- Saving the account form updates the API and refreshes the session so the header name updates immediately.
+- Password section, comment history, recently viewed, notifications, and delete account are visible but clearly rendered as stubs (disabled inputs, empty states, disabled buttons).
 - The layout collapses to a single column on screens narrower than 900px.
+- Field rows (first name / last name) collapse to a single column on screens narrower than 540px.
 
 ## Future Acceptance Checks
 
-- Password change works via Supabase `updateUser` and signs the user out after success.
-- Comment history shows the last N comments with links to the originating post.
-- Recently viewed shows posts with a reading progress bar.
-- Delete account shows a confirmation modal before calling `DELETE /api/v1/profile`.
+- Password change wires Supabase `updateUser({ password })`, signs the user out after success, and redirects to `/signin`.
+- Comment history shows the last N comments with a link to the originating post and a timestamp.
+- Recently viewed shows posts with a read progress bar and the last-viewed date.
+- Notifications dropdowns save preferences via a backend endpoint and confirm on save.
+- Delete account shows a confirmation modal before calling `DELETE /api/v1/profile`; public comments are anonymised on deletion.
+- Profile mutations (`PATCH`, `DELETE`) reject requests where the authenticated user does not own the target record.
