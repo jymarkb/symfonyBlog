@@ -10,7 +10,6 @@ class PublicProfileResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
             'handle' => $this->handle,
             'display_name' => $this->display_name,
             'avatar_url' => $this->avatar_url,
