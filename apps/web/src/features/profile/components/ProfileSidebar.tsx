@@ -1,11 +1,14 @@
-import { useCurrentSession } from '@/features/auth/session';
+import { useCurrentSession } from "@/features/auth/session";
 
 export function ProfileSidebar() {
   const { user } = useCurrentSession();
 
-  const memberSince = user
-    ? new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-    : '—';
+  const memberSince = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      })
+    : "—";
 
   return (
     <aside className="profile-sidebar">
@@ -23,6 +26,10 @@ export function ProfileSidebar() {
           <div className="stat-row">
             <span className="label">Member since</span>
             <span className="value">{memberSince}</span>
+          </div>
+          <div className="stat-row">
+            <span className="label">Subscribed</span>
+            <span className="value">—</span>
           </div>
         </div>
       </div>
@@ -45,14 +52,20 @@ export function ProfileSidebar() {
             <option>None</option>
           </select>
         </div>
-        <p className="hint" style={{ marginBottom: 0 }}>Notification settings coming soon.</p>
+        <p className="hint" style={{ marginBottom: 0 }}>
+          Notification settings coming soon.
+        </p>
       </div>
 
       <div className="side-card">
         <h4>Quick links</h4>
-        <div style={{ display: 'grid', gap: 6 }}>
-          <a className="btn btn-sm btn-ghost" href="/blog">Browse all posts →</a>
-          <a className="btn btn-sm btn-ghost" href="/contact">Contact support →</a>
+        <div style={{ display: "grid", gap: 6 }}>
+          <a className="btn btn-sm btn-ghost" href="/blog">
+            Browse all posts →
+          </a>
+          <a className="btn btn-sm btn-ghost" href="/contact">
+            Contact support →
+          </a>
         </div>
       </div>
     </aside>
