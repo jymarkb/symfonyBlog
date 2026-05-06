@@ -41,3 +41,11 @@ export type ProfileFormProps = {
     profile: PrivateProfile;
     successMessage: string | null;
 };
+
+export type ChangePasswordFields = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
+export type ChangePasswordErrors = Partial<ChangePasswordFields & { server: string }>;
