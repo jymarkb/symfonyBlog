@@ -1,43 +1,20 @@
-import { useCallback, useEffect, useState } from "react";
-
-import { supabase } from "@/lib/auth/supabaseClient";
 import type { ProfileComment } from "@/features/profile/profileTypes";
 import { fetchProfileComments } from "@/features/profile/api/profileApi";
-import { CommentSkeleton } from "./comment/skeleton";
+import { useProfileFetch } from "@/features/profile/hooks/useProfileFetch";
+import { ProfilePlaceholder } from "@/features/profile/components/ProfilePlaceholder";
 import CommentList from "./comment/list";
 
 export function ProfileCommentHistory() {
-  const [comments, setComments] = useState<ProfileComment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    const { data, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !data.session?.access_token) {
-      setError("Unable to load comment history.");
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const result = await fetchProfileComments(data.session.access_token);
-      setComments(result);
-    } catch {
-      setError("Unable to load comment history.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { data: comments, isLoading, error } = useProfileFetch<ProfileComment>(
+    fetchProfileComments,
+    "Unable to load comment history.",
+  );
 
   if (isLoading) {
     return (
       <div className="profile-section">
         <h2>Comment history</h2>
-        <CommentSkeleton>Loading…</CommentSkeleton>
+        <ProfilePlaceholder>Loading…</ProfilePlaceholder>
       </div>
     );
   }
@@ -46,7 +23,7 @@ export function ProfileCommentHistory() {
     return (
       <div className="profile-section">
         <h2>Comment history</h2>
-        <CommentSkeleton>{error}</CommentSkeleton>
+        <ProfilePlaceholder>{error}</ProfilePlaceholder>
       </div>
     );
   }
@@ -55,9 +32,9 @@ export function ProfileCommentHistory() {
     return (
       <div className="profile-section">
         <h2>Comment history</h2>
-        <CommentSkeleton>
+        <ProfilePlaceholder>
           No comments yet. Join the conversation on any post.
-        </CommentSkeleton>
+        </ProfilePlaceholder>
       </div>
     );
   }

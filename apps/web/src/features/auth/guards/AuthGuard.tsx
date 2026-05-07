@@ -44,7 +44,7 @@ export function AuthGuard({
   if (isLoading) {
     return (
       <div className="shell py-12">
-        <p className="text-muted">Checking your session...</p>
+        <p className="text-ink-4">Checking your session...</p>
       </div>
     );
   }
@@ -53,7 +53,7 @@ export function AuthGuard({
     return (
       <div className="shell py-12">
         <h1>Session unavailable</h1>
-        <p className="text-muted">{error}</p>
+        <p className="text-ink-4">{error}</p>
         <button
           className="btn btn-primary"
           onClick={() => void refreshSession()}
@@ -68,7 +68,7 @@ export function AuthGuard({
   if (!isAuthenticated || isForbidden) {
     return (
       <div className="shell py-12">
-        <p className="text-muted">Redirecting...</p>
+        <p className="text-ink-4">Redirecting...</p>
       </div>
     );
   }

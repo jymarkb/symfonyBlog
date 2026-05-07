@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEvent } from 'react';
+import type { ChangeEvent } from 'react';
 
 import type { ProfileFormFields, ProfileFormProps } from '@/features/profile/profileTypes';
 
@@ -11,7 +11,7 @@ export function ProfileForm({
   profile,
   successMessage,
 }: ProfileFormProps) {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: { preventDefault(): void }) {
     event.preventDefault();
     onSubmit();
   }
@@ -32,20 +32,27 @@ export function ProfileForm({
       <div className="field">
         <label htmlFor="profile-display-name">Display name</label>
         <input
+          aria-describedby={errors.display_name ? 'profile-display-name-error' : undefined}
+          aria-invalid={errors.display_name ? true : undefined}
           className={errors.display_name ? 'is-error' : ''}
           id="profile-display-name"
+          maxLength={120}
           onChange={set('display_name')}
           placeholder="Your display name"
           type="text"
           value={fields.display_name}
         />
-        {errors.display_name && <span className="field-error">{errors.display_name}</span>}
+        {errors.display_name && (
+          <span className="field-error" id="profile-display-name-error">{errors.display_name}</span>
+        )}
       </div>
 
       <div className="field-row">
         <div className="field">
           <label htmlFor="profile-first-name">First name</label>
           <input
+            aria-describedby={errors.first_name ? 'profile-first-name-error' : undefined}
+            aria-invalid={errors.first_name ? true : undefined}
             className={errors.first_name ? 'is-error' : ''}
             id="profile-first-name"
             onChange={set('first_name')}
@@ -53,12 +60,16 @@ export function ProfileForm({
             type="text"
             value={fields.first_name}
           />
-          {errors.first_name && <span className="field-error">{errors.first_name}</span>}
+          {errors.first_name && (
+            <span className="field-error" id="profile-first-name-error">{errors.first_name}</span>
+          )}
         </div>
 
         <div className="field">
           <label htmlFor="profile-last-name">Last name</label>
           <input
+            aria-describedby={errors.last_name ? 'profile-last-name-error' : undefined}
+            aria-invalid={errors.last_name ? true : undefined}
             className={errors.last_name ? 'is-error' : ''}
             id="profile-last-name"
             onChange={set('last_name')}
@@ -66,13 +77,17 @@ export function ProfileForm({
             type="text"
             value={fields.last_name}
           />
-          {errors.last_name && <span className="field-error">{errors.last_name}</span>}
+          {errors.last_name && (
+            <span className="field-error" id="profile-last-name-error">{errors.last_name}</span>
+          )}
         </div>
       </div>
 
       <div className="field">
         <label htmlFor="profile-avatar-url">Avatar URL</label>
         <input
+          aria-describedby={errors.avatar_url ? 'profile-avatar-url-error' : undefined}
+          aria-invalid={errors.avatar_url ? true : undefined}
           className={errors.avatar_url ? 'is-error' : ''}
           id="profile-avatar-url"
           onChange={set('avatar_url')}
@@ -80,7 +95,9 @@ export function ProfileForm({
           type="url"
           value={fields.avatar_url}
         />
-        {errors.avatar_url && <span className="field-error">{errors.avatar_url}</span>}
+        {errors.avatar_url && (
+          <span className="field-error" id="profile-avatar-url-error">{errors.avatar_url}</span>
+        )}
       </div>
 
       <div className="field">

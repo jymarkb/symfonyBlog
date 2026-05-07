@@ -1,41 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
-
-import { supabase } from "@/lib/auth/supabaseClient";
 import type { ProfileReadingHistoryItem } from "@/features/profile/profileTypes";
 import { fetchReadingHistory } from "@/features/profile/api/profileApi";
+import { useProfileFetch } from "@/features/profile/hooks/useProfileFetch";
+import { ProfilePlaceholder } from "@/features/profile/components/ProfilePlaceholder";
 
 export function ProfileRecentlyViewed() {
-  const [history, setHistory] = useState<ProfileReadingHistoryItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    const { data, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !data.session?.access_token) {
-      setError("Unable to load reading history.");
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const result = await fetchReadingHistory(data.session.access_token);
-      setHistory(result);
-    } catch {
-      setError("Unable to load reading history.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { data: history, isLoading, error } = useProfileFetch<ProfileReadingHistoryItem>(
+    fetchReadingHistory,
+    "Unable to load reading history.",
+  );
 
   if (isLoading) {
     return (
       <div className="profile-section">
         <h2>Recently viewed</h2>
-        <p>Loading…</p>
+        <ProfilePlaceholder>Loading…</ProfilePlaceholder>
       </div>
     );
   }
@@ -44,7 +22,7 @@ export function ProfileRecentlyViewed() {
     return (
       <div className="profile-section">
         <h2>Recently viewed</h2>
-        <p>{error}</p>
+        <ProfilePlaceholder>{error}</ProfilePlaceholder>
       </div>
     );
   }
@@ -53,7 +31,9 @@ export function ProfileRecentlyViewed() {
     return (
       <div className="profile-section">
         <h2>Recently viewed</h2>
-        <p>No reading history yet. Start reading to track your progress.</p>
+        <ProfilePlaceholder>
+          No reading history yet. Start reading to track your progress.
+        </ProfilePlaceholder>
       </div>
     );
   }

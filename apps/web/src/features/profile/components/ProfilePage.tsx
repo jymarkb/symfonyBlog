@@ -17,6 +17,7 @@ import {
 } from "@/features/profile/lib/profileForm";
 import { useCurrentSession } from "@/features/auth/session";
 import { supabase } from "@/lib/auth/supabaseClient";
+import { logError } from "@/lib/utils/logError";
 
 export function ProfilePage({
   onProfileChange,
@@ -59,12 +60,8 @@ export function ProfilePage({
       setProfile(nextProfile);
       setFields(fieldsFromProfile(nextProfile));
     } catch (error) {
-      setErrors({
-        server:
-          error instanceof Error
-            ? error.message
-            : "Unable to load your profile.",
-      });
+      logError(error);
+      setErrors({ server: "Unable to load your profile." });
     } finally {
       setIsLoading(false);
     }
@@ -115,12 +112,8 @@ export function ProfilePage({
       setSuccessMessage("Profile updated.");
       await refreshSession();
     } catch (error) {
-      setErrors({
-        server:
-          error instanceof Error
-            ? error.message
-            : "Unable to update your profile.",
-      });
+      logError(error);
+      setErrors({ server: "Unable to update your profile." });
     } finally {
       setIsSubmitting(false);
     }
