@@ -36,6 +36,7 @@ export function CurrentSessionProvider({
     useState<CurrentSession | null>(null);
   const [error, setError] = useState<string | null>(null);
   const mountedRef = useRef(true);
+  const initialFiredRef = useRef(false);
 
   const resolveLaravelSession = useCallback(
     async (supabaseSession: SupabaseSession | null) => {
@@ -101,12 +102,16 @@ export function CurrentSessionProvider({
   useEffect(() => {
     mountedRef.current = true;
 
-    refreshSession();
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: SupabaseSession | null) => {
+        if (event === "INITIAL_SESSION") {
+          initialFiredRef.current = true;
+          await resolveLaravelSession(session);
+          return;
+        }
+
         if (event === "SIGNED_OUT") {
           setCurrentSession(null);
           setStatus("guest");
@@ -123,6 +128,10 @@ export function CurrentSessionProvider({
         }
       },
     );
+
+    void Promise.resolve().then(() => {
+      if (!initialFiredRef.current) void refreshSession();
+    });
 
     return () => {
       mountedRef.current = false;
