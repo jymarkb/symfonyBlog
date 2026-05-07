@@ -8,6 +8,8 @@ export type PrivateProfile = {
     avatar_url: string | null;
     role: string;
     created_at?: string | null;
+    comments_count: number;
+    posts_read_count: number;
 };
 
 export type PrivateProfileResponse = {
@@ -43,9 +45,14 @@ export type ProfileFormProps = {
 };
 
 export type ChangePasswordFields = {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
 };
 
 export type ChangePasswordErrors = Partial<ChangePasswordFields & { server: string }>;
+
+export type ProfileSidebarProps = {
+    profile: PrivateProfile | null;
+};
+
