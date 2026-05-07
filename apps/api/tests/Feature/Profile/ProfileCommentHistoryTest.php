@@ -63,6 +63,17 @@ it('returns 429 when the comments rate limit is exceeded', function () {
         ->assertTooManyRequests();
 });
 
+it('returns at most 10 comments even when the user has more', function () {
+    $user = User::factory()->create();
+    $post = \App\Models\Post::factory()->create();
+    \App\Models\Comment::factory()->count(12)->create(['user_id' => $user->id, 'post_id' => $post->id]);
+
+    $this->actingAs($user, 'api')
+        ->getJson('/api/v1/profile/comments')
+        ->assertOk()
+        ->assertJsonCount(10, 'data');
+});
+
 it('does not return comments belonging to another user', function () {
     $userA = User::factory()->create();
     $userB = User::factory()->create();

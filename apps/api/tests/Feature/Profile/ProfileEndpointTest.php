@@ -27,6 +27,8 @@ it('returns the signed-in user private profile', function () {
         ->assertOk()
         ->assertJsonPath('data.id', $user->id)
         ->assertJsonPath('data.display_name', 'Reader One')
+        ->assertJsonPath('data.notify_comment_replies', 'none')
+        ->assertJsonPath('data.notify_new_posts', 'none')
         ->assertJsonMissingPath('data.email')
         ->assertJsonMissingPath('data.avatar_url')
         ->assertJsonMissingPath('data.role')

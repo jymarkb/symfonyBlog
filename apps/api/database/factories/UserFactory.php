@@ -29,7 +29,8 @@ class UserFactory extends Factory
                 ->trim('_')
                 ->limit(19, ''),
             'display_name' => fake()->name(),
-            'avatar_url' => fake()->optional()->imageUrl(),
+            'notify_comment_replies' => 'none',
+            'notify_new_posts' => 'none',
             'role' => 'user',
         ];
     }

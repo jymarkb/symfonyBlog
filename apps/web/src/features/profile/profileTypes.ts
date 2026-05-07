@@ -11,7 +11,7 @@ export type PrivateProfile = {
     display_name: string | null;
     first_name: string | null;
     last_name: string | null;
-    created_at?: string | null;
+    created_at: string | null;
     comments_count: number;
     posts_read_count: number;
     notify_comment_replies: NotificationPreference;
