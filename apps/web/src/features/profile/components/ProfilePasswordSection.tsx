@@ -53,6 +53,11 @@ export function ProfilePasswordSection() {
       return;
     }
 
+    if (!user.email) {
+      setErrors({ server: "Password change is not available for accounts signed in with a social provider." });
+      return;
+    }
+
     setIsSubmitting(true);
     setErrors({});
 
