@@ -12,11 +12,6 @@ export interface HeaderAuthButtons {
   signUp: HeaderAuthCta;
 }
 
-export interface HeaderProps {
-  themeMode: ThemeMode;
-  onToggleThemeMode: () => void;
-}
-
 export interface HeaderThemeToggleProps {
   themeMode: ThemeMode;
   onToggleThemeMode: () => void;

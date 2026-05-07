@@ -11,7 +11,7 @@ class ProfileController extends Controller
 {
     public function show(Request $request): ProfileResource
     {
-        return new ProfileResource($request->user());
+        return new ProfileResource($request->user()->loadCount(['posts', 'comments', 'postViews']));
     }
 
     public function update(Request $request, ProfileService $profiles): ProfileResource
@@ -28,8 +28,10 @@ class ProfileController extends Controller
         );
     }
 
-    public function destroy()
+    public function destroy(Request $request, ProfileService $profiles): \Illuminate\Http\JsonResponse
     {
-        abort(501, 'Profile deletion is not implemented yet.');
+        $profiles->deleteAccount($request->user());
+
+        return response()->json(['message' => 'Account deleted.']);
     }
 }
