@@ -137,7 +137,7 @@ export function ResetPasswordForm() {
     return (
       <>
         {errors.server ? (
-          <div className="form-alert">{errors.server}</div>
+          <div aria-live="polite" className="form-alert">{errors.server}</div>
         ) : (
           <div className="callback-progress" aria-label="Loading">
             <span />
@@ -162,7 +162,7 @@ export function ResetPasswordForm() {
     <>
       <ResetPasswordIntro />
 
-      {errors.server && <div className="form-alert">{errors.server}</div>}
+      {errors.server && <div aria-live="polite" className="form-alert">{errors.server}</div>}
 
       <form noValidate onSubmit={handleSubmit}>
         <div className="field">
