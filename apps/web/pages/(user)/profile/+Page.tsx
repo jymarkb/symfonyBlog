@@ -1,7 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 
-import { supabase } from "@/lib/auth/supabaseClient";
-import { fetchPrivateProfile } from "@/features/profile/api/profileApi";
 import type { PrivateProfile } from "@/features/profile/profileTypes";
 
 import { ProfileHead } from "@/features/profile/components/ProfileHead";
@@ -14,21 +12,6 @@ import { ProfileSidebar } from "@/features/profile/components/ProfileSidebar";
 
 export default function Page() {
   const [profile, setProfile] = useState<PrivateProfile | null>(null);
-
-  const loadProfile = useCallback(async () => {
-    const { data, error } = await supabase.auth.getSession();
-    if (error || !data.session?.access_token) return;
-    try {
-      const next = await fetchPrivateProfile(data.session.access_token);
-      setProfile(next);
-    } catch {
-      // ProfilePage handles its own error state internally
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadProfile();
-  }, [loadProfile]);
 
   return (
     <>

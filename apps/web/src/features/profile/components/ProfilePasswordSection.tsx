@@ -48,12 +48,17 @@ export function ProfilePasswordSection() {
       return;
     }
 
+    if (!user) {
+      setErrors({ server: "You must be signed in to change your password." });
+      return;
+    }
+
     setIsSubmitting(true);
     setErrors({});
 
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user!.email,
+        email: user.email,
         password: fields.currentPassword,
       });
 
