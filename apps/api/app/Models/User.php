@@ -24,19 +24,15 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'supabase_user_id',
-        'email',
-        'handle',
         'display_name',
         'first_name',
         'last_name',
         'avatar_url',
-        'role',
         'notify_comment_replies',
         'notify_new_posts',
     ];
 
-    protected $hidden = [];
+    protected $hidden = ['supabase_user_id'];
 
     public function posts()
     {
