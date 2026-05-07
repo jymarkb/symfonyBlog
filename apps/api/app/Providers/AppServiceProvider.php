@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
@@ -102,7 +103,13 @@ class AppServiceProvider extends ServiceProvider
                 $user->display_name     = $userMetadata?->display_name ?? $userMetadata?->full_name;
                 $user->avatar_url       = $userMetadata?->avatar_url ?? $userMetadata?->picture;
                 $user->role             = 'user';
-                $user->save();
+                try {
+                    $user->save();
+                } catch (UniqueConstraintViolationException $e) {
+                    // Concurrent request inserted the same handle — re-derive with a suffix
+                    $user->handle = $this->resolveHandle($userMetadata, $email);
+                    $user->save();
+                }
 
                 return $user;
             });

@@ -145,7 +145,9 @@ export function SignUpForm() {
 
           <p className="lede">{confirmationMessage}</p>
 
-          {errors.server && <div aria-live="polite" className="form-alert">{errors.server}</div>}
+          <div aria-live="polite" role="alert" className="form-alert">
+            {errors.server ?? ""}
+          </div>
 
           <div className="callback-actions">
             {lastUsedProvider ? (
@@ -197,7 +199,9 @@ export function SignUpForm() {
 
       <div className="divider">or with email</div>
 
-      {errors.server && <div aria-live="polite" className="form-alert">{errors.server}</div>}
+      <div aria-live="polite" role="alert" className="form-alert">
+        {errors.server ?? ""}
+      </div>
 
       <form noValidate onSubmit={handleSubmit}>
         <div className="row-2">
