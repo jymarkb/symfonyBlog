@@ -69,16 +69,6 @@ it('uses full_name as fallback when display_name is absent', function () {
     expect($user->display_name)->toBe('Full Name Fallback');
 });
 
-it('uses picture as avatar fallback when avatar_url is absent', function () {
-    $claims = fakeClaims(['user_metadata' => ['picture' => 'https://example.com/pic.jpg']]);
-    mockVerifier($claims);
-
-    $this->getJson('/api/v1/session', ['Authorization' => 'Bearer fake-token'])->assertSuccessful();
-
-    $user = User::where('supabase_user_id', $claims->sub)->first();
-    expect($user->avatar_url)->toBe('https://example.com/pic.jpg');
-});
-
 it('appends a numeric suffix when the preferred handle already exists', function () {
     $existingHandle = '@testuser';
     User::factory()->create(['handle' => $existingHandle]);

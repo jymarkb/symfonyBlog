@@ -24,7 +24,8 @@ it('returns a public profile without authentication', function () {
         ->assertJsonMissingPath('data.role')
         ->assertJsonMissingPath('data.supabase_user_id')
         ->assertJsonMissingPath('data.first_name')
-        ->assertJsonMissingPath('data.last_name');
+        ->assertJsonMissingPath('data.last_name')
+        ->assertJsonMissingPath('data.avatar_url');
 });
 
 it('accepts public profile handles with the at sign', function () {
