@@ -101,9 +101,9 @@ export function ProfileSidebar({ profile, onProfileChange }: Props) {
             <option value="none">None</option>
           </select>
         </div>
-        {notifError && (
-          <div className="form-alert">{notifError}</div>
-        )}
+        <div aria-live="polite" role="status">
+          {notifError && <div className="form-alert">{notifError}</div>}
+        </div>
       </div>
 
       <div className="side-card">

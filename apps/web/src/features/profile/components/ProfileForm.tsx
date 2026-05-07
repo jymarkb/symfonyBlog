@@ -26,8 +26,10 @@ export function ProfileForm({
     <form noValidate onSubmit={handleSubmit}>
       <h2>Account</h2>
 
-      {errors.server && <div className="form-alert">{errors.server}</div>}
-      {successMessage && <div className="form-success">{successMessage}</div>}
+      <div aria-live="polite" role="status">
+        {errors.server && <div className="form-alert">{errors.server}</div>}
+        {successMessage && <div className="form-success">{successMessage}</div>}
+      </div>
 
       <div className="field">
         <label htmlFor="profile-display-name">Display name</label>

@@ -120,9 +120,9 @@ export function ProfilePage({
   if (!profile) {
     return (
       <ProfileSection title="Account">
-        {errors.server && (
-          <ProfilePlaceholder>{errors.server}</ProfilePlaceholder>
-        )}
+        <div aria-live="polite" role="status">
+          {errors.server && <div className="form-alert">{errors.server}</div>}
+        </div>
         <button
           className="btn btn-primary"
           onClick={() => void loadProfile()}

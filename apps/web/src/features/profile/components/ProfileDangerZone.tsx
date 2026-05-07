@@ -42,7 +42,9 @@ export function ProfileDangerZone() {
         Permanently removes your account, comment history, and reading data. This cannot be undone.
         Your comments on public posts will be anonymised.
       </p>
-      {error && <div className="form-alert">{error}</div>}
+      <div aria-live="polite" role="status">
+        {error && <div className="form-alert">{error}</div>}
+      </div>
       {confirming ? (
         <div>
           <p>

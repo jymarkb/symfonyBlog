@@ -93,7 +93,9 @@ export function ProfilePasswordSection() {
 
   return (
     <ProfileSection title="Change password">
-      {errors.server && <div className="form-alert">{errors.server}</div>}
+      <div aria-live="polite" role="status">
+        {errors.server && <div className="form-alert">{errors.server}</div>}
+      </div>
       <form noValidate onSubmit={handleSubmit}>
         <div className="field">
           <label htmlFor="pw-current">Current password</label>
