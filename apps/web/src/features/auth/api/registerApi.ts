@@ -24,7 +24,7 @@ export async function registerWithEmail(params: RegisterInput) {
     });
 
     if (error) {
-        throw new Error(error.message);
+        throw new Error("We were unable to create your account. Please try again.");
     }
 
     const accessToken = data.session?.access_token;

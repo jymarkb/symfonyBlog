@@ -132,11 +132,6 @@ export function SignInForm() {
           )}
         </div>
 
-        <label className="check-row">
-          <input defaultChecked type="checkbox" />
-          <span>Keep me signed in on this device</span>
-        </label>
-
         <button
           className="btn btn-primary submit-btn"
           disabled={submitting}
