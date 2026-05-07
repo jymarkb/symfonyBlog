@@ -15,6 +15,7 @@ export function validatePassword(value: string): string | null {
 export function validateNewPassword(value: string): string | null {
   if (!value) return 'Password is required.';
   if (value.length < 12) return 'Password must be at least 12 characters.';
+  if (value.length > 72) return 'Password must be 72 characters or fewer.';
   return null;
 }
 

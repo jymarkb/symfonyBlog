@@ -269,6 +269,7 @@ export function SignUpForm() {
             autoComplete="new-password"
             className={errors.password ? "is-error" : ""}
             id="signup-password"
+            maxLength={72}
             onChange={(e) => setField("password", e.target.value)}
             placeholder="At least 12 characters"
             type="password"
@@ -298,6 +299,7 @@ export function SignUpForm() {
             aria-describedby={errors.terms ? "signup-terms-error" : undefined}
             aria-invalid={!!errors.terms}
             checked={fields.terms}
+            id="signup-terms"
             onChange={(e) => setField("terms", e.target.checked)}
             type="checkbox"
           />

@@ -107,7 +107,6 @@ export function ResetPasswordForm() {
       password: "",
       confirmPassword: "",
     });
-    setSubmitting(false);
     window.location.replace('/signin');
   }
 
@@ -147,6 +146,7 @@ export function ResetPasswordForm() {
                 autoComplete="new-password"
                 className={errors.password ? "is-error" : ""}
                 id="reset-password"
+                maxLength={72}
                 onChange={setField("password")}
                 placeholder="At least 12 characters"
                 type="password"
