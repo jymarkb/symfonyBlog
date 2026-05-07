@@ -16,9 +16,9 @@ This document defines the structure, data flow, and implementation plan for the 
 3. Frontend account form wiring     done — reads PrivateProfile, writes via PATCH, refreshes session
 4. Password change                  done — Supabase re-auth + updateUser, signs out and redirects
 5. Stats counts                     done — comments_count wired; profile state lifted to +Page.tsx
-6. Comment history backend          in progress — Post/Comment models, migrations, ProfileCommentController,
-                                    GET /api/v1/profile/comments endpoint done; factories + seeder + frontend pending
-7. Comment history frontend         pending — needs factories/seeder run, then types + API fn + component rewrite
+6. Comment history backend          done — Post/Comment models, migrations, ProfileCommentController,
+                                    GET /api/v1/profile/comments, PostFactory, CommentFactory, DatabaseSeeder all done
+7. Comment history frontend         pending — types + API fn + ProfileCommentHistory component rewrite
 8. Recently viewed                  pending — needs GET /api/v1/profile/reading-history endpoint
 9. Notifications                    pending — UI stub only; no backend endpoint yet
 10. Delete account                  pending — UI stub only; DELETE /api/v1/profile not wired
@@ -145,7 +145,7 @@ User lands on /profile
 
 ## CSS Classes
 
-All profile page styles live in `src/styles/theme.css` under the `/* ── Profile page ── */` section.
+Profile page styles live in `src/features/profile/profile.css`, imported globally via `src/styles/global.css`.
 
 ```text
 .profile-head        — flex header with avatar and info
@@ -166,6 +166,8 @@ All profile page styles live in `src/styles/theme.css` under the `/* ── Prof
 .stat-row            — flex row with label and mono value
 .field select        — styled dropdown (width, border, padding, appearance reset)
 ```
+
+Shared form primitives (`.field`, `.field-error`, `.form-alert`, `.hint`, `.divider`, `.row-2`) live in `src/styles/theme.css` — they are used by both auth and profile features.
 
 ## Current Acceptance Checks
 
