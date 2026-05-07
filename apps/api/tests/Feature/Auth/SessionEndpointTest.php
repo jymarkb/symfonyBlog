@@ -21,7 +21,9 @@ it('returns the signed-in user and permissions', function () {
         ->assertJsonPath('data.user.id', $user->id)
         ->assertJsonPath('data.user.email', $user->email)
         ->assertJsonPath('data.permissions.admin', false)
-        ->assertJsonPath('data.permissions.comment', true);
+        ->assertJsonPath('data.permissions.comment', true)
+        ->assertJsonMissingPath('data.user.role')
+        ->assertJsonMissingPath('data.user.supabase_user_id');
 });
 
 it('returns admin permissions for admins', function () {
