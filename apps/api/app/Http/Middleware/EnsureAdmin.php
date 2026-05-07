@@ -12,7 +12,11 @@ class EnsureAdmin
     {
         $user = $request->user();
 
-        if (! $user || ! app(UserPermissionService::class)->isAdmin($user)) {
+        if (! $user) {
+            abort(401, 'Authentication required.');
+        }
+
+        if (! app(UserPermissionService::class)->isAdmin($user)) {
             abort(403, 'Admin access is required.');
         }
 
