@@ -1,3 +1,10 @@
+export type NotificationPreference = 'immediate' | 'digest' | 'none';
+
+export type UpdateNotificationsPayload = {
+  notify_comment_replies?: NotificationPreference;
+  notify_new_posts?: NotificationPreference;
+};
+
 export type PrivateProfile = {
     id: number;
     email: string;
@@ -10,6 +17,8 @@ export type PrivateProfile = {
     created_at?: string | null;
     comments_count: number;
     posts_read_count: number;
+    notify_comment_replies: NotificationPreference;
+    notify_new_posts: NotificationPreference;
 };
 
 export type PrivateProfileResponse = {

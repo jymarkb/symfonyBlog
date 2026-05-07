@@ -1,7 +1,8 @@
 import { apiRequest } from "@/lib/api/apiClient";
-import type { DeleteAccountResponse, ProfileCommentsResponse, ProfileReadingHistoryResponse } from '@/features/profile/profileTypes';
+import type { DeleteAccountResponse, ProfileCommentsResponse, ProfileReadingHistoryResponse, UpdateNotificationsPayload } from '@/features/profile/profileTypes';
 
 import type {
+    PrivateProfile,
     PrivateProfileResponse,
     ProfileFormSubmitInput,
 } from "@/features/profile/profileTypes";
@@ -46,4 +47,16 @@ export async function deleteAccount(accessToken: string): Promise<DeleteAccountR
     accessToken,
     method: 'DELETE',
   });
+}
+
+export async function updateNotifications(
+  accessToken: string,
+  payload: UpdateNotificationsPayload,
+): Promise<PrivateProfile> {
+  const response = await apiRequest<PrivateProfileResponse>('/profile/notifications', {
+    accessToken,
+    method: 'PATCH',
+    body: payload,
+  });
+  return response.data;
 }
