@@ -11,11 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
-            $table->text('body');
-            $table->timestamps();
+            $table->string('handle')->nullable()->unique()->after('display_name');
         });
     }
 
