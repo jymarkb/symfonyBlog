@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/api/apiClient";
-import type { ProfileCommentsResponse, ProfileReadingHistoryResponse } from '@/features/profile/profileTypes';
+import type { DeleteAccountResponse, ProfileCommentsResponse, ProfileReadingHistoryResponse } from '@/features/profile/profileTypes';
 
 import type {
     PrivateProfileResponse,
@@ -39,4 +39,11 @@ export async function fetchReadingHistory(accessToken: string) {
     accessToken,
   });
   return response.data;
+}
+
+export async function deleteAccount(accessToken: string): Promise<DeleteAccountResponse> {
+  return apiRequest<DeleteAccountResponse>('/profile', {
+    accessToken,
+    method: 'DELETE',
+  });
 }

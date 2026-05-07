@@ -79,3 +79,7 @@ export type ProfileReadingHistoryItem = {
 export type ProfileReadingHistoryResponse = {
   data: ProfileReadingHistoryItem[];
 };
+
+export type DeleteAccountResponse = {
+  message: string;
+};
