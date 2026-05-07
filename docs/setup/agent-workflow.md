@@ -24,6 +24,7 @@ When running under Claude, use these model tiers per agent type:
 -qa-backend-         -> sonnet  (read-only review, use Explore subagent type)
 -review-             -> sonnet  (general review)
 -implement-          -> sonnet  (scoped implementation)
+-pr-                 -> haiku   (GitHub PR description, plain text ready to paste)
 ```
 
 Use `haiku` only for commit work. Use `sonnet` for everything else unless the task requires deep multi-file reasoning, in which case `opus` is acceptable.
@@ -46,6 +47,7 @@ Use these prefixes in user requests:
 -qa-backend- <task>
 -review- <task>
 -implement- <task>
+-pr-
 ```
 
 Multiple prefixes in one request should run in parallel when the tasks are independent.
@@ -418,6 +420,39 @@ Minimum rule:
 - Admin routes should test guest `401`, normal user `403`, and admin success or placeholder response.
 - Private user routes should test guest `401` and signed-in success or intentional placeholder response.
 - Public routes should test public access and the expected response contract.
+
+## PR Description Agent
+
+Use a PR description agent for `-pr-`. Under Claude, use `haiku` model with `general-purpose` subagent type.
+
+Responsibilities:
+
+1. Run `git log main..HEAD --oneline` to get all commits on the branch.
+2. Run `git diff main..HEAD --stat` to get a sense of scope.
+3. Group commits into meaningful sections (features, fixes, docs, infra).
+4. Write a GitHub-ready PR description in **plain text inside a code block** so the user can copy it directly into the GitHub PR description field.
+
+Output format (always inside a single fenced code block):
+
+```
+## Summary
+
+- **Section name** — what was built, key files and endpoints
+
+## Test plan
+
+- [ ] specific thing to verify
+- [ ] specific thing to verify
+```
+
+Rules:
+
+- Output must be inside a single fenced code block — no prose outside it.
+- Use plain markdown that renders correctly on GitHub (no shell-specific escaping).
+- Keep bullet points concise — one line per item.
+- Do not include commit hashes or raw git log output.
+- Do not add a PR title line inside the body — GitHub has a separate title field.
+- Test plan items must be specific and manually verifiable, not generic ("tests pass").
 
 ## Agent Cleanup
 
