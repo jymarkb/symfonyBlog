@@ -13,6 +13,7 @@ import type {
 export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps) {
   const { user } = useCurrentSession();
   const [notifError, setNotifError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const memberSince = user?.created_at
     ? new Date(user.created_at).toLocaleDateString("en-US", {
@@ -25,6 +26,7 @@ export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps
     field: keyof UpdateNotificationsPayload,
     value: NotificationPreference,
   ) {
+    setIsSaving(true);
     try {
       const accessToken = await getAccessToken();
       const updatedProfile = await updateNotifications(accessToken, { [field]: value });
@@ -33,6 +35,8 @@ export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps
     } catch (error) {
       logError(error);
       setNotifError("Failed to save preference.");
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -65,6 +69,7 @@ export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps
         <div className="field" style={{ marginBottom: 12 }}>
           <label htmlFor="notif-replies">Replies to my comments</label>
           <select
+            disabled={isSaving}
             id="notif-replies"
             value={profile?.notify_comment_replies ?? 'none'}
             onChange={(e) =>
@@ -82,6 +87,7 @@ export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps
         <div className="field" style={{ marginBottom: 14 }}>
           <label htmlFor="notif-posts">New posts</label>
           <select
+            disabled={isSaving}
             id="notif-posts"
             value={profile?.notify_new_posts ?? 'none'}
             onChange={(e) =>

@@ -31,7 +31,7 @@ class User extends Authenticatable
         'notify_new_posts',
     ];
 
-    protected $hidden = ['supabase_user_id', 'role'];
+    protected $hidden = ['supabase_user_id', 'role', 'email'];
 
     public function posts()
     {
