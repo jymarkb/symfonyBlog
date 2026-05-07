@@ -41,7 +41,7 @@ export default function Page() {
           <ProfileRecentlyViewed />
           <ProfileDangerZone />
         </div>
-        <ProfileSidebar profile={profile} />
+        <ProfileSidebar profile={profile} onProfileChange={setProfile} />
       </div>
     </>
   );

@@ -1,8 +1,22 @@
-import { useCurrentSession } from "@/features/auth/session";
-import type { ProfileSidebarProps } from "@/features/profile/profileTypes";
+import { useState } from "react";
 
-export function ProfileSidebar({ profile }: ProfileSidebarProps) {
+import { supabase } from "@/lib/auth/supabaseClient";
+import { useCurrentSession } from "@/features/auth/session";
+import { updateNotifications } from "@/features/profile/api/profileApi";
+import type {
+  NotificationPreference,
+  PrivateProfile,
+  ProfileSidebarProps,
+  UpdateNotificationsPayload,
+} from "@/features/profile/profileTypes";
+
+type Props = ProfileSidebarProps & {
+  onProfileChange: (profile: PrivateProfile) => void;
+};
+
+export function ProfileSidebar({ profile, onProfileChange }: Props) {
   const { user } = useCurrentSession();
+  const [notifError, setNotifError] = useState<string | null>(null);
 
   const memberSince = user?.created_at
     ? new Date(user.created_at).toLocaleDateString("en-US", {
@@ -10,6 +24,25 @@ export function ProfileSidebar({ profile }: ProfileSidebarProps) {
         year: "numeric",
       })
     : "—";
+
+  async function handleNotifChange(
+    field: keyof UpdateNotificationsPayload,
+    value: NotificationPreference,
+  ) {
+    const { data } = await supabase.auth.getSession();
+    const accessToken = data.session?.access_token;
+    if (!accessToken) {
+      setNotifError("Not authenticated.");
+      return;
+    }
+    try {
+      const updatedProfile = await updateNotifications(accessToken, { [field]: value });
+      onProfileChange(updatedProfile);
+      setNotifError(null);
+    } catch {
+      setNotifError("Failed to save preference.");
+    }
+  }
 
   return (
     <aside className="profile-sidebar">
@@ -43,23 +76,43 @@ export function ProfileSidebar({ profile }: ProfileSidebarProps) {
         <h4>Notifications</h4>
         <div className="field" style={{ marginBottom: 12 }}>
           <label htmlFor="notif-replies">Replies to my comments</label>
-          <select disabled id="notif-replies">
-            <option>Email me immediately</option>
-            <option>Weekly digest</option>
-            <option>None</option>
+          <select
+            id="notif-replies"
+            value={profile?.notify_comment_replies ?? 'none'}
+            onChange={(e) =>
+              void handleNotifChange(
+                'notify_comment_replies',
+                e.target.value as NotificationPreference,
+              )
+            }
+          >
+            <option value="immediate">Email me immediately</option>
+            <option value="digest">Weekly digest</option>
+            <option value="none">None</option>
           </select>
         </div>
         <div className="field" style={{ marginBottom: 14 }}>
           <label htmlFor="notif-posts">New posts</label>
-          <select defaultValue="None" disabled id="notif-posts">
-            <option>Email on publish</option>
-            <option>Weekly digest</option>
-            <option>None</option>
+          <select
+            id="notif-posts"
+            value={profile?.notify_new_posts ?? 'none'}
+            onChange={(e) =>
+              void handleNotifChange(
+                'notify_new_posts',
+                e.target.value as NotificationPreference,
+              )
+            }
+          >
+            <option value="immediate">Email on publish</option>
+            <option value="digest">Weekly digest</option>
+            <option value="none">None</option>
           </select>
         </div>
-        <p className="hint" style={{ marginBottom: 0 }}>
-          Notification settings coming soon.
-        </p>
+        {notifError && (
+          <p className="hint" style={{ marginBottom: 0 }}>
+            {notifError}
+          </p>
+        )}
       </div>
 
       <div className="side-card">
