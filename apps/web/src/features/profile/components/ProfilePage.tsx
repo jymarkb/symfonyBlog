@@ -19,6 +19,7 @@ import { getAccessToken } from "@/lib/auth/getAccessToken";
 import { logError } from "@/lib/utils/logError";
 import { ProfileSection } from "@/features/profile/components/ProfileSection";
 import { ProfilePlaceholder } from "@/features/profile/components/ProfilePlaceholder";
+import { FormMessage } from "@/components/ui/FormMessage";
 
 export function ProfilePage({
   onProfileChange,
@@ -111,9 +112,7 @@ export function ProfilePage({
   if (!profile) {
     return (
       <ProfileSection title="Account">
-        <div aria-live="polite" role="status">
-          {errors.server && <div className="form-alert">{errors.server}</div>}
-        </div>
+        <FormMessage error={errors.server} />
         <button
           className="btn btn-primary"
           onClick={() => void loadProfile()}

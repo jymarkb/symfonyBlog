@@ -4,6 +4,7 @@ import { deleteAccount } from "@/features/profile/api/profileApi";
 import { supabase } from "@/lib/auth/supabaseClient";
 import { getAccessToken } from "@/lib/auth/getAccessToken";
 import { logError } from "@/lib/utils/logError";
+import { FormMessage } from "@/components/ui/FormMessage";
 
 export function ProfileDangerZone() {
   const [confirming, setConfirming] = useState(false);
@@ -42,9 +43,7 @@ export function ProfileDangerZone() {
         Permanently removes your account, comment history, and reading data. This cannot be undone.
         Your comments on public posts will be anonymised.
       </p>
-      <div aria-live="polite" role="status">
-        {error && <div className="form-alert">{error}</div>}
-      </div>
+      <FormMessage error={error} />
       {confirming ? (
         <div>
           <p>

@@ -2,6 +2,7 @@ import type { ChangeEvent } from 'react';
 
 import type { ProfileFormFields, ProfileFormProps } from '@/features/profile/profileTypes';
 import { useCurrentSession } from '@/features/auth/session';
+import { FormMessage } from '@/components/ui/FormMessage';
 
 export function ProfileForm({
   errors,
@@ -28,10 +29,7 @@ export function ProfileForm({
     <form noValidate onSubmit={handleSubmit}>
       <h2>Account</h2>
 
-      <div aria-live="polite" role="status">
-        {errors.server && <div className="form-alert">{errors.server}</div>}
-        {successMessage && <div className="form-success">{successMessage}</div>}
-      </div>
+      <FormMessage error={errors.server} success={successMessage} />
 
       <div className="field">
         <label htmlFor="profile-display-name">Display name</label>
