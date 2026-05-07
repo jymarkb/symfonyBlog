@@ -134,7 +134,7 @@ export function SignInForm() {
 
         <button
           className="btn btn-primary submit-btn"
-          disabled={submitting}
+          disabled={submitting || socialSubmitting !== null}
           type="submit"
         >
           {submitting ? "Signing in…" : "Sign in →"}
