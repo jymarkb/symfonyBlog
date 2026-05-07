@@ -108,8 +108,7 @@ export function SignUpForm() {
       window.location.replace("/");
     } catch (error) {
       setErrors({
-        server:
-          error instanceof Error ? error.message : "Unable to create account.",
+        server: "We were unable to create your account. Please try again.",
       });
     } finally {
       setSubmitting(false);
@@ -124,10 +123,7 @@ export function SignUpForm() {
       await startSocialAuth(provider);
     } catch (error) {
       setErrors({
-        server:
-          error instanceof Error
-            ? error.message
-            : "Unable to start social registration.",
+        server: "We were unable to create your account. Please try again.",
       });
       setSocialSubmitting(null);
     }
@@ -149,7 +145,7 @@ export function SignUpForm() {
 
           <p className="lede">{confirmationMessage}</p>
 
-          {errors.server && <div className="form-alert">{errors.server}</div>}
+          {errors.server && <div aria-live="polite" className="form-alert">{errors.server}</div>}
 
           <div className="callback-actions">
             {lastUsedProvider ? (
@@ -301,7 +297,7 @@ export function SignUpForm() {
 
         <button
           className="btn btn-primary submit-btn"
-          disabled={submitting}
+          disabled={submitting || socialSubmitting !== null}
           type="submit"
         >
           {submitting ? "Creating account…" : "Create account →"}
