@@ -22,11 +22,7 @@ export function ProfileHead() {
   return (
     <div className="shell">
       <div className="profile-head">
-        {user?.avatar_url ? (
-          <img alt="" className="avatar avatar-lg" src={user.avatar_url} style={{ objectFit: 'cover' }} />
-        ) : (
-          <div className="avatar avatar-lg">{avatarInitial}</div>
-        )}
+        <div className="avatar avatar-lg">{avatarInitial}</div>
 
         <div className="profile-info">
           <h1 className="profile-name">{displayName}</h1>
