@@ -16,6 +16,8 @@ return [
     */
 
     'defaults' => [
+        // All API routes specify auth:api explicitly — this default is not used in production.
+        // Do not change to 'api' without auditing all Auth::check() / Auth::guard() call sites.
         'guard' => env('AUTH_GUARD', 'web'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
     ],

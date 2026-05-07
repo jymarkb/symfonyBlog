@@ -69,8 +69,9 @@ export function SignInForm() {
 
       window.location.replace("/");
     } catch (error) {
+      console.error(error);
       setErrors({
-        server: error instanceof Error ? error.message : "Unable to sign in.",
+        server: "We couldn't sign you in. Please try again.",
       });
       setSubmitting(false);
     }
@@ -83,11 +84,9 @@ export function SignInForm() {
     try {
       await startSocialAuth(provider);
     } catch (error) {
+      console.error(error);
       setErrors({
-        server:
-          error instanceof Error
-            ? error.message
-            : "Unable to start social sign in.",
+        server: "We were unable to sign in with the selected provider. Please try again.",
       });
       setSocialSubmitting(null);
     }
@@ -104,7 +103,9 @@ export function SignInForm() {
 
       <div className="divider">or with email</div>
 
-      {errors.server && <div aria-live="polite" className="form-alert">{errors.server}</div>}
+      <div aria-live="polite" role="alert" className="form-alert">
+        {errors.server ?? ""}
+      </div>
 
       <form noValidate onSubmit={handleSubmit}>
         <div className="field">

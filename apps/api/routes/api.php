@@ -14,8 +14,8 @@ use App\Http\Controllers\Api\V1\Admin\CategoryController;
 use App\Http\Controllers\Api\V1\Admin\UploadController;
 
 Route::prefix('v1')->group(function () {
-    Route::get('/posts', fn() => response()->json([]));
-    Route::get('/categories', fn() => response()->json([]));
+    Route::get('/posts', fn() => response()->json([]))->middleware('throttle:public-api');
+    Route::get('/categories', fn() => response()->json([]))->middleware('throttle:public-api');
     Route::get('/profiles/{handle}', [PublicProfileController::class, 'show'])->middleware('throttle:public-api');
 
     Route::middleware(['auth:api', 'no-cache'])->group(function () {
