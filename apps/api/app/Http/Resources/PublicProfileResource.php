@@ -13,7 +13,6 @@ class PublicProfileResource extends JsonResource
             'id'           => $this->id,
             'handle'       => $this->handle,
             'display_name' => $this->display_name,
-            'avatar_url'   => $this->avatar_url,
         ];
     }
 }

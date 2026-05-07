@@ -90,7 +90,6 @@ class AppServiceProvider extends ServiceProvider
                     $user->supabase_user_id = $user->supabase_user_id ?? $claims->sub;
                     $user->handle           = $user->handle ?? $this->resolveHandle($meta, $email, $user);
                     $user->display_name     = $user->display_name ?? substr((string) ($meta['display_name'] ?? $meta['full_name'] ?? ''), 0, 120) ?: null;
-                    $user->avatar_url       = $user->avatar_url ?? $meta['avatar_url'] ?? $meta['picture'] ?? null;
                     $user->save();
 
                     return $user;
@@ -101,7 +100,6 @@ class AppServiceProvider extends ServiceProvider
                 $user->email            = $email;
                 $user->handle           = $this->resolveHandle($meta, $email);
                 $user->display_name     = substr((string) ($meta['display_name'] ?? $meta['full_name'] ?? ''), 0, 120) ?: null;
-                $user->avatar_url       = $meta['avatar_url'] ?? $meta['picture'] ?? null;
                 $user->role             = 'user';
                 try {
                     $user->save();
