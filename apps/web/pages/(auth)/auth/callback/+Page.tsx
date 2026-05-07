@@ -37,6 +37,8 @@ export default function Page() {
       const pendingProvider = getPendingAuthProvider();
       const shouldShowCallbackUi = !authCode && !pendingProvider;
 
+      window.history.replaceState({}, document.title, "/auth/callback");
+
       if (shouldShowCallbackUi) {
         setIsSilent(false);
       }
@@ -45,7 +47,8 @@ export default function Page() {
         const { error } = await supabase.auth.exchangeCodeForSession(authCode);
 
         if (error) {
-          showError(error.message);
+          console.error(error);
+          showError("We were unable to sign you in. Please try again.");
           return;
         }
       } else if (hashAccessToken && hashRefreshToken) {
@@ -55,7 +58,8 @@ export default function Page() {
         });
 
         if (error) {
-          showError(error.message);
+          console.error(error);
+          showError("We were unable to sign you in. Please try again.");
           return;
         }
       }
@@ -63,7 +67,8 @@ export default function Page() {
       const { data, error } = await supabase.auth.getSession();
 
       if (error) {
-        showError(error.message);
+        console.error(error);
+        showError("We were unable to sign you in. Please try again.");
         return;
       }
 
@@ -80,8 +85,6 @@ export default function Page() {
       }
 
       clearPendingAuthProvider();
-
-      window.history.replaceState({}, document.title, "/auth/callback");
 
       if (currentUser.permissions.admin) {
         window.location.replace("/dashboard");
