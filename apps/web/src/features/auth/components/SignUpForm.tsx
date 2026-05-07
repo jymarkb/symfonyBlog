@@ -24,7 +24,8 @@ import {
   registerWithEmail,
   startSocialAuth,
 } from "@/features/auth/api/registerApi";
-import { SignUpIntro } from "@/features/auth/components/SignUpIntro";
+import { AuthIntro } from "@/components/ui/AuthIntro";
+import { AuthConfirm } from "@/components/ui/AuthConfirm";
 
 export function SignUpForm() {
   const [fields, setFields] = useState<SignUpFields>({
@@ -132,53 +133,41 @@ export function SignUpForm() {
   if (confirmationMessage) {
     return (
       <>
-        <div className="auth-confirm">
-          <div aria-hidden="true" className="auth-confirm-mark">
-            OK
-          </div>
-
-          <div className="eyebrow mb-4">Email confirmation</div>
-
-          <h1>
-            Check your <em>email</em>.
-          </h1>
-
-          <p className="lede">{confirmationMessage}</p>
-
-          <div aria-live="polite" role="status">
-            {errors.server && <div className="form-alert">{errors.server}</div>}
-          </div>
-
-          <div className="callback-actions">
-            {lastUsedProvider ? (
-              <button
-                className="btn btn-primary"
-                disabled={socialSubmitting !== null}
-                onClick={() => handleSocialRegister(lastUsedProvider)}
-                type="button"
-              >
-                {socialSubmitting === lastUsedProvider
-                  ? `Opening ${formatAuthProvider(lastUsedProvider)}...`
-                  : `Continue with ${formatAuthProvider(lastUsedProvider)}`}
-              </button>
-            ) : (
-              <a className="btn btn-primary" href="/signin">
-                Back to sign in
-              </a>
-            )}
-
+        <AuthConfirm
+          eyebrow="Email confirmation"
+          heading="Check your"
+          em="email"
+          lede={confirmationMessage}
+          error={errors.server}
+        >
+          {lastUsedProvider ? (
             <button
-              className="btn btn-ghost"
-              onClick={() => {
-                setConfirmationMessage(null);
-                setErrors({});
-              }}
+              className="btn btn-primary"
+              disabled={socialSubmitting !== null}
+              onClick={() => handleSocialRegister(lastUsedProvider)}
               type="button"
             >
-              Try another email
+              {socialSubmitting === lastUsedProvider
+                ? `Opening ${formatAuthProvider(lastUsedProvider)}...`
+                : `Continue with ${formatAuthProvider(lastUsedProvider)}`}
             </button>
-          </div>
-        </div>
+          ) : (
+            <a className="btn btn-primary" href="/signin">
+              Back to sign in
+            </a>
+          )}
+
+          <button
+            className="btn btn-ghost"
+            onClick={() => {
+              setConfirmationMessage(null);
+              setErrors({});
+            }}
+            type="button"
+          >
+            Try another email
+          </button>
+        </AuthConfirm>
 
         <AuthFooterLinks label="No tracking pixels · no third-party scripts" />
       </>
@@ -187,7 +176,12 @@ export function SignUpForm() {
 
   return (
     <>
-      <SignUpIntro />
+      <AuthIntro
+        eyebrow="Create account · 20 seconds"
+        heading="Make a small"
+        em="account"
+        lede="No tracking, no marketing emails, and no follow-up sequences. Pinky promise."
+      />
 
       <AuthProviderButtons
         compact
@@ -209,7 +203,7 @@ export function SignUpForm() {
             <label htmlFor="signup-display-name">Display name</label>
             <input
               aria-describedby={errors.displayName ? "signup-display-name-error" : undefined}
-              aria-invalid={!!errors.displayName}
+              aria-invalid={errors.displayName ? true : undefined}
               autoComplete="name"
               className={errors.displayName ? "is-error" : ""}
               id="signup-display-name"
@@ -227,7 +221,7 @@ export function SignUpForm() {
             <label htmlFor="signup-handle">Handle</label>
             <input
               aria-describedby={errors.handle ? "signup-handle-error" : undefined}
-              aria-invalid={!!errors.handle}
+              aria-invalid={errors.handle ? true : undefined}
               autoComplete="username"
               className={errors.handle ? "is-error" : ""}
               id="signup-handle"
@@ -246,7 +240,7 @@ export function SignUpForm() {
           <label htmlFor="signup-email">Email</label>
           <input
             aria-describedby={errors.email ? "signup-email-error" : undefined}
-            aria-invalid={!!errors.email}
+            aria-invalid={errors.email ? true : undefined}
             autoComplete="email"
             className={errors.email ? "is-error" : ""}
             id="signup-email"
@@ -265,7 +259,7 @@ export function SignUpForm() {
           <label htmlFor="signup-password">Password</label>
           <input
             aria-describedby={errors.password ? "signup-password-error" : undefined}
-            aria-invalid={!!errors.password}
+            aria-invalid={errors.password ? true : undefined}
             autoComplete="new-password"
             className={errors.password ? "is-error" : ""}
             id="signup-password"
@@ -284,7 +278,7 @@ export function SignUpForm() {
         <label className="check-row">
           <input
             aria-describedby={errors.terms ? "signup-terms-error" : undefined}
-            aria-invalid={!!errors.terms}
+            aria-invalid={errors.terms ? true : undefined}
             checked={fields.terms}
             id="signup-terms"
             onChange={(e) => setField("terms", e.target.checked)}

@@ -3,7 +3,8 @@ import { useState } from "react";
 
 import type { ForgotPasswordErrors } from "@/features/auth/authTypes";
 import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
-import { ForgotPasswordIntro } from "@/features/auth/components/ForgotPasswordIntro";
+import { AuthIntro } from "@/components/ui/AuthIntro";
+import { AuthConfirm } from "@/components/ui/AuthConfirm";
 import { validateEmail } from "@/features/auth/lib/validation";
 import { sendPasswordResetEmail } from "@/features/auth/api/resetPasswordApi";
 import { logError } from "@/lib/utils/logError";
@@ -44,45 +45,38 @@ export function ForgotPasswordForm() {
     <div aria-live="polite" role="status">
       {sent ? (
         <>
-          <div className="auth-confirm">
-            <div aria-hidden="true" className="auth-confirm-mark">
-              OK
-            </div>
+          <AuthConfirm
+            eyebrow="Check your email"
+            heading="Recovery link"
+            em="sent"
+            lede="If an account exists for that email, we sent a reset link. Check your inbox and spam folder."
+          >
+            <a className="btn btn-primary" href="/signin">
+              Back to sign in
+            </a>
 
-            <div className="eyebrow mb-4">Check your email</div>
-
-            <h1>
-              Recovery link <em>sent</em>.
-            </h1>
-
-            <p className="lede">
-              If an account exists for that email, we sent a reset link. Check
-              your inbox and spam folder.
-            </p>
-
-            <div className="callback-actions">
-              <a className="btn btn-primary" href="/signin">
-                Back to sign in
-              </a>
-
-              <button
-                className="btn btn-ghost"
-                onClick={() => {
-                  setSent(false);
-                  setErrors({});
-                }}
-                type="button"
-              >
-                Send another email
-              </button>
-            </div>
-          </div>
+            <button
+              className="btn btn-ghost"
+              onClick={() => {
+                setSent(false);
+                setErrors({});
+              }}
+              type="button"
+            >
+              Send another email
+            </button>
+          </AuthConfirm>
 
           <AuthFooterLinks label="No account lookup · private by design" />
         </>
       ) : (
         <>
-          <ForgotPasswordIntro />
+          <AuthIntro
+            eyebrow="Password reset"
+            heading="Reset your"
+            em="password"
+            lede="Enter the email address on your account and we'll send you a reset link. It expires in 30 minutes."
+          />
 
           {errors.server && <div className="form-alert">{errors.server}</div>}
 
