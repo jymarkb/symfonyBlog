@@ -11,14 +11,13 @@ import {
   headerAuthButtons,
   headerNavItems,
 } from "@/components/layout/Header/headerNavItem";
-import type {
-  HeaderActionItem,
-  HeaderProps,
-} from "@/components/layout/Header/headerTypes";
+import type { HeaderActionItem } from "@/components/layout/Header/headerTypes";
 
 import { useCurrentSession } from "@/features/auth/session/useCurrentSession";
+import { useThemeMode } from "@/lib/theme/useThemeMode";
 
-export function Header({ themeMode, onToggleThemeMode }: HeaderProps) {
+export function Header() {
+  const { themeMode, toggleThemeMode } = useThemeMode();
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isMobileAccountMenuOpen, setIsMobileAccountMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -113,7 +112,7 @@ export function Header({ themeMode, onToggleThemeMode }: HeaderProps) {
         <div className="flex items-center gap-2">
           <HeaderThemeToggle
             themeMode={themeMode}
-            onToggleThemeMode={onToggleThemeMode}
+            onToggleThemeMode={toggleThemeMode}
           />
 
           {isLoading ? (

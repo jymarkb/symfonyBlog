@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
 
 import { Header } from "@/components/layout/Header/Header";
-import { useThemeMode } from "@/lib/theme/useThemeMode";
-import "@/styles/global.css";
 
 type AuthShellProps = {
   children: ReactNode;
@@ -15,7 +13,6 @@ export function AuthShell({
   side,
   sidePlacement = "end",
 }: AuthShellProps) {
-  const { themeMode, toggleThemeMode } = useThemeMode();
   const sidePanel = <aside className="auth-side">{side}</aside>;
   const formPanel = (
     <div className="auth-form-wrap">
@@ -25,7 +22,7 @@ export function AuthShell({
 
   return (
     <div className="min-h-screen bg-paper text-ink">
-      <Header themeMode={themeMode} onToggleThemeMode={toggleThemeMode} />
+      <Header />
       <div className="auth-shell">
         {sidePlacement === "start" ? sidePanel : null}
         {formPanel}
