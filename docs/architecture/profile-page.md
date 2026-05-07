@@ -26,7 +26,10 @@ This document defines the structure, data flow, and implementation plan for the 
                                     GET /api/v1/profile/reading-history, ProfileReadingHistoryTest (4 cases),
                                     ProfileReadingHistoryItem types, fetchReadingHistory(), ProfileRecentlyViewed wired;
                                     ProfileResource posts_read_count now live from postViews loadCount
-9. Notifications                    pending — UI stub only; no backend endpoint yet
+9. Notifications                    done — notify_comment_replies + notify_new_posts columns migrated,
+                                    ProfileNotificationController, PATCH /api/v1/profile/notifications,
+                                    ProfileNotificationTest (3 cases), ProfileSidebar selects wired,
+                                    NotificationPreference types, updateNotifications API function
 10. Delete account                  done — ProfileService::deleteAccount (anonymise comments, delete post_views, delete user),
                                     ProfileController::destroy real implementation, ProfileDeleteAccountTest (6 cases),
                                     ProfileDangerZone wired with inline confirmation UI, deleteAccount API function and type
