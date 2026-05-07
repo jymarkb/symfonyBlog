@@ -30,7 +30,7 @@ export function ForgotPasswordSidePanel() {
           </div>
           <div className="side-step">
             <span className="num">03</span>
-            <span>Pick a new password and you're done. All sessions stay active.</span>
+            <span>Pick a new password. You'll be signed out and redirected to sign in.</span>
           </div>
         </div>
       </div>

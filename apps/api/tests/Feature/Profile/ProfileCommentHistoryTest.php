@@ -48,6 +48,19 @@ it('returns comments belonging to the authenticated user with the expected keys'
         ->toHaveKey('created_at');
 });
 
+it('returns 429 when the comments rate limit is exceeded', function () {
+    $user = User::factory()->create();
+
+    $cacheKey = md5('auth-read' . $user->id);
+    for ($i = 0; $i < 60; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->actingAs($user, 'api')
+        ->getJson('/api/v1/profile/comments')
+        ->assertTooManyRequests();
+});
+
 it('does not return comments belonging to another user', function () {
     $userA = User::factory()->create();
     $userB = User::factory()->create();

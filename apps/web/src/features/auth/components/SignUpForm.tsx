@@ -208,6 +208,8 @@ export function SignUpForm() {
           <div className="field">
             <label htmlFor="signup-display-name">Display name</label>
             <input
+              aria-describedby={errors.displayName ? "signup-display-name-error" : undefined}
+              aria-invalid={!!errors.displayName}
               autoComplete="name"
               className={errors.displayName ? "is-error" : ""}
               id="signup-display-name"
@@ -217,13 +219,15 @@ export function SignUpForm() {
               value={fields.displayName}
             />
             {errors.displayName && (
-              <span className="field-error">{errors.displayName}</span>
+              <span className="field-error" id="signup-display-name-error">{errors.displayName}</span>
             )}
           </div>
 
           <div className="field">
             <label htmlFor="signup-handle">Handle</label>
             <input
+              aria-describedby={errors.handle ? "signup-handle-error" : undefined}
+              aria-invalid={!!errors.handle}
               autoComplete="username"
               className={errors.handle ? "is-error" : ""}
               id="signup-handle"
@@ -233,7 +237,7 @@ export function SignUpForm() {
               value={fields.handle}
             />
             {errors.handle && (
-              <span className="field-error">{errors.handle}</span>
+              <span className="field-error" id="signup-handle-error">{errors.handle}</span>
             )}
           </div>
         </div>
@@ -241,6 +245,8 @@ export function SignUpForm() {
         <div className="field">
           <label htmlFor="signup-email">Email</label>
           <input
+            aria-describedby={errors.email ? "signup-email-error" : undefined}
+            aria-invalid={!!errors.email}
             autoComplete="email"
             className={errors.email ? "is-error" : ""}
             id="signup-email"
@@ -252,12 +258,14 @@ export function SignUpForm() {
           <span className="hint">
             Used only for confirmation + reply notifications.
           </span>
-          {errors.email && <span className="field-error">{errors.email}</span>}
+          {errors.email && <span className="field-error" id="signup-email-error">{errors.email}</span>}
         </div>
 
         <div className="field">
           <label htmlFor="signup-password">Password</label>
           <input
+            aria-describedby={errors.password ? "signup-password-error" : undefined}
+            aria-invalid={!!errors.password}
             autoComplete="new-password"
             className={errors.password ? "is-error" : ""}
             id="signup-password"
@@ -281,7 +289,7 @@ export function SignUpForm() {
             </>
           )}
           {errors.password && (
-            <span className="field-error">{errors.password}</span>
+            <span className="field-error" id="signup-password-error">{errors.password}</span>
           )}
         </div>
 

@@ -29,6 +29,7 @@ export function ForgotPasswordForm() {
       setSent(true);
       setEmail("");
     } catch (error) {
+      console.error(error);
       setErrors({
         server: "Unable to send reset link. Please try again.",
       });
@@ -37,96 +38,96 @@ export function ForgotPasswordForm() {
     }
   }
 
-  if (sent) {
-    return (
-      <>
-        <div aria-live="polite" className="auth-confirm">
-          <div aria-hidden="true" className="auth-confirm-mark">
-            OK
+  return (
+    <div aria-live="polite" role="status">
+      {sent ? (
+        <>
+          <div className="auth-confirm">
+            <div aria-hidden="true" className="auth-confirm-mark">
+              OK
+            </div>
+
+            <div className="eyebrow mb-4">Check your email</div>
+
+            <h1>
+              Recovery link <em>sent</em>.
+            </h1>
+
+            <p className="lede">
+              If an account exists for that email, we sent a reset link. Check
+              your inbox and spam folder.
+            </p>
+
+            <div className="callback-actions">
+              <a className="btn btn-primary" href="/signin">
+                Back to sign in
+              </a>
+
+              <button
+                className="btn btn-ghost"
+                onClick={() => {
+                  setSent(false);
+                  setErrors({});
+                }}
+                type="button"
+              >
+                Send another email
+              </button>
+            </div>
           </div>
 
-          <div className="eyebrow mb-4">Check your email</div>
+          <AuthFooterLinks label="No account lookup · private by design" />
+        </>
+      ) : (
+        <>
+          <ForgotPasswordIntro />
 
-          <h1>
-            Recovery link <em>sent</em>.
-          </h1>
+          <div className="form-alert">
+            {errors.server ?? ""}
+          </div>
 
-          <p className="lede">
-            If an account exists for that email, we sent a reset link. Check
-            your inbox and spam folder.
-          </p>
-
-          <div className="callback-actions">
-            <a className="btn btn-primary" href="/signin">
-              Back to sign in
-            </a>
+          <form noValidate onSubmit={handleSubmit}>
+            <div className="field">
+              <label htmlFor="forgot-password-email">Email address</label>
+              <input
+                aria-describedby={errors.email ? "forgot-password-email-error" : undefined}
+                aria-invalid={!!errors.email}
+                autoComplete="email"
+                className={errors.email ? "is-error" : ""}
+                id="forgot-password-email"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors({});
+                }}
+                placeholder="you@somewhere.com"
+                type="email"
+                value={email}
+              />
+              <span className="hint">
+                We'll send a one-time reset link to this address.
+              </span>
+              {errors.email && <span className="field-error" id="forgot-password-email-error">{errors.email}</span>}
+            </div>
 
             <button
-              className="btn btn-ghost"
-              onClick={() => {
-                setSent(false);
-                setErrors({});
-              }}
-              type="button"
+              className="btn btn-primary submit-btn mt-1"
+              disabled={submitting}
+              type="submit"
             >
-              Send another email
+              {submitting ? "Sending…" : "Send reset link →"}
             </button>
+          </form>
+
+          <div className="alt-row">
+            Remembered it?{" "}
+            <a className="link" href="/signin">
+              Back to sign in
+            </a>
           </div>
-        </div>
 
-        <AuthFooterLinks label="No account lookup · private by design" />
-      </>
-    );
-  }
-
-  return (
-    <>
-      <ForgotPasswordIntro />
-
-      <div aria-live="polite" role="status" className="form-alert">
-        {errors.server ?? ""}
-      </div>
-
-      <form noValidate onSubmit={handleSubmit}>
-        <div className="field">
-          <label htmlFor="forgot-password-email">Email address</label>
-          <input
-            aria-describedby="forgot-password-email-error"
-            aria-invalid={!!errors.email}
-            autoComplete="email"
-            className={errors.email ? "is-error" : ""}
-            id="forgot-password-email"
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (errors.email) setErrors({});
-            }}
-            placeholder="you@somewhere.com"
-            type="email"
-            value={email}
-          />
-          <span className="hint">
-            We'll send a one-time reset link to this address.
-          </span>
-          {errors.email && <span className="field-error" id="forgot-password-email-error">{errors.email}</span>}
-        </div>
-
-        <button
-          className="btn btn-primary submit-btn mt-1"
-          disabled={submitting}
-          type="submit"
-        >
-          {submitting ? "Sending…" : "Send reset link →"}
-        </button>
-      </form>
-
-      <div className="alt-row">
-        Remembered it?{" "}
-        <a className="link" href="/signin">
-          Back to sign in
-        </a>
-      </div>
-
-      <AuthFooterLinks label="Link expires after 30 min" />
-    </>
+          <AuthFooterLinks label="Link expires after 30 min" />
+        </>
+      )}
+    </div>
   );
 }

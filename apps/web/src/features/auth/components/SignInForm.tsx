@@ -111,6 +111,8 @@ export function SignInForm() {
         <div className="field">
           <label htmlFor="signin-email">Email</label>
           <input
+            aria-describedby={errors.email ? "signin-email-error" : undefined}
+            aria-invalid={!!errors.email}
             autoComplete="email"
             className={errors.email ? "is-error" : ""}
             id="signin-email"
@@ -119,7 +121,7 @@ export function SignInForm() {
             type="email"
             value={fields.email}
           />
-          {errors.email && <span className="field-error">{errors.email}</span>}
+          {errors.email && <span className="field-error" id="signin-email-error">{errors.email}</span>}
         </div>
 
         <div className="field">
@@ -127,6 +129,8 @@ export function SignInForm() {
             Password <a href="/forgot-password">forgot?</a>
           </label>
           <input
+            aria-describedby={errors.password ? "signin-password-error" : undefined}
+            aria-invalid={!!errors.password}
             autoComplete="current-password"
             className={errors.password ? "is-error" : ""}
             id="signin-password"
@@ -136,7 +140,7 @@ export function SignInForm() {
             value={fields.password}
           />
           {errors.password && (
-            <span className="field-error">{errors.password}</span>
+            <span className="field-error" id="signin-password-error">{errors.password}</span>
           )}
         </div>
 
