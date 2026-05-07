@@ -92,6 +92,7 @@ export function ProfileForm({
       <div className="field">
         <label htmlFor="profile-email">Email address</label>
         <input
+          aria-describedby="profile-email-hint"
           autoComplete="email"
           id="profile-email"
           readOnly
@@ -99,7 +100,7 @@ export function ProfileForm({
           type="email"
           value={user?.email ?? ''}
         />
-        <span className="hint">Used for sign-in and notifications. Never shown publicly.</span>
+        <span className="hint" id="profile-email-hint">Used for sign-in and notifications. Never shown publicly.</span>
       </div>
 
       <button className="btn btn-primary" disabled={isSubmitting} type="submit">

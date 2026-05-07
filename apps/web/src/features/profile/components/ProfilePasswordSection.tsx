@@ -75,7 +75,7 @@ export function ProfilePasswordSection() {
       });
 
       if (signInError) {
-        setErrors({ currentPassword: "Current password is incorrect." });
+        setErrors({ currentPassword: "Sign-in failed. Please check your current password." });
         setFields((prev) => ({ ...prev, currentPassword: "" }));
         return;
       }
