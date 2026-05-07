@@ -403,6 +403,7 @@ Apply every relevant section of the QA checklist. At minimum cover:
 - **React correctness** — no duplicate API calls on mount; `useEffect` dependency arrays complete; error boundaries present at page/feature level
 - **Accessibility** — icon-only buttons have `aria-label`; form inputs have `<label>`; `aria-live` regions for async state changes; keyboard navigability
 - **Dead and inconsistent UI** — feature parity between similar pages; no unbound checkboxes or links
+- **Duplicate and extractable code** — identify JSX blocks, fetch lifecycle patterns, error/success display patterns, or utility logic that appears in two or more components and could be moved to a shared component or utility; report file paths and the common pattern so it can be extracted in a follow-up
 
 ### Output format
 
@@ -420,6 +421,9 @@ Apply every relevant section of the QA checklist. At minimum cover:
 
 ### 📋 Manual QA Checklist
 - [ ] specific step to test in the browser
+
+### 🔁 Refactor Candidates
+[file:line] — duplicate pattern and suggested extraction target
 ```
 
 Do not edit files unless separately assigned implementation.
@@ -514,6 +518,9 @@ Use this when you want both frontend and backend QA run together and synthesized
 
 ### 📋 Manual QA Checklist
 Combined list of in-browser steps to verify
+
+### 🔁 Refactor Candidates
+Combined list of duplicate patterns across frontend that could be extracted
 
 ### Suggested fix grouping (for -commit after fixes)
 - Commit 1: ...
