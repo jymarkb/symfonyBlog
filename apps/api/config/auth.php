@@ -96,6 +96,11 @@ return [
     |
     */
 
+    /*
+     * Password resets are handled by Supabase, not by Laravel's password broker.
+     * These entries are retained from Laravel scaffolding but are intentionally
+     * not wired to any route or controller.
+     */
     'passwords' => [
         'users' => [
             'provider' => 'users',

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\Auth\SupabaseTokenVerifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -55,6 +56,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('admin-read', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
         Auth::viaRequest('supabase', function (Request $request) {
             $token = $request->bearerToken();
 
@@ -76,29 +81,31 @@ class AppServiceProvider extends ServiceProvider
             $userMetadata = $claims->user_metadata ?? null;
             $email = $claims->email ?? '';
 
-            $user = User::where('supabase_user_id', $claims->sub)->first()
-                ?? User::where('email', $email)->first();
+            return DB::transaction(function () use ($claims, $email, $userMetadata) {
+                $user = User::where('supabase_user_id', $claims->sub)->lockForUpdate()->first()
+                    ?? User::where('email', $email)->lockForUpdate()->first();
 
-            if ($user) {
-                $user->supabase_user_id = $user->supabase_user_id ?? $claims->sub;
-                $user->handle           = $user->handle ?? $this->resolveHandle($userMetadata, $email, $user);
-                $user->display_name     = $user->display_name ?? $userMetadata?->display_name ?? $userMetadata?->full_name;
-                $user->avatar_url       = $user->avatar_url ?? $userMetadata?->avatar_url ?? $userMetadata?->picture;
+                if ($user) {
+                    $user->supabase_user_id = $user->supabase_user_id ?? $claims->sub;
+                    $user->handle           = $user->handle ?? $this->resolveHandle($userMetadata, $email, $user);
+                    $user->display_name     = $user->display_name ?? $userMetadata?->display_name ?? $userMetadata?->full_name;
+                    $user->avatar_url       = $user->avatar_url ?? $userMetadata?->avatar_url ?? $userMetadata?->picture;
+                    $user->save();
+
+                    return $user;
+                }
+
+                $user = new User();
+                $user->supabase_user_id = $claims->sub;
+                $user->email            = $email;
+                $user->handle           = $this->resolveHandle($userMetadata, $email);
+                $user->display_name     = $userMetadata?->display_name ?? $userMetadata?->full_name;
+                $user->avatar_url       = $userMetadata?->avatar_url ?? $userMetadata?->picture;
+                $user->role             = 'user';
                 $user->save();
 
                 return $user;
-            }
-
-            $user = new User();
-            $user->supabase_user_id = $claims->sub;
-            $user->email            = $email;
-            $user->handle           = $this->resolveHandle($userMetadata, $email);
-            $user->display_name     = $userMetadata?->display_name ?? $userMetadata?->full_name;
-            $user->avatar_url       = $userMetadata?->avatar_url ?? $userMetadata?->picture;
-            $user->role             = 'user';
-            $user->save();
-
-            return $user;
+            });
         });
     }
 
@@ -115,8 +122,14 @@ class AppServiceProvider extends ServiceProvider
         $base = $this->normalizeHandleBase((string) $source);
         $candidate = '@'.$base;
         $suffix = 2;
+        $attempts = 0;
 
         while ($this->handleExists($candidate, $currentUser)) {
+            $attempts++;
+            if ($attempts >= 10) {
+                $candidate = '@'.substr($base, 0, 13).'_'.substr(str_replace('-', '', Str::uuid()), 0, 6);
+                break;
+            }
             $suffixText = (string) $suffix;
             $candidate = '@'.substr($base, 0, 19 - strlen($suffixText)).$suffixText;
             $suffix++;
