@@ -27,7 +27,9 @@ it('returns the signed-in user private profile', function () {
         ->assertOk()
         ->assertJsonPath('data.id', $user->id)
         ->assertJsonPath('data.email', 'reader@example.com')
-        ->assertJsonPath('data.display_name', 'Reader One');
+        ->assertJsonPath('data.display_name', 'Reader One')
+        ->assertJsonMissingPath('data.role')
+        ->assertJsonMissingPath('data.supabase_user_id');
 });
 
 it('updates allowed private profile fields', function () {
