@@ -97,7 +97,7 @@ export function SignInForm() {
 
       <div className="divider">or with email</div>
 
-      {errors.server && <div className="form-alert">{errors.server}</div>}
+      {errors.server && <div aria-live="polite" className="form-alert">{errors.server}</div>}
 
       <form noValidate onSubmit={handleSubmit}>
         <div className="field">

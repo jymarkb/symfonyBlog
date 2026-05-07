@@ -201,7 +201,7 @@ export function SignUpForm() {
 
       <div className="divider">or with email</div>
 
-      {errors.server && <div className="form-alert">{errors.server}</div>}
+      {errors.server && <div aria-live="polite" className="form-alert">{errors.server}</div>}
 
       <form noValidate onSubmit={handleSubmit}>
         <div className="row-2">
@@ -292,20 +292,12 @@ export function SignUpForm() {
             type="checkbox"
           />
           <span>
-            I've read and accept the <a href="#">community guidelines</a> and{" "}
-            <a href="#">privacy notice</a>. Be kind in the comments — that's the
+            I've read and accept the <a href="/terms">community guidelines</a> and{" "}
+            <a href="/privacy">privacy notice</a>. Be kind in the comments — that's the
             whole policy.
           </span>
         </label>
         {errors.terms && <span className="field-error">{errors.terms}</span>}
-
-        <label className="check-row">
-          <input type="checkbox" />
-          <span>
-            Also subscribe me to new essays via email (you can also do this on
-            the <a href="/subscribe">subscribe page</a>).
-          </span>
-        </label>
 
         <button
           className="btn btn-primary submit-btn"
