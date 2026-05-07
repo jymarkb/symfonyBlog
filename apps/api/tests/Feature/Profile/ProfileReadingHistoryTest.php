@@ -50,6 +50,19 @@ it('returns reading history belonging to the authenticated user with correct val
         ->toHaveKey('last_viewed_at', $view->last_viewed_at->toISOString());
 });
 
+it('returns 429 when the reading history rate limit is exceeded', function () {
+    $user = User::factory()->create();
+
+    $cacheKey = md5('auth-read' . $user->id);
+    for ($i = 0; $i < 60; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->actingAs($user, 'api')
+        ->getJson('/api/v1/profile/reading-history')
+        ->assertTooManyRequests();
+});
+
 it('does not return reading history belonging to another user', function () {
     $userA = User::factory()->create();
     $userB = User::factory()->create();

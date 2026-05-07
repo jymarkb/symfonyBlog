@@ -57,6 +57,7 @@ export async function signOutAfterPasswordUpdate() {
   const { error } = await supabase.auth.signOut();
   if (error) {
     console.error('Sign-out after password update failed:', error);
+    throw error;
   }
 }
 

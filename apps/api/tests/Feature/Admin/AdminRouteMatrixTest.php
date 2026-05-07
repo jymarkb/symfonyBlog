@@ -56,3 +56,33 @@ it('allows admins through every admin placeholder route', function (
         ->json($method, $uri)
         ->assertStatus($expectedStatus);
 })->with(adminRoutes());
+
+it('returns 429 when the admin read rate limit is exceeded', function () {
+    $admin = User::factory()->create([
+        'role' => User::ROLE_ADMIN,
+    ]);
+
+    $cacheKey = md5('admin-read' . $admin->id);
+    for ($i = 0; $i < 60; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->actingAs($admin, 'api')
+        ->getJson('/api/v1/admin/posts')
+        ->assertTooManyRequests();
+});
+
+it('returns 429 when the admin mutations rate limit is exceeded', function () {
+    $admin = User::factory()->create([
+        'role' => User::ROLE_ADMIN,
+    ]);
+
+    $cacheKey = md5('admin-mutations' . $admin->id);
+    for ($i = 0; $i < 60; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->actingAs($admin, 'api')
+        ->postJson('/api/v1/admin/posts')
+        ->assertTooManyRequests();
+});

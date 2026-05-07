@@ -82,20 +82,33 @@ export function ResetPasswordForm() {
 
     try {
       await updatePassword(fields.password);
-      await signOutAfterPasswordUpdate();
-      setFields({
-        password: "",
-        confirmPassword: "",
-      });
-      window.location.replace('/signin');
     } catch (error) {
       console.error(error);
       setErrors({
         server: "We were unable to update your password. Please try again.",
       });
-    } finally {
       setSubmitting(false);
+      return;
     }
+
+    try {
+      await signOutAfterPasswordUpdate();
+    } catch (error) {
+      console.error(error);
+      setErrors({
+        server:
+          "Your password was updated but we could not sign you out. Please close all browser tabs and sign in again.",
+      });
+      setSubmitting(false);
+      return;
+    }
+
+    setFields({
+      password: "",
+      confirmPassword: "",
+    });
+    setSubmitting(false);
+    window.location.replace('/signin');
   }
 
   if (!isReady) {

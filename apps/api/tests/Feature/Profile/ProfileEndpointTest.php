@@ -79,14 +79,25 @@ it('rejects guests from deleting the private profile', function () {
 it('returns 429 when the profile patch rate limit is exceeded', function () {
     $user = User::factory()->create();
 
-    // Send 60 requests to exhaust the per-minute limit
-    foreach (range(1, 60) as $_) {
-        $this->actingAs($user, 'api')
-            ->patchJson('/api/v1/profile', ['display_name' => 'Test']);
+    $cacheKey = md5('profile-mutations' . $user->id);
+    for ($i = 0; $i < 60; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
     }
 
-    // The 61st request must be rate-limited
     $this->actingAs($user, 'api')
         ->patchJson('/api/v1/profile', ['display_name' => 'Test'])
+        ->assertTooManyRequests();
+});
+
+it('returns 429 when the profile get rate limit is exceeded', function () {
+    $user = User::factory()->create();
+
+    $cacheKey = md5('auth-read' . $user->id);
+    for ($i = 0; $i < 60; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->actingAs($user, 'api')
+        ->getJson('/api/v1/profile')
         ->assertTooManyRequests();
 });
