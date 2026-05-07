@@ -23,7 +23,7 @@ class SupabaseTokenVerifier
         });
 
         $keys = JWK::parseKeySet($jwks);
-        JWT::$leeway = 60;
+        JWT::$leeway = 5;
         $claims = JWT::decode($token, $keys);
 
         if (($claims->iss ?? null) !== config('services.supabase.issuer')) {

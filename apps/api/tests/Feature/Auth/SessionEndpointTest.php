@@ -39,3 +39,18 @@ it('returns admin permissions for admins', function () {
         ->assertJsonPath('data.permissions.manage_users', true)
         ->assertJsonPath('data.permissions.moderate_comments', true);
 });
+
+it('returns 429 when the session rate limit is exceeded', function () {
+    $user = User::factory()->create();
+
+    // ThrottleRequests hashes named limiter keys as md5($limiterName . $limitKey).
+    // The session limiter keys by IP address, so pre-fill the bucket using the test IP.
+    $cacheKey = md5('session' . '127.0.0.1');
+    for ($i = 0; $i < 60; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->actingAs($user, 'api')
+        ->getJson('/api/v1/session')
+        ->assertTooManyRequests();
+});
