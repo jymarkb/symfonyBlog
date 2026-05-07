@@ -8,6 +8,8 @@ use App\Services\Auth\SupabaseTokenVerifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,6 +27,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('profile-mutations', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('profile-delete', function (Request $request) {
+            return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+        });
+
         Auth::viaRequest('supabase', function (Request $request) {
             $token = $request->bearerToken();
 
@@ -50,24 +60,25 @@ class AppServiceProvider extends ServiceProvider
                 ?? User::where('email', $email)->first();
 
             if ($user) {
-                $user->fill([
-                    'supabase_user_id' => $user->supabase_user_id ?? $claims->sub,
-                    'handle' => $user->handle ?? $this->resolveHandle($userMetadata, $email, $user),
-                    'display_name' => $user->display_name ?? $userMetadata?->display_name ?? $userMetadata?->full_name,
-                    'avatar_url' => $user->avatar_url ?? $userMetadata?->avatar_url ?? $userMetadata?->picture,
-                ])->save();
+                $user->supabase_user_id = $user->supabase_user_id ?? $claims->sub;
+                $user->handle           = $user->handle ?? $this->resolveHandle($userMetadata, $email, $user);
+                $user->display_name     = $user->display_name ?? $userMetadata?->display_name ?? $userMetadata?->full_name;
+                $user->avatar_url       = $user->avatar_url ?? $userMetadata?->avatar_url ?? $userMetadata?->picture;
+                $user->save();
 
                 return $user;
             }
 
-            return User::create([
-                'supabase_user_id' => $claims->sub,
-                'email' => $email,
-                'handle' => $this->resolveHandle($userMetadata, $email),
-                'display_name' => $userMetadata?->display_name ?? $userMetadata?->full_name,
-                'avatar_url' => $userMetadata?->avatar_url ?? $userMetadata?->picture,
-                'role' => 'user',
-            ]);
+            $user = new User();
+            $user->supabase_user_id = $claims->sub;
+            $user->email            = $email;
+            $user->handle           = $this->resolveHandle($userMetadata, $email);
+            $user->display_name     = $userMetadata?->display_name ?? $userMetadata?->full_name;
+            $user->avatar_url       = $userMetadata?->avatar_url ?? $userMetadata?->picture;
+            $user->role             = 'user';
+            $user->save();
+
+            return $user;
         });
     }
 
