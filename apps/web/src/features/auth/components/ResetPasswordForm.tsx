@@ -12,12 +12,13 @@ import {
   startPasswordRecoverySession,
   updatePassword,
 } from "@/features/auth/api/resetPasswordApi";
-import { ApiError } from "@/lib/api/apiClient";
 import {
   passwordStrength,
-  strengthLabel,
   validateNewPassword,
 } from "@/features/auth/lib/validation";
+import { PasswordStrengthHint } from "@/components/ui/PasswordStrengthHint";
+import { logError } from "@/lib/utils/logError";
+import { getApiErrorMessage } from "@/lib/api/apiErrors";
 
 export function ResetPasswordForm() {
   const [fields, setFields] = useState<ResetPasswordFields>({
@@ -84,11 +85,9 @@ export function ResetPasswordForm() {
     try {
       await updatePassword(fields.password);
     } catch (error) {
-      console.error(error instanceof Error ? error.message : error);
+      logError(error);
       setErrors({
-        server: error instanceof ApiError && error.status === 429
-          ? "Too many requests. Please wait a moment and try again."
-          : "We were unable to update your password. Please try again.",
+        server: getApiErrorMessage(error, "We were unable to update your password. Please try again."),
       });
       setSubmitting(false);
       return;
@@ -97,7 +96,7 @@ export function ResetPasswordForm() {
     try {
       await signOutAfterPasswordUpdate();
     } catch (error) {
-      console.error(error instanceof Error ? error.message : error);
+      logError(error);
       setErrors({
         server:
           "Your password was updated but we could not sign you out. Please close all browser tabs and sign in again.",
@@ -155,20 +154,7 @@ export function ResetPasswordForm() {
                 type="password"
                 value={fields.password}
               />
-              {fields.password && (
-                <>
-                  <div aria-hidden="true" className={`strength s-${strength}`}>
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                  </div>
-                  <span className="hint">
-                    Strength: {strengthLabel(strength)}.
-                    {strength < 3 ? " Try a passphrase." : strength === 4 ? " Excellent!" : " Nice."}
-                  </span>
-                </>
-              )}
+              <PasswordStrengthHint password={fields.password} strength={strength} />
               {errors.password && (
                 <span className="field-error" id="reset-new-password-error">{errors.password}</span>
               )}

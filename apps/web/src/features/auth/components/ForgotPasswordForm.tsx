@@ -6,7 +6,8 @@ import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
 import { ForgotPasswordIntro } from "@/features/auth/components/ForgotPasswordIntro";
 import { validateEmail } from "@/features/auth/lib/validation";
 import { sendPasswordResetEmail } from "@/features/auth/api/resetPasswordApi";
-import { ApiError } from "@/lib/api/apiClient";
+import { logError } from "@/lib/utils/logError";
+import { getApiErrorMessage } from "@/lib/api/apiErrors";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -30,11 +31,9 @@ export function ForgotPasswordForm() {
       setSent(true);
       setEmail("");
     } catch (error) {
-      console.error(error instanceof Error ? error.message : error);
+      logError(error);
       setErrors({
-        server: error instanceof ApiError && error.status === 429
-          ? "Too many requests. Please wait a moment and try again."
-          : "Unable to send reset link. Please try again.",
+        server: getApiErrorMessage(error, "Unable to send reset link. Please try again."),
       });
     } finally {
       setSubmitting(false);
