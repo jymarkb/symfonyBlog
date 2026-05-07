@@ -68,3 +68,18 @@ it('does not anonymise comments belonging to other users', function () {
 
     $this->assertDatabaseHas('comments', ['id' => $comment->id, 'user_id' => $userB->id]);
 });
+
+it('returns 429 when the profile delete rate limit is exceeded', function () {
+    $user = User::factory()->create();
+
+    // ThrottleRequests hashes named limiter keys as md5($limiterName . $limitKey).
+    // The profile-delete limiter keys by user ID, so pre-fill the bucket directly.
+    $cacheKey = md5('profile-delete' . $user->id);
+    for ($i = 0; $i < 5; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->actingAs($user, 'api')
+        ->deleteJson('/api/v1/profile')
+        ->assertTooManyRequests();
+});
