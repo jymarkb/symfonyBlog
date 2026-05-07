@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { supabase } from "@/lib/auth/supabaseClient";
 import { useCurrentSession } from "@/features/auth/session";
+import { logError } from "@/lib/utils/logError";
 import { updateNotifications } from "@/features/profile/api/profileApi";
 import type {
   NotificationPreference,
@@ -39,7 +40,8 @@ export function ProfileSidebar({ profile, onProfileChange }: Props) {
       const updatedProfile = await updateNotifications(accessToken, { [field]: value });
       onProfileChange(updatedProfile);
       setNotifError(null);
-    } catch {
+    } catch (error) {
+      logError(error);
       setNotifError("Failed to save preference.");
     }
   }
