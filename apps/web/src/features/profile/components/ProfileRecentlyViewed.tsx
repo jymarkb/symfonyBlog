@@ -1,8 +1,7 @@
 import type { ProfileReadingHistoryItem } from "@/features/profile/profileTypes";
 import { fetchReadingHistory } from "@/features/profile/api/profileApi";
 import { useProfileFetch } from "@/features/profile/hooks/useProfileFetch";
-import { ProfilePlaceholder } from "@/features/profile/components/ProfilePlaceholder";
-import { ProfileSection } from "@/features/profile/components/ProfileSection";
+import { ProfileDataSection } from "@/features/profile/components/ProfileDataSection";
 
 export function ProfileRecentlyViewed() {
   const { data: history, isLoading, error } = useProfileFetch<ProfileReadingHistoryItem>(
@@ -10,34 +9,14 @@ export function ProfileRecentlyViewed() {
     "Unable to load reading history.",
   );
 
-  if (isLoading) {
-    return (
-      <ProfileSection title="Recently viewed">
-        <ProfilePlaceholder>Loading…</ProfilePlaceholder>
-      </ProfileSection>
-    );
-  }
-
-  if (error) {
-    return (
-      <ProfileSection title="Recently viewed">
-        <ProfilePlaceholder>{error}</ProfilePlaceholder>
-      </ProfileSection>
-    );
-  }
-
-  if (history.length === 0) {
-    return (
-      <ProfileSection title="Recently viewed">
-        <ProfilePlaceholder>
-          No reading history yet. Start reading to track your progress.
-        </ProfilePlaceholder>
-      </ProfileSection>
-    );
-  }
-
   return (
-    <ProfileSection title="Recently viewed">
+    <ProfileDataSection
+      title="Recently viewed"
+      isLoading={isLoading}
+      error={error}
+      isEmpty={history.length === 0}
+      emptyMessage="No reading history yet. Start reading to track your progress."
+    >
       <div className="viewed-list">
         {history.map((item) => (
           <div key={item.post_id} className="viewed-item">
@@ -51,6 +30,6 @@ export function ProfileRecentlyViewed() {
           </div>
         ))}
       </div>
-    </ProfileSection>
+    </ProfileDataSection>
   );
 }

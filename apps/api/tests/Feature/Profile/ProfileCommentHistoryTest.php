@@ -46,6 +46,8 @@ it('returns comments belonging to the authenticated user with the expected keys'
         ->toHaveKey('post_title', $post->title)
         ->toHaveKey('post_slug', $post->slug)
         ->toHaveKey('created_at');
+
+    $response->assertJsonMissingPath('data.0.user_id');
 });
 
 it('returns 429 when the comments rate limit is exceeded', function () {

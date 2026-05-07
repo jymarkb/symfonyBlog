@@ -48,6 +48,8 @@ it('returns reading history belonging to the authenticated user with correct val
         ->toHaveKey('post_slug', $post->slug)
         ->toHaveKey('read_progress', 75)
         ->toHaveKey('last_viewed_at', $view->last_viewed_at->toISOString());
+
+    $response->assertJsonMissingPath('data.0.user_id');
 });
 
 it('returns 429 when the reading history rate limit is exceeded', function () {

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useCurrentSession } from "@/features/auth/session";
 import { getAccessToken } from "@/lib/auth/getAccessToken";
 import { logError } from "@/lib/utils/logError";
 import { updateNotifications } from "@/features/profile/api/profileApi";
+import { FormMessage } from "@/components/ui/FormMessage";
 import type {
   NotificationPreference,
   ProfileSidebarProps,
@@ -13,7 +14,13 @@ import type {
 export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps) {
   const { user } = useCurrentSession();
   const [notifError, setNotifError] = useState<string | null>(null);
+  const [notifSuccess, setNotifSuccess] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const memberSince = user?.created_at
     ? new Date(user.created_at).toLocaleDateString("en-US", {
@@ -32,6 +39,8 @@ export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps
       const updatedProfile = await updateNotifications(accessToken, { [field]: value });
       onProfileChange(updatedProfile);
       setNotifError(null);
+      setNotifSuccess("Saved.");
+      setTimeout(() => setNotifSuccess(null), 2000);
     } catch (error) {
       logError(error);
       setNotifError("Failed to save preference.");
@@ -69,7 +78,7 @@ export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps
         <div className="field" style={{ marginBottom: 12 }}>
           <label htmlFor="notif-replies">Replies to my comments</label>
           <select
-            disabled={isSaving}
+            disabled={isSaving || !profile}
             id="notif-replies"
             value={profile?.notify_comment_replies ?? 'none'}
             onChange={(e) =>
@@ -87,7 +96,7 @@ export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps
         <div className="field" style={{ marginBottom: 14 }}>
           <label htmlFor="notif-posts">New posts</label>
           <select
-            disabled={isSaving}
+            disabled={isSaving || !profile}
             id="notif-posts"
             value={profile?.notify_new_posts ?? 'none'}
             onChange={(e) =>
@@ -102,9 +111,7 @@ export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps
             <option value="none">None</option>
           </select>
         </div>
-        <div aria-live="polite" role="status">
-          {notifError && <div className="form-alert">{notifError}</div>}
-        </div>
+        <FormMessage error={notifError} success={notifSuccess} />
       </div>
 
       <div className="side-card">

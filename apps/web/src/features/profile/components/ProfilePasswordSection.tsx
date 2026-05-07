@@ -8,6 +8,7 @@ import { PasswordStrengthHint } from "@/components/ui/PasswordStrengthHint";
 import { logError } from "@/lib/utils/logError";
 import { getApiErrorMessage } from "@/lib/api/apiErrors";
 import { ProfileSection } from "@/features/profile/components/ProfileSection";
+import { FormMessage } from "@/components/ui/FormMessage";
 import type {
   ChangePasswordErrors,
   ChangePasswordFields,
@@ -96,10 +97,7 @@ export function ProfilePasswordSection() {
 
   return (
     <ProfileSection title="Change password">
-      <div aria-live="polite" role="status">
-        {errors.server && <div className="form-alert">{errors.server}</div>}
-        {successMessage && <div className="form-success">{successMessage}</div>}
-      </div>
+      <FormMessage error={errors.server} success={successMessage} />
       <form noValidate onSubmit={handleSubmit}>
         <div className="field">
           <label htmlFor="pw-current">Current password</label>

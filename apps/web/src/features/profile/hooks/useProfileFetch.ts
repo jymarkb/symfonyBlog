@@ -13,22 +13,24 @@ export function useProfileFetch<T>(
 
   const fetcherRef = useRef(fetcher);
   const errorRef = useRef(errorMessage);
+  const mountedRef = useRef(true);
 
   const load = useCallback(async () => {
     try {
       const accessToken = await getAccessToken();
       const result = await fetcherRef.current(accessToken);
-      setData(result);
+      if (mountedRef.current) setData(result);
     } catch (err) {
       logError(err);
-      setError(errorRef.current);
+      if (mountedRef.current) setError(errorRef.current);
     } finally {
-      setIsLoading(false);
+      if (mountedRef.current) setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
     void load();
+    return () => { mountedRef.current = false; };
   }, [load]);
 
   return { data, isLoading, error };
