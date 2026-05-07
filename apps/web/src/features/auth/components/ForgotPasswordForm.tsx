@@ -30,8 +30,7 @@ export function ForgotPasswordForm() {
       setEmail("");
     } catch (error) {
       setErrors({
-        server:
-          error instanceof Error ? error.message : "Unable to send reset link.",
+        server: "Unable to send reset link. Please try again.",
       });
     } finally {
       setSubmitting(false);
@@ -41,7 +40,7 @@ export function ForgotPasswordForm() {
   if (sent) {
     return (
       <>
-        <div className="auth-confirm">
+        <div aria-live="polite" className="auth-confirm">
           <div aria-hidden="true" className="auth-confirm-mark">
             OK
           </div>
@@ -90,6 +89,8 @@ export function ForgotPasswordForm() {
         <div className="field">
           <label htmlFor="forgot-password-email">Email address</label>
           <input
+            aria-describedby="forgot-password-email-error"
+            aria-invalid={!!errors.email}
             autoComplete="email"
             className={errors.email ? "is-error" : ""}
             id="forgot-password-email"
@@ -104,7 +105,7 @@ export function ForgotPasswordForm() {
           <span className="hint">
             We'll send a one-time reset link to this address.
           </span>
-          {errors.email && <span className="field-error">{errors.email}</span>}
+          {errors.email && <span className="field-error" id="forgot-password-email-error">{errors.email}</span>}
         </div>
 
         <button

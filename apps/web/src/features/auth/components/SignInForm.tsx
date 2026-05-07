@@ -14,6 +14,9 @@ import {
   validateEmail,
   validatePassword,
 } from "@/features/auth/lib/validation";
+import {
+  getLastAuthProvider,
+} from "@/features/auth/lib/lastAuthProvider";
 
 export function SignInForm() {
   const [fields, setFields] = useState<SignInFields>({
@@ -24,6 +27,9 @@ export function SignInForm() {
   const [submitting, setSubmitting] = useState(false);
   const [socialSubmitting, setSocialSubmitting] =
     useState<SocialAuthProvider | null>(null);
+  const [lastUsedProvider] = useState<SocialAuthProvider | null>(
+    getLastAuthProvider,
+  );
 
   function set(field: keyof SignInFields) {
     return (e: ChangeEvent<HTMLInputElement>) => {
@@ -91,6 +97,7 @@ export function SignInForm() {
     <>
       <AuthProviderButtons
         disabled={submitting || socialSubmitting !== null}
+        lastUsedProvider={lastUsedProvider}
         loadingProvider={socialSubmitting}
         onProviderSelect={handleSocialSignIn}
       />
