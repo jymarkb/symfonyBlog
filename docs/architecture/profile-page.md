@@ -33,8 +33,15 @@ This document defines the structure, data flow, and implementation plan for the 
 10. Delete account                  done — ProfileService::deleteAccount (anonymise comments, delete post_views, delete user),
                                     ProfileController::destroy real implementation, ProfileDeleteAccountTest (6 cases),
                                     ProfileDangerZone wired with inline confirmation UI, deleteAccount API function and type
-11. Security review                 pending — ownership checks, rate limiting on profile mutations
-12. Cleanup                         pending — remove stubs, wire real data, remove disabled states
+11. Security review                 done — User::$fillable hardened (removed supabase_user_id/email/handle/role),
+                                    User::$hidden=['supabase_user_id'], AppServiceProvider uses explicit column
+                                    assignment, named rate limiters (profile-mutations 60/min, profile-delete 5/min),
+                                    throttle middleware on all PATCH/DELETE routes, role removed from ProfileResource,
+                                    avatar_url validation tightened to url:https, PublicProfileResource exposes id,
+                                    ProfileEndpointTest updated (role assertions removed, guest-PATCH added),
+                                    429 throttle tests added for PATCH and DELETE; 79 tests passing
+12. Cleanup                         done — removed stale role field from PrivateProfile type,
+                                    removed hardcoded Subscribed placeholder row from ProfileSidebar
 ```
 
 Frontend profile UI covers all eight components (`ProfileHead`, `ProfilePage`, `ProfilePasswordSection`, `ProfileCommentHistory`, `ProfileRecentlyViewed`, `ProfileDangerZone`, `ProfileSidebar`, `ProfileForm`), the full CSS port from `design/profile.html`, and session data displayed without extra fetches (`display_name`, `handle`, `avatar_url`, `created_at`).
