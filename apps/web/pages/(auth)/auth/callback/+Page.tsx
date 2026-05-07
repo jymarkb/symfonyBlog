@@ -112,7 +112,7 @@ export default function Page() {
 
   return (
     <AuthShell side={<CallbackSidePanel />} sidePlacement="start">
-      <div className="auth-callback">
+      <div className="auth-callback" aria-live="polite" aria-atomic="true">
         <div
           aria-hidden="true"
           className={status === "loading" ? "callback-mark is-loading" : "callback-mark is-error"}
