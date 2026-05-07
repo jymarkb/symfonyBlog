@@ -53,6 +53,6 @@ export async function startSocialAuth(provider: SocialAuthProvider) {
     });
 
     if (error) {
-        throw new Error(error.message);
+        throw new Error("We were unable to sign in with the selected provider. Please try again.");
     }
 }

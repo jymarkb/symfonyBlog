@@ -33,7 +33,10 @@ export function validateProfileFields(
 
   if (avatarUrl) {
     try {
-      new URL(avatarUrl);
+      const parsedUrl = new URL(avatarUrl);
+      if (parsedUrl.protocol !== 'https:') {
+        errors.avatar_url = "Avatar URL must use HTTPS.";
+      }
     } catch {
       errors.avatar_url = "Enter a valid URL.";
     }
