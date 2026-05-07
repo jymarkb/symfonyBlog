@@ -13,7 +13,11 @@ export function ProfileCommentHistory() {
 
   const load = useCallback(async () => {
     const { data, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !data.session?.access_token) return;
+    if (sessionError || !data.session?.access_token) {
+      setError("Unable to load comment history.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const result = await fetchProfileComments(data.session.access_token);
