@@ -23,10 +23,10 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/profile/reading-history', [ProfileReadingHistoryController::class, 'index']);
         Route::get('/profile/comments', [ProfileCommentController::class, 'index']);
-        Route::patch('/profile/notifications', [ProfileNotificationController::class, 'update']);
+        Route::patch('/profile/notifications', [ProfileNotificationController::class, 'update'])->middleware('throttle:profile-mutations');
         Route::get('/profile', [ProfileController::class, 'show']);
-        Route::patch('/profile', [ProfileController::class, 'update']);
-        Route::delete('/profile', [ProfileController::class, 'destroy']);
+        Route::patch('/profile', [ProfileController::class, 'update'])->middleware('throttle:profile-mutations');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware('throttle:profile-delete');
 
         Route::middleware('admin')->prefix('admin')->group(function () {
             Route::get('/posts', [PostController::class, 'index']);
