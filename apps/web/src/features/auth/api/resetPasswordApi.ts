@@ -17,6 +17,8 @@ export async function startPasswordRecoverySession() {
   const hashAccessToken = hashParams.get("access_token");
   const hashRefreshToken = hashParams.get("refresh_token");
 
+  window.history.replaceState({}, document.title, "/reset-password");
+
   if (!authCode && !(hashAccessToken && hashRefreshToken)) {
     throw new Error("This reset link is invalid or has expired. Please request a new one.");
   }
@@ -41,8 +43,6 @@ export async function startPasswordRecoverySession() {
   if (error || !data.session?.access_token) {
     throw new Error("We could not verify this reset link. Please request a new one.");
   }
-
-  window.history.replaceState({}, document.title, "/reset-password");
 }
 
 export async function updatePassword(newPassword: string) {
