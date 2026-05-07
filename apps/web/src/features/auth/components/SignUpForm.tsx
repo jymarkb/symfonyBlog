@@ -295,6 +295,8 @@ export function SignUpForm() {
 
         <label className="check-row">
           <input
+            aria-describedby={errors.terms ? "signup-terms-error" : undefined}
+            aria-invalid={!!errors.terms}
             checked={fields.terms}
             onChange={(e) => setField("terms", e.target.checked)}
             type="checkbox"
@@ -305,7 +307,7 @@ export function SignUpForm() {
             whole policy.
           </span>
         </label>
-        {errors.terms && <span className="field-error">{errors.terms}</span>}
+        {errors.terms && <span className="field-error" id="signup-terms-error">{errors.terms}</span>}
 
         <button
           className="btn btn-primary submit-btn"
