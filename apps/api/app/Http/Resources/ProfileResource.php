@@ -17,7 +17,6 @@ class ProfileResource extends JsonResource
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'avatar_url' => $this->avatar_url,
-            'role' => $this->role,
             'created_at' => $this->created_at?->toISOString(),
             'comments_count' => $this->comments_count ?? 0,
             'posts_read_count' => $this->post_views_count ?? 0,
