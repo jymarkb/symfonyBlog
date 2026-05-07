@@ -48,6 +48,7 @@ export default function Page() {
 
         if (error) {
           console.error(error);
+          clearPendingAuthProvider();
           showError("We were unable to sign you in. Please try again.");
           return;
         }
@@ -59,6 +60,7 @@ export default function Page() {
 
         if (error) {
           console.error(error);
+          clearPendingAuthProvider();
           showError("We were unable to sign you in. Please try again.");
           return;
         }
@@ -68,11 +70,13 @@ export default function Page() {
 
       if (error) {
         console.error(error);
+        clearPendingAuthProvider();
         showError("We were unable to sign you in. Please try again.");
         return;
       }
 
       if (!data.session?.access_token) {
+        clearPendingAuthProvider();
         showError("No auth session was found. Please sign in again.");
         return;
       }
@@ -95,6 +99,7 @@ export default function Page() {
     }
 
     finishAuth().catch(() => {
+      clearPendingAuthProvider();
       showError(
         "Unable to connect this session to the API. Please sign in again.",
       );
