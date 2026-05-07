@@ -1,6 +1,7 @@
 import { useCurrentSession } from "@/features/auth/session";
+import type { ProfileSidebarProps } from "@/features/profile/profileTypes";
 
-export function ProfileSidebar() {
+export function ProfileSidebar({ profile }: ProfileSidebarProps) {
   const { user } = useCurrentSession();
 
   const memberSince = user?.created_at
@@ -17,11 +18,15 @@ export function ProfileSidebar() {
         <div>
           <div className="stat-row">
             <span className="label">Posts read</span>
-            <span className="value">—</span>
+            <span className="value">
+              {profile ? profile.posts_read_count : "—"}
+            </span>
           </div>
           <div className="stat-row">
             <span className="label">Comments written</span>
-            <span className="value">—</span>
+            <span className="value">
+              {profile ? profile.comments_count : "—"}
+            </span>
           </div>
           <div className="stat-row">
             <span className="label">Member since</span>

@@ -19,6 +19,8 @@ class ProfileResource extends JsonResource
             'avatar_url' => $this->avatar_url,
             'role' => $this->role,
             'created_at' => $this->created_at?->toISOString(),
+            'comments_count' => 0,
+            'posts_read_count' => 0
         ];
     }
 }
