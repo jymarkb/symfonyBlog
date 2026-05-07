@@ -27,7 +27,7 @@ export function ProfileForm({
       <h2>Account</h2>
 
       {errors.server && <div className="form-alert">{errors.server}</div>}
-      {successMessage && <div className="form-alert">{successMessage}</div>}
+      {successMessage && <div className="form-success">{successMessage}</div>}
 
       <div className="field">
         <label htmlFor="profile-display-name">Display name</label>

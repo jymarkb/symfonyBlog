@@ -653,6 +653,24 @@
     color: oklch(0.78 0.12 25);
     border-color: oklch(0.38 0.12 25);
   }
+
+  .form-success {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border: 1px solid oklch(0.55 0.18 145);
+    border-radius: 6px;
+    background: oklch(0.96 0.04 145);
+    color: oklch(0.42 0.18 145);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  :root[data-mode="dark"] .form-success {
+    background: oklch(0.22 0.06 145);
+    color: oklch(0.78 0.12 145);
+    border-color: oklch(0.38 0.12 145);
+  }
 }
 
 @media (max-width: 880px) {

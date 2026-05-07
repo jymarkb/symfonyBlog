@@ -112,7 +112,7 @@ export function ResetPasswordForm() {
 
   return (
     <div aria-live="polite" role="status">
-      <div className="form-alert">{errors.server ?? ""}</div>
+      {errors.server && <div className="form-alert">{errors.server}</div>}
 
       {!isReady ? (
         <>
