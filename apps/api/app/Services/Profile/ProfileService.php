@@ -3,6 +3,7 @@
 namespace App\Services\Profile;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 
 class ProfileService
 {
@@ -27,5 +28,14 @@ class ProfileService
         $user->fill($data)->save();
 
         return $user->refresh();
+    }
+
+    public function getCommentHistory(User $user, int $limit = 10): Collection
+    {
+        return $user->comments()
+            ->with('post')
+            ->latest()
+            ->limit($limit)
+            ->get();
     }
 }

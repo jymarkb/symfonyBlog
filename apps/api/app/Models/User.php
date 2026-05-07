@@ -34,6 +34,15 @@ class User extends Authenticatable
 
     protected $hidden = [];
 
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     protected function casts(): array
     {
         return [

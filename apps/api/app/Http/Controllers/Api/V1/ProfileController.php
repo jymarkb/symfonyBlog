@@ -11,7 +11,7 @@ class ProfileController extends Controller
 {
     public function show(Request $request): ProfileResource
     {
-        return new ProfileResource($request->user());
+        return new ProfileResource($request->user()->loadCount('posts','comments'));
     }
 
     public function update(Request $request, ProfileService $profiles): ProfileResource
