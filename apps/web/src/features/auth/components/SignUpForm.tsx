@@ -10,12 +10,12 @@ import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
 import { AuthProviderButtons } from "@/features/auth/components/AuthProviderButtons";
 import {
   passwordStrength,
-  strengthLabel,
   validateDisplayName,
   validateEmail,
   validateHandle,
   validateNewPassword,
 } from "@/features/auth/lib/validation";
+import { PasswordStrengthHint } from "@/components/ui/PasswordStrengthHint";
 import {
   formatAuthProvider,
   getLastAuthProvider,
@@ -275,20 +275,7 @@ export function SignUpForm() {
             type="password"
             value={fields.password}
           />
-          {fields.password && (
-            <>
-              <div aria-hidden="true" className={`strength s-${strength}`}>
-                <i />
-                <i />
-                <i />
-                <i />
-              </div>
-              <span className="hint">
-                Strength: {strengthLabel(strength)}.
-                {strength < 3 ? " Try a passphrase." : strength === 4 ? " Excellent!" : " Nice."}
-              </span>
-            </>
-          )}
+          <PasswordStrengthHint password={fields.password} strength={strength} />
           {errors.password && (
             <span className="field-error" id="signup-password-error">{errors.password}</span>
           )}

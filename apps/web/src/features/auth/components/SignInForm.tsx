@@ -8,8 +8,9 @@ import type {
 } from "@/features/auth/authTypes";
 import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
 import { AuthProviderButtons } from "@/features/auth/components/AuthProviderButtons";
-import { ApiError } from "@/lib/api/apiClient";
 import { startSocialAuth } from "@/features/auth/api/registerApi";
+import { logError } from "@/lib/utils/logError";
+import { getApiErrorMessage } from "@/lib/api/apiErrors";
 import { signInWithEmail } from "@/features/auth/api/signInApi";
 import {
   validateEmail,
@@ -70,11 +71,9 @@ export function SignInForm() {
 
       window.location.replace("/");
     } catch (error) {
-      console.error(error);
+      logError(error);
       setErrors({
-        server: error instanceof ApiError && error.status === 429
-          ? "Too many sign-in attempts. Please wait a moment and try again."
-          : "We couldn't sign you in. Please try again.",
+        server: getApiErrorMessage(error, "We couldn't sign you in. Please try again."),
       });
       setSubmitting(false);
     }
@@ -87,7 +86,7 @@ export function SignInForm() {
     try {
       await startSocialAuth(provider);
     } catch (error) {
-      console.error(error);
+      logError(error);
       setErrors({
         server: "We were unable to sign in with the selected provider. Please try again.",
       });
