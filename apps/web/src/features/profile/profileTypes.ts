@@ -13,7 +13,6 @@ export type PrivateProfile = {
     first_name: string | null;
     last_name: string | null;
     avatar_url: string | null;
-    role: string;
     created_at?: string | null;
     comments_count: number;
     posts_read_count: number;
