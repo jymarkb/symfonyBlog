@@ -106,9 +106,21 @@ class AppServiceProvider extends ServiceProvider
                 try {
                     $user->save();
                 } catch (UniqueConstraintViolationException $e) {
-                    // Concurrent request inserted the same handle — re-derive with a suffix
-                    $user->handle = $this->resolveHandle($userMetadata, $email);
-                    $user->save();
+                    $msg = $e->getMessage();
+                    if (str_contains($msg, 'users_email') || str_contains($msg, 'users_supabase_user_id')) {
+                        // Race: another request already provisioned this user — fetch it
+                        $user = User::where('supabase_user_id', $claims->sub)->first()
+                            ?? User::where('email', $email)->firstOrFail();
+                    } else {
+                        // Handle collision — re-derive and retry once more
+                        $user->handle = $this->resolveHandle($userMetadata, $email);
+                        try {
+                            $user->save();
+                        } catch (UniqueConstraintViolationException) {
+                            $user->handle = '@'.substr('user', 0, 13).'_'.substr(str_replace('-', '', Str::uuid()), 0, 6);
+                            $user->save();
+                        }
+                    }
                 }
 
                 return $user;

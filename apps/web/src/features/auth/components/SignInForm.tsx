@@ -103,7 +103,7 @@ export function SignInForm() {
 
       <div className="divider">or with email</div>
 
-      <div aria-live="polite" role="alert" className="form-alert">
+      <div aria-live="polite" role="status" className="form-alert">
         {errors.server ?? ""}
       </div>
 
