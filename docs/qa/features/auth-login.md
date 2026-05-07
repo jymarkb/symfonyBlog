@@ -38,6 +38,11 @@ Apply the master checklist at `docs/setup/qa-checklist.md`. Sections relevant to
 - `SignInForm` inputs missing `aria-invalid` + `aria-describedby` pointing to error span IDs
 - Added 429-specific message: "Too many sign-in attempts. Please wait a moment and try again." (was generic catch-all)
 
+### Cycle 2 — 2026-05-07
+
+**Fixed:**
+- `signInApi.ts`: Supabase-level 429 from `signInWithPassword` was re-thrown as a plain `Error`, bypassing the `instanceof ApiError` check in `handleSubmit`. Now detects `error.status === 429` before re-throwing and emits `ApiError(429)` so the 429-specific message fires correctly.
+
 ## Known Limitations / Deferred Items
 
 - **WARN — Session rate limiter keys by IP only** (`AppServiceProvider:48`). Could key by `user?.id ?: ip` for more precise per-user throttling. Intentional for now (throttles unauthenticated probing).

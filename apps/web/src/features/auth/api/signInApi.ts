@@ -1,3 +1,4 @@
+import { ApiError } from "@/lib/api/apiClient";
 import { fetchCurrentUser } from "@/features/auth/api/currentUserApi";
 import { supabase } from "@/lib/auth/supabaseClient";
 import type { SignInInput } from "@/features/auth/authTypes";
@@ -9,6 +10,9 @@ export async function signInWithEmail(params: SignInInput) {
   });
 
   if (error) {
+    if ((error as { status?: number }).status === 429) {
+      throw new ApiError("Rate limited.", 429);
+    }
     throw new Error("We couldn't sign you in with those details.");
   }
 
