@@ -285,7 +285,7 @@ export function SignUpForm() {
               </div>
               <span className="hint">
                 Strength: {strengthLabel(strength)}.
-                {strength < 3 ? " Try a passphrase." : " Nice."}
+                {strength < 3 ? " Try a passphrase." : strength === 4 ? " Excellent!" : " Nice."}
               </span>
             </>
           )}

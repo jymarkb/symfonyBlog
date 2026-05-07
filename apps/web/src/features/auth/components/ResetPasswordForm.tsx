@@ -12,6 +12,7 @@ import {
   startPasswordRecoverySession,
   updatePassword,
 } from "@/features/auth/api/resetPasswordApi";
+import { ApiError } from "@/lib/api/apiClient";
 import {
   passwordStrength,
   strengthLabel,
@@ -83,9 +84,11 @@ export function ResetPasswordForm() {
     try {
       await updatePassword(fields.password);
     } catch (error) {
-      console.error(error);
+      console.error(error instanceof Error ? error.message : error);
       setErrors({
-        server: "We were unable to update your password. Please try again.",
+        server: error instanceof ApiError && error.status === 429
+          ? "Too many requests. Please wait a moment and try again."
+          : "We were unable to update your password. Please try again.",
       });
       setSubmitting(false);
       return;
@@ -94,7 +97,7 @@ export function ResetPasswordForm() {
     try {
       await signOutAfterPasswordUpdate();
     } catch (error) {
-      console.error(error);
+      console.error(error instanceof Error ? error.message : error);
       setErrors({
         server:
           "Your password was updated but we could not sign you out. Please close all browser tabs and sign in again.",
@@ -162,7 +165,7 @@ export function ResetPasswordForm() {
                   </div>
                   <span className="hint">
                     Strength: {strengthLabel(strength)}.
-                    {strength < 3 ? " Try a passphrase." : " Nice."}
+                    {strength < 3 ? " Try a passphrase." : strength === 4 ? " Excellent!" : " Nice."}
                   </span>
                 </>
               )}

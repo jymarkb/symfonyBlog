@@ -40,12 +40,31 @@ it('returns admin permissions for admins', function () {
         ->assertJsonPath('data.permissions.moderate_comments', true);
 });
 
+it('returns only the signed-in user data, not another user', function () {
+    $userA = User::factory()->create(['email' => 'a@example.com']);
+    $userB = User::factory()->create(['email' => 'b@example.com']);
+
+    $idFromA = $this->actingAs($userA, 'api')
+        ->getJson('/api/v1/session')
+        ->assertOk()
+        ->json('data.user.id');
+
+    $idFromB = $this->actingAs($userB, 'api')
+        ->getJson('/api/v1/session')
+        ->assertOk()
+        ->json('data.user.id');
+
+    expect($idFromA)->toBe($userA->id)
+        ->and($idFromB)->toBe($userB->id)
+        ->and($idFromA)->not->toBe($idFromB);
+});
+
 it('returns 429 when the session rate limit is exceeded', function () {
     $user = User::factory()->create();
 
     // ThrottleRequests hashes named limiter keys as md5($limiterName . $limitKey).
-    // The session limiter keys by IP address, so pre-fill the bucket using the test IP.
-    $cacheKey = md5('session' . '127.0.0.1');
+    // The session limiter keys by user ID when authenticated.
+    $cacheKey = md5('session' . $user->getKey());
     for ($i = 0; $i < 60; $i++) {
         \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
     }

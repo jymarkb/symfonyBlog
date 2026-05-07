@@ -6,6 +6,7 @@ import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
 import { ForgotPasswordIntro } from "@/features/auth/components/ForgotPasswordIntro";
 import { validateEmail } from "@/features/auth/lib/validation";
 import { sendPasswordResetEmail } from "@/features/auth/api/resetPasswordApi";
+import { ApiError } from "@/lib/api/apiClient";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -29,9 +30,11 @@ export function ForgotPasswordForm() {
       setSent(true);
       setEmail("");
     } catch (error) {
-      console.error(error);
+      console.error(error instanceof Error ? error.message : error);
       setErrors({
-        server: "Unable to send reset link. Please try again.",
+        server: error instanceof ApiError && error.status === 429
+          ? "Too many requests. Please wait a moment and try again."
+          : "Unable to send reset link. Please try again.",
       });
     } finally {
       setSubmitting(false);
@@ -89,8 +92,9 @@ export function ForgotPasswordForm() {
               <label htmlFor="forgot-password-email">Email address</label>
               <input
                 aria-describedby={errors.email ? "forgot-password-email-error" : undefined}
-                aria-invalid={!!errors.email}
+                aria-invalid={errors.email ? true : undefined}
                 autoComplete="email"
+                maxLength={254}
                 className={errors.email ? "is-error" : ""}
                 id="forgot-password-email"
                 onChange={(e) => {

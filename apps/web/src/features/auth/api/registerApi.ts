@@ -18,7 +18,11 @@ export async function registerWithEmail(params: RegisterInput) {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
             data: {
                 display_name: params.displayName,
-                handle: (() => { const h = params.handle.trim().toLowerCase(); return h.startsWith('@') ? h : `@${h}`; })(),
+                handle: (() => {
+                    const raw = params.handle.trim().toLowerCase().replace(/^@/, '');
+                    const base = raw.replace(/[^a-z0-9_]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 19);
+                    return '@' + base;
+                })(),
             },
         },
     });

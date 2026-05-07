@@ -46,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('session', function (Request $request) {
-            return Limit::perMinute(60)->by($request->ip());
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
         RateLimiter::for('auth-read', function (Request $request) {
@@ -79,18 +79,18 @@ class AppServiceProvider extends ServiceProvider
                 return null;
             }
 
-            $userMetadata = $claims->user_metadata ?? null;
+            $meta  = (array) ($claims->user_metadata ?? []);
             $email = $claims->email ?? '';
 
-            return DB::transaction(function () use ($claims, $email, $userMetadata) {
+            return DB::transaction(function () use ($claims, $email, $meta) {
                 $user = User::where('supabase_user_id', $claims->sub)->lockForUpdate()->first()
                     ?? User::where('email', $email)->lockForUpdate()->first();
 
                 if ($user) {
                     $user->supabase_user_id = $user->supabase_user_id ?? $claims->sub;
-                    $user->handle           = $user->handle ?? $this->resolveHandle($userMetadata, $email, $user);
-                    $user->display_name     = $user->display_name ?? $userMetadata?->display_name ?? $userMetadata?->full_name;
-                    $user->avatar_url       = $user->avatar_url ?? $userMetadata?->avatar_url ?? $userMetadata?->picture;
+                    $user->handle           = $user->handle ?? $this->resolveHandle($meta, $email, $user);
+                    $user->display_name     = $user->display_name ?? substr((string) ($meta['display_name'] ?? $meta['full_name'] ?? ''), 0, 120) ?: null;
+                    $user->avatar_url       = $user->avatar_url ?? $meta['avatar_url'] ?? $meta['picture'] ?? null;
                     $user->save();
 
                     return $user;
@@ -99,21 +99,19 @@ class AppServiceProvider extends ServiceProvider
                 $user = new User();
                 $user->supabase_user_id = $claims->sub;
                 $user->email            = $email;
-                $user->handle           = $this->resolveHandle($userMetadata, $email);
-                $user->display_name     = $userMetadata?->display_name ?? $userMetadata?->full_name;
-                $user->avatar_url       = $userMetadata?->avatar_url ?? $userMetadata?->picture;
+                $user->handle           = $this->resolveHandle($meta, $email);
+                $user->display_name     = substr((string) ($meta['display_name'] ?? $meta['full_name'] ?? ''), 0, 120) ?: null;
+                $user->avatar_url       = $meta['avatar_url'] ?? $meta['picture'] ?? null;
                 $user->role             = 'user';
                 try {
                     $user->save();
                 } catch (UniqueConstraintViolationException $e) {
                     $msg = $e->getMessage();
                     if (str_contains($msg, 'users_email') || str_contains($msg, 'users_supabase_user_id')) {
-                        // Race: another request already provisioned this user — fetch it
                         $user = User::where('supabase_user_id', $claims->sub)->first()
                             ?? User::where('email', $email)->firstOrFail();
                     } else {
-                        // Handle collision — re-derive and retry once more
-                        $user->handle = $this->resolveHandle($userMetadata, $email);
+                        $user->handle = $this->resolveHandle($meta, $email);
                         try {
                             $user->save();
                         } catch (UniqueConstraintViolationException) {
@@ -128,13 +126,13 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 
-    private function resolveHandle(?object $userMetadata, string $email, ?User $currentUser = null): string
+    private function resolveHandle(array $meta, string $email, ?User $currentUser = null): string
     {
-        $source = $userMetadata?->handle
-            ?? $userMetadata?->user_name
-            ?? $userMetadata?->preferred_username
-            ?? $userMetadata?->full_name
-            ?? $userMetadata?->name
+        $source = $meta['handle']
+            ?? $meta['user_name']
+            ?? $meta['preferred_username']
+            ?? $meta['full_name']
+            ?? $meta['name']
             ?? Str::before($email, '@')
             ?? 'user';
 
