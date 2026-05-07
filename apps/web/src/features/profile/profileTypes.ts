@@ -7,12 +7,10 @@ export type UpdateNotificationsPayload = {
 
 export type PrivateProfile = {
     id: number;
-    email: string;
     handle: string;
     display_name: string | null;
     first_name: string | null;
     last_name: string | null;
-    avatar_url: string | null;
     created_at?: string | null;
     comments_count: number;
     posts_read_count: number;
@@ -28,7 +26,6 @@ export type ProfileFormFields = {
     display_name: string;
     first_name: string;
     last_name: string;
-    avatar_url: string;
 };
 
 export type ProfileFormErrors = Partial<Record<keyof ProfileFormFields, string>> & {
@@ -39,7 +36,6 @@ export type ProfileFormSubmitInput = {
     display_name: string | null;
     first_name: string | null;
     last_name: string | null;
-    avatar_url: string | null;
 };
 
 export type ProfileFormProps = {
@@ -48,7 +44,6 @@ export type ProfileFormProps = {
     isSubmitting: boolean;
     onChange: (field: keyof ProfileFormFields, value: string) => void;
     onSubmit: () => void | Promise<void>;
-    profile: PrivateProfile;
     successMessage: string | null;
 };
 

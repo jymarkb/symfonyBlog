@@ -26,8 +26,9 @@ it('returns the signed-in user private profile', function () {
         ->getJson('/api/v1/profile')
         ->assertOk()
         ->assertJsonPath('data.id', $user->id)
-        ->assertJsonPath('data.email', 'reader@example.com')
         ->assertJsonPath('data.display_name', 'Reader One')
+        ->assertJsonMissingPath('data.email')
+        ->assertJsonMissingPath('data.avatar_url')
         ->assertJsonMissingPath('data.role')
         ->assertJsonMissingPath('data.supabase_user_id');
 });

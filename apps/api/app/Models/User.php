@@ -27,7 +27,6 @@ class User extends Authenticatable
         'display_name',
         'first_name',
         'last_name',
-        'avatar_url',
         'notify_comment_replies',
         'notify_new_posts',
     ];

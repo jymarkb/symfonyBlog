@@ -1,7 +1,11 @@
 import { useCurrentSession } from '@/features/auth/session';
 
 export function ProfileHead() {
-  const { user } = useCurrentSession();
+  const { user, isLoading } = useCurrentSession();
+
+  if (isLoading) {
+    return <div className="shell"><div className="profile-head" /></div>;
+  }
 
   const displayName = user?.display_name ?? user?.handle?.replace(/^@/, '') ?? 'User';
   const handle = user?.handle ?? '';
