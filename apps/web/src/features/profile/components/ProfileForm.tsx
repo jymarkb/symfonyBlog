@@ -103,6 +103,7 @@ export function ProfileForm({
       <div className="field">
         <label htmlFor="profile-email">Email address</label>
         <input
+          autoComplete="email"
           id="profile-email"
           readOnly
           style={{ opacity: 0.6, cursor: 'default' }}

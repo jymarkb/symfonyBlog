@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { supabase } from "@/lib/auth/supabaseClient";
+import { getAccessToken } from "@/lib/auth/getAccessToken";
 import { logError } from "@/lib/utils/logError";
 
 export function useProfileFetch<T>(
@@ -15,16 +15,9 @@ export function useProfileFetch<T>(
   const errorRef = useRef(errorMessage);
 
   const load = useCallback(async () => {
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-
-    if (sessionError || !sessionData.session?.access_token) {
-      setError(errorRef.current);
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const result = await fetcherRef.current(sessionData.session.access_token);
+      const accessToken = await getAccessToken();
+      const result = await fetcherRef.current(accessToken);
       setData(result);
     } catch (err) {
       logError(err);

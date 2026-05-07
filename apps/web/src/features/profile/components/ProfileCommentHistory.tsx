@@ -2,6 +2,7 @@ import type { ProfileComment } from "@/features/profile/profileTypes";
 import { fetchProfileComments } from "@/features/profile/api/profileApi";
 import { useProfileFetch } from "@/features/profile/hooks/useProfileFetch";
 import { ProfilePlaceholder } from "@/features/profile/components/ProfilePlaceholder";
+import { ProfileSection } from "@/features/profile/components/ProfileSection";
 import CommentList from "./comment/list";
 
 export function ProfileCommentHistory() {
@@ -12,37 +13,33 @@ export function ProfileCommentHistory() {
 
   if (isLoading) {
     return (
-      <div className="profile-section">
-        <h2>Comment history</h2>
+      <ProfileSection title="Comment history">
         <ProfilePlaceholder>Loading…</ProfilePlaceholder>
-      </div>
+      </ProfileSection>
     );
   }
 
   if (error) {
     return (
-      <div className="profile-section">
-        <h2>Comment history</h2>
+      <ProfileSection title="Comment history">
         <ProfilePlaceholder>{error}</ProfilePlaceholder>
-      </div>
+      </ProfileSection>
     );
   }
 
   if (comments.length === 0) {
     return (
-      <div className="profile-section">
-        <h2>Comment history</h2>
+      <ProfileSection title="Comment history">
         <ProfilePlaceholder>
           No comments yet. Join the conversation on any post.
         </ProfilePlaceholder>
-      </div>
+      </ProfileSection>
     );
   }
 
   return (
-    <div className="profile-section">
-      <h2>Comment history</h2>
+    <ProfileSection title="Comment history">
       <CommentList commentList={comments} />
-    </div>
+    </ProfileSection>
   );
 }
