@@ -43,6 +43,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->ip());
         });
 
+        RateLimiter::for('session', function (Request $request) {
+            return Limit::perMinute(60)->by($request->ip());
+        });
+
         Auth::viaRequest('supabase', function (Request $request) {
             $token = $request->bearerToken();
 

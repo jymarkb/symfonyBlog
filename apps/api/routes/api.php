@@ -19,7 +19,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/profiles/{handle}', [PublicProfileController::class, 'show'])->middleware('throttle:public-api');
 
     Route::middleware('auth:api')->group(function () {
-        Route::get('/session', [SessionController::class, 'show']);
+        Route::get('/session', [SessionController::class, 'show'])->middleware('throttle:session');
 
         Route::get('/profile/reading-history', [ProfileReadingHistoryController::class, 'index']);
         Route::get('/profile/comments', [ProfileCommentController::class, 'index']);
