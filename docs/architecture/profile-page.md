@@ -27,7 +27,9 @@ This document defines the structure, data flow, and implementation plan for the 
                                     ProfileReadingHistoryItem types, fetchReadingHistory(), ProfileRecentlyViewed wired;
                                     ProfileResource posts_read_count now live from postViews loadCount
 9. Notifications                    pending — UI stub only; no backend endpoint yet
-10. Delete account                  pending — UI stub only; DELETE /api/v1/profile not wired
+10. Delete account                  done — ProfileService::deleteAccount (anonymise comments, delete post_views, delete user),
+                                    ProfileController::destroy real implementation, ProfileDeleteAccountTest (6 cases),
+                                    ProfileDangerZone wired with inline confirmation UI, deleteAccount API function and type
 11. Security review                 pending — ownership checks, rate limiting on profile mutations
 12. Cleanup                         pending — remove stubs, wire real data, remove disabled states
 ```
