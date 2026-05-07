@@ -29,6 +29,7 @@ export function useProfileFetch<T>(
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     void load();
     return () => { mountedRef.current = false; };
   }, [load]);

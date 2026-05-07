@@ -23,7 +23,6 @@ export function ProfilePasswordSection() {
   });
   const [errors, setErrors] = useState<ChangePasswordErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const strength = passwordStrength(fields.newPassword);
 
@@ -83,8 +82,7 @@ export function ProfilePasswordSection() {
 
       await updatePassword(fields.newPassword);
       await signOut();
-      setSuccessMessage("Password updated. Signing you out…");
-      setTimeout(() => window.location.replace("/signin"), 1500);
+      window.location.replace("/signin");
     } catch (error) {
       logError(error);
       setErrors({
@@ -97,7 +95,7 @@ export function ProfilePasswordSection() {
 
   return (
     <ProfileSection title="Change password">
-      <FormMessage error={errors.server} success={successMessage} />
+      <FormMessage error={errors.server} />
       <form noValidate onSubmit={handleSubmit}>
         <div className="field">
           <label htmlFor="pw-current">Current password</label>
@@ -116,44 +114,42 @@ export function ProfilePasswordSection() {
             <span className="field-error" id="pw-current-error">{errors.currentPassword}</span>
           )}
         </div>
-        <div className="field-row">
-          <div className="field">
-            <label htmlFor="pw-new">New password</label>
-            <input
-              aria-describedby={errors.newPassword ? "pw-new-error" : undefined}
-              aria-invalid={errors.newPassword ? true : undefined}
-              autoComplete="new-password"
-              className={errors.newPassword ? "is-error" : ""}
-              id="pw-new"
-              maxLength={72}
-              onChange={(e) => handleChange("newPassword", e.target.value)}
-              placeholder="At least 12 characters"
-              type="password"
-              value={fields.newPassword}
-            />
-            <PasswordStrengthHint password={fields.newPassword} strength={strength} />
-            {errors.newPassword && (
-              <span className="field-error" id="pw-new-error">{errors.newPassword}</span>
-            )}
-          </div>
-          <div className="field">
-            <label htmlFor="pw-confirm">Confirm new password</label>
-            <input
-              aria-describedby={errors.confirmPassword ? "pw-confirm-error" : undefined}
-              aria-invalid={errors.confirmPassword ? true : undefined}
-              autoComplete="new-password"
-              className={errors.confirmPassword ? "is-error" : ""}
-              id="pw-confirm"
-              maxLength={72}
-              onChange={(e) => handleChange("confirmPassword", e.target.value)}
-              placeholder="Repeat new password"
-              type="password"
-              value={fields.confirmPassword}
-            />
-            {errors.confirmPassword && (
-              <span className="field-error" id="pw-confirm-error">{errors.confirmPassword}</span>
-            )}
-          </div>
+        <div className="field">
+          <label htmlFor="pw-new">New password</label>
+          <input
+            aria-describedby={errors.newPassword ? "pw-new-error" : undefined}
+            aria-invalid={errors.newPassword ? true : undefined}
+            autoComplete="new-password"
+            className={errors.newPassword ? "is-error" : ""}
+            id="pw-new"
+            maxLength={72}
+            onChange={(e) => handleChange("newPassword", e.target.value)}
+            placeholder="At least 12 characters"
+            type="password"
+            value={fields.newPassword}
+          />
+          <PasswordStrengthHint password={fields.newPassword} strength={strength} />
+          {errors.newPassword && (
+            <span className="field-error" id="pw-new-error">{errors.newPassword}</span>
+          )}
+        </div>
+        <div className="field">
+          <label htmlFor="pw-confirm">Confirm new password</label>
+          <input
+            aria-describedby={errors.confirmPassword ? "pw-confirm-error" : undefined}
+            aria-invalid={errors.confirmPassword ? true : undefined}
+            autoComplete="new-password"
+            className={errors.confirmPassword ? "is-error" : ""}
+            id="pw-confirm"
+            maxLength={72}
+            onChange={(e) => handleChange("confirmPassword", e.target.value)}
+            placeholder="Repeat new password"
+            type="password"
+            value={fields.confirmPassword}
+          />
+          {errors.confirmPassword && (
+            <span className="field-error" id="pw-confirm-error">{errors.confirmPassword}</span>
+          )}
         </div>
         <button className="btn" disabled={isSubmitting} type="submit">
           {isSubmitting ? "Updating…" : "Update password"}

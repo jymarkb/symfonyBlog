@@ -28,7 +28,7 @@ export function ProfileDangerZone() {
       const accessToken = await getAccessToken();
       await deleteAccount(accessToken);
       await supabase.auth.signOut();
-      window.location.replace("/");
+      window.location.replace("/signin");
     } catch (error) {
       logError(error);
       setError("Failed to delete account. Please try again.");
