@@ -6,7 +6,7 @@ import type {
   ResetPasswordFields,
 } from "@/features/auth/authTypes";
 import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
-import { ResetPasswordIntro } from "@/features/auth/components/ResetPasswordIntro";
+import { AuthIntro } from "@/components/ui/AuthIntro";
 import {
   signOutAfterPasswordUpdate,
   startPasswordRecoverySession,
@@ -137,14 +137,19 @@ export function ResetPasswordForm() {
         </>
       ) : (
         <>
-          <ResetPasswordIntro />
+          <AuthIntro
+              eyebrow="Set a new password"
+              heading="Choose a new"
+              em="password"
+              lede="Pick something long and unique. This will replace your old password immediately."
+            />
 
           <form noValidate onSubmit={handleSubmit}>
             <div className="field">
               <label htmlFor="reset-password">New password</label>
               <input
                 aria-describedby={errors.password ? "reset-new-password-error" : undefined}
-                aria-invalid={!!errors.password}
+                aria-invalid={errors.password ? true : undefined}
                 autoComplete="new-password"
                 className={errors.password ? "is-error" : ""}
                 id="reset-password"
@@ -164,7 +169,7 @@ export function ResetPasswordForm() {
               <label htmlFor="reset-password-confirm">Confirm password</label>
               <input
                 aria-describedby={errors.confirmPassword ? "reset-confirm-password-error" : undefined}
-                aria-invalid={!!errors.confirmPassword}
+                aria-invalid={errors.confirmPassword ? true : undefined}
                 autoComplete="new-password"
                 className={errors.confirmPassword ? "is-error" : ""}
                 id="reset-password-confirm"

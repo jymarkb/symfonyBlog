@@ -114,7 +114,7 @@ export function SignInForm() {
           <label htmlFor="signin-email">Email</label>
           <input
             aria-describedby={errors.email ? "signin-email-error" : undefined}
-            aria-invalid={!!errors.email}
+            aria-invalid={errors.email ? true : undefined}
             autoComplete="email"
             className={errors.email ? "is-error" : ""}
             id="signin-email"
@@ -132,7 +132,7 @@ export function SignInForm() {
           </label>
           <input
             aria-describedby={errors.password ? "signin-password-error" : undefined}
-            aria-invalid={!!errors.password}
+            aria-invalid={errors.password ? true : undefined}
             autoComplete="current-password"
             className={errors.password ? "is-error" : ""}
             id="signin-password"
