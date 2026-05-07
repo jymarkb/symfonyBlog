@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
 
 import type { ProfileFormFields, ProfileFormProps } from '@/features/profile/profileTypes';
+import { useCurrentSession } from '@/features/auth/session';
 
 export function ProfileForm({
   errors,
@@ -8,9 +9,10 @@ export function ProfileForm({
   isSubmitting,
   onChange,
   onSubmit,
-  profile,
   successMessage,
 }: ProfileFormProps) {
+  const { user } = useCurrentSession();
+
   function handleSubmit(event: { preventDefault(): void }) {
     event.preventDefault();
     onSubmit();
@@ -74,6 +76,7 @@ export function ProfileForm({
             aria-invalid={errors.last_name ? true : undefined}
             className={errors.last_name ? 'is-error' : ''}
             id="profile-last-name"
+            maxLength={120}
             onChange={set('last_name')}
             placeholder="Last name"
             type="text"
@@ -86,23 +89,6 @@ export function ProfileForm({
       </div>
 
       <div className="field">
-        <label htmlFor="profile-avatar-url">Avatar URL</label>
-        <input
-          aria-describedby={errors.avatar_url ? 'profile-avatar-url-error' : undefined}
-          aria-invalid={errors.avatar_url ? true : undefined}
-          className={errors.avatar_url ? 'is-error' : ''}
-          id="profile-avatar-url"
-          onChange={set('avatar_url')}
-          placeholder="https://example.com/avatar.jpg"
-          type="url"
-          value={fields.avatar_url}
-        />
-        {errors.avatar_url && (
-          <span className="field-error" id="profile-avatar-url-error">{errors.avatar_url}</span>
-        )}
-      </div>
-
-      <div className="field">
         <label htmlFor="profile-email">Email address</label>
         <input
           autoComplete="email"
@@ -110,7 +96,7 @@ export function ProfileForm({
           readOnly
           style={{ opacity: 0.6, cursor: 'default' }}
           type="email"
-          value={profile.email}
+          value={user?.email ?? ''}
         />
         <span className="hint">Used for sign-in and notifications. Never shown publicly.</span>
       </div>

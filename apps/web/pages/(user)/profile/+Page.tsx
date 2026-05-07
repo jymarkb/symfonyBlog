@@ -9,6 +9,7 @@ import { ProfileCommentHistory } from "@/features/profile/components/ProfileComm
 import { ProfileRecentlyViewed } from "@/features/profile/components/ProfileRecentlyViewed";
 import { ProfileDangerZone } from "@/features/profile/components/ProfileDangerZone";
 import { ProfileSidebar } from "@/features/profile/components/ProfileSidebar";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function Page() {
   const [profile, setProfile] = useState<PrivateProfile | null>(null);
@@ -16,16 +17,18 @@ export default function Page() {
   return (
     <>
       <ProfileHead />
-      <div className="shell profile-layout">
-        <div>
-          <ProfilePage onProfileChange={setProfile} />
-          <ProfilePasswordSection />
-          <ProfileCommentHistory />
-          <ProfileRecentlyViewed />
-          <ProfileDangerZone />
+      <ErrorBoundary>
+        <div className="shell profile-layout">
+          <div>
+            <ProfilePage onProfileChange={setProfile} />
+            <ProfilePasswordSection />
+            <ProfileCommentHistory />
+            <ProfileRecentlyViewed />
+            <ProfileDangerZone />
+          </div>
+          <ProfileSidebar profile={profile} onProfileChange={setProfile} />
         </div>
-        <ProfileSidebar profile={profile} onProfileChange={setProfile} />
-      </div>
+      </ErrorBoundary>
     </>
   );
 }

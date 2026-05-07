@@ -22,6 +22,7 @@ export function ProfilePasswordSection() {
   });
   const [errors, setErrors] = useState<ChangePasswordErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const strength = passwordStrength(fields.newPassword);
 
@@ -80,7 +81,8 @@ export function ProfilePasswordSection() {
 
       await updatePassword(fields.newPassword);
       await signOut();
-      window.location.replace("/signin");
+      setSuccessMessage("Password updated. Signing you out…");
+      setTimeout(() => window.location.replace("/signin"), 1500);
     } catch (error) {
       logError(error);
       setErrors({
@@ -95,6 +97,7 @@ export function ProfilePasswordSection() {
     <ProfileSection title="Change password">
       <div aria-live="polite" role="status">
         {errors.server && <div className="form-alert">{errors.server}</div>}
+        {successMessage && <div className="form-success">{successMessage}</div>}
       </div>
       <form noValidate onSubmit={handleSubmit}>
         <div className="field">

@@ -11,12 +11,10 @@ class ProfileResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'email' => $this->email,
             'handle' => $this->handle,
             'display_name' => $this->display_name,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
-            'avatar_url' => $this->avatar_url,
             'created_at' => $this->created_at?->toISOString(),
             'comments_count' => $this->comments_count ?? 0,
             'posts_read_count' => $this->post_views_count ?? 0,

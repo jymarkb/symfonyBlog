@@ -32,7 +32,6 @@ export function ProfilePage({
     display_name: "",
     first_name: "",
     last_name: "",
-    avatar_url: "",
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,8 +141,7 @@ export function ProfilePage({
         isSubmitting={isSubmitting}
         onChange={handleChange}
         onSubmit={handleSubmit}
-        profile={profile}
-        successMessage={successMessage}
+successMessage={successMessage}
       />
     </ProfileSection>
   );
