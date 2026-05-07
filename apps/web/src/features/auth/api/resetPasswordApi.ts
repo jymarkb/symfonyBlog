@@ -17,9 +17,12 @@ export async function startPasswordRecoverySession() {
   const hashAccessToken = hashParams.get("access_token");
   const hashRefreshToken = hashParams.get("refresh_token");
 
+  if (!authCode && !(hashAccessToken && hashRefreshToken)) {
+    throw new Error("This reset link is invalid or has expired. Please request a new one.");
+  }
+
   if (authCode) {
     const { error } = await supabase.auth.exchangeCodeForSession(authCode);
-
     if (error) {
       throw new Error("This reset link has expired or was already used.");
     }
@@ -28,7 +31,6 @@ export async function startPasswordRecoverySession() {
       access_token: hashAccessToken,
       refresh_token: hashRefreshToken,
     });
-
     if (error) {
       throw new Error("This reset link has expired or was already used.");
     }
