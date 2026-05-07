@@ -6,16 +6,11 @@ import { logError } from "@/lib/utils/logError";
 import { updateNotifications } from "@/features/profile/api/profileApi";
 import type {
   NotificationPreference,
-  PrivateProfile,
   ProfileSidebarProps,
   UpdateNotificationsPayload,
 } from "@/features/profile/profileTypes";
 
-type Props = ProfileSidebarProps & {
-  onProfileChange: (profile: PrivateProfile) => void;
-};
-
-export function ProfileSidebar({ profile, onProfileChange }: Props) {
+export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps) {
   const { user } = useCurrentSession();
   const [notifError, setNotifError] = useState<string | null>(null);
 

@@ -32,7 +32,7 @@ export function ProfileHead() {
           <h1 className="profile-name">{displayName}</h1>
           <div className="profile-meta">
             {metaItems.map((item, i) => (
-              <span key={item}>
+              <span key={i}>
                 {i > 0 && <span style={{ marginRight: 12 }}>·</span>}
                 {item}
               </span>

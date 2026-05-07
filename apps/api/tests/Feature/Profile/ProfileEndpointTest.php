@@ -77,6 +77,18 @@ it('rejects guests from deleting the private profile', function () {
         ->assertUnauthorized();
 });
 
+it('does not allow deleting another user account via the profile delete endpoint', function () {
+    $userA = User::factory()->create();
+    $userB = User::factory()->create();
+
+    $this->actingAs($userA, 'api')
+        ->deleteJson('/api/v1/profile')
+        ->assertOk();
+
+    expect(User::find($userB->id))->not->toBeNull();
+    expect(User::find($userA->id))->toBeNull();
+});
+
 it('returns 429 when the profile patch rate limit is exceeded', function () {
     $user = User::factory()->create();
 

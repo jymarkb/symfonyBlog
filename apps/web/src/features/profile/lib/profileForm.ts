@@ -1,6 +1,5 @@
 import type {
   PrivateProfile,
-  ProfileFormErrors,
   ProfileFormFields,
   ProfileFormSubmitInput,
 } from "@/features/profile/profileTypes";
@@ -21,12 +20,6 @@ export function normalizeProfileFields(
     first_name: emptyToNull(fields.first_name),
     last_name: emptyToNull(fields.last_name),
   };
-}
-
-export function validateProfileFields(
-  _fields: ProfileFormFields,
-): ProfileFormErrors {
-  return {};
 }
 
 function emptyToNull(value: string) {

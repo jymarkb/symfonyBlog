@@ -59,6 +59,7 @@ export function ProfileForm({
             aria-invalid={errors.first_name ? true : undefined}
             className={errors.first_name ? 'is-error' : ''}
             id="profile-first-name"
+            maxLength={120}
             onChange={set('first_name')}
             placeholder="First name"
             type="text"

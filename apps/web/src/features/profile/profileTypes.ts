@@ -57,6 +57,7 @@ export type ChangePasswordErrors = Partial<ChangePasswordFields & { server: stri
 
 export type ProfileSidebarProps = {
     profile: PrivateProfile | null;
+    onProfileChange: (profile: PrivateProfile) => void;
 };
 
 export type ProfileComment = {

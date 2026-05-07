@@ -4,7 +4,8 @@ export async function getAccessToken(): Promise<string> {
   const { data, error } = await supabase.auth.getSession();
 
   if (error || !data.session?.access_token) {
-    throw new Error("Your session could not be loaded. Please sign in again.");
+    window.location.replace("/signin");
+    throw new Error("Session expired.");
   }
 
   return data.session.access_token;
