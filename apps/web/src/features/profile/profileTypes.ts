@@ -67,3 +67,15 @@ export type ProfileComment = {
 export type ProfileCommentsResponse = {
   data: ProfileComment[];
 };
+
+export type ProfileReadingHistoryItem = {
+  post_id: number;
+  post_title: string;
+  post_slug: string;
+  read_progress: number;
+  last_viewed_at: string;
+};
+
+export type ProfileReadingHistoryResponse = {
+  data: ProfileReadingHistoryItem[];
+};
