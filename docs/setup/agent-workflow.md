@@ -1,0 +1,430 @@
+# Agent Workflow
+
+## Purpose
+
+This document records how the main agent session (Claude or Codex) should route repeatable multi-step work when the user asks for planning, committing, reviewing, or implementation through short command-style prefixes.
+
+The main session stays responsible for coordination and user communication. Specialized sub-agents should do bounded work only when their task is explicit.
+
+## Claude Model Tiers
+
+When running under Claude, use these model tiers per agent type:
+
+```text
+-feature-            -> sonnet  (feature orchestration, use Plan subagent type)
+-feature-auto-       -> main session workflow (full automated section close-out — plan + implement + verify + commit)
+-commit              -> haiku   (diff inspection, staging, commit hygiene)
+-plan-               -> sonnet  (subtask decomposition for feature agent delegation, use Plan subagent type)
+-tutorial-           -> sonnet  (manual coding tutorial for a specific task, use Plan subagent type)
+-architecture-       -> sonnet  (boundary analysis, use Plan subagent type)
+-ux-                 -> sonnet  (screen state and copy design)
+-core-react-         -> sonnet  (frontend implementation)
+-core-php-           -> sonnet  (backend implementation)
+-qa-frontend-        -> sonnet  (read-only review, use Explore subagent type)
+-qa-backend-         -> sonnet  (read-only review, use Explore subagent type)
+-review-             -> sonnet  (general review)
+-implement-          -> sonnet  (scoped implementation)
+```
+
+Use `haiku` only for commit work. Use `sonnet` for everything else unless the task requires deep multi-file reasoning, in which case `opus` is acceptable.
+
+## Routing Syntax
+
+Use these prefixes in user requests:
+
+```text
+-feature- <feature-name>
+-feature-auto- <feature-name> <section>
+-commit
+-plan- <task>
+-tutorial- <task>
+-architecture- <task>
+-ux- <task>
+-core-react- <task>
+-core-php- <task>
+-qa-frontend- <task>
+-qa-backend- <task>
+-review- <task>
+-implement- <task>
+```
+
+Multiple prefixes in one request should run in parallel when the tasks are independent.
+
+Example:
+
+```text
+-commit
+-plan- do the planning for forgot password
+```
+
+Expected routing:
+
+```text
+Commit agent   -> review diff, group files, stage, commit, report hashes
+Planning agent -> inspect relevant files and return the tutorial/implementation plan
+Main session   -> coordinate, answer the user, integrate results
+```
+
+## Main Session Responsibilities
+
+- Interpret the routing prefix.
+- Spawn the designated agent with a narrow task.
+- Continue useful coordination work while agents run when the main task is not blocked.
+- Wait for required agent results before finalizing.
+- Report which agent result was used.
+- Surface the agent result back in the main chat after integrating it, especially for `-plan-` requests.
+- Close completed agents after integrating their result to avoid hitting the concurrent agent limit.
+- Do not silently convert a requested agent task into main-thread work unless spawning is blocked and the user is informed.
+
+## Commit Agent
+
+Use a commit agent for `-commit`.
+
+Use the cheapest narrow agent that is sufficient for commit work. Commit work is mostly diff inspection, staging, and commit hygiene, so prefer low reasoning effort unless the diff is unusually complex. Under Claude, use `haiku` model with `general-purpose` subagent type.
+
+Responsibilities:
+
+1. Run `git status --short`.
+2. Review the relevant diff by file.
+3. Propose commit grouping by concern.
+4. Stage files explicitly by path.
+5. Commit the intended files itself.
+6. Use the user's commit author:
+
+   ```text
+   arcobaleno <jymark.borja@gmail.com>
+   ```
+
+7. Use the user's commit message style:
+
+   ```text
+   add - ...
+   wire - ...
+   fix - ...
+   docs - ...
+   ```
+
+8. Run final `git status --short`.
+9. Report commit hashes and whether the tree is clean.
+
+Rules:
+
+- Split commits by concern unless the user explicitly asks for one commit.
+- Do not include unrelated files.
+- Do not use bulk staging commands such as `git add .`, `git add -A`, broad app folders, or broad docs folders.
+- Stage each file explicitly, or stage a small tightly related file group with every path named.
+- Do not commit ignored environment files or secrets.
+- Do not add `Co-Authored-By` trailer lines — use only the user's git account as configured.
+- If the grouping is ambiguous, report the ambiguity before committing.
+- If a prior plan already defined commit groups, follow that split unless the diff proves it is unsafe.
+
+## Feature Agent
+
+Use a feature agent for `-feature- <feature-name>`. Under Claude, use `Plan` subagent type.
+
+The feature agent is the top-level orchestrator for large features that span multiple sections (e.g. profile page, auth, admin dashboard). It owns the full picture — what sections exist, what phase each section is in, and what the next concrete step is. It delegates down to `-plan-`, `-core-php-`, `-core-react-`, `-qa-backend-`, `-qa-frontend-`, and `-commit` for actual work.
+
+### Where feature docs live
+
+Feature docs live in `docs/architecture/`. Each major feature has one file:
+
+```text
+docs/architecture/profile-page.md
+docs/architecture/auth-authorization.md
+```
+
+The feature agent always reads the feature doc first before reporting status or planning next steps.
+
+### Section phase structure
+
+Every section within a feature follows this phase order:
+
+```text
+1. Design     — UI ported from design file, all placeholders and stubs
+2. Backend    — model, migration, controller, resource, service, route
+3. Wiring     — frontend connected to real API endpoint
+4. Tests      — route coverage + behavior tests (guest, auth, admin as applicable)
+```
+
+A section is not complete until all four phases are done. Do not mix phases — finish one phase for a section before moving to the next.
+
+### Responsibilities
+
+- Read `docs/setup/techstack.md` first — stack, patterns, and conventions.
+- Read the feature doc (`docs/architecture/<feature>.md`) to get the current section list and phase status.
+- Read `docs/setup/agent-workflow.md` to understand routing and agent rules.
+- Report a status table: every section × every phase (✅ done / ⚠️ partial / ⏳ pending).
+- Identify the current active section and phase.
+- Recommend the next concrete step and which sub-agent should handle it.
+- Update the feature doc's Implementation Progress block after each phase completes.
+- Do not implement. Do not edit code files. Only read, report, and delegate.
+
+### Rules
+
+- Always read the feature doc before reporting — never rely on conversation memory alone.
+- Respect the phase order: design → backend → wiring → tests. Do not skip or reorder.
+- One section at a time. Do not plan the next section until the current one is fully done.
+- When a section spans both `apps/api` and `apps/web`, split backend and frontend steps explicitly.
+- Flag any section where the design phase is not done before backend work starts.
+- Works across AI models — all context comes from files in the repo, not from model memory.
+
+### Output format
+
+```text
+## Feature: <name>
+
+| Section          | Design | Backend | Wiring | Tests |
+|------------------|--------|---------|--------|-------|
+| Account          | ✅     | ✅      | ✅     | ⏳    |
+| Comment history  | ✅     | ⚠️     | ⚠️    | ⏳    |
+| Recently viewed  | ✅     | ⏳      | ⏳     | ⏳    |
+| ...              |        |         |        |       |
+
+**Active section:** Comment history
+**Active phase:** Backend (fix `body` field in ProfileCommentResource)
+
+**Next step:** [concrete action + which sub-agent]
+```
+
+## Feature Auto Agent
+
+Use `-feature-auto- <feature-name> <section>` to fully close a feature section without manual approval between steps.
+
+**Important:** Sub-agents cannot spawn other sub-agents. `-feature-auto-` is a **main session workflow** — the main session drives every step itself, not a single spawned agent.
+
+### How the main session executes it
+
+1. **Plan** — Spawn a Plan sub-agent in **foreground** (main session needs the plan before anything else can proceed). Brief it to verify actual file state and return a complete structured subtask list with dependency order, owner per subtask, and verification checklist.
+
+2. **Backend** — Spawn `-core-php-` agents in **background** (`run_in_background: true`) so the main session stays free for user interaction. Where subtasks are independent, spawn them in parallel. Where one depends on another, wait for the notification before spawning the next.
+
+3. **Verify backend** — Run `php artisan test` in foreground (fast, must gate the next phase). If any new test fails, spawn a `-core-php-` fix agent before continuing. Do not proceed to frontend wiring if tests are red.
+
+4. **Frontend** — Spawn `-core-react-` agents in **background** for types, API function, and component in dependency order. Main session stays free.
+
+5. **Typecheck** — Run `npx tsc --noEmit` from `apps/web` to verify the frontend compiles clean.
+
+6. **Update feature doc** — Edit `docs/architecture/<feature>.md` to mark the section's phases as done.
+
+7. **Report** — Only after all phases complete, post one consolidated summary: what was implemented, test results, and suggested commit grouping. The user runs `-commit` manually.
+
+### Rules
+
+- Always verify actual file state before planning — never trust the doc alone.
+- Respect the phase order: Backend → Tests → Wiring. Do not wire the frontend before backend tests pass.
+- If a step fails (test red, type error, missing dependency), stop the loop, fix the blocker, then continue — do not skip ahead.
+- **Silent mode** — do not post intermediate progress updates ("Batch 1 done", "tests green", etc.) to the main chat. Run all phases silently and post only the final consolidated summary when everything is complete.
+- Do not silently absorb failures — surface them immediately when they occur (failures are the exception to silent mode).
+- Do NOT auto-commit. After all phases close, report the suggested commit grouping and wait for the user to run `-commit`.
+- Multiple `-feature-auto-` tasks with different sections can run in parallel — each drives its own independent backend + frontend loop. The main session coordinates completion notifications and posts each summary as sections finish.
+
+### Parallel execution
+
+Multiple `-feature-auto-` calls in a single message run as independent parallel workflows:
+
+```text
+User: -feature-auto- profile page security review
+      -feature-auto- profile page cleanup
+
+Main session:
+  → Spawns Plan agents for both sections in parallel (foreground, but both can be sent in one message)
+  → Spawns backend agents for both in background (parallel)
+  → Waits for both backend notifications
+  → Runs tests once (covers both)
+  → Spawns frontend agents for both in background (parallel)
+  → Posts one consolidated summary covering both sections when all complete
+```
+
+### Example
+
+```
+User: -feature-auto- profile page recently viewed
+
+Main session:
+  1. Spawn Plan agent → get subtask list with 14 subtasks
+  2. Spawn -core-php- → migration + model + factory (parallel where possible)
+  3. Spawn -core-php- → service + resource + controller
+  4. Spawn -core-php- → route + coverage test entry
+  5. Run php artisan test → verify green
+  6. Spawn -core-php- → behavior test file
+  7. Run php artisan test → verify green
+  8. Spawn -core-react- → types + API function
+  9. Spawn -core-react- → rewrite component
+  10. Update profile-page.md
+  11. Spawn -feature- → confirm section is ✅ across all phases
+  12. Report suggested commit grouping → user runs -commit manually
+```
+
+## Planning Agent
+
+Use a planning agent for `-plan- <task>`. Under Claude, use `Plan` subagent type.
+
+The planning agent is the task decomposition layer between the feature agent and the implementation sub-agents. It reads the feature context and breaks a section/phase down into discrete, delegatable subtasks — one per sub-agent call. Its output is structured so the feature agent (or main session) can read it and spawn the right sub-agents in order.
+
+Responsibilities:
+
+- Always read `docs/setup/techstack.md` first — it defines the stack, patterns, and conventions for both apps.
+- Always read `docs/setup/security.md` — include security subtasks (auth gating, throttle, validation, resource field whitelist, route guard) in every plan using the per-feature checklist.
+- Read the relevant feature doc (`docs/architecture/<feature>.md`) to understand section and phase context.
+- Inspect the task-specific files to understand current state.
+- Do not edit files.
+- Return a structured subtask list: each subtask has a name, the sub-agent that owns it (`-core-php-`, `-core-react-`, `-qa-backend-`, etc.), the exact files it touches, and a one-line description of what it must do.
+- Include a suggested execution order and flag which subtasks can run in parallel.
+- End with a verification checklist and suggested commit grouping.
+
+Rules:
+
+- Prefer repository context over generic advice.
+- Use the exact stack from `techstack.md` — do not suggest patterns that contradict it.
+- Mention backend/frontend ownership explicitly when a flow crosses apps.
+- Keep external service setup (Supabase dashboard, SMTP) in the plan when it affects implementation.
+- The main session must post the planning result back into the chat after the planning agent finishes.
+
+## Tutorial Agent
+
+Use a tutorial agent for `-tutorial- <task>`. Under Claude, use `Plan` subagent type.
+
+The tutorial agent is for manual coding guidance. Use it when you want a step-by-step walkthrough to implement something yourself rather than delegating to a sub-agent.
+
+Responsibilities:
+
+- Always read `docs/setup/techstack.md` first.
+- Inspect the task-specific files and closest docs.
+- Do not edit files.
+- Act like an experienced developer pairing with a less experienced one.
+- Return a beginner-friendly but technically accurate tutorial.
+- Include: product goal, user flow, current state, target state, exact files to touch, step-by-step implementation with code snippets, edge cases to watch for, verification checklist, and commit grouping suggestions.
+
+Rules:
+
+- Prefer repository context over generic advice.
+- Use the exact stack from `techstack.md` — do not suggest patterns that contradict it (e.g. do not add custom action methods to controllers, do not put passwords through Laravel).
+- Mention backend/frontend ownership explicitly when a flow crosses apps.
+- Keep external service setup in the tutorial when it affects implementation.
+- The main session must post the tutorial back into the chat after the agent finishes.
+
+## Architecture Agent
+
+Use an architecture agent for `-architecture- <task>`. Under Claude, use `Plan` subagent type.
+
+Responsibilities:
+
+- Inspect app boundaries, docs, and relevant contracts.
+- Check whether the proposed work belongs in `apps/web`, `apps/api`, or shared packages.
+- Identify data model, API contract, route, auth, and security implications.
+- Recommend documentation updates when architecture changes.
+- Do not edit files unless explicitly assigned implementation.
+
+## UX/UI Design Agent
+
+Use a UX/UI design agent for `-ux- <task>`.
+
+Responsibilities:
+
+- Define screen states, copy, empty/loading/error states, and success states.
+- Check consistency with existing auth/dashboard/public UI patterns.
+- Identify accessibility, responsive layout, and interaction risks.
+- Recommend component structure only when it affects UX quality.
+- Do not edit files unless explicitly assigned implementation.
+
+## Core React/TypeScript Developer Agent
+
+Use a React/TypeScript implementation agent for `-core-react- <task>`.
+
+Responsibilities:
+
+- Implement scoped frontend work in `apps/web`.
+- Own clearly listed files or feature areas.
+- Add or update TypeScript types, validation, and frontend tests when appropriate.
+- Run relevant frontend verification such as typecheck or targeted tests when feasible.
+- Report changed files and verification results.
+
+Rules:
+
+- Do not edit Laravel/PHP files.
+- Do not broaden scope into unrelated UI refactors.
+- Follow existing Vike React and feature-folder patterns.
+- Follow `docs/setup/security.md` frontend conventions: route guards, token handling, client-side validation, user-friendly error messages.
+
+## Core PHP/Laravel Developer Agent
+
+Use a PHP/Laravel implementation agent for `-core-php- <task>`.
+
+Responsibilities:
+
+- Implement scoped backend work in `apps/api`.
+- Own clearly listed files or backend feature areas.
+- Add or update migrations, models, middleware, policies, API routes, and tests when appropriate.
+- Run relevant PHP verification such as syntax checks or targeted tests when feasible.
+- Report changed files and verification results.
+
+Rules:
+
+- Do not edit React/frontend files.
+- Do not add password ownership to Laravel when Supabase owns the auth flow.
+- Follow existing Laravel guard, middleware, and API response patterns.
+- Follow `docs/setup/security.md` backend conventions: auth gating, `$fillable` discipline, `$hidden`, input validation rules, throttle on mutations, Resource field whitelist.
+- Controllers must only contain the five RESTful methods: `index`, `show`, `store`, `update`, `destroy`. Do not add custom action methods (e.g. `comments()`, `history()`). If a resource needs its own endpoint, create a separate dedicated controller for it.
+- When adding, removing, or changing `/api/v1` routes, update Pest route coverage in `apps/api/tests/Feature/Routes/ApiRouteCoverageTest.php`.
+- Add or update behavior tests beside the owned endpoint area, for example `tests/Feature/Auth`, `tests/Feature/Profile`, `tests/Feature/Public`, or `tests/Feature/Admin`.
+- Run the relevant Pest suite before reporting done, using `php artisan test` or a targeted test command from `apps/api`.
+- If an endpoint is still a placeholder, test the placeholder status/body explicitly so future implementation changes are intentional.
+- `php artisan make:model` generates a minimal stub — always replace the full file content. The stub will be missing `HasFactory`, relationships, casts, and may use wrong fillable field names. Never assume the generated content is correct.
+- When factories write a column name (e.g. `body`), the migration and model fillable must use the exact same name. Mismatches cause silent insert failures.
+- `DatabaseSeeder` must use a find-or-create pattern (`Model::where(...)->first() ?? Model::factory()->create(...)`) so re-running `db:seed` does not throw a unique constraint violation.
+- **Never modify an existing migration file.** Migrations are immutable once committed or run. If a schema change is needed, always create a new migration (`php artisan make:migration alter_<table>_<description>`). The only exception is a migration that has never been committed and never run on any environment.
+- When migration columns change on a freshly created table, run `php artisan migrate:rollback --step=N && php artisan migrate` before seeding — do not just re-seed.
+
+## Frontend QA Agent
+
+Use a frontend QA agent for `-qa-frontend- <task>`. Under Claude, use `Explore` subagent type (read-only, does not write files).
+
+Responsibilities:
+
+- Review React behavior, form states, routing, hydration, accessibility basics, and responsive risks.
+- Check loading/error/success states and copy clarity.
+- Identify missing typechecks, tests, or manual QA steps.
+- Check against `docs/setup/security.md` frontend checklist: route guards in place, token handling correct, error messages user-friendly, no client-side role as sole gate.
+- Return findings first with file references.
+- Do not edit files unless separately assigned implementation.
+
+## Backend QA Agent
+
+Use a backend QA agent for `-qa-backend- <task>`. Under Claude, use `Explore` subagent type (read-only, does not write files).
+
+Responsibilities:
+
+- Review Laravel routes, middleware, auth/authorization, migrations, models, API responses, and security risks.
+- Identify missing tests or validation around backend behavior.
+- Compare `/api/v1` routes against `apps/api/tests/Feature/Routes/ApiRouteCoverageTest.php` and flag any route without coverage.
+- Check that each covered route also has a behavior test for guest, signed-in user, admin, or public access as appropriate.
+- Check against `docs/setup/security.md` backend checklist: auth gating, `$fillable` discipline, throttle on mutations, input validation rules, Resource field whitelist.
+- Return findings first with file references.
+- Do not edit files unless separately assigned implementation.
+
+## Backend API Test Coverage
+
+Use this structure when agents create or update backend endpoint tests:
+
+- `apps/api/tests/Feature/Routes/ApiRouteCoverageTest.php` is the route inventory guard. It should list every intentional `/api/v1` route once by method and URI.
+- `apps/api/tests/Feature/Public/*` covers public endpoints that do not require login.
+- `apps/api/tests/Feature/Auth/*` covers signed-in session/auth endpoints.
+- `apps/api/tests/Feature/Profile/*` covers private profile and public profile behavior.
+- `apps/api/tests/Feature/Admin/*` covers admin-only endpoints and role boundaries.
+
+Minimum rule:
+
+- Every `/api/v1` route must have one route inventory assertion and at least one behavior test.
+- Admin routes should test guest `401`, normal user `403`, and admin success or placeholder response.
+- Private user routes should test guest `401` and signed-in success or intentional placeholder response.
+- Public routes should test public access and the expected response contract.
+
+## Agent Cleanup
+
+After an agent completes and its result is integrated, close it.
+
+If spawning fails because the agent thread limit is reached:
+
+1. Close completed agents.
+2. Retry the requested spawn.
+3. If spawning still fails, inform the user and continue only with approval or a clear fallback.

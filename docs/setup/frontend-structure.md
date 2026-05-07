@@ -268,11 +268,12 @@ If a hook only serves one feature, keep it inside that feature folder.
 
 Use `src/styles/` for global styling concerns:
 
-- global CSS
-- design tokens
-- typography
-- theme variables
-- layout utilities
+- `global.css` — entry point, imports tailwind + theme + all feature CSS files
+- `theme.css` — shared design system: tokens, base resets, shared primitives (btn, card, nav, footer, field, etc.)
+
+Feature-specific CSS lives next to the feature (`src/features/<feature>/<feature>.css`) or component (`src/components/common/<name>.css`), **not** in `src/styles/`.
+
+**Critical SSR rule:** Never import CSS inside a component file. CSS imported via JS is not included in the SSR HTML and breaks on hard page refresh. All CSS files must be registered in `global.css` via `@import`.
 
 ### `src/types/`
 

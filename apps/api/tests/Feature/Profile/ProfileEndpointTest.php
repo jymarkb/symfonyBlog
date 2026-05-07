@@ -66,15 +66,6 @@ it('does not update role from the private profile endpoint', function () {
     expect($user->refresh()->role)->toBe(User::ROLE_USER);
 });
 
-it('does not implement private profile deletion yet', function () {
-    $user = User::factory()->create();
-
-    $this->actingAs($user, 'api')
-        ->deleteJson('/api/v1/profile')
-        ->assertStatus(501)
-        ->assertJsonPath('message', 'Profile deletion is not implemented yet.');
-});
-
 it('rejects guests from deleting the private profile', function () {
     $this->deleteJson('/api/v1/profile')
         ->assertUnauthorized();

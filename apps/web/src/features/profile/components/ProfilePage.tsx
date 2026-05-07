@@ -18,7 +18,11 @@ import {
 import { useCurrentSession } from "@/features/auth/session";
 import { supabase } from "@/lib/auth/supabaseClient";
 
-export function ProfilePage() {
+export function ProfilePage({
+  onProfileChange,
+}: {
+  onProfileChange?: (p: PrivateProfile) => void;
+}) {
   const { refreshSession } = useCurrentSession();
   const [errors, setErrors] = useState<ProfileFormErrors>({});
   const [fields, setFields] = useState<ProfileFormFields>({
@@ -36,7 +40,9 @@ export function ProfilePage() {
     const { data, error } = await supabase.auth.getSession();
 
     if (error || !data.session?.access_token) {
-      throw new Error("Your session could not be loaded. Please sign in again.");
+      throw new Error(
+        "Your session could not be loaded. Please sign in again.",
+      );
     }
 
     return data.session.access_token;
@@ -105,6 +111,7 @@ export function ProfilePage() {
 
       setProfile(nextProfile);
       setFields(fieldsFromProfile(nextProfile));
+      onProfileChange?.(nextProfile);
       setSuccessMessage("Profile updated.");
       await refreshSession();
     } catch (error) {
@@ -122,7 +129,9 @@ export function ProfilePage() {
   if (isLoading) {
     return (
       <div className="profile-section">
-        <p style={{ color: 'var(--ink-4)', fontSize: '14px', margin: 0 }}>Loading your profile…</p>
+        <p style={{ color: "var(--ink-4)", fontSize: "14px", margin: 0 }}>
+          Loading your profile…
+        </p>
       </div>
     );
   }
@@ -131,8 +140,16 @@ export function ProfilePage() {
     return (
       <div className="profile-section">
         <h2>Account</h2>
-        {errors.server && <p style={{ color: 'var(--ink-4)', fontSize: '14px' }}>{errors.server}</p>}
-        <button className="btn btn-primary" onClick={() => void loadProfile()} type="button">
+        {errors.server && (
+          <p style={{ color: "var(--ink-4)", fontSize: "14px" }}>
+            {errors.server}
+          </p>
+        )}
+        <button
+          className="btn btn-primary"
+          onClick={() => void loadProfile()}
+          type="button"
+        >
           Try again
         </button>
       </div>

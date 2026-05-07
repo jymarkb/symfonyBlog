@@ -20,4 +20,6 @@ docs/architecture/*
 !docs/setup/
 docs/setup/*
 !docs/setup/frontend-structure.md
+!docs/setup/security.md
+!docs/setup/agent-workflow.md
 design/*
