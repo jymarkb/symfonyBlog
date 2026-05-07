@@ -111,101 +111,96 @@ export function ResetPasswordForm() {
     window.location.replace('/signin');
   }
 
-  if (!isReady) {
-    return (
-      <>
-        <div aria-live="polite" role="status" className="form-alert">
-          {errors.server ?? ""}
-        </div>
-        {!errors.server && (
-          <div className="callback-progress" aria-label="Loading">
-            <span />
-            <span />
-            <span />
-          </div>
-        )}
-
-        <div className="alt-row">
-          Need a new link?{" "}
-          <a className="link" href="/forgot-password">
-            Request another reset
-          </a>
-        </div>
-
-        <AuthFooterLinks label="Recovery links are one-time use" />
-      </>
-    );
-  }
-
   return (
-    <>
-      <ResetPasswordIntro />
+    <div aria-live="polite" role="status">
+      <div className="form-alert">{errors.server ?? ""}</div>
 
-      <div aria-live="polite" role="status" className="form-alert">
-        {errors.server ?? ""}
-      </div>
-
-      <form noValidate onSubmit={handleSubmit}>
-        <div className="field">
-          <label htmlFor="reset-password">New password</label>
-          <input
-            aria-describedby={errors.password ? "reset-new-password-error" : undefined}
-            aria-invalid={!!errors.password}
-            autoComplete="new-password"
-            className={errors.password ? "is-error" : ""}
-            id="reset-password"
-            onChange={setField("password")}
-            placeholder="At least 12 characters"
-            type="password"
-            value={fields.password}
-          />
-          {fields.password && (
-            <>
-              <div aria-hidden="true" className={`strength s-${strength}`}>
-                <i />
-                <i />
-                <i />
-                <i />
-              </div>
-              <span className="hint">
-                Strength: {strengthLabel(strength)}.
-                {strength < 3 ? " Try a passphrase." : " Nice."}
-              </span>
-            </>
+      {!isReady ? (
+        <>
+          {!errors.server && (
+            <div className="callback-progress" aria-label="Loading">
+              <span />
+              <span />
+              <span />
+            </div>
           )}
-          {errors.password && (
-            <span className="field-error" id="reset-new-password-error">{errors.password}</span>
-          )}
-        </div>
 
-        <div className="field">
-          <label htmlFor="reset-password-confirm">Confirm password</label>
-          <input
-            aria-describedby={errors.confirmPassword ? "reset-confirm-password-error" : undefined}
-            aria-invalid={!!errors.confirmPassword}
-            autoComplete="new-password"
-            className={errors.confirmPassword ? "is-error" : ""}
-            id="reset-password-confirm"
-            onChange={setField("confirmPassword")}
-            placeholder="Type it once more"
-            type="password"
-            value={fields.confirmPassword}
-          />
-          {errors.confirmPassword && (
-            <span className="field-error" id="reset-confirm-password-error">{errors.confirmPassword}</span>
-          )}
-        </div>
+          <div className="alt-row">
+            Need a new link?{" "}
+            <a className="link" href="/forgot-password">
+              Request another reset
+            </a>
+          </div>
 
-        <button
-          className="btn btn-primary submit-btn"
-          disabled={submitting}
-          type="submit"
-        >
-          {submitting ? "Updating password..." : "Update password"}
-        </button>
-      </form>
+          <AuthFooterLinks label="Recovery links are one-time use" />
+        </>
+      ) : (
+        <>
+          <ResetPasswordIntro />
 
-      <AuthFooterLinks label="Use a long, unique password" />
-    </>
+          <form noValidate onSubmit={handleSubmit}>
+            <div className="field">
+              <label htmlFor="reset-password">New password</label>
+              <input
+                aria-describedby={errors.password ? "reset-new-password-error" : undefined}
+                aria-invalid={!!errors.password}
+                autoComplete="new-password"
+                className={errors.password ? "is-error" : ""}
+                id="reset-password"
+                onChange={setField("password")}
+                placeholder="At least 12 characters"
+                type="password"
+                value={fields.password}
+              />
+              {fields.password && (
+                <>
+                  <div aria-hidden="true" className={`strength s-${strength}`}>
+                    <i />
+                    <i />
+                    <i />
+                    <i />
+                  </div>
+                  <span className="hint">
+                    Strength: {strengthLabel(strength)}.
+                    {strength < 3 ? " Try a passphrase." : " Nice."}
+                  </span>
+                </>
+              )}
+              {errors.password && (
+                <span className="field-error" id="reset-new-password-error">{errors.password}</span>
+              )}
+            </div>
+
+            <div className="field">
+              <label htmlFor="reset-password-confirm">Confirm password</label>
+              <input
+                aria-describedby={errors.confirmPassword ? "reset-confirm-password-error" : undefined}
+                aria-invalid={!!errors.confirmPassword}
+                autoComplete="new-password"
+                className={errors.confirmPassword ? "is-error" : ""}
+                id="reset-password-confirm"
+                onChange={setField("confirmPassword")}
+                placeholder="Type it once more"
+                type="password"
+                value={fields.confirmPassword}
+              />
+              {errors.confirmPassword && (
+                <span className="field-error" id="reset-confirm-password-error">{errors.confirmPassword}</span>
+              )}
+            </div>
+
+            <button
+              className="btn btn-primary submit-btn"
+              disabled={submitting}
+              type="submit"
+            >
+              {submitting ? "Updating password..." : "Update password"}
+            </button>
+          </form>
+
+          <AuthFooterLinks label="Use a long, unique password" />
+        </>
+      )}
+    </div>
   );
 }

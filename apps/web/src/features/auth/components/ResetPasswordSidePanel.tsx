@@ -34,7 +34,7 @@ export function ResetPasswordSidePanel() {
 
       <div className="side-meta">
         <span>Password recovery</span>
-        <span>Supabase Auth</span>
+        <span>Secure authentication</span>
       </div>
     </>
   );
