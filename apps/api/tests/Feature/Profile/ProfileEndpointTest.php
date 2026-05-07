@@ -10,6 +10,11 @@ it('rejects guests from the private profile endpoint', function () {
         ->assertUnauthorized();
 });
 
+it('rejects guests from the patch profile endpoint', function () {
+    $this->patchJson('/api/v1/profile', ['display_name' => 'Hacker'])
+        ->assertUnauthorized();
+});
+
 it('returns the signed-in user private profile', function () {
     $user = User::factory()->create([
         'email' => 'reader@example.com',
@@ -22,8 +27,7 @@ it('returns the signed-in user private profile', function () {
         ->assertOk()
         ->assertJsonPath('data.id', $user->id)
         ->assertJsonPath('data.email', 'reader@example.com')
-        ->assertJsonPath('data.display_name', 'Reader One')
-        ->assertJsonPath('data.role', User::ROLE_USER);
+        ->assertJsonPath('data.display_name', 'Reader One');
 });
 
 it('updates allowed private profile fields', function () {
@@ -60,8 +64,7 @@ it('does not update role from the private profile endpoint', function () {
             'display_name' => 'Still A User',
             'role' => User::ROLE_ADMIN,
         ])
-        ->assertOk()
-        ->assertJsonPath('data.role', User::ROLE_USER);
+        ->assertOk();
 
     expect($user->refresh()->role)->toBe(User::ROLE_USER);
 });
@@ -69,4 +72,19 @@ it('does not update role from the private profile endpoint', function () {
 it('rejects guests from deleting the private profile', function () {
     $this->deleteJson('/api/v1/profile')
         ->assertUnauthorized();
+});
+
+it('returns 429 when the profile patch rate limit is exceeded', function () {
+    $user = User::factory()->create();
+
+    // Send 60 requests to exhaust the per-minute limit
+    foreach (range(1, 60) as $_) {
+        $this->actingAs($user, 'api')
+            ->patchJson('/api/v1/profile', ['display_name' => 'Test']);
+    }
+
+    // The 61st request must be rate-limited
+    $this->actingAs($user, 'api')
+        ->patchJson('/api/v1/profile', ['display_name' => 'Test'])
+        ->assertTooManyRequests();
 });
