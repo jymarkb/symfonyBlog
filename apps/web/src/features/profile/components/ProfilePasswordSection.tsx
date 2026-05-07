@@ -7,6 +7,7 @@ import { supabase } from "@/lib/auth/supabaseClient";
 import { PasswordStrengthHint } from "@/components/ui/PasswordStrengthHint";
 import { logError } from "@/lib/utils/logError";
 import { getApiErrorMessage } from "@/lib/api/apiErrors";
+import { ProfileSection } from "@/features/profile/components/ProfileSection";
 import type {
   ChangePasswordErrors,
   ChangePasswordFields,
@@ -91,8 +92,7 @@ export function ProfilePasswordSection() {
   }
 
   return (
-    <div className="profile-section">
-      <h2>Change password</h2>
+    <ProfileSection title="Change password">
       {errors.server && <div className="form-alert">{errors.server}</div>}
       <form noValidate onSubmit={handleSubmit}>
         <div className="field">
@@ -155,6 +155,6 @@ export function ProfilePasswordSection() {
           {isSubmitting ? "Updating…" : "Update password"}
         </button>
       </form>
-    </div>
+    </ProfileSection>
   );
 }

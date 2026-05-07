@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import { deleteAccount } from "@/features/profile/api/profileApi";
 import { supabase } from "@/lib/auth/supabaseClient";
+import { getAccessToken } from "@/lib/auth/getAccessToken";
+import { logError } from "@/lib/utils/logError";
 
 export function ProfileDangerZone() {
   const [confirming, setConfirming] = useState(false);
@@ -21,20 +23,13 @@ export function ProfileDangerZone() {
     setIsDeleting(true);
     setError(null);
 
-    const { data: sessionData } = await supabase.auth.getSession();
-    const accessToken = sessionData.session?.access_token;
-
-    if (!accessToken) {
-      setError("No active session found. Please sign in again.");
-      setIsDeleting(false);
-      return;
-    }
-
     try {
+      const accessToken = await getAccessToken();
       await deleteAccount(accessToken);
       await supabase.auth.signOut();
       window.location.replace("/");
-    } catch {
+    } catch (error) {
+      logError(error);
       setError("Failed to delete account. Please try again.");
       setIsDeleting(false);
     }
@@ -63,10 +58,9 @@ export function ProfileDangerZone() {
               Cancel
             </button>
             <button
-              className="btn btn-sm"
+              className="btn btn-sm btn-danger"
               disabled={isDeleting}
               onClick={handleConfirmDelete}
-              style={{ borderColor: "oklch(0.65 0.14 20)", color: "oklch(0.42 0.14 20)" }}
               type="button"
             >
               {isDeleting ? "Deleting…" : "Yes, delete my account"}
@@ -75,9 +69,8 @@ export function ProfileDangerZone() {
         </div>
       ) : (
         <button
-          className="btn btn-sm"
+          className="btn btn-sm btn-danger"
           onClick={handleRequestDelete}
-          style={{ borderColor: "oklch(0.65 0.14 20)", color: "oklch(0.42 0.14 20)" }}
           type="button"
         >
           Delete my account

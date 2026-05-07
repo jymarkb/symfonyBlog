@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import { supabase } from "@/lib/auth/supabaseClient";
 import { useCurrentSession } from "@/features/auth/session";
+import { getAccessToken } from "@/lib/auth/getAccessToken";
 import { logError } from "@/lib/utils/logError";
 import { updateNotifications } from "@/features/profile/api/profileApi";
 import type {
@@ -30,13 +30,8 @@ export function ProfileSidebar({ profile, onProfileChange }: Props) {
     field: keyof UpdateNotificationsPayload,
     value: NotificationPreference,
   ) {
-    const { data } = await supabase.auth.getSession();
-    const accessToken = data.session?.access_token;
-    if (!accessToken) {
-      setNotifError("Not authenticated.");
-      return;
-    }
     try {
+      const accessToken = await getAccessToken();
       const updatedProfile = await updateNotifications(accessToken, { [field]: value });
       onProfileChange(updatedProfile);
       setNotifError(null);
@@ -107,9 +102,7 @@ export function ProfileSidebar({ profile, onProfileChange }: Props) {
           </select>
         </div>
         {notifError && (
-          <p className="hint" style={{ marginBottom: 0 }}>
-            {notifError}
-          </p>
+          <div className="form-alert">{notifError}</div>
         )}
       </div>
 

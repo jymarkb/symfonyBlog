@@ -16,8 +16,10 @@ import {
   validateProfileFields,
 } from "@/features/profile/lib/profileForm";
 import { useCurrentSession } from "@/features/auth/session";
-import { supabase } from "@/lib/auth/supabaseClient";
+import { getAccessToken } from "@/lib/auth/getAccessToken";
 import { logError } from "@/lib/utils/logError";
+import { ProfileSection } from "@/features/profile/components/ProfileSection";
+import { ProfilePlaceholder } from "@/features/profile/components/ProfilePlaceholder";
 
 export function ProfilePage({
   onProfileChange,
@@ -37,18 +39,6 @@ export function ProfilePage({
   const [profile, setProfile] = useState<PrivateProfile | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const getAccessToken = useCallback(async () => {
-    const { data, error } = await supabase.auth.getSession();
-
-    if (error || !data.session?.access_token) {
-      throw new Error(
-        "Your session could not be loaded. Please sign in again.",
-      );
-    }
-
-    return data.session.access_token;
-  }, []);
-
   const loadProfile = useCallback(async () => {
     setIsLoading(true);
     setErrors({});
@@ -65,7 +55,7 @@ export function ProfilePage({
     } finally {
       setIsLoading(false);
     }
-  }, [getAccessToken]);
+  }, []);
 
   useEffect(() => {
     void loadProfile();
@@ -121,22 +111,17 @@ export function ProfilePage({
 
   if (isLoading) {
     return (
-      <div className="profile-section">
-        <p style={{ color: "var(--ink-4)", fontSize: "14px", margin: 0 }}>
-          Loading your profile…
-        </p>
-      </div>
+      <ProfileSection>
+        <ProfilePlaceholder>Loading your profile…</ProfilePlaceholder>
+      </ProfileSection>
     );
   }
 
   if (!profile) {
     return (
-      <div className="profile-section">
-        <h2>Account</h2>
+      <ProfileSection title="Account">
         {errors.server && (
-          <p style={{ color: "var(--ink-4)", fontSize: "14px" }}>
-            {errors.server}
-          </p>
+          <ProfilePlaceholder>{errors.server}</ProfilePlaceholder>
         )}
         <button
           className="btn btn-primary"
@@ -145,12 +130,12 @@ export function ProfilePage({
         >
           Try again
         </button>
-      </div>
+      </ProfileSection>
     );
   }
 
   return (
-    <div className="profile-section">
+    <ProfileSection>
       <ProfileForm
         errors={errors}
         fields={fields}
@@ -160,6 +145,6 @@ export function ProfilePage({
         profile={profile}
         successMessage={successMessage}
       />
-    </div>
+    </ProfileSection>
   );
 }
