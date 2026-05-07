@@ -38,4 +38,13 @@ class ProfileService
             ->limit($limit)
             ->get();
     }
+
+    public function getReadingHistory(User $user, int $limit = 10): \Illuminate\Support\Collection
+    {
+        return $user->postViews()
+            ->with('post')
+            ->orderBy('last_viewed_at', 'desc')
+            ->limit($limit)
+            ->get();
+    }
 }
