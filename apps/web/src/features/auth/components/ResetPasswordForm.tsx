@@ -40,10 +40,7 @@ export function ResetPasswordForm() {
       } catch (error) {
         if (!isMounted) return;
         setErrors({
-          server:
-            error instanceof Error
-              ? error.message
-              : "We could not verify this reset link.",
+          server: "We could not verify this reset link. Please request a new one.",
         });
       }
     }
@@ -92,10 +89,11 @@ export function ResetPasswordForm() {
         confirmPassword: "",
       });
       setIsComplete(true);
+      window.location.replace('/signin');
     } catch (error) {
+      console.error(error);
       setErrors({
-        server:
-          error instanceof Error ? error.message : "Unable to update password.",
+        server: "We were unable to update your password. Please try again.",
       });
     } finally {
       setSubmitting(false);
@@ -168,6 +166,8 @@ export function ResetPasswordForm() {
         <div className="field">
           <label htmlFor="reset-password">New password</label>
           <input
+            aria-describedby={errors.password ? "reset-new-password-error" : undefined}
+            aria-invalid={!!errors.password}
             autoComplete="new-password"
             className={errors.password ? "is-error" : ""}
             id="reset-password"
@@ -191,13 +191,15 @@ export function ResetPasswordForm() {
             </>
           )}
           {errors.password && (
-            <span className="field-error">{errors.password}</span>
+            <span className="field-error" id="reset-new-password-error">{errors.password}</span>
           )}
         </div>
 
         <div className="field">
           <label htmlFor="reset-password-confirm">Confirm password</label>
           <input
+            aria-describedby={errors.confirmPassword ? "reset-confirm-password-error" : undefined}
+            aria-invalid={!!errors.confirmPassword}
             autoComplete="new-password"
             className={errors.confirmPassword ? "is-error" : ""}
             id="reset-password-confirm"
@@ -207,7 +209,7 @@ export function ResetPasswordForm() {
             value={fields.confirmPassword}
           />
           {errors.confirmPassword && (
-            <span className="field-error">{errors.confirmPassword}</span>
+            <span className="field-error" id="reset-confirm-password-error">{errors.confirmPassword}</span>
           )}
         </div>
 

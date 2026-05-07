@@ -38,8 +38,8 @@ export function validateHandle(value: string): string | null {
 export function passwordStrength(value: string): 0 | 1 | 2 | 3 | 4 {
   if (!value) return 0;
   let score = 0;
-  if (value.length >= 8) score++;
   if (value.length >= 12) score++;
+  if (value.length >= 16) score++;
   if (/[a-z]/.test(value) && /[A-Z]/.test(value)) score++;
   if (/[0-9]/.test(value)) score++;
   if (/[^a-zA-Z0-9]/.test(value)) score++;
