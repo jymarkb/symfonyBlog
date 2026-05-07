@@ -8,6 +8,7 @@ import type {
 } from "@/features/auth/authTypes";
 import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
 import { AuthProviderButtons } from "@/features/auth/components/AuthProviderButtons";
+import { ApiError } from "@/lib/api/apiClient";
 import { startSocialAuth } from "@/features/auth/api/registerApi";
 import { signInWithEmail } from "@/features/auth/api/signInApi";
 import {
@@ -71,7 +72,9 @@ export function SignInForm() {
     } catch (error) {
       console.error(error);
       setErrors({
-        server: "We couldn't sign you in. Please try again.",
+        server: error instanceof ApiError && error.status === 429
+          ? "Too many sign-in attempts. Please wait a moment and try again."
+          : "We couldn't sign you in. Please try again.",
       });
       setSubmitting(false);
     }

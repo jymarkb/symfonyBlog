@@ -82,9 +82,7 @@ export function ForgotPasswordForm() {
         <>
           <ForgotPasswordIntro />
 
-          <div className="form-alert">
-            {errors.server ?? ""}
-          </div>
+          {errors.server && <div className="form-alert">{errors.server}</div>}
 
           <form noValidate onSubmit={handleSubmit}>
             <div className="field">
