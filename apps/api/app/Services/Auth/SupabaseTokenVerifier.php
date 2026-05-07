@@ -10,14 +10,9 @@ use RuntimeException;
 
 class SupabaseTokenVerifier
 {
-    private static bool $leewayInitialized = false;
-
     public function verify(string $token): object
     {
-        if (!self::$leewayInitialized) {
-            JWT::$leeway = 5;
-            self::$leewayInitialized = true;
-        }
+        JWT::$leeway = 30;
 
         $jwks = Cache::remember('supabase.jwks', now()->addMinutes(10), function () {
             $response = Http::get(config('services.supabase.jwks_url'));

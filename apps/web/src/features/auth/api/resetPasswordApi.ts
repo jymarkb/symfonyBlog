@@ -1,3 +1,4 @@
+import { ApiError } from "@/lib/api/apiClient";
 import { supabase } from "@/lib/auth/supabaseClient";
 
 export async function sendPasswordResetEmail(email: string) {
@@ -6,6 +7,9 @@ export async function sendPasswordResetEmail(email: string) {
   });
 
   if (error) {
+    if (error.status === 429) {
+      throw new ApiError("Rate limited.", 429);
+    }
     throw new Error("Unable to send reset link. Please try again.");
   }
 }
@@ -49,7 +53,10 @@ export async function updatePassword(newPassword: string) {
   const { error } = await supabase.auth.updateUser({ password: newPassword });
 
   if (error) {
-    console.error('Password update failed:', error);
+    if (error.status === 429) {
+      throw new ApiError("Rate limited.", 429);
+    }
+    console.error('Password update failed:', error.code ?? error.message);
     throw new Error(getPasswordUpdateErrorMessage(error));
   }
 }
@@ -57,7 +64,7 @@ export async function updatePassword(newPassword: string) {
 export async function signOutAfterPasswordUpdate() {
   const { error } = await supabase.auth.signOut();
   if (error) {
-    console.error('Sign-out after password update failed:', error);
+    console.error('Sign-out after password update failed:', error.code ?? error.message);
     throw new Error("Sign-out failed after password update.");
   }
 }
