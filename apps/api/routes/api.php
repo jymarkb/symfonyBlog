@@ -16,7 +16,7 @@ use App\Http\Controllers\Api\V1\Admin\UploadController;
 Route::prefix('v1')->group(function () {
     Route::get('/posts', fn() => response()->json([]));
     Route::get('/categories', fn() => response()->json([]));
-    Route::get('/profiles/{handle}', [PublicProfileController::class, 'show']);
+    Route::get('/profiles/{handle}', [PublicProfileController::class, 'show'])->middleware('throttle:public-api');
 
     Route::middleware('auth:api')->group(function () {
         Route::get('/session', [SessionController::class, 'show']);
