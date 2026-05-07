@@ -11,6 +11,7 @@ it('keeps api v1 route test coverage explicit', function () {
 
         'GET api/v1/session',
         'GET api/v1/profile/comments',
+        'GET api/v1/profile/reading-history',
         'GET api/v1/profile',
         'PATCH api/v1/profile',
         'DELETE api/v1/profile',
