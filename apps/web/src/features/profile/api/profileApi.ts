@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/api/apiClient";
-import type { ProfileCommentsResponse } from '@/features/profile/profileTypes';
+import type { ProfileCommentsResponse, ProfileReadingHistoryResponse } from '@/features/profile/profileTypes';
 
 import type {
     PrivateProfileResponse,
@@ -32,4 +32,11 @@ export async function fetchProfileComments(accessToken: string) {
         accessToken,
     });
     return response.data;
+}
+
+export async function fetchReadingHistory(accessToken: string) {
+  const response = await apiRequest<ProfileReadingHistoryResponse>('/profile/reading-history', {
+    accessToken,
+  });
+  return response.data;
 }
