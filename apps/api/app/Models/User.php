@@ -32,6 +32,8 @@ class User extends Authenticatable
         'last_name',
         'avatar_url',
         'role',
+        'notify_comment_replies',
+        'notify_new_posts',
     ];
 
     protected $hidden = [];

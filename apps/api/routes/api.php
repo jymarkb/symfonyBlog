@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\PublicProfileController;
 use App\Http\Controllers\Api\V1\ProfileCommentController;
+use App\Http\Controllers\Api\V1\ProfileNotificationController;
 use App\Http\Controllers\Api\V1\ProfileReadingHistoryController;
 use App\Http\Controllers\Api\V1\Admin\PostController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
@@ -22,6 +23,7 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/profile/reading-history', [ProfileReadingHistoryController::class, 'index']);
         Route::get('/profile/comments', [ProfileCommentController::class, 'index']);
+        Route::patch('/profile/notifications', [ProfileNotificationController::class, 'update']);
         Route::get('/profile', [ProfileController::class, 'show']);
         Route::patch('/profile', [ProfileController::class, 'update']);
         Route::delete('/profile', [ProfileController::class, 'destroy']);

@@ -50,6 +50,12 @@ class ProfileService
             ->get();
     }
 
+    public function updateNotifications(User $user, array $data): User
+    {
+        $user->fill($data)->save();
+        return $user->refresh();
+    }
+
     public function deleteAccount(User $user): void
     {
         Comment::where('user_id', $user->id)->update(['user_id' => null]);
