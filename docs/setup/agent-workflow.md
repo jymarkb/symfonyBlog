@@ -22,6 +22,7 @@ When running under Claude, use these model tiers per agent type:
 -core-php-           -> sonnet  (backend implementation)
 -qa-frontend-        -> sonnet  (read-only review, use Explore subagent type)
 -qa-backend-         -> sonnet  (read-only review, use Explore subagent type)
+-qa-                 -> main session workflow (parallel frontend + backend QA, synthesized report)
 -review-             -> sonnet  (general review)
 -implement-          -> sonnet  (scoped implementation)
 -pr-                 -> haiku   (GitHub PR description, plain text ready to paste)
@@ -43,6 +44,7 @@ Use these prefixes in user requests:
 -ux- <task>
 -core-react- <task>
 -core-php- <task>
+-qa- <task>
 -qa-frontend- <task>
 -qa-backend- <task>
 -review- <task>
@@ -381,28 +383,149 @@ Rules:
 
 Use a frontend QA agent for `-qa-frontend- <task>`. Under Claude, use `Explore` subagent type (read-only, does not write files).
 
-Responsibilities:
+### Read first
 
-- Review React behavior, form states, routing, hydration, accessibility basics, and responsive risks.
-- Check loading/error/success states and copy clarity.
-- Identify missing typechecks, tests, or manual QA steps.
-- Check against `docs/setup/security.md` frontend checklist: route guards in place, token handling correct, error messages user-friendly, no client-side role as sole gate.
-- Return findings first with file references.
-- Do not edit files unless separately assigned implementation.
+Before reviewing, always read:
+1. `docs/setup/qa-checklist.md` — full frontend checklist organized by area
+2. `docs/setup/security.md` — frontend security conventions for this project
+
+### Responsibilities
+
+Apply every relevant section of the QA checklist. At minimum cover:
+
+- **Route guards** — correct layout guard (`RequireAuth`/`RequireGuest`) per route group; no duplicate check inside the page; admin-gated UI does not treat client-side `isAdmin` as the sole gate
+- **Auth flow edge cases** — OAuth error messages generic (no raw provider strings); `pendingAuthProvider` cleared on failure not just success; token fragments stripped from URL before redirect; password reset does not conflict with `RequireGuest`
+- **Form validation and UX** — client-side validation fires before any API call; double-submit prevented; all four async states handled (loading, error, empty, data); dead UI identified (unchecked checkboxes, disabled buttons with no enable path)
+- **Error message hygiene** — no raw API error strings, Supabase messages, or stack traces in the UI; generic messages throughout
+- **Token handling** — `getSession()` called immediately before each API call, not cached in state; no token in URL params or `console.log`
+- **Security** — no `dangerouslySetInnerHTML` without sanitization; no open redirect via URL params; no sensitive data in `localStorage` beyond library requirements
+- **TypeScript** — `tsc --noEmit` would pass; no unchecked `!` assertions on nullable API fields; no `any` on API response types
+- **React correctness** — no duplicate API calls on mount; `useEffect` dependency arrays complete; error boundaries present at page/feature level
+- **Accessibility** — icon-only buttons have `aria-label`; form inputs have `<label>`; `aria-live` regions for async state changes; keyboard navigability
+- **Dead and inconsistent UI** — feature parity between similar pages; no unbound checkboxes or links
+
+### Output format
+
+```text
+## [Task]: Frontend QA
+
+### 🔴 Bugs
+[file:line] — description and why it matters
+
+### 🟡 Gaps
+[file:line] — description and risk level
+
+### 🟢 Confirmed Working
+- concise list of checks that passed
+
+### 📋 Manual QA Checklist
+- [ ] specific step to test in the browser
+```
+
+Do not edit files unless separately assigned implementation.
+
+---
 
 ## Backend QA Agent
 
 Use a backend QA agent for `-qa-backend- <task>`. Under Claude, use `Explore` subagent type (read-only, does not write files).
 
-Responsibilities:
+### Read first
 
-- Review Laravel routes, middleware, auth/authorization, migrations, models, API responses, and security risks.
-- Identify missing tests or validation around backend behavior.
-- Compare `/api/v1` routes against `apps/api/tests/Feature/Routes/ApiRouteCoverageTest.php` and flag any route without coverage.
-- Check that each covered route also has a behavior test for guest, signed-in user, admin, or public access as appropriate.
-- Check against `docs/setup/security.md` backend checklist: auth gating, `$fillable` discipline, throttle on mutations, input validation rules, Resource field whitelist.
-- Return findings first with file references.
-- Do not edit files unless separately assigned implementation.
+Before reviewing, always read:
+1. `docs/setup/qa-checklist.md` — full backend checklist organized by area
+2. `docs/setup/security.md` — backend security conventions for this project
+
+### Responsibilities
+
+Apply every relevant section of the QA checklist. At minimum cover:
+
+- **Auth and authorization** — every private route behind `auth:api`; admin routes behind `admin`; BOLA check (user A cannot access user B's data); BFLA check (regular user cannot call admin endpoints); JWT `exp`, issuer, and audience all validated; JWT `alg` hardcoded server-side (not read from token header)
+- **Mass assignment** — `$fillable` audit; `role`, `email`, `supabase_user_id`, `handle` absent; no `fill()` with raw request data for privileged fields; `$hidden` includes sensitive fields
+- **Resource field exposure** — every Resource exposes only what the client needs; `role` and `supabase_user_id` absent from all non-session Resources; `assertJsonMissingPath` tests present for every field that must not be exposed
+- **Input validation** — all inputs have type, presence, length, and format rules; URL fields use `url:https`; enum fields use `in:`; no raw query fragments built from user input
+- **Rate limiting** — every mutation (POST, PATCH, DELETE) has `throttle:` middleware; GET endpoints that trigger expensive operations are also limited; 429 tests use correct `md5($limiterName . $limitKey)` cache key format
+- **Response consistency** — consistent error shape across all endpoints; correct HTTP status codes; pagination on list endpoints
+- **Test coverage** — every `/api/v1` route in `ApiRouteCoverageTest.php`; guest/auth/admin behavior tests; isolation tests; rate limit tests; `assertJsonMissingPath` assertions
+- **Query hygiene** — no N+1 queries on collection endpoints; frequently filtered columns have DB indexes
+- **Race conditions** — unique-constraint operations use `firstOrCreate` or a transaction; unbounded loops have an iteration cap
+
+### Output format
+
+```text
+## [Task]: Backend QA
+
+### 🔴 Bugs
+[file:line] — description and why it matters
+
+### 🟡 Gaps
+[file:line] — description and risk level
+
+### 🟢 Confirmed Working
+- concise list of checks that passed
+
+### 🔒 Security Scorecard
+| Check | Result |
+|---|---|
+| ... | PASS / FAIL |
+```
+
+Do not edit files unless separately assigned implementation.
+
+---
+
+## Master QA Agent
+
+Use a master QA agent for `-qa- <task>`. This is a **main session workflow** — the main session runs it directly, it does not spawn a single agent.
+
+Use this when you want both frontend and backend QA run together and synthesized into one report. Use `-qa-frontend-` and `-qa-backend-` individually when you only need one side.
+
+### How the main session executes it
+
+1. Spawn `-qa-frontend-` and `-qa-backend-` as `Explore` subagents **in parallel** (`run_in_background: true` for both, sent in a single message).
+2. Wait for both task notifications to arrive.
+3. Read both result summaries.
+4. Synthesize into one unified report:
+   - Deduplicate findings that appear in both (e.g., a backend field leaking that the frontend reads for auth decisions is one combined issue)
+   - Cross-reference: if a backend Resource exposes a field and the frontend relies on it for authorization, flag it as higher severity
+   - Sort all findings by priority: 🔴 bugs first, 🟡 gaps second
+5. Post the unified report in chat. No auto-commit. No implementation.
+
+### Output format
+
+```text
+## QA: [task]
+
+### 🔴 Bugs — fix before merge
+#### Frontend
+[file:line] — description
+#### Backend
+[file:line] — description
+
+### 🟡 Gaps — address before launch
+#### Frontend
+...
+#### Backend
+...
+
+### 🟢 Confirmed Working
+- frontend: concise list
+- backend: concise list
+
+### 📋 Manual QA Checklist
+Combined list of in-browser steps to verify
+
+### Suggested fix grouping (for -commit after fixes)
+- Commit 1: ...
+- Commit 2: ...
+```
+
+### Rules
+
+- Both subagents must read `docs/setup/qa-checklist.md` before reviewing — brief them explicitly to do this.
+- Main session posts ONE combined report — not two separate reports pasted together.
+- Do not implement fixes. Do not commit. Surface findings only.
+- If one subagent fails to complete, post that side's partial result with a note, then complete the other side.
 
 ## Backend API Test Coverage
 
