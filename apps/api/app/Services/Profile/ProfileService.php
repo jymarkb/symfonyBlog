@@ -2,6 +2,8 @@
 
 namespace App\Services\Profile;
 
+use App\Models\Comment;
+use App\Models\PostView;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -46,5 +48,12 @@ class ProfileService
             ->orderBy('last_viewed_at', 'desc')
             ->limit($limit)
             ->get();
+    }
+
+    public function deleteAccount(User $user): void
+    {
+        Comment::where('user_id', $user->id)->update(['user_id' => null]);
+        PostView::where('user_id', $user->id)->delete();
+        $user->delete();
     }
 }

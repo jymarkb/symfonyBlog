@@ -28,8 +28,10 @@ class ProfileController extends Controller
         );
     }
 
-    public function destroy()
+    public function destroy(Request $request, ProfileService $profiles): \Illuminate\Http\JsonResponse
     {
-        abort(501, 'Profile deletion is not implemented yet.');
+        $profiles->deleteAccount($request->user());
+
+        return response()->json(['message' => 'Account deleted.']);
     }
 }
