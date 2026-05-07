@@ -13,7 +13,6 @@ import type {
 import {
   fieldsFromProfile,
   normalizeProfileFields,
-  validateProfileFields,
 } from "@/features/profile/lib/profileForm";
 import { useCurrentSession } from "@/features/auth/session";
 import { getAccessToken } from "@/lib/auth/getAccessToken";
@@ -77,13 +76,6 @@ export function ProfilePage({
   }
 
   async function handleSubmit() {
-    const nextErrors = validateProfileFields(fields);
-
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
-      return;
-    }
-
     setIsSubmitting(true);
     setErrors({});
     setSuccessMessage(null);
