@@ -25,7 +25,6 @@ export function ResetPasswordForm() {
   });
   const [errors, setErrors] = useState<ResetPasswordErrors>({});
   const [isReady, setIsReady] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const strength = passwordStrength(fields.password);
@@ -88,7 +87,6 @@ export function ResetPasswordForm() {
         password: "",
         confirmPassword: "",
       });
-      setIsComplete(true);
       window.location.replace('/signin');
     } catch (error) {
       console.error(error);
@@ -100,41 +98,10 @@ export function ResetPasswordForm() {
     }
   }
 
-  if (isComplete) {
-    return (
-      <>
-        <div className="auth-confirm">
-          <div aria-hidden="true" className="auth-confirm-mark">
-            OK
-          </div>
-
-          <div className="eyebrow mb-4">Password updated</div>
-
-          <h1>
-            You are ready to <em>sign in</em>.
-          </h1>
-
-          <p className="lede">
-            Your password was updated. Use the new password the next time you
-            sign in.
-          </p>
-
-          <div className="callback-actions">
-            <a className="btn btn-primary" href="/signin">
-              Go to sign in
-            </a>
-          </div>
-        </div>
-
-        <AuthFooterLinks label="Password updated securely" />
-      </>
-    );
-  }
-
   if (!isReady) {
     return (
       <>
-        <div aria-live="polite" role="alert" className="form-alert">
+        <div aria-live="polite" role="status" className="form-alert">
           {errors.server ?? ""}
         </div>
         {!errors.server && (
@@ -161,7 +128,7 @@ export function ResetPasswordForm() {
     <>
       <ResetPasswordIntro />
 
-      <div aria-live="polite" role="alert" className="form-alert">
+      <div aria-live="polite" role="status" className="form-alert">
         {errors.server ?? ""}
       </div>
 

@@ -83,7 +83,7 @@ export function ForgotPasswordForm() {
     <>
       <ForgotPasswordIntro />
 
-      <div aria-live="polite" role="alert" className="form-alert">
+      <div aria-live="polite" role="status" className="form-alert">
         {errors.server ?? ""}
       </div>
 
