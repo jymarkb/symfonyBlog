@@ -18,7 +18,10 @@ This document defines the structure, data flow, and implementation plan for the 
 5. Stats counts                     done — comments_count wired; profile state lifted to +Page.tsx
 6. Comment history backend          done — Post/Comment models, migrations, ProfileCommentController,
                                     GET /api/v1/profile/comments, PostFactory, CommentFactory, DatabaseSeeder all done
-7. Comment history frontend         pending — types + API fn + ProfileCommentHistory component rewrite
+7. Comment history frontend         done — ProfileComment types, fetchProfileComments, ProfileCommentHistory component wired;
+                                    fixed session guard bug (missing session left component in permanent loading state)
+8. Comment history tests            done — ApiRouteCoverageTest entry added, ProfileCommentHistoryTest (guest 401,
+                                    empty 200, correct shape, isolation) all passing
 8. Recently viewed                  pending — needs GET /api/v1/profile/reading-history endpoint
 9. Notifications                    pending — UI stub only; no backend endpoint yet
 10. Delete account                  pending — UI stub only; DELETE /api/v1/profile not wired
