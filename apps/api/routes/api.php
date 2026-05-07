@@ -49,5 +49,5 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    Route::post('/posts/{slug}/view', fn() => response()->json([], 202));
+    Route::post('/posts/{slug}/view', fn() => response()->json([], 202))->middleware('throttle:post-view');
 });
