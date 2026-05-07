@@ -56,3 +56,14 @@ export type ProfileSidebarProps = {
     profile: PrivateProfile | null;
 };
 
+export type ProfileComment = {
+  id: number;
+  body: string;
+  post_title: string;
+  post_slug: string;
+  created_at: string;
+};
+
+export type ProfileCommentsResponse = {
+  data: ProfileComment[];
+};

@@ -1,4 +1,6 @@
 import { apiRequest } from "@/lib/api/apiClient";
+import type { ProfileCommentsResponse } from '@/features/profile/profileTypes';
+
 import type {
     PrivateProfileResponse,
     ProfileFormSubmitInput,
@@ -22,5 +24,12 @@ export async function updatePrivateProfile(
         body: input,
     });
 
+    return response.data;
+}
+
+export async function fetchProfileComments(accessToken: string) {
+    const response = await apiRequest<ProfileCommentsResponse>('/profile/comments', {
+        accessToken,
+    });
     return response.data;
 }
