@@ -83,6 +83,7 @@ export function ProfilePasswordSection() {
         <div className="field">
           <label htmlFor="pw-current">Current password</label>
           <input
+            autoComplete="current-password"
             className={errors.currentPassword ? "is-error" : ""}
             id="pw-current"
             onChange={(e) => handleChange("currentPassword", e.target.value)}
@@ -98,6 +99,7 @@ export function ProfilePasswordSection() {
           <div className="field">
             <label htmlFor="pw-new">New password</label>
             <input
+              autoComplete="new-password"
               className={errors.newPassword ? "is-error" : ""}
               id="pw-new"
               onChange={(e) => handleChange("newPassword", e.target.value)}
@@ -112,6 +114,7 @@ export function ProfilePasswordSection() {
           <div className="field">
             <label htmlFor="pw-confirm">Confirm new password</label>
             <input
+              autoComplete="new-password"
               className={errors.confirmPassword ? "is-error" : ""}
               id="pw-confirm"
               onChange={(e) => handleChange("confirmPassword", e.target.value)}

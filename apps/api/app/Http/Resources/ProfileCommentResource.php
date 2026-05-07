@@ -11,10 +11,10 @@ class ProfileCommentResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'created_at' => $this->created_at?->toISOString(),
+            'body' => $this->body,
             'post_title' => $this->post->title,
             'post_slug' => $this->post->slug,
-            'content' => $this->content,
+            'created_at' => $this->created_at?->toISOString(),
         ];
     }
 }

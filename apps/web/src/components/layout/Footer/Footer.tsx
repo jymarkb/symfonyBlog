@@ -28,7 +28,7 @@ export function Footer() {
               <h4>{group.title}</h4>
               <ul>
                 {group.links.map((link) => (
-                  <li key={link.href}>
+                  <li key={link.label}>
                     <a href={link.href}>{link.label}</a>
                   </li>
                 ))}
