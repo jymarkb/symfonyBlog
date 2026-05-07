@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/auth/supabaseClient';
 import { fetchCurrentUser } from '@/features/auth/api/currentUserApi';
 import type { SocialAuthProvider } from '@/features/auth/authTypes';
-import { setPendingAuthProvider } from '@/features/auth/lib/lastAuthProvider';
+import { setPendingAuthProvider, clearPendingAuthProvider } from '@/features/auth/lib/lastAuthProvider';
 
 type RegisterInput = {
     displayName: string;
@@ -18,7 +18,7 @@ export async function registerWithEmail(params: RegisterInput) {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
             data: {
                 display_name: params.displayName,
-                handle: params.handle.trim().toLowerCase(),
+                handle: (() => { const h = params.handle.trim().toLowerCase(); return h.startsWith('@') ? h : `@${h}`; })(),
             },
         },
     });
@@ -53,6 +53,7 @@ export async function startSocialAuth(provider: SocialAuthProvider) {
     });
 
     if (error) {
+        clearPendingAuthProvider();
         throw new Error("We were unable to sign in with the selected provider. Please try again.");
     }
 }
