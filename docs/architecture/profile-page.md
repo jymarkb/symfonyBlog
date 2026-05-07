@@ -22,7 +22,10 @@ This document defines the structure, data flow, and implementation plan for the 
                                     fixed session guard bug (missing session left component in permanent loading state)
 8. Comment history tests            done — ApiRouteCoverageTest entry added, ProfileCommentHistoryTest (guest 401,
                                     empty 200, correct shape, isolation) all passing
-8. Recently viewed                  pending — needs GET /api/v1/profile/reading-history endpoint
+8. Recently viewed                  done — post_views migration, PostView model/factory, ProfileReadingHistoryController,
+                                    GET /api/v1/profile/reading-history, ProfileReadingHistoryTest (4 cases),
+                                    ProfileReadingHistoryItem types, fetchReadingHistory(), ProfileRecentlyViewed wired;
+                                    ProfileResource posts_read_count now live from postViews loadCount
 9. Notifications                    pending — UI stub only; no backend endpoint yet
 10. Delete account                  pending — UI stub only; DELETE /api/v1/profile not wired
 11. Security review                 pending — ownership checks, rate limiting on profile mutations
