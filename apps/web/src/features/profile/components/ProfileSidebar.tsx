@@ -65,10 +65,6 @@ export function ProfileSidebar({ profile, onProfileChange }: Props) {
             <span className="label">Member since</span>
             <span className="value">{memberSince}</span>
           </div>
-          <div className="stat-row">
-            <span className="label">Subscribed</span>
-            <span className="value">—</span>
-          </div>
         </div>
       </div>
 
