@@ -40,7 +40,9 @@ export function ProfilePasswordSection() {
     }
     const pwError = validateNewPassword(fields.newPassword);
     if (pwError) next.newPassword = pwError;
-    if (fields.newPassword && fields.confirmPassword !== fields.newPassword) {
+    if (fields.newPassword && !fields.confirmPassword) {
+      next.confirmPassword = "Please confirm your new password.";
+    } else if (fields.newPassword && fields.confirmPassword !== fields.newPassword) {
       next.confirmPassword = "Passwords must match.";
     }
     return next;
@@ -55,12 +57,10 @@ export function ProfilePasswordSection() {
       return;
     }
 
-    if (!user) {
-      setErrors({ server: "You must be signed in to change your password." });
-      return;
-    }
+    // user is guaranteed non-null inside RequireAuth
+    const currentUser = user!;
 
-    if (!user.email) {
+    if (!currentUser.email) {
       setErrors({ server: "Password change is not available for accounts signed in with a social provider." });
       return;
     }
@@ -68,9 +68,10 @@ export function ProfilePasswordSection() {
     setIsSubmitting(true);
     setErrors({});
 
+    let passwordUpdated = false;
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.email,
+        email: currentUser.email,
         password: fields.currentPassword,
       });
 
@@ -81,8 +82,7 @@ export function ProfilePasswordSection() {
       }
 
       await updatePassword(fields.newPassword);
-      await signOut();
-      window.location.replace("/signin");
+      passwordUpdated = true;
     } catch (error) {
       logError(error);
       setErrors({
@@ -90,6 +90,11 @@ export function ProfilePasswordSection() {
       });
     } finally {
       setIsSubmitting(false);
+    }
+
+    if (passwordUpdated) {
+      await signOut().catch(() => {});
+      window.location.replace("/signin");
     }
   }
 
