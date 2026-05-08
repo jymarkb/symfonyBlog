@@ -42,18 +42,20 @@ Default fields:
 - `id`
 - `title`
 - `slug`
-- `summary`
-- `thumbnail_url`
+- `excerpt`
+- `cover_image`
 - `is_featured`
 - `published_at`
-- `category`
+- `tags`
+- `comments_count`
+- `stars_count`
 - `author`
 
 Suggested query parameters:
 
 - `page`
 - `per_page`
-- `category`
+- `tag`
 - `featured`
 - `search`
 
@@ -66,16 +68,30 @@ Purpose:
 Payload includes:
 
 - list fields
-- `content_html`
-- `content_css`
-- `content_js`
-- analytics summary if exposed publicly later
+- `body` as a blogEditor `BlockElement[]` JSON array
 
-### `GET /api/v1/categories`
+Rendering note:
+
+- Laravel stores and returns editor block JSON only.
+- The web app renders post detail content through the blogEditor public renderer.
+
+### `GET /api/v1/tags`
 
 Purpose:
 
-- list available blog categories
+- list available blog tags
+
+### `POST /api/v1/posts/{slug}/stars`
+
+Purpose:
+
+- star a post as the authenticated user
+
+### `DELETE /api/v1/posts/{slug}/stars`
+
+Purpose:
+
+- remove the authenticated user's star from a post
 
 ### `GET /api/v1/profiles/{handle}`
 
@@ -129,10 +145,10 @@ Admin endpoints are currently scaffolded as protected controller placeholders. T
 
 Future admin business logic belongs behind these routes and should be implemented feature by feature:
 
-- posts: draft, create, edit, publish, unpublish, archive, delete, slug/SEO/category/tag/media fields
+- posts: draft, create, edit, publish, unpublish, archive, delete, slug/SEO/tag/media fields
 - users: list, view, role changes, suspend/restore, activity review
 - comments: list, approve, hide, mark spam, delete, review reports
-- categories: create, rename, reorder, merge, delete
+- tags: create, rename, reorder, merge, delete
 - uploads: create media upload records or broker storage uploads
 - stats: dashboard totals, post views, popular posts, traffic summaries, user/comment growth
 
@@ -174,21 +190,21 @@ Keep controllers as thin request/response classes. Put admin business rules in s
 
 - update comment moderation fields such as status, hidden state, or spam state
 
-### `GET /api/v1/admin/categories`
+### `GET /api/v1/admin/tags`
 
-- dashboard category listing
+- dashboard tag listing
 
-### `POST /api/v1/admin/categories`
+### `POST /api/v1/admin/tags`
 
-- create a category
+- create a tag
 
-### `PATCH /api/v1/admin/categories/{id}`
+### `PATCH /api/v1/admin/tags/{id}`
 
-- update a category
+- update a tag
 
-### `DELETE /api/v1/admin/categories/{id}`
+### `DELETE /api/v1/admin/tags/{id}`
 
-- delete or archive a category
+- delete or archive a tag
 
 ## Analytics Endpoint
 

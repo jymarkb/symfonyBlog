@@ -41,7 +41,6 @@ Apply the master checklist at `docs/setup/qa-checklist.md`. Sections relevant to
 - **WARN — Handle collision is silent.** Server silently renames a taken handle (e.g. `@alice` → `@alice2`) with no user notification. User discovers mismatch on their profile. Fix requires a public `GET /api/v1/handle-availability?handle=@alice` endpoint + debounced blur check on the form. Deferred; not a security issue.
 - **WARN — No user provisioning tests.** `AppServiceProvider` provisioning logic (new user creation, handle de-duplication, race-condition catch, email-collision fallback) has no feature test coverage. Deferred as `tests/Feature/Auth/UserProvisioningTest.php`.
 - **WARN — `display_name` from JWT not server-side length-capped.** `normalizeHandleBase` limits handle to 19 chars, but `display_name` from Supabase `user_metadata` is stored as-is. Unlikely in practice (Supabase enforces limits), but worth adding a `substr(…, 0, 120)` guard.
-- **WARN — `manage_categories` / `upload_media` permissions emitted by API but not declared in `UserPermissions` TypeScript type.** Falls through the index signature safely, but should be explicitly typed or removed.
 - **WARN — Security headers** not set at Laravel layer. See login baseline.
 
 ## Key Files

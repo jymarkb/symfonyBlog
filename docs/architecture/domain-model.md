@@ -20,12 +20,11 @@ Notes:
 - Supabase Auth is the identity source.
 - Local user records store app-specific metadata and authorization fields.
 
-### categories
+### tags
 
 - `id`
 - `name`
 - `slug`
-- `description` nullable
 - `created_at`
 - `updated_at`
 
@@ -33,15 +32,12 @@ Notes:
 
 - `id`
 - `user_id`
-- `category_id`
 - `title`
 - `slug`
 - `status`
-- `summary` nullable
-- `content_html` nullable
-- `content_css` nullable
-- `content_js` nullable
-- `thumbnail_path` nullable
+- `excerpt` nullable
+- `body` JSON block array from the blogEditor `BlockElement[]` contract
+- `cover_image` nullable
 - `is_featured`
 - `published_at` nullable
 - `created_at`
@@ -53,44 +49,47 @@ Status defaults:
 - `published`
 - `archived` only if later needed
 
-### post_analytics
+### post_tag
+
+- `post_id`
+- `tag_id`
+- `created_at`
+- `updated_at`
+
+### post_stars
 
 - `id`
 - `post_id`
-- `views_count`
-- `likes_count`
-- `dislikes_count`
-- `avg_read_time_seconds` nullable
-- `last_viewed_at` nullable
+- `user_id`
 - `created_at`
 - `updated_at`
 
 ### media assets
 
-Use a separate table only if the app needs searchable upload records, ownership, or moderation state. Otherwise store only `thumbnail_path` and similar references directly on content entities.
+Use a separate table only if the app needs searchable upload records, ownership, or moderation state. Otherwise store public cover image references directly on posts as `cover_image`.
 
 ## Relationships
 
 - one user has many posts
-- one category has many posts
-- one post has one analytics record
+- one post has many comments through `comments.post_id`
+- one post has many tags through `post_tag`
+- one tag has many posts through `post_tag`
+- one post has many stars through `post_stars`
+- one user can star many posts through `post_stars`
 
 ## Legacy Mapping
 
 - `Account` -> `users`
-- `Category` -> `categories`
 - `Blog` -> `posts`
-- `BlogAnalytics` -> `post_analytics`
-- `htmlContent` -> `content_html`
-- `htmlStyle` -> `content_css`
-- `htmlScript` -> `content_js`
-- `htmlThumbnail` -> `thumbnail_path`
+- legacy category/tag concepts -> `tags`
+- legacy HTML content fields -> blogEditor block JSON in `posts.body`
+- `htmlThumbnail` -> `cover_image`
 
 ## Constraints
 
 - `users.supabase_user_id` must be unique
 - `users.email` must be unique
-- `categories.slug` must be unique
+- `tags.slug` must be unique
 - `posts.slug` must be unique
-- `posts.user_id` and `posts.category_id` are required
-
+- `post_tag` must be unique by `post_id` and `tag_id`
+- `post_stars` must be unique by `post_id` and `user_id`
