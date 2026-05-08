@@ -2,55 +2,63 @@
 
 ## Purpose
 
-This document defines the structure, data flow, and implementation plan for the private user profile page at `/profile`.
+This document defines the structure, data flow, and implementation status for the private user profile page at `/profile`.
 
 - `/profile` is auth-protected and only accessible to signed-in users.
-- `/profile/:handle` is the public-facing profile (separate page, not covered here).
+- `/api/v1/profiles/{handle}` is the public-facing profile endpoint (read-only, no auth required).
 - The profile page is the primary surface where users manage their account, password, notification preferences, and view their reading/comment activity.
 
 ## Implementation Progress
 
 ```text
-1. Frontend profile UI              done — layout, all components, CSS ported from design
-2. Backend profile endpoints        done — GET/PATCH/DELETE /api/v1/profile wired and auth-gated
-3. Frontend account form wiring     done — reads PrivateProfile, writes via PATCH, refreshes session
-4. Password change                  done — Supabase re-auth + updateUser, signs out and redirects
-5. Stats counts                     done — comments_count wired; profile state lifted to +Page.tsx
-6. Comment history backend          done — Post/Comment models, migrations, ProfileCommentController,
-                                    GET /api/v1/profile/comments, PostFactory, CommentFactory, DatabaseSeeder all done
-7. Comment history frontend         done — ProfileComment types, fetchProfileComments, ProfileCommentHistory component wired;
-                                    fixed session guard bug (missing session left component in permanent loading state)
-8. Comment history tests            done — ApiRouteCoverageTest entry added, ProfileCommentHistoryTest (guest 401,
-                                    empty 200, correct shape, isolation) all passing
-8. Recently viewed                  done — post_views migration, PostView model/factory, ProfileReadingHistoryController,
-                                    GET /api/v1/profile/reading-history, ProfileReadingHistoryTest (4 cases),
-                                    ProfileReadingHistoryItem types, fetchReadingHistory(), ProfileRecentlyViewed wired;
-                                    ProfileResource posts_read_count now live from postViews loadCount
-9. Notifications                    done — notify_comment_replies + notify_new_posts columns migrated,
-                                    ProfileNotificationController, PATCH /api/v1/profile/notifications,
-                                    ProfileNotificationTest (3 cases), ProfileSidebar selects wired,
-                                    NotificationPreference types, updateNotifications API function
-10. Delete account                  done — ProfileService::deleteAccount (anonymise comments, delete post_views, delete user),
-                                    ProfileController::destroy real implementation, ProfileDeleteAccountTest (6 cases),
-                                    ProfileDangerZone wired with inline confirmation UI, deleteAccount API function and type
-11. Security review                 done — User::$fillable hardened (removed supabase_user_id/email/handle/role),
-                                    User::$hidden=['supabase_user_id'], AppServiceProvider uses explicit column
-                                    assignment, named rate limiters (profile-mutations 60/min, profile-delete 5/min),
-                                    throttle middleware on all PATCH/DELETE routes, role removed from ProfileResource,
-                                    avatar_url validation tightened to url:https, PublicProfileResource exposes id,
-                                    ProfileEndpointTest updated (role assertions removed, guest-PATCH added),
-                                    429 throttle tests added for PATCH and DELETE; 79 tests passing
-12. Cleanup                         done — removed stale role field from PrivateProfile type,
-                                    removed hardcoded Subscribed placeholder row from ProfileSidebar
+1.  Frontend profile UI              done — layout, all components, CSS ported from design
+2.  Backend profile endpoints        done — GET/PATCH/DELETE /api/v1/profile wired and auth-gated
+3.  Frontend account form wiring     done — reads PrivateProfile, writes via PATCH, refreshes session
+4.  Password change                  done — Supabase re-auth + updateUser, signs out and redirects
+5.  Stats counts                     done — comments_count and posts_read_count wired via loadCount
+6.  Comment history backend          done — ProfileCommentController, GET /api/v1/profile/comments,
+                                           eager-loads post, limit 10, fully tested
+7.  Comment history frontend         done — fetchProfileComments, ProfileCommentHistory wired,
+                                           loading/error/empty/data states via ProfileDataSection
+8.  Comment history tests            done — guest 401, empty 200, shape, isolation, 10-item limit,
+                                           assertJsonMissingPath for user_id
+9.  Recently viewed backend          done — PostView model/factory, ProfileReadingHistoryController,
+                                           GET /api/v1/profile/reading-history, limit 10
+10. Recently viewed frontend         done — fetchReadingHistory, ProfileRecentlyViewed wired,
+                                           progress bar rendered per item
+11. Recently viewed tests            done — guest 401, empty 200, shape, isolation, 10-item limit,
+                                           assertJsonMissingPath for user_id
+12. Notifications backend            done — notify_comment_replies + notify_new_posts columns,
+                                           ProfileNotificationController,
+                                           PATCH /api/v1/profile/notifications, fully tested
+13. Notifications frontend           done — ProfileSidebar selects wired, isSaving/notifSuccess state,
+                                           selects disabled when profile null or saving
+14. Delete account                   done — ProfileService::deleteAccount wrapped in DB::transaction
+                                           (anonymise comments, delete post_views, delete user),
+                                           ProfileDangerZone wired, redirects to /signin
+15. Security hardening               done — User::$fillable excludes role/email/supabase_user_id/handle;
+                                           User::$hidden = [supabase_user_id, role, email];
+                                           named rate limiters (profile-mutations 60/min,
+                                           profile-delete 5/min, auth-read 60/min);
+                                           throttle middleware on all PATCH/DELETE/GET profile routes;
+                                           assertJsonMissingPath tests for every sensitive field
+16. avatar_url removal               done — removed from PrivateProfile, SessionUser, SessionResource,
+                                           PublicProfileResource, AppServiceProvider provisioning,
+                                           UserFactory, Header.tsx, ProfileHead.tsx;
+                                           initials fallback always shown; assertJsonMissingPath
+                                           assertions added to ProfileEndpointTest and
+                                           PublicProfileEndpointTest
+17. Shared component extraction      done — FormMessage (aria-live wrapper), ProfileDataSection
+                                           (loading/error/empty/data shell), ProfileSection,
+                                           ProfilePlaceholder; useProfileFetch hook with
+                                           mountedRef unmount guard
+18. QA and cleanup                   done — ProfilePasswordSection null-safe user guard,
+                                           confirmPassword validation when field is blank,
+                                           passwordUpdated flag ensures redirect fires even if
+                                           signOut throws; notify field assertions in
+                                           ProfileNotificationTest; ProfileService::deleteAccount
+                                           wrapped in DB::transaction
 ```
-
-Frontend profile UI covers all eight components (`ProfileHead`, `ProfilePage`, `ProfilePasswordSection`, `ProfileCommentHistory`, `ProfileRecentlyViewed`, `ProfileDangerZone`, `ProfileSidebar`, `ProfileForm`), the full CSS port from `design/profile.html`, and session data displayed without extra fetches (`display_name`, `handle`, `avatar_url`, `created_at`).
-
-Backend profile endpoints cover `ProfileController` behind `auth:api` middleware, `ProfileResource` and `ProfileService`, the `GET /api/v1/profile` load, `PATCH /api/v1/profile` update, and the `DELETE /api/v1/profile` route stub. The session endpoint (`GET /api/v1/session`) returns `created_at` via `SessionResource` so `ProfileHead` has member-since without a separate fetch.
-
-Password change goes through Supabase — `ProfilePasswordSection` re-authenticates with the current password via `signInWithPassword`, then calls `updatePassword`. On success the user is signed out and redirected to `/signin`. No new Laravel endpoint is needed.
-
-Comment history uses a dedicated `ProfileCommentController` (separate from `ProfileController` to follow Laravel's single-responsibility convention). The `GET /api/v1/profile/comments` route is auth-gated inside the `auth:api` middleware group. `ProfileService::getCommentHistory()` eager-loads the related post. `ProfileResource` now returns the real `comments_count` from `loadCount`. Remaining: run `PostFactory` and `CommentFactory`, seed test data, then wire the frontend component.
 
 ## Route and Auth
 
@@ -62,24 +70,24 @@ The page lives at `pages/(user)/profile/+Page.tsx`. The `(user)` route group lay
 </AppShell>
 ```
 
-`RequireAuth` redirects unauthenticated visitors to `/signin`. The page itself does not need to repeat the auth guard.
+`RequireAuth` redirects unauthenticated visitors to `/signin`. The page itself does not repeat the auth guard.
 
 ## Page Structure
 
 ```text
 /profile
-├── ProfileHead              — avatar, display name, handle, member since
+├── ProfileHead              — display name, handle, member since (initials fallback avatar)
 │
 └── .shell.profile-layout    — two-column grid (1fr 300px, collapses at 900px)
     ├── Left column
-    │   ├── ProfilePage          — account form (display name, first/last name, avatar URL, email)
-    │   ├── ProfilePasswordSection — change password (stub)
-    │   ├── ProfileCommentHistory  — user's past comments (stub)
-    │   ├── ProfileRecentlyViewed  — reading history (stub)
-    │   └── ProfileDangerZone      — delete account (stub)
+    │   ├── ProfilePage            — account form (display name, first/last name, read-only email)
+    │   ├── ProfilePasswordSection — change password (Supabase re-auth flow)
+    │   ├── ProfileCommentHistory  — last 10 comments with post link and timestamp
+    │   ├── ProfileRecentlyViewed  — last 10 viewed posts with read-progress bar
+    │   └── ProfileDangerZone      — delete account with inline confirmation
     │
     └── Right column
-        └── ProfileSidebar     — reading stats, notifications, quick links
+        └── ProfileSidebar   — reading stats, notification preferences, quick links
 ```
 
 ## Component Breakdown
@@ -87,123 +95,133 @@ The page lives at `pages/(user)/profile/+Page.tsx`. The `(user)` route group lay
 ### ProfileHead
 
 - Source: `src/features/profile/components/ProfileHead.tsx`
-- Data: `useCurrentSession().user` — `display_name`, `handle`, `avatar_url`, `created_at`
-- Renders the page header with avatar (image or initial fallback), display name, handle, and member-since date.
-- `created_at` is included in the session response (`SessionResource.php`) so no extra fetch is needed.
-- `SessionUser` type (`authTypes.ts`) includes `created_at: string | null`.
+- Data: `useCurrentSession().user` — `display_name`, `handle`, `created_at`
+- Renders the page header with initials avatar, display name, handle, and member-since date.
+- `avatar_url` has been fully removed — initials fallback is always shown.
+- `created_at` is included in the session response (`SessionResource`) so no extra fetch is needed.
 
 ### ProfilePage (account form)
 
 - Source: `src/features/profile/components/ProfilePage.tsx`
 - API: `GET /api/v1/profile` → `fetchPrivateProfile`, `PATCH /api/v1/profile` → `updatePrivateProfile`
-- Fields: `display_name`, `first_name`, `last_name`, `avatar_url`
-- Read-only display: `email` (shown in form with hint text)
-- Calls `refreshSession()` after a successful update so the header reflects name changes.
-- Delegates rendering to `ProfileForm` which uses `.profile-section`, `.field`, `.field-row`, `.field-error`, `.form-alert`, `.hint` CSS classes.
+- Fields: `display_name`, `first_name`, `last_name`
+- Read-only display: `email` (read from `useCurrentSession()`, never from the profile API)
+- Calls `refreshSession()` after a successful update so the header reflects name changes immediately.
+- Error state shows a "Try again" retry button; loading state shows a placeholder.
 
 ### ProfilePasswordSection
 
 - Source: `src/features/profile/components/ProfilePasswordSection.tsx`
-- Status: **done** — fully wired.
+- Returns `null` when `user` is null (type-safe guard via early return after hooks; `RequireAuth` ensures this path is never reached).
 - Re-authenticates via `supabase.auth.signInWithPassword` with the current password before calling `updatePassword`.
-- On success: signs the user out and redirects to `/signin`.
+- Uses a `passwordUpdated` flag so the redirect to `/signin` fires even if `signOut` throws.
+- Validates: current password required; new password passes strength check; confirm password must match and must not be blank when new password is set.
 - Password changes do not go through Laravel — Supabase owns credentials.
 
 ### ProfileCommentHistory
 
 - Source: `src/features/profile/components/ProfileCommentHistory.tsx`
-- Status: **in progress** — backend endpoint done; frontend component still a stub.
-- Backend: `GET /api/v1/profile/comments` via `ProfileCommentController::index()`, auth-gated, returns `ProfileCommentResource` collection (id, body, post_title, post_slug, created_at).
-- Frontend pending: rewrite component to fetch from the endpoint, display loading/error/empty/data states.
+- API: `GET /api/v1/profile/comments` via `fetchProfileComments`
+- Uses `useProfileFetch` hook + `ProfileDataSection` for all four states (loading / error / empty / data).
+- Backend returns at most 10 comments ordered by latest, eager-loading the related post.
 
 ### ProfileRecentlyViewed
 
 - Source: `src/features/profile/components/ProfileRecentlyViewed.tsx`
-- Status: **stub** — shows empty state.
-- Future: `GET /api/v1/profile/reading-history` with read progress percentage per post.
+- API: `GET /api/v1/profile/reading-history` via `fetchReadingHistory`
+- Uses `useProfileFetch` hook + `ProfileDataSection` for all four states.
+- Each item shows post title, last-viewed date, and a horizontal read-progress bar.
+- Backend returns at most 10 items ordered by `last_viewed_at` desc.
 
 ### ProfileDangerZone
 
 - Source: `src/features/profile/components/ProfileDangerZone.tsx`
-- Status: **stub** — delete button disabled.
-- Future: `DELETE /api/v1/profile` with a confirmation modal before calling the endpoint.
+- API: `DELETE /api/v1/profile` via `deleteAccount`, then `supabase.auth.signOut()`
+- Inline two-step confirmation (button → confirm/cancel) before firing the delete.
+- On success: redirects immediately to `/signin` with no intermediate message.
+- Backend wraps all deletion writes (comment anonymisation, post-view deletion, user deletion) in a `DB::transaction`.
 
 ### ProfileSidebar
 
 - Source: `src/features/profile/components/ProfileSidebar.tsx`
-- Status: `comments_count` and `posts_read_count` wired from `PrivateProfile` (profile state lifted to `+Page.tsx`); member-since date wired from session; notifications dropdowns are disabled.
-- `posts_read_count` always shows 0 until the reading history endpoint is implemented.
-- Quick links (Browse posts, Contact support) are live.
+- Data: `profile` prop (lifted from `+Page.tsx`); `useCurrentSession().user` for member-since date.
+- Stats: `posts_read_count` and `comments_count` from `PrivateProfile`.
+- Notifications: two `<select>` dropdowns wired to `PATCH /api/v1/profile/notifications`.
+  - Selects are disabled while saving (`isSaving`) or while profile is not yet loaded (`!profile`).
+  - Success shows "Saved." for 2 s via `FormMessage`; error shows inline via `FormMessage`.
+- Quick links: Browse posts, Contact support.
+
+## Shared Components and Hooks
+
+| Name | Source | Purpose |
+|---|---|---|
+| `FormMessage` | `src/components/ui/FormMessage.tsx` | `aria-live="polite"` wrapper for error/success messages |
+| `ProfileSection` | `src/features/profile/components/ProfileSection.tsx` | `div.profile-section` wrapper with optional `h2` |
+| `ProfilePlaceholder` | `src/features/profile/components/ProfilePlaceholder.tsx` | Muted placeholder text for loading/empty/error states |
+| `ProfileDataSection` | `src/features/profile/components/ProfileDataSection.tsx` | Combines ProfileSection + ProfilePlaceholder for all four async states |
+| `useProfileFetch` | `src/features/profile/hooks/useProfileFetch.ts` | Shared fetch lifecycle: token → API call → state; `mountedRef` prevents post-unmount updates |
 
 ## API Touchpoints
 
 ```text
 Authenticated user (/profile)
-├── GET  /api/v1/profile          — load private profile fields + comments_count
-├── PATCH /api/v1/profile         — update display_name, first_name, last_name, avatar_url
-├── DELETE /api/v1/profile        — delete account (route exists, not wired on frontend)
-└── GET /api/v1/profile/comments  — comment history list (backend done, frontend pending)
+├── GET    /api/v1/profile                  — private profile (display_name, first/last name,
+│                                             comments_count, posts_read_count, notify prefs)
+├── PATCH  /api/v1/profile                  — update display_name, first_name, last_name
+├── DELETE /api/v1/profile                  — delete account (anonymise comments, cascade views)
+├── GET    /api/v1/profile/comments         — last 10 comments with post context
+├── GET    /api/v1/profile/reading-history  — last 10 viewed posts with progress
+└── PATCH  /api/v1/profile/notifications    — save notify_comment_replies / notify_new_posts
 
-Future
-├── GET /api/v1/profile/reading-history  — recently viewed posts with progress
-└── PATCH /api/v1/profile/notifications  — save notification preferences
+Public (no auth)
+└── GET    /api/v1/profiles/{handle}        — id, handle, display_name only
 ```
 
-## Data Flow
+## Security Properties
 
-```text
-User lands on /profile
-└── (user)/+Layout.tsx checks session via RequireAuth
-    └── If unauthenticated: redirect to /signin
-    └── If authenticated: render page
-        └── ProfileHead reads useCurrentSession().user (no extra fetch)
-        └── ProfilePage fetches GET /api/v1/profile (separate from session)
-            └── On submit: PATCH /api/v1/profile -> refreshSession()
-```
+| Property | Implementation |
+|---|---|
+| Auth gate | All `/api/v1/profile*` routes inside `auth:api` + `no-cache` middleware |
+| BOLA | Every query scoped to `$request->user()` |
+| Mass assignment | `$fillable` = [display_name, first_name, last_name, notify_*]; role/email/supabase_user_id excluded |
+| Hidden fields | `User::$hidden` = [supabase_user_id, role, email] |
+| Resource exposure | ProfileResource exposes no role, email, supabase_user_id, avatar_url, user_id |
+| Rate limiting | profile-mutations: 60/min (PATCH profile + notifications); profile-delete: 5/min; auth-read: 60/min |
+| Transactional safety | Account deletion wrapped in `DB::transaction` |
+| Password flow | Re-auth via Supabase before update; redirect on success regardless of signOut result |
 
 ## CSS Classes
 
-Profile page styles live in `src/features/profile/profile.css`, imported globally via `src/styles/global.css`.
+Profile page styles live in `src/features/profile/profile.css`.
 
 ```text
 .profile-head        — flex header with avatar and info
 .profile-info        — name + meta container
-.profile-name        — h1 display name
+.profile-name        — display name heading
 .profile-meta        — handle, member since (mono, small)
-.profile-layout      — two-column grid layout
+.profile-layout      — two-column grid layout (collapses to 1 col at 900px)
 .profile-section     — left-column section with bottom border
-.field-row           — two-column field grid (collapses at 540px)
 .comment-list        — comment items grid
 .comment-item        — individual comment card
-.viewed-list         — recently viewed items
+.viewed-list         — recently viewed items grid
 .viewed-item         — single viewed post row with progress bar
 .read-progress-bar   — horizontal reading progress indicator
 .danger-section      — red-tinted delete account card
+.btn-danger          — red-bordered danger button
 .profile-sidebar     — right sidebar grid
-.side-card           — sidebar card with bordered header
+.side-card           — sidebar card with header
 .stat-row            — flex row with label and mono value
-.field select        — styled dropdown (width, border, padding, appearance reset)
 ```
 
-Shared form primitives (`.field`, `.field-error`, `.form-alert`, `.hint`, `.divider`, `.row-2`) live in `src/styles/theme.css` — they are used by both auth and profile features.
-
-## Current Acceptance Checks
+## Acceptance Checks
 
 - Signed-out users visiting `/profile` are redirected to `/signin`.
-- Signed-in users see their avatar initial (or image if set), display name, handle, and member-since date in the header.
-- The account form pre-fills with current profile data from `GET /api/v1/profile`.
-- Saving the account form updates the API and refreshes the session so the header name updates immediately.
-- Password change re-authenticates, calls Supabase `updatePassword`, signs the user out, and redirects to `/signin`.
-- Sidebar shows real `comments_count` from the profile API; `posts_read_count` shows 0 (stub).
-- `GET /api/v1/profile/comments` returns the authenticated user's comment history (backend only; frontend still a stub).
-- Comment history, recently viewed, notifications, and delete account are visible but rendered as stubs (empty states, disabled buttons).
-- The layout collapses to a single column on screens narrower than 900px.
-- Field rows (first name / last name) collapse to a single column on screens narrower than 540px.
-
-## Future Acceptance Checks
-
-- Comment history frontend shows the last 10 comments with a link to the originating post and a timestamp.
-- Recently viewed shows posts with a read progress bar and the last-viewed date.
-- Notifications dropdowns save preferences via a backend endpoint and confirm on save.
-- Delete account shows a confirmation modal before calling `DELETE /api/v1/profile`; public comments are anonymised on deletion.
-- Profile mutations (`PATCH`, `DELETE`) reject requests where the authenticated user does not own the target record.
+- Signed-in users see their initials avatar, display name, handle, and member-since date.
+- Account form pre-fills from `GET /api/v1/profile`; saving updates the API and refreshes the header.
+- Password change re-authenticates via Supabase, updates credentials, signs out, and redirects to `/signin`.
+- Comment history shows last 10 comments (empty state if none); capped at 10 server-side.
+- Reading history shows last 10 viewed posts with progress bar (empty state if none); capped at 10 server-side.
+- Notification preferences save on dropdown change; "Saved." confirmation clears after 2 s.
+- Account deletion requires explicit confirmation, anonymises comments, deletes post views, and redirects to `/signin`.
+- All private fields (`role`, `email`, `supabase_user_id`, `avatar_url`) absent from all API responses; `assertJsonMissingPath` tests enforce this.
+- Rate limit tests assert 429 for all throttled endpoints using `md5($limiterName . $userId)` cache key format.
