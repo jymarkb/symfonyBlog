@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\SessionController;
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\PublicProfileController;
@@ -14,11 +15,27 @@ use App\Http\Controllers\Api\V1\Admin\CategoryController;
 use App\Http\Controllers\Api\V1\Admin\UploadController;
 
 Route::prefix('v1')->group(function () {
-    Route::get('/posts', fn() => response()->json([]))->middleware('throttle:public-api');
-    Route::get('/categories', fn() => response()->json([]))->middleware('throttle:public-api');
-    Route::get('/profiles/{handle}', [PublicProfileController::class, 'show'])->middleware('throttle:public-api');
 
-    Route::middleware(['auth:api', 'no-cache'])->group(function () {
+    /*
+    |--------------------------------------------------------------------------
+    | Public routes — no authentication required
+    |--------------------------------------------------------------------------
+    | Every route NOT listed here is protected by the global RequireAuth
+    | middleware appended to the api group. Opt-outs must be explicit.
+    */
+    Route::withoutMiddleware(Authenticate::using('api'))->group(function () {
+        Route::get('/posts', fn() => response()->json([]))->middleware('throttle:public-api');
+        Route::get('/categories', fn() => response()->json([]))->middleware('throttle:public-api');
+        Route::get('/profiles/{handle}', [PublicProfileController::class, 'show'])->middleware('throttle:public-api');
+        Route::post('/posts/{slug}/view', fn() => response()->json([], 202))->middleware('throttle:post-view');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authenticated routes — protected by default (global RequireAuth)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('no-cache')->group(function () {
         Route::get('/session', [SessionController::class, 'show'])->middleware('throttle:session');
 
         Route::get('/profile/reading-history', [ProfileReadingHistoryController::class, 'index'])->middleware('throttle:auth-read');
@@ -28,7 +45,12 @@ Route::prefix('v1')->group(function () {
         Route::patch('/profile', [ProfileController::class, 'update'])->middleware('throttle:profile-mutations');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware('throttle:profile-delete');
 
-        Route::middleware('admin')->prefix('admin')->group(function () {
+        /*
+        |----------------------------------------------------------------------
+        | Admin routes — authenticated + admin permission required
+        |----------------------------------------------------------------------
+        */
+        Route::middleware('permission:admin')->prefix('admin')->group(function () {
             Route::get('/posts', [PostController::class, 'index'])->middleware('throttle:admin-read');
             Route::post('/posts', [PostController::class, 'store'])->middleware('throttle:admin-mutations');
             Route::patch('/posts/{post}', [PostController::class, 'update'])->middleware('throttle:admin-mutations');
@@ -49,5 +71,4 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    Route::post('/posts/{slug}/view', fn() => response()->json([], 202))->middleware('throttle:post-view');
 });

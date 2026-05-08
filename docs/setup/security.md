@@ -12,8 +12,9 @@ Agents must read this file alongside `techstack.md` before planning or implement
 
 ### Authentication and authorization
 
-- All private user routes must be inside `Route::middleware('auth:api')`.
-- All admin routes must be inside `Route::middleware('admin')`.
+- All `/api/v1/*` routes require authentication by default. `Authenticate::using('api')` is appended globally to the `api` middleware group in `bootstrap/app.php` — no per-route or per-group `auth:api` declaration is needed or should be added.
+- Public routes must be explicitly opted out using `Route::withoutMiddleware(Authenticate::using('api'))`. Opt-outs must appear in the clearly marked public block in `routes/api.php`. Adding a route outside that block automatically makes it protected.
+- Admin routes use `->middleware('permission:admin')`. The `permission` alias resolves to `RequirePermission`, which accepts any permission name: `permission:comment`, `permission:moderate_comments`, etc. Do not create new one-off middleware for permissions — use the `RequirePermission` pattern.
 - Controllers must scope all data operations to `$request->user()`. Never accept a `user_id` from the request body or query string to identify the target record.
 - Password changes go through Supabase only — never through Laravel.
 
@@ -60,11 +61,18 @@ Every route must have at minimum:
 
 ### Route guards
 
-- All pages under `pages/(user)/` are protected by `pages/(user)/+guard.ts` — a server-side Vike guard that reads the Supabase session cookie and redirects guests to `/signin` before any HTML is rendered.
-- All pages under `pages/(auth)/` are protected by `pages/(auth)/+guard.ts` — redirects authenticated users to `/`. The `/reset-password` path is bypassed because the recovery token flow fires `SIGNED_IN`.
-- Do not add a second auth check inside individual page components — the guard runs before the page renders.
+- A single global `pages/+guard.ts` enforces all route-level security server-side before any HTML is rendered. It reads `pageContext.config.accessLevel` from the route's inherited config.
+- Access levels are declared in route group `+config.ts` files and inherited by every page in that group:
+  - `accessLevel: 'public'` — no auth required (default, set in `pages/+config.ts`)
+  - `accessLevel: 'guest-only'` — redirects authenticated users to `/` (set in `pages/(auth)/+config.ts`)
+  - `accessLevel: 'auth-required'` — redirects guests to `/signin` (set in `pages/(user)/+config.ts`)
+  - `accessLevel: 'admin-required'` — redirects guests to `/signin`, non-admins to `/` (set in `pages/(admin)/+config.ts`)
+- Adding a new page to an existing route group inherits its `accessLevel` automatically. No per-page security code is needed.
+- Adding a new route group requires a `+config.ts` with the appropriate `accessLevel` and `prerender: false`.
+- `/reset-password` and `/auth/callback` bypass the `guest-only` gate — the Supabase recovery token flow fires `SIGNED_IN` before those pages load.
 - `RequireAuth` and `RequireGuest` components are deprecated. Do not use them in new pages.
-- Admin UI must check the `isAdmin` flag from `useCurrentSession()` or `pageContext.initialUser.isAdmin` to hide admin-only controls, but the real gate is always the `admin` middleware server-side. Never rely on a client-side role check as the sole protection.
+- `RequireAdmin` in `pages/(admin)/+Layout.tsx` is a client-side fallback for hydration only — the real gate is `accessLevel: 'admin-required'` enforced by the global server-side guard.
+- Session resolution for `guard()`, `+data.ts`, and `+onBeforeRender.ts` must all use `resolveServerAuth(pageContext)` from `src/lib/auth/serverAuth.ts`. Never call `createSupabaseServerClient` or `supabase.auth.getSession()` directly in a page hook.
 
 ### Access token handling
 
@@ -90,21 +98,23 @@ Every route must have at minimum:
 Use this checklist when a planning agent decomposes a new feature. Add items here as new feature types are introduced.
 
 ### New backend endpoint
-- [ ] Is the route in the correct middleware group (`auth:api`, `admin`, or public)?
+- [ ] Is the route inside the explicit public `withoutMiddleware` block, or left as default-protected?
+- [ ] If admin-only, does it use `->middleware('permission:admin')` (not a new one-off middleware)?
 - [ ] Does the controller use `$request->user()` to scope data — never a request-supplied ID?
 - [ ] Are all inputs validated (type, length, format, enum)?
 - [ ] Is a throttle applied to any mutation method?
 - [ ] Does the Resource expose only the fields the client needs?
 - [ ] Is the route added to `ApiRouteCoverageTest.php`?
-- [ ] Are guest / auth / admin behavior tests written?
+- [ ] Are guest / auth / admin behavior tests written, including a body-shape assertion on 401/403?
 
 ### New frontend page or form
-- [ ] Is the page in the correct route group with a `+guard.ts` server-side guard?
-- [ ] If the route group has a guard, does it also have `prerender: false` in `+config.ts`?
+- [ ] Is the page inside the correct route group folder — does it inherit the right `accessLevel`?
+- [ ] If creating a new route group, does its `+config.ts` declare `accessLevel` and `prerender: false`?
+- [ ] Does any `+data.ts` use `resolveServerAuth(pageContext)` from `src/lib/auth/serverAuth.ts` instead of calling Supabase directly?
 - [ ] Does the form validate client-side before calling the API?
 - [ ] Are error messages user-friendly (no raw API errors rendered)?
-- [ ] Are tokens fetched via `supabase.auth.getSession()` immediately before use?
-- [ ] Does any admin-gated UI also have a server-side gate?
+- [ ] Are tokens fetched from `auth.accessToken` returned by `resolveServerAuth()` — not a separate `getSession()` call?
+- [ ] Does any admin-gated UI also have server-side enforcement via `accessLevel: 'admin-required'`?
 
 ---
 
@@ -114,3 +124,4 @@ Update this section when new security conventions are added:
 
 - **2026-05-07** — Initial doc. Covers profile page, auth flow, and current route structure.
 - **2026-05-08** — Updated route guards: `RequireAuth`/`RequireGuest` replaced by `+guard.ts` server-side guards. Added `prerender: false` requirement and admin `isAdmin` source clarification.
+- **2026-05-08** — Global security centralization. Frontend: single `pages/+guard.ts` reads `accessLevel` from route config; `resolveServerAuth()` is the only permitted server-side session resolver. Backend: default-deny via `Authenticate::using('api')` globally appended; `EnsureAdmin` removed in favour of composable `RequirePermission`; 401/403 error shape centralized in `bootstrap/app.php`.
