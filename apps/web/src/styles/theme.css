@@ -1,7 +1,7 @@
 @theme {
-  --font-sans: "Inter Tight", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Inter Tight", "Inter", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-serif: "Inter Tight", "Inter", ui-serif, Georgia, serif;
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif: "Poppins", ui-serif, Georgia, serif;
 
   --color-paper: var(--paper);
   --color-paper-2: var(--paper-2);
@@ -28,26 +28,32 @@
 :root {
   color-scheme: light;
 
-  --paper: #fafaf7;
-  --paper-2: #f4f3ee;
-  --paper-3: #ecebe4;
-  --rule: #d9d8d0;
-  --rule-2: #e8e7df;
-  --ink: #15161a;
-  --ink-2: #2a2c33;
-  --ink-3: #4a4d56;
-  --ink-4: #6e7280;
-  --ink-5: #9c9ea6;
+  --paper: #f2f4f8;
+  --paper-2: #eaecf3;
+  --paper-3: #dfe2ed;
+  --rule: #d2d6e3;
+  --rule-2: #dce0ea;
+  --ink: #0d1220;
+  --ink-2: #1a2235;
+  --ink-3: #3a4966;
+  --ink-4: #6a7290;
+  --ink-5: #9aa3bc;
 
-  --accent: oklch(0.52 0.16 255);
-  --accent-soft: oklch(0.92 0.04 255);
-  --accent-ink: oklch(0.38 0.14 255);
+  --accent: oklch(0.48 0.13 198);
+  --accent-soft: oklch(0.92 0.04 198);
+  --accent-ink: oklch(0.36 0.11 198);
 
-  --tag-1: oklch(0.52 0.12 255);
-  --tag-2: oklch(0.52 0.12 30);
-  --tag-3: oklch(0.52 0.12 145);
-  --tag-4: oklch(0.52 0.12 305);
-  --tag-5: oklch(0.52 0.12 75);
+  --glow-1: hsla(187, 90%, 50%, 0.05);
+  --glow-2: hsla(260, 70%, 60%, 0.04);
+
+  --accent-2: oklch(0.60 0.18 295);
+  --hint-color: var(--paper);
+
+  --tag-1: oklch(0.52 0.12 198);
+  --tag-2: oklch(0.52 0.12 40);
+  --tag-3: oklch(0.52 0.12 158);
+  --tag-4: oklch(0.52 0.12 295);
+  --tag-5: oklch(0.52 0.12 80);
 
   --grid: 8px;
   --max-w: 1120px;
@@ -57,20 +63,26 @@
 :root[data-mode="dark"] {
   color-scheme: dark;
 
-  --paper: #131418;
-  --paper-2: #1b1d22;
-  --paper-3: #24262d;
-  --rule: #2f3138;
-  --rule-2: #25272e;
-  --ink: #f3f1ea;
-  --ink-2: #d6d4cd;
-  --ink-3: #a8a8a4;
-  --ink-4: #7d7e83;
-  --ink-5: #5a5c63;
+  --paper: #080d1a;
+  --paper-2: #0f1628;
+  --paper-3: #172035;
+  --rule: #202c41;
+  --rule-2: #1a2538;
+  --ink: #f2f4f8;
+  --ink-2: #c4cad8;
+  --ink-3: #9aa3b4;
+  --ink-4: #6c7585;
+  --ink-5: #4a5262;
 
-  --accent: oklch(0.72 0.16 255);
-  --accent-soft: oklch(0.28 0.08 255);
-  --accent-ink: oklch(0.78 0.14 255);
+  --accent: oklch(0.75 0.16 198);
+  --accent-soft: oklch(0.26 0.08 198);
+  --accent-ink: oklch(0.80 0.14 198);
+
+  --accent-2: oklch(0.75 0.18 295);
+  --hint-color: var(--paper);
+
+  --glow-1: hsla(187, 92%, 55%, 0.07);
+  --glow-2: hsla(260, 70%, 65%, 0.05);
 }
 
 @layer base {
@@ -85,6 +97,10 @@
     transition:
       background-color 250ms ease,
       color 250ms ease;
+    background-image:
+      radial-gradient(circle at 20% 0%, var(--glow-1), transparent 40%),
+      radial-gradient(circle at 80% 30%, var(--glow-2), transparent 45%);
+    background-attachment: fixed;
   }
 
   body {
@@ -196,6 +212,7 @@
   }
 
   .nav-links a {
+    position: relative;
     border-radius: 6px;
     padding: 8px 12px;
     transition:
@@ -203,10 +220,61 @@
       color 150ms ease;
   }
 
-  .nav-links a:hover,
-  .nav-links a.active {
+  .nav-links a:hover {
     background: var(--paper-2);
     color: var(--ink);
+  }
+
+  .nav-links a.active {
+    color: var(--accent-ink);
+    background: transparent;
+  }
+
+  .nav-links a.active::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 999px;
+  }
+
+  .nav-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-3);
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+  }
+
+  .nav-link:hover {
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+
+  .nav-link.active {
+    color: var(--accent-ink);
+  }
+
+  .nav-link.active::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 999px;
   }
 
   .nav-cta {
@@ -220,6 +288,16 @@
     border-radius: 8px;
     background: var(--paper);
     padding: 20px;
+    transition:
+      transform 300ms ease,
+      border-color 300ms ease,
+      box-shadow 300ms ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--accent) 40%, transparent);
+    box-shadow: 0 4px 14px -8px color-mix(in oklab, var(--accent) 20%, transparent);
   }
 
   .btn {
@@ -238,6 +316,8 @@
     line-height: 1;
     white-space: nowrap;
     transition:
+      transform 200ms ease,
+      box-shadow 200ms ease,
       background-color 150ms ease,
       border-color 150ms ease,
       color 150ms ease;
@@ -249,36 +329,57 @@
   }
 
   .btn-primary {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--hint-color);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent);
+    transition:
+      transform 200ms ease,
+      box-shadow 200ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease;
   }
 
   .btn-primary:hover {
-    border-color: var(--ink-2);
-    background: var(--ink-2);
-    color: var(--paper);
+    transform: translateY(-1px);
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--accent) 70%, transparent),
+      0 8px 28px -4px color-mix(in oklab, var(--accent) 45%, transparent);
   }
 
   .btn-accent {
     border-color: var(--accent);
     background: var(--accent);
-    color: white;
+    color: var(--hint-color);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent);
+    transition:
+      transform 200ms ease,
+      box-shadow 200ms ease,
+      background-color 150ms ease;
   }
 
   .btn-accent:hover {
-    border-color: var(--accent-ink);
-    background: var(--accent-ink);
+    transform: translateY(-1px);
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--accent) 70%, transparent),
+      0 8px 28px -4px color-mix(in oklab, var(--accent) 45%, transparent);
   }
 
   .btn-ghost {
-    border-color: transparent;
+    border-color: var(--rule);
     background: transparent;
+    color: var(--ink);
   }
 
   .btn-ghost:hover {
-    border-color: var(--rule);
-    background: var(--paper-2);
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--accent) 70%, transparent);
+    background: color-mix(in oklab, var(--accent) 10%, transparent);
+    color: var(--accent-ink);
   }
 
   .btn-sm {
@@ -696,6 +797,7 @@
 
   .field input:focus {
     border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 15%, transparent);
   }
 
   .field select {
@@ -796,4 +898,226 @@
   .mode-toggle .txt {
     display: none;
   }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--paper);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rule);
+  border-radius: 5px;
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--accent) 60%, transparent);
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+
+/* ── Typography utilities ── */
+.font-mono-tech {
+  font-family: var(--font-mono);
+  letter-spacing: -0.01em;
+}
+
+.section-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: var(--accent);
+  display: inline-block;
+}
+
+.text-accent-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--accent) 0%,
+    var(--accent-2) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.span-text {
+  color: var(--accent-ink);
+  font-family: var(--font-mono);
+}
+
+/* ── Surface utilities ── */
+.glass-card {
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--accent) 4%, transparent) inset;
+}
+
+.dot-bg {
+  background-image: radial-gradient(var(--rule) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.section-alt {
+  background-color: var(--paper-2);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+
+.section-alt::before,
+.section-alt::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 1px;
+  width: min(70%, 600px);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--accent) 40%, transparent) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.section-alt::before { top: -1px; }
+.section-alt::after  { bottom: -1px; }
+
+/* ── Status dot ── */
+.status-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 0 4px hsla(142, 71%, 45%, 0.15);
+}
+
+.status-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #22c55e;
+  animation: pingDot 1.6s ease-out infinite;
+}
+
+@keyframes pingDot {
+  0%       { transform: scale(1);   opacity: 0.7; }
+  80%, 100% { transform: scale(2.4); opacity: 0;   }
+}
+
+/* ── Avatar glow ── */
+.avatar-glow {
+  position: relative;
+}
+
+.avatar-glow::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--accent) 50%, transparent),
+    transparent 60%
+  );
+  filter: blur(24px);
+  z-index: -1;
+}
+
+/* ── Scroll-reveal animations ── */
+.hidden-left {
+  opacity: 0;
+  transform: translateX(-24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.hidden-right {
+  opacity: 0;
+  transform: translateX(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-side {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.hidden-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.hidden-down {
+  opacity: 0;
+  transform: translateY(-24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-up {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hidden-pop {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-pop {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes miniSlideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.animate-slideIn {
+  animation: miniSlideIn 0.3s ease-out forwards;
+}
+
+@keyframes mobileMenuIn {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.animate-mobileMenuIn {
+  animation: mobileMenuIn 0.25s ease-out forwards;
+}
+
+@keyframes mobileItemIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.mobile-menu-item {
+  opacity: 0;
+  animation: mobileItemIn 0.4s ease-out forwards;
 }
