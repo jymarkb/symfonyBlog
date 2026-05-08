@@ -1,7 +1,6 @@
 import { redirect } from 'vike/abort';
 import type { PageContextServer } from 'vike/types';
 
-import { createSupabaseServerClient } from '@/lib/auth/supabaseServerClient';
 import {
   fetchPrivateProfile,
   fetchProfileComments,
@@ -10,25 +9,26 @@ import {
 import type { ProfilePageData } from '@/features/profile/profileTypes';
 
 export async function data(pageContext: PageContextServer): Promise<ProfilePageData> {
-  const supabase = createSupabaseServerClient(
-    pageContext.headers as Record<string, string> | null,
-  );
+  // onBeforeRender runs before data() and sets userAccessToken from the session cookie.
+  // The guard already redirected guests, so a missing token here is an edge case.
+  const accessToken = pageContext.userAccessToken;
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session?.access_token) {
+  if (!accessToken) {
     throw redirect('/signin');
   }
 
-  const accessToken = session.access_token;
+  // Profile is required — let it throw and surface a 500 if the backend is unreachable.
+  const profile = await fetchPrivateProfile(accessToken);
 
-  const [profile, comments, readingHistory] = await Promise.all([
-    fetchPrivateProfile(accessToken),
+  // Comments and history are display-only — degrade gracefully to empty on failure.
+  const [commentsResult, historyResult] = await Promise.allSettled([
     fetchProfileComments(accessToken),
     fetchReadingHistory(accessToken),
   ]);
 
-  return { profile, comments, readingHistory };
+  return {
+    profile,
+    comments: commentsResult.status === 'fulfilled' ? commentsResult.value : [],
+    readingHistory: historyResult.status === 'fulfilled' ? historyResult.value : [],
+  };
 }
