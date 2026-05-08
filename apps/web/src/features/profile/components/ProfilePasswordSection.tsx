@@ -94,7 +94,7 @@ export function ProfilePasswordSection() {
     }
 
     if (passwordUpdated) {
-      await signOut().catch(() => {});
+      await signOut().catch(logError);
       window.location.replace("/signin");
     }
   }
