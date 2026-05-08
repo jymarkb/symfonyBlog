@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Post;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -19,17 +21,17 @@ function adminRoutes(): array
         'GET admin comments' => ['GET', '/api/v1/admin/comments', 200],
         'PATCH admin comments' => ['PATCH', '/api/v1/admin/comments/123', 200],
 
-        'GET admin categories' => ['GET', '/api/v1/admin/categories', 200],
-        'POST admin categories' => ['POST', '/api/v1/admin/categories', 201],
-        'PATCH admin categories' => ['PATCH', '/api/v1/admin/categories/123', 200],
-        'DELETE admin categories' => ['DELETE', '/api/v1/admin/categories/123', 204],
+        'GET admin tags' => ['GET', '/api/v1/admin/tags', 200],
+        'POST admin tags' => ['POST', '/api/v1/admin/tags', 201],
+        'PATCH admin tags' => ['PATCH', '/api/v1/admin/tags/123', 200],
+        'DELETE admin tags' => ['DELETE', '/api/v1/admin/tags/123', 204],
 
         'POST admin uploads' => ['POST', '/api/v1/admin/uploads', 201],
     ];
 }
 
 it('rejects guests from every admin route', function (string $method, string $uri) {
-    $this->json($method, $uri)
+    $this->json($method, resolvedAdminRoute($method, $uri))
         ->assertUnauthorized();
 })->with(adminRoutes());
 
@@ -39,7 +41,7 @@ it('forbids normal users from every admin route', function (string $method, stri
     ]);
 
     $this->actingAs($user, 'api')
-        ->json($method, $uri)
+        ->json($method, resolvedAdminRoute($method, $uri))
         ->assertForbidden();
 })->with(adminRoutes());
 
@@ -53,7 +55,7 @@ it('allows admins through every admin placeholder route', function (
     ]);
 
     $this->actingAs($admin, 'api')
-        ->json($method, $uri)
+        ->json($method, resolvedAdminRoute($method, $uri), adminRoutePayload($method, $uri))
         ->assertStatus($expectedStatus);
 })->with(adminRoutes());
 
@@ -86,3 +88,51 @@ it('returns 429 when the admin mutations rate limit is exceeded', function () {
         ->postJson('/api/v1/admin/posts')
         ->assertTooManyRequests();
 });
+
+function resolvedAdminRoute(string $method, string $uri): string
+{
+    if (str_contains($uri, '/admin/posts/123')) {
+        $post = Post::factory()->create();
+
+        return str_replace('123', (string) $post->id, $uri);
+    }
+
+    if (str_contains($uri, '/admin/tags/123')) {
+        $tag = Tag::factory()->create();
+
+        return str_replace('123', (string) $tag->id, $uri);
+    }
+
+    return $uri;
+}
+
+function adminRoutePayload(string $method, string $uri): array
+{
+    if ($method === 'POST' && $uri === '/api/v1/admin/posts') {
+        return [
+            'title' => 'Admin matrix post',
+            'body' => [
+                [
+                    'type' => 'paragraph',
+                    'style' => ['base' => ['fontSize' => '18px']],
+                    'children' => [['text' => 'Admin matrix body']],
+                ],
+            ],
+            'status' => 'draft',
+        ];
+    }
+
+    if ($method === 'POST' && $uri === '/api/v1/admin/tags') {
+        return [
+            'name' => 'Admin Matrix',
+        ];
+    }
+
+    if ($method === 'PATCH' && str_contains($uri, '/admin/tags/')) {
+        return [
+            'name' => 'Admin Matrix Updated',
+        ];
+    }
+
+    return [];
+}

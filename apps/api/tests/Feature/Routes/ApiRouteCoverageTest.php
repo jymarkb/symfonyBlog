@@ -5,7 +5,8 @@ use Illuminate\Support\Facades\Route;
 it('keeps api v1 route test coverage explicit', function () {
     $documentedRoutes = [
         'GET api/v1/posts',
-        'GET api/v1/categories',
+        'GET api/v1/posts/{slug}',
+        'GET api/v1/tags',
         'POST api/v1/posts/{slug}/view',
         'GET api/v1/profiles/{handle}',
 
@@ -16,6 +17,9 @@ it('keeps api v1 route test coverage explicit', function () {
         'GET api/v1/profile',
         'PATCH api/v1/profile',
         'DELETE api/v1/profile',
+
+        'POST api/v1/posts/{slug}/stars',
+        'DELETE api/v1/posts/{slug}/stars',
 
         'GET api/v1/admin/posts',
         'POST api/v1/admin/posts',
@@ -28,10 +32,10 @@ it('keeps api v1 route test coverage explicit', function () {
         'GET api/v1/admin/comments',
         'PATCH api/v1/admin/comments/{comment}',
 
-        'GET api/v1/admin/categories',
-        'POST api/v1/admin/categories',
-        'PATCH api/v1/admin/categories/{category}',
-        'DELETE api/v1/admin/categories/{category}',
+        'GET api/v1/admin/tags',
+        'POST api/v1/admin/tags',
+        'PATCH api/v1/admin/tags/{tag}',
+        'DELETE api/v1/admin/tags/{tag}',
 
         'POST api/v1/admin/uploads',
     ];

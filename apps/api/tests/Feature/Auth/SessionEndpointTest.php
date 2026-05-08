@@ -37,6 +37,7 @@ it('returns admin permissions for admins', function () {
         ->assertJsonPath('data.permissions.admin', true)
         ->assertJsonPath('data.permissions.manage_posts', true)
         ->assertJsonPath('data.permissions.manage_users', true)
+        ->assertJsonPath('data.permissions.manage_tags', true)
         ->assertJsonPath('data.permissions.moderate_comments', true);
 });
 
