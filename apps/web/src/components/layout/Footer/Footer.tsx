@@ -1,3 +1,4 @@
+import { Brand } from "@/components/ui/Brand";
 import { footerLinkGroups } from "@/components/layout/Footer/footerNavItems";
 
 export function Footer() {
@@ -6,17 +7,7 @@ export function Footer() {
       <div className="shell">
         <div className="footer-grid">
           <div>
-            <a
-              className="mb-3 flex items-center gap-2 font-mono text-sm font-semibold"
-              href="/"
-            >
-              <span className="grid size-[22px] place-items-center rounded-brand-sm bg-ink text-xs font-bold text-paper">
-                J
-              </span>
-              <span>
-                jymb<span className="text-accent-ink">.</span>blog
-              </span>
-            </a>
+            <Brand href="/" className="mb-3" />
             <p className="m-0 max-w-[36ch] font-serif text-sm leading-6">
               A small, slow blog about building software thoughtfully.
               Hand-coded. No trackers. No popups.
