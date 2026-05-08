@@ -453,3 +453,7 @@
   .auth-shell { grid-template-columns: 1fr; }
   .auth-side { display: none; }
 }
+
+@media (max-width: 480px) {
+  .oauth-btns-compact { grid-template-columns: 1fr; }
+}
