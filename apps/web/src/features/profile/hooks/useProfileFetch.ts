@@ -6,14 +6,17 @@ import { logError } from "@/lib/utils/logError";
 export function useProfileFetch<T>(
   fetcher: (token: string) => Promise<T[]>,
   errorMessage: string,
+  initialData?: T[],
 ) {
-  const [data, setData] = useState<T[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<T[]>(initialData ?? []);
+  const [isLoading, setIsLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
 
   const fetcherRef = useRef(fetcher);
   const errorRef = useRef(errorMessage);
   const mountedRef = useRef(true);
+  // Captured at mount — immune to referential instability of the initialData array.
+  const skipFetchRef = useRef(initialData !== undefined);
 
   const load = useCallback(async () => {
     try {
@@ -29,6 +32,7 @@ export function useProfileFetch<T>(
   }, []);
 
   useEffect(() => {
+    if (skipFetchRef.current) return;
     mountedRef.current = true;
     void load();
     return () => { mountedRef.current = false; };

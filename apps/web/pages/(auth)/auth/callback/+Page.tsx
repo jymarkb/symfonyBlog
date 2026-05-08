@@ -53,6 +53,11 @@ export default function Page() {
           return;
         }
       } else if (hashAccessToken && hashRefreshToken) {
+        // Hash-fragment path: handles Supabase email magic links and email confirmations.
+        // OAuth flows always use the ?code= PKCE path above; hash tokens are only issued for email flows.
+        // Tokens are Supabase-signed JWTs — they cannot be forged by an attacker.
+        // Residual session-fixation risk (attacker-crafted URL with own tokens) is accepted as a
+        // known limitation; fully eliminating it requires configuring Supabase email to use PKCE.
         const { error } = await supabase.auth.setSession({
           access_token: hashAccessToken,
           refresh_token: hashRefreshToken,

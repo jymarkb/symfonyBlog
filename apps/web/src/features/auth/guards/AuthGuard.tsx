@@ -3,6 +3,8 @@ import { useEffect } from "react";
 
 import { useCurrentSession } from "@/features/auth/session";
 
+// @deprecated — replaced by +guard.ts server-side hooks. Kept as fallback for admin routes and client navigation.
+
 type AuthGuardProps = {
   children: ReactNode;
   requireAdmin?: boolean;
@@ -16,7 +18,7 @@ export function AuthGuard({
   guestRedirectTo = "/signin",
   forbiddenRedirectTo = "/profile",
 }: AuthGuardProps) {
-  const { status, error, isLoading, isAuthenticated, isAdmin, refreshSession } =
+  const { status, isLoading, isAuthenticated, isAdmin, refreshSession } =
     useCurrentSession();
 
   const isForbidden = isAuthenticated && requireAdmin && !isAdmin;
@@ -53,7 +55,7 @@ export function AuthGuard({
     return (
       <div className="shell py-12">
         <h1>Session unavailable</h1>
-        <p className="text-ink-4">{error}</p>
+        <p className="text-ink-4">Unable to load your session. Please try again.</p>
         <button
           className="btn btn-primary"
           onClick={() => void refreshSession()}

@@ -1,17 +1,11 @@
-import { useCurrentSession } from '@/features/auth/session';
+import type { PrivateProfile } from '@/features/profile/profileTypes';
 
-export function ProfileHead() {
-  const { user, isLoading } = useCurrentSession();
-
-  if (isLoading) {
-    return <div className="shell"><div className="profile-head" /></div>;
-  }
-
-  const displayName = user?.display_name ?? user?.handle?.replace(/^@/, '') ?? 'User';
-  const handle = user?.handle ?? '';
+export function ProfileHead({ profile }: { profile: PrivateProfile }) {
+  const displayName = profile.display_name ?? profile.handle?.replace(/^@/, '') ?? 'User';
+  const handle = profile.handle ?? '';
   const avatarInitial = displayName.charAt(0).toUpperCase();
-  const memberSince = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  const memberSince = profile.created_at
+    ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : null;
 
   const metaItems = [

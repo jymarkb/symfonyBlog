@@ -22,20 +22,20 @@ import { ProfilePlaceholder } from "@/features/profile/components/ProfilePlaceho
 import { FormMessage } from "@/components/ui/FormMessage";
 
 export function ProfilePage({
+  initialProfile,
   onProfileChange,
 }: {
+  initialProfile?: PrivateProfile;
   onProfileChange?: (p: PrivateProfile) => void;
 }) {
   const { refreshSession } = useCurrentSession();
   const [errors, setErrors] = useState<ProfileFormErrors>({});
-  const [fields, setFields] = useState<ProfileFormFields>({
-    display_name: "",
-    first_name: "",
-    last_name: "",
-  });
-  const [isLoading, setIsLoading] = useState(true);
+  const [fields, setFields] = useState<ProfileFormFields>(
+    initialProfile ? fieldsFromProfile(initialProfile) : { display_name: "", first_name: "", last_name: "" },
+  );
+  const [isLoading, setIsLoading] = useState(!initialProfile);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [profile, setProfile] = useState<PrivateProfile | null>(null);
+  const [profile, setProfile] = useState<PrivateProfile | null>(initialProfile ?? null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const loadProfile = useCallback(async () => {
@@ -57,8 +57,9 @@ export function ProfilePage({
   }, []);
 
   useEffect(() => {
+    if (initialProfile) return;
     void loadProfile();
-  }, [loadProfile]);
+  }, [initialProfile, loadProfile]);
 
   function handleChange(field: keyof ProfileFormFields, value: string) {
     setFields((currentFields) => ({
