@@ -28,7 +28,9 @@ export function Header() {
   const { isLoading: sessionLoading, isAuthenticated, isAdmin, user, signOut } =
     useCurrentSession();
 
-  const isLoading = sessionLoading && !initialUser;
+  // initialUser === null means the server confirmed guest — no need to wait for INITIAL_SESSION.
+  // initialUser === undefined means the server didn't resolve auth (shouldn't happen in practice).
+  const isLoading = sessionLoading && initialUser === undefined;
 
   const guestCta =
     pathname === headerAuthButtons.signIn.href
