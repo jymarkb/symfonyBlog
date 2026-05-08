@@ -1,12 +1,9 @@
+import { Brand } from "@/components/ui/Brand";
+
 export function ResetPasswordSidePanel() {
   return (
     <>
-      <div className="brand">
-        <span className="brand-mark">j</span>
-        <span>
-          jymb<span className="brand-dot">.</span>blog
-        </span>
-      </div>
+      <Brand />
 
       <div className="side-reset">
         <h2>
@@ -34,7 +31,7 @@ export function ResetPasswordSidePanel() {
 
       <div className="side-meta">
         <span>Password recovery</span>
-        <span>Supabase Auth</span>
+        <span>Secure authentication</span>
       </div>
     </>
   );

@@ -1,12 +1,9 @@
+import { Brand } from "@/components/ui/Brand";
+
 export function SignInSidePanel() {
   return (
     <>
-      <div className="brand">
-        <span className="brand-mark">j</span>
-        <span>
-          jymb<span className="brand-dot">.</span>blog
-        </span>
-      </div>
+      <Brand />
 
       <div className="side-quote">
         <p>

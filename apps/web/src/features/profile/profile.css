@@ -157,6 +157,16 @@
     line-height: 1.55;
   }
 
+  .btn-danger {
+    border-color: oklch(0.65 0.14 20);
+    color: oklch(0.42 0.14 20);
+  }
+
+  html[data-mode="dark"] .btn-danger {
+    border-color: oklch(0.55 0.14 20);
+    color: oklch(0.72 0.14 20);
+  }
+
   /* ── Sidebar ── */
 
   .profile-sidebar { display: grid; gap: 20px; align-content: start; }

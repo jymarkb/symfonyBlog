@@ -7,7 +7,11 @@ use App\Models\User;
 use App\Services\Auth\SupabaseTokenVerifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,6 +29,38 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('profile-mutations', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('profile-delete', function (Request $request) {
+            return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('post-view', function (Request $request) {
+            return Limit::perMinute(30)->by($request->ip());
+        });
+
+        RateLimiter::for('public-api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->ip());
+        });
+
+        RateLimiter::for('session', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('auth-read', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('admin-mutations', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('admin-read', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
         Auth::viaRequest('supabase', function (Request $request) {
             $token = $request->bearerToken();
 
@@ -43,49 +79,72 @@ class AppServiceProvider extends ServiceProvider
                 return null;
             }
 
-            $userMetadata = $claims->user_metadata ?? null;
+            $meta  = (array) ($claims->user_metadata ?? []);
             $email = $claims->email ?? '';
 
-            $user = User::where('supabase_user_id', $claims->sub)->first()
-                ?? User::where('email', $email)->first();
+            return DB::transaction(function () use ($claims, $email, $meta) {
+                $user = User::where('supabase_user_id', $claims->sub)->lockForUpdate()->first()
+                    ?? User::where('email', $email)->lockForUpdate()->first();
 
-            if ($user) {
-                $user->fill([
-                    'supabase_user_id' => $user->supabase_user_id ?? $claims->sub,
-                    'handle' => $user->handle ?? $this->resolveHandle($userMetadata, $email, $user),
-                    'display_name' => $user->display_name ?? $userMetadata?->display_name ?? $userMetadata?->full_name,
-                    'avatar_url' => $user->avatar_url ?? $userMetadata?->avatar_url ?? $userMetadata?->picture,
-                ])->save();
+                if ($user) {
+                    $user->supabase_user_id = $user->supabase_user_id ?? $claims->sub;
+                    $user->handle           = $user->handle ?? $this->resolveHandle($meta, $email, $user);
+                    $user->display_name     = $user->display_name ?? substr((string) ($meta['display_name'] ?? $meta['full_name'] ?? ''), 0, 120) ?: null;
+                    $user->save();
+
+                    return $user;
+                }
+
+                $user = new User();
+                $user->supabase_user_id = $claims->sub;
+                $user->email            = $email;
+                $user->handle           = $this->resolveHandle($meta, $email);
+                $user->display_name     = substr((string) ($meta['display_name'] ?? $meta['full_name'] ?? ''), 0, 120) ?: null;
+                $user->role             = 'user';
+                try {
+                    $user->save();
+                } catch (UniqueConstraintViolationException $e) {
+                    $msg = $e->getMessage();
+                    if (str_contains($msg, 'users_email') || str_contains($msg, 'users_supabase_user_id')) {
+                        $user = User::where('supabase_user_id', $claims->sub)->first()
+                            ?? User::where('email', $email)->firstOrFail();
+                    } else {
+                        $user->handle = $this->resolveHandle($meta, $email);
+                        try {
+                            $user->save();
+                        } catch (UniqueConstraintViolationException) {
+                            $user->handle = '@'.substr('user', 0, 13).'_'.substr(str_replace('-', '', Str::uuid()), 0, 6);
+                            $user->save();
+                        }
+                    }
+                }
 
                 return $user;
-            }
-
-            return User::create([
-                'supabase_user_id' => $claims->sub,
-                'email' => $email,
-                'handle' => $this->resolveHandle($userMetadata, $email),
-                'display_name' => $userMetadata?->display_name ?? $userMetadata?->full_name,
-                'avatar_url' => $userMetadata?->avatar_url ?? $userMetadata?->picture,
-                'role' => 'user',
-            ]);
+            });
         });
     }
 
-    private function resolveHandle(?object $userMetadata, string $email, ?User $currentUser = null): string
+    private function resolveHandle(array $meta, string $email, ?User $currentUser = null): string
     {
-        $source = $userMetadata?->handle
-            ?? $userMetadata?->user_name
-            ?? $userMetadata?->preferred_username
-            ?? $userMetadata?->full_name
-            ?? $userMetadata?->name
+        $source = $meta['handle']
+            ?? $meta['user_name']
+            ?? $meta['preferred_username']
+            ?? $meta['full_name']
+            ?? $meta['name']
             ?? Str::before($email, '@')
             ?? 'user';
 
         $base = $this->normalizeHandleBase((string) $source);
         $candidate = '@'.$base;
         $suffix = 2;
+        $attempts = 0;
 
         while ($this->handleExists($candidate, $currentUser)) {
+            $attempts++;
+            if ($attempts >= 10) {
+                $candidate = '@'.substr($base, 0, 13).'_'.substr(str_replace('-', '', Str::uuid()), 0, 6);
+                break;
+            }
             $suffixText = (string) $suffix;
             $candidate = '@'.substr($base, 0, 19 - strlen($suffixText)).$suffixText;
             $suffix++;

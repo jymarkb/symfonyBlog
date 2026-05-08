@@ -15,6 +15,7 @@ export function validatePassword(value: string): string | null {
 export function validateNewPassword(value: string): string | null {
   if (!value) return 'Password is required.';
   if (value.length < 12) return 'Password must be at least 12 characters.';
+  if (value.length > 72) return 'Password must be 72 characters or fewer.';
   return null;
 }
 
@@ -38,8 +39,8 @@ export function validateHandle(value: string): string | null {
 export function passwordStrength(value: string): 0 | 1 | 2 | 3 | 4 {
   if (!value) return 0;
   let score = 0;
-  if (value.length >= 8) score++;
   if (value.length >= 12) score++;
+  if (value.length >= 16) score++;
   if (/[a-z]/.test(value) && /[A-Z]/.test(value)) score++;
   if (/[0-9]/.test(value)) score++;
   if (/[^a-zA-Z0-9]/.test(value)) score++;

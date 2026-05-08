@@ -1,6 +1,8 @@
-import type { ChangeEvent, FormEvent } from 'react';
+import type { ChangeEvent } from 'react';
 
 import type { ProfileFormFields, ProfileFormProps } from '@/features/profile/profileTypes';
+import { useCurrentSession } from '@/features/auth/session';
+import { FormMessage } from '@/components/ui/FormMessage';
 
 export function ProfileForm({
   errors,
@@ -8,10 +10,11 @@ export function ProfileForm({
   isSubmitting,
   onChange,
   onSubmit,
-  profile,
   successMessage,
 }: ProfileFormProps) {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const { user } = useCurrentSession();
+
+  function handleSubmit(event: { preventDefault(): void }) {
     event.preventDefault();
     onSubmit();
   }
@@ -26,73 +29,76 @@ export function ProfileForm({
     <form noValidate onSubmit={handleSubmit}>
       <h2>Account</h2>
 
-      {errors.server && <div className="form-alert">{errors.server}</div>}
-      {successMessage && <div className="form-alert">{successMessage}</div>}
+      <FormMessage error={errors.server} success={successMessage} />
 
       <div className="field">
         <label htmlFor="profile-display-name">Display name</label>
         <input
+          aria-describedby={errors.display_name ? 'profile-display-name-error' : undefined}
+          aria-invalid={errors.display_name ? true : undefined}
           className={errors.display_name ? 'is-error' : ''}
           id="profile-display-name"
+          maxLength={120}
           onChange={set('display_name')}
           placeholder="Your display name"
           type="text"
           value={fields.display_name}
         />
-        {errors.display_name && <span className="field-error">{errors.display_name}</span>}
+        {errors.display_name && (
+          <span className="field-error" id="profile-display-name-error">{errors.display_name}</span>
+        )}
       </div>
 
       <div className="field-row">
         <div className="field">
           <label htmlFor="profile-first-name">First name</label>
           <input
+            aria-describedby={errors.first_name ? 'profile-first-name-error' : undefined}
+            aria-invalid={errors.first_name ? true : undefined}
             className={errors.first_name ? 'is-error' : ''}
             id="profile-first-name"
+            maxLength={120}
             onChange={set('first_name')}
             placeholder="First name"
             type="text"
             value={fields.first_name}
           />
-          {errors.first_name && <span className="field-error">{errors.first_name}</span>}
+          {errors.first_name && (
+            <span className="field-error" id="profile-first-name-error">{errors.first_name}</span>
+          )}
         </div>
 
         <div className="field">
           <label htmlFor="profile-last-name">Last name</label>
           <input
+            aria-describedby={errors.last_name ? 'profile-last-name-error' : undefined}
+            aria-invalid={errors.last_name ? true : undefined}
             className={errors.last_name ? 'is-error' : ''}
             id="profile-last-name"
+            maxLength={120}
             onChange={set('last_name')}
             placeholder="Last name"
             type="text"
             value={fields.last_name}
           />
-          {errors.last_name && <span className="field-error">{errors.last_name}</span>}
+          {errors.last_name && (
+            <span className="field-error" id="profile-last-name-error">{errors.last_name}</span>
+          )}
         </div>
-      </div>
-
-      <div className="field">
-        <label htmlFor="profile-avatar-url">Avatar URL</label>
-        <input
-          className={errors.avatar_url ? 'is-error' : ''}
-          id="profile-avatar-url"
-          onChange={set('avatar_url')}
-          placeholder="https://example.com/avatar.jpg"
-          type="url"
-          value={fields.avatar_url}
-        />
-        {errors.avatar_url && <span className="field-error">{errors.avatar_url}</span>}
       </div>
 
       <div className="field">
         <label htmlFor="profile-email">Email address</label>
         <input
+          aria-describedby="profile-email-hint"
+          autoComplete="email"
           id="profile-email"
           readOnly
           style={{ opacity: 0.6, cursor: 'default' }}
           type="email"
-          value={profile.email}
+          value={user?.email ?? ''}
         />
-        <span className="hint">Used for sign-in and notifications. Never shown publicly.</span>
+        <span className="hint" id="profile-email-hint">Used for sign-in and notifications. Never shown publicly.</span>
       </div>
 
       <button className="btn btn-primary" disabled={isSubmitting} type="submit">

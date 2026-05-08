@@ -48,6 +48,34 @@ it('returns reading history belonging to the authenticated user with correct val
         ->toHaveKey('post_slug', $post->slug)
         ->toHaveKey('read_progress', 75)
         ->toHaveKey('last_viewed_at', $view->last_viewed_at->toISOString());
+
+    $response->assertJsonMissingPath('data.0.user_id');
+});
+
+it('returns 429 when the reading history rate limit is exceeded', function () {
+    $user = User::factory()->create();
+
+    $cacheKey = md5('auth-read' . $user->id);
+    for ($i = 0; $i < 60; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->actingAs($user, 'api')
+        ->getJson('/api/v1/profile/reading-history')
+        ->assertTooManyRequests();
+});
+
+it('returns at most 10 reading history items even when the user has more', function () {
+    $user = User::factory()->create();
+    $posts = \App\Models\Post::factory()->count(12)->create();
+    foreach ($posts as $post) {
+        \App\Models\PostView::factory()->create(['user_id' => $user->id, 'post_id' => $post->id]);
+    }
+
+    $this->actingAs($user, 'api')
+        ->getJson('/api/v1/profile/reading-history')
+        ->assertOk()
+        ->assertJsonCount(10, 'data');
 });
 
 it('does not return reading history belonging to another user', function () {

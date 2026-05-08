@@ -13,10 +13,13 @@ import type {
 import {
   fieldsFromProfile,
   normalizeProfileFields,
-  validateProfileFields,
 } from "@/features/profile/lib/profileForm";
 import { useCurrentSession } from "@/features/auth/session";
-import { supabase } from "@/lib/auth/supabaseClient";
+import { getAccessToken } from "@/lib/auth/getAccessToken";
+import { logError } from "@/lib/utils/logError";
+import { ProfileSection } from "@/features/profile/components/ProfileSection";
+import { ProfilePlaceholder } from "@/features/profile/components/ProfilePlaceholder";
+import { FormMessage } from "@/components/ui/FormMessage";
 
 export function ProfilePage({
   onProfileChange,
@@ -29,24 +32,11 @@ export function ProfilePage({
     display_name: "",
     first_name: "",
     last_name: "",
-    avatar_url: "",
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profile, setProfile] = useState<PrivateProfile | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  const getAccessToken = useCallback(async () => {
-    const { data, error } = await supabase.auth.getSession();
-
-    if (error || !data.session?.access_token) {
-      throw new Error(
-        "Your session could not be loaded. Please sign in again.",
-      );
-    }
-
-    return data.session.access_token;
-  }, []);
 
   const loadProfile = useCallback(async () => {
     setIsLoading(true);
@@ -59,16 +49,12 @@ export function ProfilePage({
       setProfile(nextProfile);
       setFields(fieldsFromProfile(nextProfile));
     } catch (error) {
-      setErrors({
-        server:
-          error instanceof Error
-            ? error.message
-            : "Unable to load your profile.",
-      });
+      logError(error);
+      setErrors({ server: "Unable to load your profile." });
     } finally {
       setIsLoading(false);
     }
-  }, [getAccessToken]);
+  }, []);
 
   useEffect(() => {
     void loadProfile();
@@ -91,13 +77,6 @@ export function ProfilePage({
   }
 
   async function handleSubmit() {
-    const nextErrors = validateProfileFields(fields);
-
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
-      return;
-    }
-
     setIsSubmitting(true);
     setErrors({});
     setSuccessMessage(null);
@@ -115,12 +94,8 @@ export function ProfilePage({
       setSuccessMessage("Profile updated.");
       await refreshSession();
     } catch (error) {
-      setErrors({
-        server:
-          error instanceof Error
-            ? error.message
-            : "Unable to update your profile.",
-      });
+      logError(error);
+      setErrors({ server: "Unable to update your profile." });
     } finally {
       setIsSubmitting(false);
     }
@@ -128,23 +103,16 @@ export function ProfilePage({
 
   if (isLoading) {
     return (
-      <div className="profile-section">
-        <p style={{ color: "var(--ink-4)", fontSize: "14px", margin: 0 }}>
-          Loading your profile…
-        </p>
-      </div>
+      <ProfileSection>
+        <ProfilePlaceholder>Loading your profile…</ProfilePlaceholder>
+      </ProfileSection>
     );
   }
 
   if (!profile) {
     return (
-      <div className="profile-section">
-        <h2>Account</h2>
-        {errors.server && (
-          <p style={{ color: "var(--ink-4)", fontSize: "14px" }}>
-            {errors.server}
-          </p>
-        )}
+      <ProfileSection title="Account">
+        <FormMessage error={errors.server} />
         <button
           className="btn btn-primary"
           onClick={() => void loadProfile()}
@@ -152,21 +120,20 @@ export function ProfilePage({
         >
           Try again
         </button>
-      </div>
+      </ProfileSection>
     );
   }
 
   return (
-    <div className="profile-section">
+    <ProfileSection>
       <ProfileForm
         errors={errors}
         fields={fields}
         isSubmitting={isSubmitting}
         onChange={handleChange}
         onSubmit={handleSubmit}
-        profile={profile}
         successMessage={successMessage}
       />
-    </div>
+    </ProfileSection>
   );
 }

@@ -7,7 +7,7 @@ export function AuthFooterLinks({ label }: AuthFooterLinksProps) {
     <div className="auth-foot">
       <span>{label}</span>
       <span>
-        <a href="#">Privacy</a> · <a href="#">Terms</a>
+        <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
       </span>
     </div>
   );

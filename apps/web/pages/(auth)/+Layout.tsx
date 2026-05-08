@@ -1,7 +1,16 @@
 import type { ReactNode } from "react";
+import { usePageContext } from "vike-react/usePageContext";
 
 import { RequireGuest } from "@/features/auth/guards";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
-  return <RequireGuest>{children}</RequireGuest>;
+  const { urlPathname } = usePageContext();
+
+  // Reset-password creates a Supabase session mid-flow (recovery token exchange).
+  // RequireGuest would redirect the user away the moment that session is set,
+  // so this route must bypass the guest guard.
+  if (urlPathname === "/reset-password") return <ErrorBoundary>{children}</ErrorBoundary>;
+
+  return <RequireGuest><ErrorBoundary>{children}</ErrorBoundary></RequireGuest>;
 }

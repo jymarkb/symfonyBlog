@@ -34,7 +34,7 @@ export function AuthProviderButtons({
           {providerLabel("github")}
         </button>
         {lastUsedProvider === "github" ? (
-          <div className="oauth-last-used">Last used</div>
+          <div aria-label="Last used: GitHub" className="oauth-last-used">Last used</div>
         ) : null}
       </div>
 
@@ -49,7 +49,7 @@ export function AuthProviderButtons({
           {providerLabel("google")}
         </button>
         {lastUsedProvider === "google" ? (
-          <div className="oauth-last-used">Last used</div>
+          <div aria-label="Last used: Google" className="oauth-last-used">Last used</div>
         ) : null}
       </div>
     </div>

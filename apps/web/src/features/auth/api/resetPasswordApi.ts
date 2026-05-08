@@ -1,3 +1,4 @@
+import { ApiError } from "@/lib/api/apiClient";
 import { supabase } from "@/lib/auth/supabaseClient";
 
 export async function sendPasswordResetEmail(email: string) {
@@ -6,6 +7,9 @@ export async function sendPasswordResetEmail(email: string) {
   });
 
   if (error) {
+    if (error.status === 429) {
+      throw new ApiError("Rate limited.", 429);
+    }
     throw new Error("Unable to send reset link. Please try again.");
   }
 }
@@ -17,9 +21,14 @@ export async function startPasswordRecoverySession() {
   const hashAccessToken = hashParams.get("access_token");
   const hashRefreshToken = hashParams.get("refresh_token");
 
+  window.history.replaceState({}, document.title, "/reset-password");
+
+  if (!authCode && !(hashAccessToken && hashRefreshToken)) {
+    throw new Error("This reset link is invalid or has expired. Please request a new one.");
+  }
+
   if (authCode) {
     const { error } = await supabase.auth.exchangeCodeForSession(authCode);
-
     if (error) {
       throw new Error("This reset link has expired or was already used.");
     }
@@ -28,7 +37,6 @@ export async function startPasswordRecoverySession() {
       access_token: hashAccessToken,
       refresh_token: hashRefreshToken,
     });
-
     if (error) {
       throw new Error("This reset link has expired or was already used.");
     }
@@ -39,20 +47,26 @@ export async function startPasswordRecoverySession() {
   if (error || !data.session?.access_token) {
     throw new Error("We could not verify this reset link. Please request a new one.");
   }
-
-  window.history.replaceState({}, document.title, "/reset-password");
 }
 
 export async function updatePassword(newPassword: string) {
   const { error } = await supabase.auth.updateUser({ password: newPassword });
 
   if (error) {
+    if (error.status === 429) {
+      throw new ApiError("Rate limited.", 429);
+    }
+    console.error('Password update failed:', error.code ?? error.message);
     throw new Error(getPasswordUpdateErrorMessage(error));
   }
 }
 
 export async function signOutAfterPasswordUpdate() {
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    console.error('Sign-out after password update failed:', error.code ?? error.message);
+    throw new Error("Sign-out failed after password update.");
+  }
 }
 
 function getPasswordUpdateErrorMessage(error: { code?: string; message?: string }) {

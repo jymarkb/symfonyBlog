@@ -130,17 +130,9 @@ export function Header() {
                 onClick={() => setIsAccountMenuOpen((isOpen) => !isOpen)}
                 type="button"
               >
-                {user?.avatar_url ? (
-                  <img
-                    alt=""
-                    className="size-7 rounded-full object-cover"
-                    src={user.avatar_url}
-                  />
-                ) : (
-                  <span className="grid size-7 place-items-center rounded-full bg-ink text-xs font-semibold uppercase text-paper">
-                    {avatarInitial}
-                  </span>
-                )}
+                <span className="grid size-7 place-items-center rounded-full bg-ink text-xs font-semibold uppercase text-paper">
+                  {avatarInitial}
+                </span>
               </button>
 
               {isAccountMenuOpen ? (
@@ -213,17 +205,9 @@ export function Header() {
               }}
               type="button"
             >
-              {user?.avatar_url ? (
-                <img
-                  alt=""
-                  className="size-7 rounded-full object-cover"
-                  src={user.avatar_url}
-                />
-              ) : (
-                <span className="grid size-7 place-items-center rounded-full bg-ink text-xs font-semibold uppercase text-paper">
-                  {avatarInitial}
-                </span>
-              )}
+              <span className="grid size-7 place-items-center rounded-full bg-ink text-xs font-semibold uppercase text-paper">
+                {avatarInitial}
+              </span>
             </button>
           ) : null}
 
