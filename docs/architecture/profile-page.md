@@ -58,19 +58,31 @@ This document defines the structure, data flow, and implementation status for th
                                            signOut throws; notify field assertions in
                                            ProfileNotificationTest; ProfileService::deleteAccount
                                            wrapped in DB::transaction
+19. SSR auth guard                   done — @supabase/ssr installed; pages/(user)/+guard.ts reads
+                                           session cookie server-side and redirects guests before
+                                           HTML is rendered; pages/(user)/+config.ts sets
+                                           prerender: false; RequireAuth removed from layout
+20. SSR data fetching                done — pages/(user)/profile/+data.ts fetches profile, comments,
+                                           and reading-history in parallel server-side; ProfilePage,
+                                           ProfileCommentHistory, ProfileRecentlyViewed accept
+                                           initialX props; useProfileFetch hook accepts initialData;
+                                           ProfileHead accepts profile prop; zero loading flash on /profile
+21. SSR header                       done — pages/+onBeforeRender.ts runs on every request, calls
+                                           GET /api/v1/session, puts initialUser into pageContext;
+                                           passToClient: ['initialUser'] in root +config.ts;
+                                           Header reads pageContext.initialUser via usePageContext()
+                                           so it renders with correct auth state on first HTML response
 ```
 
 ## Route and Auth
 
-The page lives at `pages/(user)/profile/+Page.tsx`. The `(user)` route group layout (`pages/(user)/+Layout.tsx`) wraps every page in this group with:
+The page lives at `pages/(user)/profile/+Page.tsx`. Auth is enforced at the server level:
 
-```tsx
-<AppShell>
-  <RequireAuth>{children}</RequireAuth>
-</AppShell>
-```
+- `pages/(user)/+guard.ts` — reads the Supabase session cookie via `createSupabaseServerClient`, redirects guests to `/signin` before any HTML is rendered (HTTP 302, no client JS needed)
+- `pages/(user)/+config.ts` — sets `prerender: false` so the guard runs at request time, not at build time
+- `pages/(user)/+Layout.tsx` — wraps children in `<AppShell>` only; no client-side auth wrapper
 
-`RequireAuth` redirects unauthenticated visitors to `/signin`. The page itself does not repeat the auth guard.
+The page itself does not repeat the auth check.
 
 ## Page Structure
 
@@ -95,19 +107,20 @@ The page lives at `pages/(user)/profile/+Page.tsx`. The `(user)` route group lay
 ### ProfileHead
 
 - Source: `src/features/profile/components/ProfileHead.tsx`
-- Data: `useCurrentSession().user` — `display_name`, `handle`, `created_at`
+- Data: `profile: PrivateProfile` prop passed from `+Page.tsx` (SSR data from `+data.ts`)
 - Renders the page header with initials avatar, display name, handle, and member-since date.
 - `avatar_url` has been fully removed — initials fallback is always shown.
-- `created_at` is included in the session response (`SessionResource`) so no extra fetch is needed.
+- No loading state — renders immediately from SSR data on first HTML response.
 
 ### ProfilePage (account form)
 
 - Source: `src/features/profile/components/ProfilePage.tsx`
-- API: `GET /api/v1/profile` → `fetchPrivateProfile`, `PATCH /api/v1/profile` → `updatePrivateProfile`
+- Data: `initialProfile: PrivateProfile` prop from `+Page.tsx` (SSR); no initial fetch needed
+- API: `PATCH /api/v1/profile` → `updatePrivateProfile` (mutation only)
 - Fields: `display_name`, `first_name`, `last_name`
 - Read-only display: `email` (read from `useCurrentSession()`, never from the profile API)
 - Calls `refreshSession()` after a successful update so the header reflects name changes immediately.
-- Error state shows a "Try again" retry button; loading state shows a placeholder.
+- Error state shows a "Try again" retry button which triggers a client-side re-fetch.
 
 ### ProfilePasswordSection
 
@@ -121,15 +134,17 @@ The page lives at `pages/(user)/profile/+Page.tsx`. The `(user)` route group lay
 ### ProfileCommentHistory
 
 - Source: `src/features/profile/components/ProfileCommentHistory.tsx`
-- API: `GET /api/v1/profile/comments` via `fetchProfileComments`
-- Uses `useProfileFetch` hook + `ProfileDataSection` for all four states (loading / error / empty / data).
+- Data: `initialComments: ProfileComment[]` prop from `+Page.tsx` (SSR); no initial fetch needed
+- API: `GET /api/v1/profile/comments` via `fetchProfileComments` (used only on error-recovery path)
+- Uses `useProfileFetch` hook (with `initialData` param) + `ProfileDataSection` for all four states.
 - Backend returns at most 10 comments ordered by latest, eager-loading the related post.
 
 ### ProfileRecentlyViewed
 
 - Source: `src/features/profile/components/ProfileRecentlyViewed.tsx`
-- API: `GET /api/v1/profile/reading-history` via `fetchReadingHistory`
-- Uses `useProfileFetch` hook + `ProfileDataSection` for all four states.
+- Data: `initialHistory: ProfileReadingHistoryItem[]` prop from `+Page.tsx` (SSR); no initial fetch needed
+- API: `GET /api/v1/profile/reading-history` via `fetchReadingHistory` (used only on error-recovery path)
+- Uses `useProfileFetch` hook (with `initialData` param) + `ProfileDataSection` for all four states.
 - Each item shows post title, last-viewed date, and a horizontal read-progress bar.
 - Backend returns at most 10 items ordered by `last_viewed_at` desc.
 
@@ -159,7 +174,7 @@ The page lives at `pages/(user)/profile/+Page.tsx`. The `(user)` route group lay
 | `ProfileSection` | `src/features/profile/components/ProfileSection.tsx` | `div.profile-section` wrapper with optional `h2` |
 | `ProfilePlaceholder` | `src/features/profile/components/ProfilePlaceholder.tsx` | Muted placeholder text for loading/empty/error states |
 | `ProfileDataSection` | `src/features/profile/components/ProfileDataSection.tsx` | Combines ProfileSection + ProfilePlaceholder for all four async states |
-| `useProfileFetch` | `src/features/profile/hooks/useProfileFetch.ts` | Shared fetch lifecycle: token → API call → state; `mountedRef` prevents post-unmount updates |
+| `useProfileFetch` | `src/features/profile/hooks/useProfileFetch.ts` | Shared fetch lifecycle: token → API call → state; accepts optional `initialData` to skip initial fetch when SSR data is provided; `mountedRef` prevents post-unmount updates |
 
 ## API Touchpoints
 
@@ -215,7 +230,9 @@ Profile page styles live in `src/features/profile/profile.css`.
 
 ## Acceptance Checks
 
-- Signed-out users visiting `/profile` are redirected to `/signin`.
+- Signed-out users visiting `/profile` receive an HTTP 302 redirect to `/signin` server-side — no HTML is rendered, no client JS runs.
+- Hard refresh on `/profile` renders the full page (header, profile form, comment history, reading history) with real data on the first HTML response — no loading spinners visible.
+- Viewing page source (`view-source:`) confirms profile data (display name, comment body text, post titles) is present in the HTML, not injected client-side.
 - Signed-in users see their initials avatar, display name, handle, and member-since date.
 - Account form pre-fills from `GET /api/v1/profile`; saving updates the API and refreshes the header.
 - Password change re-authenticates via Supabase, updates credentials, signs out, and redirects to `/signin`.

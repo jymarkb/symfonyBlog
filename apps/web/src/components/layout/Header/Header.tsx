@@ -23,18 +23,25 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pageContext = usePageContext();
   const pathname = pageContext.urlPathname;
+  const initialUser = pageContext.initialUser ?? null;
 
-  const { isLoading, isAuthenticated, isAdmin, user, signOut } =
+  const { isLoading: sessionLoading, isAuthenticated, isAdmin, user, signOut } =
     useCurrentSession();
+
+  const isLoading = sessionLoading && !initialUser;
 
   const guestCta =
     pathname === headerAuthButtons.signIn.href
       ? headerAuthButtons.signUp
       : headerAuthButtons.signIn;
-  const accountName = user?.display_name ?? "Account";
-  const accountHandle = user?.handle ?? "Signed in";
+  const accountName = user?.display_name ?? initialUser?.displayName ?? "Account";
+  const accountHandle = user?.handle ?? initialUser?.handle ?? "Signed in";
   const avatarInitial =
-    user?.display_name?.charAt(0) ?? user?.handle?.replace(/^@/, "").charAt(0) ?? "U";
+    user?.display_name?.charAt(0) ??
+    user?.handle?.replace(/^@/, "").charAt(0) ??
+    initialUser?.displayName?.charAt(0) ??
+    initialUser?.handle?.replace(/^@/, "").charAt(0) ??
+    "U";
 
   async function handleSignOut() {
     setIsAccountMenuOpen(false);
@@ -46,11 +53,14 @@ export function Header() {
     }
   }
 
+  const effectiveIsAuthenticated = isAuthenticated || (!!initialUser && sessionLoading);
+  const effectiveIsAdmin = isAdmin || (!!initialUser?.isAdmin && sessionLoading);
+
   const actions: HeaderActionItem[] = isLoading
     ? []
-    : isAuthenticated
+    : effectiveIsAuthenticated
       ? [
-          ...(isAdmin
+          ...(effectiveIsAdmin
             ? [
                 {
                   type: "link",
@@ -120,7 +130,7 @@ export function Header() {
               aria-hidden="true"
               className="hidden h-10 w-24 md:inline-flex"
             />
-          ) : isAuthenticated ? (
+          ) : effectiveIsAuthenticated ? (
             <div className="relative hidden md:block">
               <button
                 aria-expanded={isAccountMenuOpen}
@@ -193,7 +203,7 @@ export function Header() {
             )
           )}
 
-          {!isLoading && isAuthenticated ? (
+          {!isLoading && effectiveIsAuthenticated ? (
             <button
               aria-expanded={isMobileAccountMenuOpen}
               aria-haspopup="menu"
@@ -267,7 +277,7 @@ export function Header() {
 
       {isMobileMenuOpen ? (
         <HeaderMobileMenuPanel
-          actions={isAuthenticated ? [] : actions}
+          actions={effectiveIsAuthenticated ? [] : actions}
           items={headerNavItems}
           onClose={() => setIsMobileMenuOpen(false)}
         />

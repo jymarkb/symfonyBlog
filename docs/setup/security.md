@@ -60,9 +60,11 @@ Every route must have at minimum:
 
 ### Route guards
 
-- All pages under `pages/(user)/` are wrapped by `RequireAuth` via `pages/(user)/+Layout.tsx`. Do not add a second auth check inside individual page components.
-- All pages under `pages/(auth)/` are wrapped by `RequireGuest` via `pages/(auth)/+Layout.tsx`. Do not render auth forms if the user is already signed in.
-- Admin UI must check the `isAdmin` flag from `useCurrentSession()` to hide admin-only controls, but the real gate is always the `admin` middleware server-side. Never rely on a client-side role check as the sole protection.
+- All pages under `pages/(user)/` are protected by `pages/(user)/+guard.ts` — a server-side Vike guard that reads the Supabase session cookie and redirects guests to `/signin` before any HTML is rendered.
+- All pages under `pages/(auth)/` are protected by `pages/(auth)/+guard.ts` — redirects authenticated users to `/`. The `/reset-password` path is bypassed because the recovery token flow fires `SIGNED_IN`.
+- Do not add a second auth check inside individual page components — the guard runs before the page renders.
+- `RequireAuth` and `RequireGuest` components are deprecated. Do not use them in new pages.
+- Admin UI must check the `isAdmin` flag from `useCurrentSession()` or `pageContext.initialUser.isAdmin` to hide admin-only controls, but the real gate is always the `admin` middleware server-side. Never rely on a client-side role check as the sole protection.
 
 ### Access token handling
 
@@ -97,7 +99,8 @@ Use this checklist when a planning agent decomposes a new feature. Add items her
 - [ ] Are guest / auth / admin behavior tests written?
 
 ### New frontend page or form
-- [ ] Is the page in the correct route group with the right layout guard?
+- [ ] Is the page in the correct route group with a `+guard.ts` server-side guard?
+- [ ] If the route group has a guard, does it also have `prerender: false` in `+config.ts`?
 - [ ] Does the form validate client-side before calling the API?
 - [ ] Are error messages user-friendly (no raw API errors rendered)?
 - [ ] Are tokens fetched via `supabase.auth.getSession()` immediately before use?
@@ -110,3 +113,4 @@ Use this checklist when a planning agent decomposes a new feature. Add items her
 Update this section when new security conventions are added:
 
 - **2026-05-07** — Initial doc. Covers profile page, auth flow, and current route structure.
+- **2026-05-08** — Updated route guards: `RequireAuth`/`RequireGuest` replaced by `+guard.ts` server-side guards. Added `prerender: false` requirement and admin `isAdmin` source clarification.
