@@ -51,21 +51,29 @@ Target:
 ## Key Files
 
 ```text
-apps/web/src/lib/auth/supabaseClient.ts          — current browser client (replace with SSR-aware client)
-apps/web/src/features/auth/guards/AuthGuard.tsx  — client-side guard (to be replaced by +guard.ts)
-apps/web/src/features/auth/guards/RequireAuth.tsx
-apps/web/src/features/auth/guards/RequireGuest.tsx
-apps/web/pages/(user)/+Layout.tsx
-apps/web/pages/(auth)/+Layout.tsx
-apps/web/pages/(user)/+guard.ts                  — new file
-apps/web/pages/(auth)/+guard.ts                  — new file
+apps/web/src/lib/auth/supabaseClient.ts          — browser client (createBrowserClient from @supabase/ssr)
+apps/web/src/lib/auth/supabaseServerClient.ts    — server client factory (read-only cookie adapter)
+apps/web/src/features/auth/guards/AuthGuard.tsx  — @deprecated, replaced by +guard.ts
+apps/web/src/features/auth/guards/RequireAuth.tsx — @deprecated, replaced by +guard.ts
+apps/web/src/features/auth/guards/RequireGuest.tsx — @deprecated, replaced by +guard.ts
+apps/web/pages/(user)/+Layout.tsx               — wraps in AppShell only, no auth wrapper
+apps/web/pages/(auth)/+Layout.tsx               — wraps in AuthShell only, no auth wrapper
+apps/web/pages/(user)/+guard.ts                 — server-side auth gate for protected routes
+apps/web/pages/(auth)/+guard.ts                 — server-side guest gate for auth routes
+apps/web/pages/(user)/+config.ts                — prerender: false (required for guards)
+apps/web/pages/(auth)/+config.ts                — prerender: false (required for guards)
+apps/web/pages/(user)/profile/+data.ts          — SSR data fetch: profile + comments + reading-history
+apps/web/pages/+onBeforeRender.ts               — global SSR hook: GET /api/v1/session → pageContext.initialUser
+apps/web/pages/+config.ts                       — passToClient: ['initialUser']
+apps/web/src/vike.d.ts                          — Vike PageContext type augmentation
 ```
 
 ## Acceptance Checks
 
-- Hard refresh on `/profile` renders the page immediately — no "Checking your session..." flash.
-- Guest visiting `/profile` is redirected to `/signin` via HTTP 302 (server-side, before HTML is sent).
+- Hard refresh on `/profile` renders the full page — header with avatar, account form, comment history, reading history — with zero loading flash. All content present in view-source HTML.
+- Guest visiting `/profile` is redirected to `/signin` via HTTP 302 (server-side, before HTML is sent) — visible in DevTools Network tab as a 302 response with no HTML body.
 - Signed-in user visiting `/signin` is redirected to `/` server-side.
-- OAuth callback (`/auth/callback`) correctly sets the session cookie after sign-in.
+- Main site header renders with correct avatar initial, display name, and account menu on first HTML response across all pages — no blank span flash on any page.
+- OAuth callback (`/auth/callback`) correctly sets the session cookie after sign-in. (pending verification)
 - Token refresh works transparently — expired tokens are refreshed via the cookie flow.
 - All existing profile page features continue to work (account form, notifications, delete, etc.).
