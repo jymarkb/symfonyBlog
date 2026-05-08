@@ -16,9 +16,12 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title');
             $table->string('slug')->unique();
-            $table->longText('body');
             $table->text('excerpt')->nullable();
+            $table->string('cover_image')->nullable();
+            $table->unsignedSmallInteger('reading_time')->nullable();
+            $table->json('body');
             $table->string('status')->default('draft');
+            $table->boolean('is_featured')->default(false);
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
         });
