@@ -5,6 +5,7 @@ namespace App\Services\Profile;
 use App\Models\Comment;
 use App\Models\PostView;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
 
 class ProfileService
@@ -58,8 +59,10 @@ class ProfileService
 
     public function deleteAccount(User $user): void
     {
-        Comment::where('user_id', $user->id)->update(['user_id' => null]);
-        PostView::where('user_id', $user->id)->delete();
-        $user->delete();
+        DB::transaction(function () use ($user) {
+            Comment::where('user_id', $user->id)->update(['user_id' => null]);
+            PostView::where('user_id', $user->id)->delete();
+            $user->delete();
+        });
     }
 }
