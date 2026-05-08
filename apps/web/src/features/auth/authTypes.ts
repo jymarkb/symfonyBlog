@@ -51,8 +51,6 @@ export type SessionUser = {
   email: string;
   handle: string;
   display_name: string | null;
-  avatar_url: string | null;
-  role: string;
   created_at: string | null;
 };
 

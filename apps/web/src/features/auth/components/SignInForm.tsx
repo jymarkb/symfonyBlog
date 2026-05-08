@@ -9,11 +9,16 @@ import type {
 import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
 import { AuthProviderButtons } from "@/features/auth/components/AuthProviderButtons";
 import { startSocialAuth } from "@/features/auth/api/registerApi";
+import { logError } from "@/lib/utils/logError";
+import { getApiErrorMessage } from "@/lib/api/apiErrors";
 import { signInWithEmail } from "@/features/auth/api/signInApi";
 import {
   validateEmail,
   validatePassword,
 } from "@/features/auth/lib/validation";
+import {
+  getLastAuthProvider,
+} from "@/features/auth/lib/lastAuthProvider";
 
 export function SignInForm() {
   const [fields, setFields] = useState<SignInFields>({
@@ -24,6 +29,9 @@ export function SignInForm() {
   const [submitting, setSubmitting] = useState(false);
   const [socialSubmitting, setSocialSubmitting] =
     useState<SocialAuthProvider | null>(null);
+  const [lastUsedProvider] = useState<SocialAuthProvider | null>(
+    getLastAuthProvider,
+  );
 
   function set(field: keyof SignInFields) {
     return (e: ChangeEvent<HTMLInputElement>) => {
@@ -63,8 +71,9 @@ export function SignInForm() {
 
       window.location.replace("/");
     } catch (error) {
+      logError(error);
       setErrors({
-        server: error instanceof Error ? error.message : "Unable to sign in.",
+        server: getApiErrorMessage(error, "We couldn't sign you in. Please try again."),
       });
       setSubmitting(false);
     }
@@ -77,11 +86,9 @@ export function SignInForm() {
     try {
       await startSocialAuth(provider);
     } catch (error) {
+      logError(error);
       setErrors({
-        server:
-          error instanceof Error
-            ? error.message
-            : "Unable to start social sign in.",
+        server: "We were unable to sign in with the selected provider. Please try again.",
       });
       setSocialSubmitting(null);
     }
@@ -91,18 +98,23 @@ export function SignInForm() {
     <>
       <AuthProviderButtons
         disabled={submitting || socialSubmitting !== null}
+        lastUsedProvider={lastUsedProvider}
         loadingProvider={socialSubmitting}
         onProviderSelect={handleSocialSignIn}
       />
 
       <div className="divider">or with email</div>
 
-      {errors.server && <div className="form-alert">{errors.server}</div>}
+      <div aria-live="polite" role="status">
+        {errors.server && <div className="form-alert">{errors.server}</div>}
+      </div>
 
       <form noValidate onSubmit={handleSubmit}>
         <div className="field">
           <label htmlFor="signin-email">Email</label>
           <input
+            aria-describedby={errors.email ? "signin-email-error" : undefined}
+            aria-invalid={errors.email ? true : undefined}
             autoComplete="email"
             className={errors.email ? "is-error" : ""}
             id="signin-email"
@@ -111,7 +123,7 @@ export function SignInForm() {
             type="email"
             value={fields.email}
           />
-          {errors.email && <span className="field-error">{errors.email}</span>}
+          {errors.email && <span className="field-error" id="signin-email-error">{errors.email}</span>}
         </div>
 
         <div className="field">
@@ -119,6 +131,8 @@ export function SignInForm() {
             Password <a href="/forgot-password">forgot?</a>
           </label>
           <input
+            aria-describedby={errors.password ? "signin-password-error" : undefined}
+            aria-invalid={errors.password ? true : undefined}
             autoComplete="current-password"
             className={errors.password ? "is-error" : ""}
             id="signin-password"
@@ -128,18 +142,13 @@ export function SignInForm() {
             value={fields.password}
           />
           {errors.password && (
-            <span className="field-error">{errors.password}</span>
+            <span className="field-error" id="signin-password-error">{errors.password}</span>
           )}
         </div>
 
-        <label className="check-row">
-          <input defaultChecked type="checkbox" />
-          <span>Keep me signed in on this device</span>
-        </label>
-
         <button
           className="btn btn-primary submit-btn"
-          disabled={submitting}
+          disabled={submitting || socialSubmitting !== null}
           type="submit"
         >
           {submitting ? "Signing in…" : "Sign in →"}

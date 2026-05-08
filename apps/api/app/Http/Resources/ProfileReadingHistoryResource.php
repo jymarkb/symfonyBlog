@@ -11,8 +11,8 @@ class ProfileReadingHistoryResource extends JsonResource
     {
         return [
             'post_id'        => $this->post_id,
-            'post_title'     => $this->post->title,
-            'post_slug'      => $this->post->slug,
+            'post_title'     => $this->post?->title,
+            'post_slug'      => $this->post?->slug,
             'read_progress'  => $this->read_progress,
             'last_viewed_at' => $this->last_viewed_at?->toISOString(),
         ];

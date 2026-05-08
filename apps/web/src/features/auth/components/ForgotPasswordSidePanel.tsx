@@ -1,12 +1,9 @@
+import { Brand } from "@/components/ui/Brand";
+
 export function ForgotPasswordSidePanel() {
   return (
     <>
-      <div className="brand">
-        <span className="brand-mark">j</span>
-        <span>
-          jymb<span className="brand-dot">.</span>blog
-        </span>
-      </div>
+      <Brand />
 
       <div className="side-reset">
         <h2>
@@ -30,7 +27,7 @@ export function ForgotPasswordSidePanel() {
           </div>
           <div className="side-step">
             <span className="num">03</span>
-            <span>Pick a new password and you're done. All sessions stay active.</span>
+            <span>Pick a new password. You'll be signed out and redirected to sign in.</span>
           </div>
         </div>
       </div>

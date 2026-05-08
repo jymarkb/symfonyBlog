@@ -12,8 +12,8 @@ class ProfileCommentResource extends JsonResource
         return [
             'id' => $this->id,
             'body' => $this->body,
-            'post_title' => $this->post->title,
-            'post_slug' => $this->post->slug,
+            'post_title' => $this->post?->title,
+            'post_slug'  => $this->post?->slug,
             'created_at' => $this->created_at?->toISOString(),
         ];
     }

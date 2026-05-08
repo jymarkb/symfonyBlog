@@ -14,40 +14,40 @@ use App\Http\Controllers\Api\V1\Admin\CategoryController;
 use App\Http\Controllers\Api\V1\Admin\UploadController;
 
 Route::prefix('v1')->group(function () {
-    Route::get('/posts', fn() => response()->json([]));
-    Route::get('/categories', fn() => response()->json([]));
-    Route::get('/profiles/{handle}', [PublicProfileController::class, 'show']);
+    Route::get('/posts', fn() => response()->json([]))->middleware('throttle:public-api');
+    Route::get('/categories', fn() => response()->json([]))->middleware('throttle:public-api');
+    Route::get('/profiles/{handle}', [PublicProfileController::class, 'show'])->middleware('throttle:public-api');
 
-    Route::middleware('auth:api')->group(function () {
-        Route::get('/session', [SessionController::class, 'show']);
+    Route::middleware(['auth:api', 'no-cache'])->group(function () {
+        Route::get('/session', [SessionController::class, 'show'])->middleware('throttle:session');
 
-        Route::get('/profile/reading-history', [ProfileReadingHistoryController::class, 'index']);
-        Route::get('/profile/comments', [ProfileCommentController::class, 'index']);
-        Route::patch('/profile/notifications', [ProfileNotificationController::class, 'update']);
-        Route::get('/profile', [ProfileController::class, 'show']);
-        Route::patch('/profile', [ProfileController::class, 'update']);
-        Route::delete('/profile', [ProfileController::class, 'destroy']);
+        Route::get('/profile/reading-history', [ProfileReadingHistoryController::class, 'index'])->middleware('throttle:auth-read');
+        Route::get('/profile/comments', [ProfileCommentController::class, 'index'])->middleware('throttle:auth-read');
+        Route::patch('/profile/notifications', [ProfileNotificationController::class, 'update'])->middleware('throttle:profile-mutations');
+        Route::get('/profile', [ProfileController::class, 'show'])->middleware('throttle:auth-read');
+        Route::patch('/profile', [ProfileController::class, 'update'])->middleware('throttle:profile-mutations');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware('throttle:profile-delete');
 
         Route::middleware('admin')->prefix('admin')->group(function () {
-            Route::get('/posts', [PostController::class, 'index']);
-            Route::post('/posts', [PostController::class, 'store']);
-            Route::patch('/posts/{post}', [PostController::class, 'update']);
-            Route::delete('/posts/{post}', [PostController::class, 'destroy']);
+            Route::get('/posts', [PostController::class, 'index'])->middleware('throttle:admin-read');
+            Route::post('/posts', [PostController::class, 'store'])->middleware('throttle:admin-mutations');
+            Route::patch('/posts/{post}', [PostController::class, 'update'])->middleware('throttle:admin-mutations');
+            Route::delete('/posts/{post}', [PostController::class, 'destroy'])->middleware('throttle:admin-mutations');
 
-            Route::get('/users', [UserController::class, 'index']);
-            Route::patch('/users/{user}', [UserController::class, 'update']);
+            Route::get('/users', [UserController::class, 'index'])->middleware('throttle:admin-read');
+            Route::patch('/users/{user}', [UserController::class, 'update'])->middleware('throttle:admin-mutations');
 
-            Route::get('/comments', [CommentController::class, 'index']);
-            Route::patch('/comments/{comment}', [CommentController::class, 'update']);
+            Route::get('/comments', [CommentController::class, 'index'])->middleware('throttle:admin-read');
+            Route::patch('/comments/{comment}', [CommentController::class, 'update'])->middleware('throttle:admin-mutations');
 
-            Route::get('/categories', [CategoryController::class, 'index']);
-            Route::post('/categories', [CategoryController::class, 'store']);
-            Route::patch('/categories/{category}', [CategoryController::class, 'update']);
-            Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+            Route::get('/categories', [CategoryController::class, 'index'])->middleware('throttle:admin-read');
+            Route::post('/categories', [CategoryController::class, 'store'])->middleware('throttle:admin-mutations');
+            Route::patch('/categories/{category}', [CategoryController::class, 'update'])->middleware('throttle:admin-mutations');
+            Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->middleware('throttle:admin-mutations');
 
-            Route::post('/uploads', [UploadController::class, 'store']);
+            Route::post('/uploads', [UploadController::class, 'store'])->middleware('throttle:admin-mutations');
         });
     });
 
-    Route::post('/posts/{slug}/view', fn() => response()->json([], 202));
+    Route::post('/posts/{slug}/view', fn() => response()->json([], 202))->middleware('throttle:post-view');
 });

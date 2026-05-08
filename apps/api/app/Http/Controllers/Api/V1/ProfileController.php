@@ -11,7 +11,7 @@ class ProfileController extends Controller
 {
     public function show(Request $request): ProfileResource
     {
-        return new ProfileResource($request->user()->loadCount(['posts', 'comments', 'postViews']));
+        return new ProfileResource($request->user()->loadCount(['comments', 'postViews']));
     }
 
     public function update(Request $request, ProfileService $profiles): ProfileResource
@@ -20,7 +20,6 @@ class ProfileController extends Controller
             'display_name' => ['nullable', 'string', 'max:120'],
             'first_name' => ['nullable', 'string', 'max:120'],
             'last_name' => ['nullable', 'string', 'max:120'],
-            'avatar_url' => ['nullable', 'url', 'max:2048'],
         ]);
 
         return new ProfileResource(

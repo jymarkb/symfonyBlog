@@ -1,7 +1,11 @@
 import { useCurrentSession } from '@/features/auth/session';
 
 export function ProfileHead() {
-  const { user } = useCurrentSession();
+  const { user, isLoading } = useCurrentSession();
+
+  if (isLoading) {
+    return <div className="shell"><div className="profile-head" /></div>;
+  }
 
   const displayName = user?.display_name ?? user?.handle?.replace(/^@/, '') ?? 'User';
   const handle = user?.handle ?? '';
@@ -18,17 +22,13 @@ export function ProfileHead() {
   return (
     <div className="shell">
       <div className="profile-head">
-        {user?.avatar_url ? (
-          <img alt="" className="avatar avatar-lg" src={user.avatar_url} style={{ objectFit: 'cover' }} />
-        ) : (
-          <div className="avatar avatar-lg">{avatarInitial}</div>
-        )}
+        <div className="avatar avatar-lg">{avatarInitial}</div>
 
         <div className="profile-info">
           <h1 className="profile-name">{displayName}</h1>
           <div className="profile-meta">
             {metaItems.map((item, i) => (
-              <span key={item}>
+              <span key={i}>
                 {i > 0 && <span style={{ marginRight: 12 }}>·</span>}
                 {item}
               </span>

@@ -22,4 +22,13 @@ docs/setup/*
 !docs/setup/frontend-structure.md
 !docs/setup/security.md
 !docs/setup/agent-workflow.md
+!docs/qa/
+docs/qa/*
+!docs/qa/README.md
+!docs/qa/features/
+docs/qa/features/*
+!docs/qa/features/auth-login.md
+!docs/qa/features/auth-signup.md
+!docs/qa/features/auth-forgot-password.md
+!docs/qa/features/auth-reset-password.md
 design/*

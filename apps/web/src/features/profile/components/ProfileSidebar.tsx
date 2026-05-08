@@ -1,22 +1,26 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { supabase } from "@/lib/auth/supabaseClient";
 import { useCurrentSession } from "@/features/auth/session";
+import { getAccessToken } from "@/lib/auth/getAccessToken";
+import { logError } from "@/lib/utils/logError";
 import { updateNotifications } from "@/features/profile/api/profileApi";
+import { FormMessage } from "@/components/ui/FormMessage";
 import type {
   NotificationPreference,
-  PrivateProfile,
   ProfileSidebarProps,
   UpdateNotificationsPayload,
 } from "@/features/profile/profileTypes";
 
-type Props = ProfileSidebarProps & {
-  onProfileChange: (profile: PrivateProfile) => void;
-};
-
-export function ProfileSidebar({ profile, onProfileChange }: Props) {
+export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps) {
   const { user } = useCurrentSession();
   const [notifError, setNotifError] = useState<string | null>(null);
+  const [notifSuccess, setNotifSuccess] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const memberSince = user?.created_at
     ? new Date(user.created_at).toLocaleDateString("en-US", {
@@ -29,18 +33,20 @@ export function ProfileSidebar({ profile, onProfileChange }: Props) {
     field: keyof UpdateNotificationsPayload,
     value: NotificationPreference,
   ) {
-    const { data } = await supabase.auth.getSession();
-    const accessToken = data.session?.access_token;
-    if (!accessToken) {
-      setNotifError("Not authenticated.");
-      return;
-    }
+    setIsSaving(true);
     try {
+      const accessToken = await getAccessToken();
       const updatedProfile = await updateNotifications(accessToken, { [field]: value });
+      if (!mountedRef.current) return;
       onProfileChange(updatedProfile);
       setNotifError(null);
-    } catch {
-      setNotifError("Failed to save preference.");
+      setNotifSuccess("Saved.");
+      setTimeout(() => { if (mountedRef.current) setNotifSuccess(null); }, 2000);
+    } catch (error) {
+      logError(error);
+      if (mountedRef.current) setNotifError("Failed to save preference.");
+    } finally {
+      if (mountedRef.current) setIsSaving(false);
     }
   }
 
@@ -65,10 +71,6 @@ export function ProfileSidebar({ profile, onProfileChange }: Props) {
             <span className="label">Member since</span>
             <span className="value">{memberSince}</span>
           </div>
-          <div className="stat-row">
-            <span className="label">Subscribed</span>
-            <span className="value">—</span>
-          </div>
         </div>
       </div>
 
@@ -77,6 +79,7 @@ export function ProfileSidebar({ profile, onProfileChange }: Props) {
         <div className="field" style={{ marginBottom: 12 }}>
           <label htmlFor="notif-replies">Replies to my comments</label>
           <select
+            disabled={isSaving || !profile}
             id="notif-replies"
             value={profile?.notify_comment_replies ?? 'none'}
             onChange={(e) =>
@@ -94,6 +97,7 @@ export function ProfileSidebar({ profile, onProfileChange }: Props) {
         <div className="field" style={{ marginBottom: 14 }}>
           <label htmlFor="notif-posts">New posts</label>
           <select
+            disabled={isSaving || !profile}
             id="notif-posts"
             value={profile?.notify_new_posts ?? 'none'}
             onChange={(e) =>
@@ -108,11 +112,7 @@ export function ProfileSidebar({ profile, onProfileChange }: Props) {
             <option value="none">None</option>
           </select>
         </div>
-        {notifError && (
-          <p className="hint" style={{ marginBottom: 0 }}>
-            {notifError}
-          </p>
-        )}
+        <FormMessage error={notifError} success={notifSuccess} />
       </div>
 
       <div className="side-card">

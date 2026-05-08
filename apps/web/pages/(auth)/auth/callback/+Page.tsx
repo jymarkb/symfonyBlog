@@ -37,6 +37,8 @@ export default function Page() {
       const pendingProvider = getPendingAuthProvider();
       const shouldShowCallbackUi = !authCode && !pendingProvider;
 
+      window.history.replaceState({}, document.title, "/auth/callback");
+
       if (shouldShowCallbackUi) {
         setIsSilent(false);
       }
@@ -45,7 +47,9 @@ export default function Page() {
         const { error } = await supabase.auth.exchangeCodeForSession(authCode);
 
         if (error) {
-          showError(error.message);
+          console.error(error);
+          clearPendingAuthProvider();
+          showError("We were unable to sign you in. Please try again.");
           return;
         }
       } else if (hashAccessToken && hashRefreshToken) {
@@ -55,7 +59,9 @@ export default function Page() {
         });
 
         if (error) {
-          showError(error.message);
+          console.error(error);
+          clearPendingAuthProvider();
+          showError("We were unable to sign you in. Please try again.");
           return;
         }
       }
@@ -63,11 +69,14 @@ export default function Page() {
       const { data, error } = await supabase.auth.getSession();
 
       if (error) {
-        showError(error.message);
+        console.error(error);
+        clearPendingAuthProvider();
+        showError("We were unable to sign you in. Please try again.");
         return;
       }
 
       if (!data.session?.access_token) {
+        clearPendingAuthProvider();
         showError("No auth session was found. Please sign in again.");
         return;
       }
@@ -81,8 +90,6 @@ export default function Page() {
 
       clearPendingAuthProvider();
 
-      window.history.replaceState({}, document.title, "/auth/callback");
-
       if (currentUser.permissions.admin) {
         window.location.replace("/dashboard");
         return;
@@ -92,6 +99,7 @@ export default function Page() {
     }
 
     finishAuth().catch(() => {
+      clearPendingAuthProvider();
       showError(
         "Unable to connect this session to the API. Please sign in again.",
       );
@@ -104,7 +112,7 @@ export default function Page() {
 
   return (
     <AuthShell side={<CallbackSidePanel />} sidePlacement="start">
-      <div className="auth-callback">
+      <div className="auth-callback" aria-live="polite" aria-atomic="true">
         <div
           aria-hidden="true"
           className={status === "loading" ? "callback-mark is-loading" : "callback-mark is-error"}
