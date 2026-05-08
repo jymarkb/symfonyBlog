@@ -15,6 +15,8 @@ export function useProfileFetch<T>(
   const fetcherRef = useRef(fetcher);
   const errorRef = useRef(errorMessage);
   const mountedRef = useRef(true);
+  // Captured at mount — immune to referential instability of the initialData array.
+  const skipFetchRef = useRef(initialData !== undefined);
 
   const load = useCallback(async () => {
     try {
@@ -30,11 +32,11 @@ export function useProfileFetch<T>(
   }, []);
 
   useEffect(() => {
-    if (initialData) return;
+    if (skipFetchRef.current) return;
     mountedRef.current = true;
     void load();
     return () => { mountedRef.current = false; };
-  }, [load, initialData]);
+  }, [load]);
 
   return { data, isLoading, error };
 }
