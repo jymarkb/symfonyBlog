@@ -93,9 +93,11 @@ Confirm every admin route shows both middleware layers:
 
 ```text
 api
-auth:api
-admin
+Illuminate\Auth\Middleware\Authenticate:api
+permission:admin
 ```
+
+The `auth:api` alias is no longer used — the `Authenticate` middleware is appended globally to the `api` group via `bootstrap/app.php`. The `admin` alias is no longer used — admin routes use `permission:admin` via the `RequirePermission` middleware.
 
 Also confirm there is no `/api/v1/me` route:
 
@@ -116,7 +118,10 @@ curl -i http://127.0.0.1:8000/api/v1/session
 Expected:
 
 ```text
-401 Unauthorized
+HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+
+{"error":"unauthenticated","message":"A valid authentication token is required."}
 ```
 
 Signed-in session check:
@@ -214,7 +219,10 @@ curl -i \
 Expected:
 
 ```text
-403 Forbidden
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+
+{"error":"forbidden","message":"You do not have permission to access this resource."}
 ```
 
 Admin route check:
@@ -277,6 +285,6 @@ Backend authorization is ready for frontend guard work when:
 - `/api/v1/session` is the only current-user endpoint
 - `/api/v1/profile` requires auth
 - `/api/v1/profiles/{handle}` is public and safe
-- every `/api/v1/admin/*` route requires `auth:api` and `admin`
+- every `/api/v1/admin/*` route requires global auth (`Authenticate:api`) and `permission:admin`
 - placeholder admin controllers use `index`, `store`, `show`, `update`, or `destroy`
 - syntax and route-list checks pass

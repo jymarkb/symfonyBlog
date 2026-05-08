@@ -28,20 +28,14 @@ Frontend auth wiring currently includes email signup, email confirmation callbac
 
 ## Backend Auth Implementation
 
-Protected API routes use Laravel's built-in `auth` middleware with the custom `api` guard:
+All `/api/v1/*` routes are protected by default. `Authenticate::using('api')` is appended globally to the `api` middleware group in `bootstrap/app.php`. Public routes are explicitly opted out using `Route::withoutMiddleware(Authenticate::using('api'))` in `routes/api.php`. Admin routes add `->middleware('permission:admin')`.
 
-```php
-Route::middleware('auth:api')->group(function () {
-    Route::get('/session', [\App\Http\Controllers\Api\V1\SessionController::class, 'show']);
-});
-```
-
-The backend request flow is:
+The backend request flow for a protected route:
 
 ```text
 GET /api/v1/session
-└── auth:api middleware
-    └── api guard from apps/api/config/auth.php
+└── Authenticate::using('api') [global, appended to api group]
+    └── api guard from apps/api/config/auth.php (default guard)
         └── supabase driver registered in AppServiceProvider
             └── read Authorization: Bearer <token>
                 └── SupabaseTokenVerifier verifies token through JWKS
@@ -54,9 +48,10 @@ GET /api/v1/session
 Authentication outcomes:
 
 ```text
-No token      -> guard returns null -> 401
-Invalid token -> guard returns null -> 401
+No token      -> guard returns null -> 401 {"error":"unauthenticated","message":"..."}
+Invalid token -> guard returns null -> 401 {"error":"unauthenticated","message":"..."}
 Valid token   -> guard returns User -> controller runs
+Normal user on admin route -> RequirePermission -> 403 {"error":"forbidden","message":"..."}
 ```
 
 Supabase Auth remains the identity source. Laravel does not store passwords or implement password login/register for this rebuild. Laravel stores the local app user record, role, profile metadata, and future relationships such as post authorship.
