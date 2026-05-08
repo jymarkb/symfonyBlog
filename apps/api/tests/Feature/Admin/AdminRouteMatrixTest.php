@@ -89,6 +89,109 @@ it('returns 429 when the admin mutations rate limit is exceeded', function () {
         ->assertTooManyRequests();
 });
 
+it('returns validation errors for generated post slug collisions', function () {
+    $admin = User::factory()->create([
+        'role' => User::ROLE_ADMIN,
+    ]);
+
+    Post::factory()->create([
+        'slug' => 'duplicate-title',
+    ]);
+
+    $this->actingAs($admin, 'api')
+        ->postJson('/api/v1/admin/posts', adminPostPayload([
+            'title' => 'Duplicate Title',
+        ]))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['slug']);
+});
+
+it('keeps post slugs stable when updating titles without an explicit slug', function () {
+    $admin = User::factory()->create([
+        'role' => User::ROLE_ADMIN,
+    ]);
+
+    $post = Post::factory()->create([
+        'title' => 'Original Title',
+        'slug' => 'original-title',
+    ]);
+
+    $this->actingAs($admin, 'api')
+        ->patchJson("/api/v1/admin/posts/{$post->id}", [
+            'title' => 'Renamed Title',
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.slug', 'original-title');
+
+    expect($post->refresh()->slug)->toBe('original-title');
+});
+
+it('validates admin post payload shape and safe public media URLs', function () {
+    $admin = User::factory()->create([
+        'role' => User::ROLE_ADMIN,
+    ]);
+
+    $this->actingAs($admin, 'api')
+        ->postJson('/api/v1/admin/posts', adminPostPayload([
+            'cover_image' => 'http://example.com/insecure.jpg',
+            'excerpt' => str_repeat('x', 501),
+            'body' => [
+                [
+                    'type' => 'paragraph',
+                    'style' => ['base' => []],
+                    'children' => [
+                        ['text' => str_repeat('x', 20001)],
+                    ],
+                ],
+            ],
+            'tag_ids' => [999999],
+        ]))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors([
+            'cover_image',
+            'excerpt',
+            'body.0.children.0.text',
+            'tag_ids.0',
+        ]);
+});
+
+it('assigns new admin posts to the authenticated admin instead of request user_id', function () {
+    $admin = User::factory()->create([
+        'role' => User::ROLE_ADMIN,
+    ]);
+    $otherUser = User::factory()->create();
+
+    $this->actingAs($admin, 'api')
+        ->postJson('/api/v1/admin/posts', adminPostPayload([
+            'user_id' => $otherUser->id,
+            'slug' => 'owned-by-admin',
+        ]))
+        ->assertCreated()
+        ->assertJsonPath('data.user_id', $admin->id);
+
+    $this->assertDatabaseHas('posts', [
+        'slug' => 'owned-by-admin',
+        'user_id' => $admin->id,
+    ]);
+});
+
+it('returns validation errors for generated tag slug collisions', function () {
+    $admin = User::factory()->create([
+        'role' => User::ROLE_ADMIN,
+    ]);
+
+    Tag::factory()->create([
+        'slug' => 'duplicate-tag',
+    ]);
+
+    $this->actingAs($admin, 'api')
+        ->postJson('/api/v1/admin/tags', [
+            'name' => 'Duplicate Tag',
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['slug']);
+});
+
 function resolvedAdminRoute(string $method, string $uri): string
 {
     if (str_contains($uri, '/admin/posts/123')) {
@@ -106,20 +209,25 @@ function resolvedAdminRoute(string $method, string $uri): string
     return $uri;
 }
 
+function adminPostPayload(array $overrides = []): array
+{
+    return array_merge([
+        'title' => 'Admin matrix post',
+        'body' => [
+            [
+                'type' => 'paragraph',
+                'style' => ['base' => ['fontSize' => '18px']],
+                'children' => [['text' => 'Admin matrix body']],
+            ],
+        ],
+        'status' => 'draft',
+    ], $overrides);
+}
+
 function adminRoutePayload(string $method, string $uri): array
 {
     if ($method === 'POST' && $uri === '/api/v1/admin/posts') {
-        return [
-            'title' => 'Admin matrix post',
-            'body' => [
-                [
-                    'type' => 'paragraph',
-                    'style' => ['base' => ['fontSize' => '18px']],
-                    'children' => [['text' => 'Admin matrix body']],
-                ],
-            ],
-            'status' => 'draft',
-        ];
+        return adminPostPayload();
     }
 
     if ($method === 'POST' && $uri === '/api/v1/admin/tags') {

@@ -12,7 +12,7 @@ class TagController extends Controller
     public function index(): AnonymousResourceCollection
     {
         return TagResource::collection(
-            Tag::query()->orderBy('name')->get(),
+            Tag::query()->orderBy('name')->paginate(100),
         );
     }
 }

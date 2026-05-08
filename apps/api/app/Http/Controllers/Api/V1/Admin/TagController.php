@@ -15,19 +15,25 @@ class TagController extends Controller
 {
     public function index(): AnonymousResourceCollection
     {
-        return TagResource::collection(Tag::query()->orderBy('name')->get());
+        return TagResource::collection(Tag::query()->orderBy('name')->paginate(100));
     }
 
     public function store(Request $request): JsonResponse
     {
+        if ($request->has('name') && ! $request->filled('slug')) {
+            $request->merge([
+                'slug' => Str::slug((string) $request->input('name')),
+            ]);
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', 'unique:tags,slug'],
+            'slug' => ['required', 'string', 'max:255', 'unique:tags,slug'],
         ]);
 
         $tag = Tag::query()->create([
             'name' => $data['name'],
-            'slug' => $data['slug'] ?? Str::slug($data['name']),
+            'slug' => $data['slug'],
         ]);
 
         return (new TagResource($tag))->response()->setStatusCode(201);
@@ -35,9 +41,15 @@ class TagController extends Controller
 
     public function update(Request $request, Tag $tag): TagResource
     {
+        if ($request->has('slug') && ! $request->filled('slug')) {
+            $request->merge([
+                'slug' => Str::slug((string) $request->input('name', $tag->name)),
+            ]);
+        }
+
         $data = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'slug' => ['sometimes', 'nullable', 'string', 'max:255', Rule::unique('tags', 'slug')->ignore($tag->id)],
+            'slug' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('tags', 'slug')->ignore($tag->id)],
         ]);
 
         if (array_key_exists('name', $data)) {
@@ -45,7 +57,7 @@ class TagController extends Controller
         }
 
         if (array_key_exists('slug', $data)) {
-            $tag->slug = $data['slug'] ?: Str::slug($tag->name);
+            $tag->slug = $data['slug'];
         }
 
         $tag->save();
