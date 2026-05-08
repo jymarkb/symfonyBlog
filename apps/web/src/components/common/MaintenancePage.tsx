@@ -1,5 +1,6 @@
 import { Moon, Sun } from "lucide-react";
 
+import { Brand } from "@/components/ui/Brand";
 import { useThemeMode } from "@/lib/theme/useThemeMode";
 
 export function MaintenancePage() {
@@ -9,10 +10,7 @@ export function MaintenancePage() {
     <div className="min-h-screen grid grid-rows-[auto_1fr_auto] bg-paper text-ink">
       <div className="border-b border-rule px-8 py-6">
         <div className="shell">
-          <a href="/" className="brand inline-flex items-center gap-2 no-underline text-ink font-semibold">
-            <span className="brand-mark">j</span>
-            <span>jymb<span className="text-accent">.</span>blog</span>
-          </a>
+          <Brand href="/" />
         </div>
       </div>
 

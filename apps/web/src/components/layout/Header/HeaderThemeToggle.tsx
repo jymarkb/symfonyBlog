@@ -9,7 +9,7 @@ export function HeaderThemeToggle({
   return (
     <button
       aria-label={`Switch to ${themeMode === "dark" ? "light" : "dark"} theme`}
-      className="btn btn-ghost size-10 p-0"
+      className="btn btn-ghost size-10 border-0 p-0"
       onClick={onToggleThemeMode}
       type="button"
     >

@@ -41,4 +41,17 @@ export interface HeaderMobileMenuPanelProps {
   items: HeaderNavItem[];
   actions: HeaderActionItem[];
   onClose: () => void;
+  pathname: string;
+  themeMode: ThemeMode;
+  onToggleThemeMode: () => void;
+}
+
+export interface HeaderMobileAccountPanelProps {
+  actions: HeaderActionItem[];
+  onClose: () => void;
+  accountName: string;
+  accountHandle: string;
+  avatarInitial: string;
+  themeMode: ThemeMode;
+  onToggleThemeMode: () => void;
 }
