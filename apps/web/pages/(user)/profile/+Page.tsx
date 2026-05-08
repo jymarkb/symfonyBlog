@@ -19,7 +19,7 @@ export default function Page() {
 
   return (
     <>
-      <ProfileHead />
+      <ProfileHead profile={profile} />
       <ErrorBoundary>
         <div className="shell profile-layout">
           <div>
