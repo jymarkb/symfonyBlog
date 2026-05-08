@@ -6,9 +6,10 @@ import { logError } from "@/lib/utils/logError";
 export function useProfileFetch<T>(
   fetcher: (token: string) => Promise<T[]>,
   errorMessage: string,
+  initialData?: T[],
 ) {
-  const [data, setData] = useState<T[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<T[]>(initialData ?? []);
+  const [isLoading, setIsLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
 
   const fetcherRef = useRef(fetcher);
@@ -29,10 +30,11 @@ export function useProfileFetch<T>(
   }, []);
 
   useEffect(() => {
+    if (initialData) return;
     mountedRef.current = true;
     void load();
     return () => { mountedRef.current = false; };
-  }, [load]);
+  }, [load, initialData]);
 
   return { data, isLoading, error };
 }
