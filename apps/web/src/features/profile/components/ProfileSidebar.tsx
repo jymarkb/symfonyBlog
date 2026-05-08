@@ -37,15 +37,16 @@ export function ProfileSidebar({ profile, onProfileChange }: ProfileSidebarProps
     try {
       const accessToken = await getAccessToken();
       const updatedProfile = await updateNotifications(accessToken, { [field]: value });
+      if (!mountedRef.current) return;
       onProfileChange(updatedProfile);
       setNotifError(null);
       setNotifSuccess("Saved.");
-      setTimeout(() => setNotifSuccess(null), 2000);
+      setTimeout(() => { if (mountedRef.current) setNotifSuccess(null); }, 2000);
     } catch (error) {
       logError(error);
-      setNotifError("Failed to save preference.");
+      if (mountedRef.current) setNotifError("Failed to save preference.");
     } finally {
-      setIsSaving(false);
+      if (mountedRef.current) setIsSaving(false);
     }
   }
 

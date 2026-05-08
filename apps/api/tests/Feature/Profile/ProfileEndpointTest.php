@@ -104,6 +104,16 @@ it('returns 429 when the profile patch rate limit is exceeded', function () {
         ->assertTooManyRequests();
 });
 
+it('rejects display_name longer than 120 characters', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user, 'api')
+        ->patchJson('/api/v1/profile', [
+            'display_name' => str_repeat('a', 121),
+        ])
+        ->assertUnprocessable();
+});
+
 it('returns 429 when the profile get rate limit is exceeded', function () {
     $user = User::factory()->create();
 
