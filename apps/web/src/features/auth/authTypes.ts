@@ -59,7 +59,9 @@ export type UserPermissions = {
   comment: boolean;
   manage_posts?: boolean;
   manage_users?: boolean;
+  manage_tags?: boolean;
   moderate_comments?: boolean;
+  upload_media?: boolean;
   [key: string]: boolean | undefined;
 };
 
