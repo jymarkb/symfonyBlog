@@ -20,7 +20,10 @@ it('updates notification preferences for authenticated user', function () {
         ])
         ->assertOk()
         ->assertJsonPath('data.notify_comment_replies', 'digest')
-        ->assertJsonPath('data.notify_new_posts', 'immediate');
+        ->assertJsonPath('data.notify_new_posts', 'immediate')
+        ->assertJsonMissingPath('data.email')
+        ->assertJsonMissingPath('data.role')
+        ->assertJsonMissingPath('data.supabase_user_id');
 
     expect($user->refresh()->notify_comment_replies)->toBe('digest');
     expect($user->refresh()->notify_new_posts)->toBe('immediate');
