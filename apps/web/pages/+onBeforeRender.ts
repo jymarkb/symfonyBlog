@@ -14,7 +14,7 @@ function isAuthRoute(pathname: string): boolean {
 
 export async function onBeforeRender(pageContext: PageContextServer) {
   if (isAuthRoute(pageContext.urlPathname)) {
-    return { pageContext: { initialUser: null, userAccessToken: null } };
+    return { pageContext: { initialUser: null } };
   }
 
   const supabase = createSupabaseServerClient(
@@ -26,7 +26,7 @@ export async function onBeforeRender(pageContext: PageContextServer) {
   } = await supabase.auth.getSession();
 
   if (!session?.access_token) {
-    return { pageContext: { initialUser: null, userAccessToken: null } };
+    return { pageContext: { initialUser: null } };
   }
 
   const accessToken = session.access_token;
@@ -41,10 +41,9 @@ export async function onBeforeRender(pageContext: PageContextServer) {
           handle: currentSession.user.handle,
           isAdmin: currentSession.permissions.admin,
         },
-        userAccessToken: accessToken,
       },
     };
   } catch {
-    return { pageContext: { initialUser: null, userAccessToken: null } };
+    return { pageContext: { initialUser: null } };
   }
 }
