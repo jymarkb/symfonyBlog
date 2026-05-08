@@ -87,3 +87,9 @@ export type ProfileReadingHistoryResponse = {
 export type DeleteAccountResponse = {
   message: string;
 };
+
+export type ProfilePageData = {
+  profile: PrivateProfile;
+  comments: ProfileComment[];
+  readingHistory: ProfileReadingHistoryItem[];
+};

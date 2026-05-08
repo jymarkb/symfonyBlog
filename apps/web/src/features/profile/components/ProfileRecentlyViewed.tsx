@@ -3,10 +3,11 @@ import { fetchReadingHistory } from "@/features/profile/api/profileApi";
 import { useProfileFetch } from "@/features/profile/hooks/useProfileFetch";
 import { ProfileDataSection } from "@/features/profile/components/ProfileDataSection";
 
-export function ProfileRecentlyViewed() {
+export function ProfileRecentlyViewed({ initialHistory }: { initialHistory?: ProfileReadingHistoryItem[] }) {
   const { data: history, isLoading, error } = useProfileFetch<ProfileReadingHistoryItem>(
     fetchReadingHistory,
     "Unable to load reading history.",
+    initialHistory,
   );
 
   return (
