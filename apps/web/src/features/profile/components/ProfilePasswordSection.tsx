@@ -26,6 +26,10 @@ export function ProfilePasswordSection() {
 
   const strength = passwordStrength(fields.newPassword);
 
+  if (!user) return null;
+
+  const currentUser = user;
+
   function handleChange(field: keyof ChangePasswordFields, value: string) {
     setFields((prev) => ({ ...prev, [field]: value }));
     if (errors[field] ?? errors.server) {
@@ -56,9 +60,6 @@ export function ProfilePasswordSection() {
       setErrors(nextErrors);
       return;
     }
-
-    // user is guaranteed non-null inside RequireAuth
-    const currentUser = user!;
 
     if (!currentUser.email) {
       setErrors({ server: "Password change is not available for accounts signed in with a social provider." });

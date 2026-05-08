@@ -132,7 +132,7 @@ export function ProfilePage({
         isSubmitting={isSubmitting}
         onChange={handleChange}
         onSubmit={handleSubmit}
-successMessage={successMessage}
+        successMessage={successMessage}
       />
     </ProfileSection>
   );
