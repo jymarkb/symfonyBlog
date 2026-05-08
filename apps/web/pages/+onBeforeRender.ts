@@ -1,49 +1,26 @@
 import type { PageContextServer } from 'vike/types';
 
-import { createSupabaseServerClient } from '@/lib/auth/supabaseServerClient';
-import { fetchCurrentUser } from '@/features/auth/api/currentUserApi';
-
-// Auth-shell pages have no site Header — skip the session call on these routes.
-const AUTH_ROUTES = ['/signin', '/signup', '/forgot-password', '/reset-password', '/auth/'];
-
-function isAuthRoute(pathname: string): boolean {
-  return AUTH_ROUTES.some(
-    (r) => pathname === r || pathname.startsWith(r),
-  );
-}
+import { resolveServerAuth } from '@/lib/auth/serverAuth';
 
 export async function onBeforeRender(pageContext: PageContextServer) {
-  if (isAuthRoute(pageContext.urlPathname)) {
+  // Auth-shell pages have no site Header — skip the session call.
+  if (pageContext.config.accessLevel === 'guest-only') {
     return { pageContext: { initialUser: null } };
   }
 
-  const supabase = createSupabaseServerClient(
-    pageContext.headers as Record<string, string> | null,
-  );
+  const auth = await resolveServerAuth(pageContext);
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session?.access_token) {
+  if (!auth) {
     return { pageContext: { initialUser: null } };
   }
 
-  const accessToken = session.access_token;
-
-  try {
-    const currentSession = await fetchCurrentUser(accessToken);
-
-    return {
-      pageContext: {
-        initialUser: {
-          displayName: currentSession.user.display_name,
-          handle: currentSession.user.handle,
-          isAdmin: currentSession.permissions.admin,
-        },
+  return {
+    pageContext: {
+      initialUser: {
+        displayName: auth.session.user.display_name,
+        handle: auth.session.user.handle,
+        isAdmin: auth.isAdmin,
       },
-    };
-  } catch {
-    return { pageContext: { initialUser: null } };
-  }
+    },
+  };
 }

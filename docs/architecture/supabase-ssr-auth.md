@@ -68,6 +68,26 @@ apps/web/pages/+config.ts                       — passToClient: ['initialUser'
 apps/web/src/vike.d.ts                          — Vike PageContext type augmentation
 ```
 
+## Vike Hook Execution Order
+
+In Vike 0.4, server-side hooks execute in this order per request:
+
+```
+guard() → data() → onBeforeRender() → render()
+```
+
+**Critical constraint:** `data()` runs **before** `onBeforeRender()`. Any value set on `pageContext` inside `onBeforeRender` is not yet available when `data()` executes.
+
+This means `+data.ts` must read the Supabase session cookie independently via `createSupabaseServerClient` — it cannot rely on a token passed by `onBeforeRender`. As a result, the profile page performs three independent session reads per SSR request:
+
+| Hook | Why it reads the session |
+|------|--------------------------|
+| `guard()` | Check whether the user is authenticated; redirect if not |
+| `data()` | Get the access token to call Laravel API endpoints |
+| `onBeforeRender()` | Get the access token to call `GET /api/v1/session` and populate `pageContext.initialUser` for the Header |
+
+This redundancy is unavoidable without a custom Vike server (which would allow `pageContextInit` to be populated before any hook runs).
+
 ## Acceptance Checks
 
 - Hard refresh on `/profile` renders the full page — header with avatar, account form, comment history, reading history — with zero loading flash. All content present in view-source HTML.

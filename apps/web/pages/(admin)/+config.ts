@@ -2,5 +2,5 @@ import type { Config } from 'vike/types';
 
 export default {
   prerender: false,
-  accessLevel: 'auth-required',
+  accessLevel: 'admin-required',
 } satisfies Config;
