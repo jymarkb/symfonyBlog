@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class UpdatePostRequest extends FormRequest
@@ -17,21 +18,35 @@ class UpdatePostRequest extends FormRequest
         $postId = $this->route('post')?->id;
 
         return [
-            'user_id' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
             'title' => ['sometimes', 'required', 'string', 'max:255'],
-            'slug' => ['sometimes', 'nullable', 'string', 'max:255', Rule::unique('posts', 'slug')->ignore($postId)],
-            'excerpt' => ['sometimes', 'nullable', 'string'],
-            'cover_image' => ['sometimes', 'nullable', 'string', 'max:2048'],
+            'slug' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('posts', 'slug')->ignore($postId)],
+            'excerpt' => ['sometimes', 'nullable', 'string', 'max:500'],
+            'cover_image' => ['sometimes', 'nullable', 'url:https', 'max:2048'],
             'reading_time' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:65535'],
-            'body' => ['sometimes', 'required', 'array'],
-            'body.*.type' => ['required_with:body', 'string'],
-            'body.*.style' => ['required_with:body', 'array'],
-            'body.*.children' => ['required_with:body', 'array'],
+            'body' => ['sometimes', 'required', 'array', 'max:100'],
+            'body.*.type' => ['required_with:body', 'string', 'max:80'],
+            'body.*.style' => ['required_with:body', 'array', 'max:50'],
+            'body.*.children' => ['required_with:body', 'array', 'max:200'],
+            'body.*.children.*.text' => ['sometimes', 'string', 'max:20000'],
             'status' => ['sometimes', 'required', 'string', 'in:draft,published,archived'],
             'is_featured' => ['sometimes', 'boolean'],
             'published_at' => ['sometimes', 'nullable', 'date'],
-            'tag_ids' => ['sometimes', 'array'],
-            'tag_ids.*' => ['integer', 'exists:tags,id'],
+            'tag_ids' => ['sometimes', 'array', 'max:20'],
+            'tag_ids.*' => ['integer', 'distinct', 'exists:tags,id'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if (! $this->has('slug') || $this->filled('slug')) {
+            return;
+        }
+
+        $post = $this->route('post');
+        $title = $this->input('title', $post?->title);
+
+        $this->merge([
+            'slug' => Str::slug((string) $title),
+        ]);
     }
 }
