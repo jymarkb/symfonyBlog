@@ -43,8 +43,10 @@ export default function Page() {
         setIsSilent(false);
       }
 
+      let session = null;
+
       if (authCode) {
-        const { error } = await supabase.auth.exchangeCodeForSession(authCode);
+        const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
 
         if (error) {
           console.error(error);
@@ -52,13 +54,15 @@ export default function Page() {
           showError("We were unable to sign you in. Please try again.");
           return;
         }
+
+        session = data.session;
       } else if (hashAccessToken && hashRefreshToken) {
         // Hash-fragment path: handles Supabase email magic links and email confirmations.
         // OAuth flows always use the ?code= PKCE path above; hash tokens are only issued for email flows.
         // Tokens are Supabase-signed JWTs — they cannot be forged by an attacker.
         // Residual session-fixation risk (attacker-crafted URL with own tokens) is accepted as a
         // known limitation; fully eliminating it requires configuring Supabase email to use PKCE.
-        const { error } = await supabase.auth.setSession({
+        const { data, error } = await supabase.auth.setSession({
           access_token: hashAccessToken,
           refresh_token: hashRefreshToken,
         });
@@ -69,25 +73,18 @@ export default function Page() {
           showError("We were unable to sign you in. Please try again.");
           return;
         }
+
+        session = data.session;
       }
 
-      const { data, error } = await supabase.auth.getSession();
-
-      if (error) {
-        console.error(error);
-        clearPendingAuthProvider();
-        showError("We were unable to sign you in. Please try again.");
-        return;
-      }
-
-      if (!data.session?.access_token) {
+      if (!session?.access_token) {
         clearPendingAuthProvider();
         showError("No auth session was found. Please sign in again.");
         return;
       }
 
-      const currentUser = await fetchCurrentUser(data.session.access_token);
-      const provider = pendingProvider ?? data.session.user.app_metadata.provider;
+      const currentUser = await fetchCurrentUser(session.access_token);
+      const provider = pendingProvider ?? session.user.app_metadata.provider;
 
       if (provider === "github" || provider === "google") {
         setLastAuthProvider(provider as SocialAuthProvider);

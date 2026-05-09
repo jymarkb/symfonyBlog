@@ -18,20 +18,18 @@ export default function Page() {
   const [profile, setProfile] = useState<PrivateProfile>(data.profile);
 
   return (
-    <>
+    <ErrorBoundary>
       <ProfileHead profile={profile} />
-      <ErrorBoundary>
-        <div className="shell profile-layout">
-          <div>
-            <ProfilePage initialProfile={profile} onProfileChange={setProfile} />
-            <ProfilePasswordSection />
-            <ProfileCommentHistory initialComments={data.comments} />
-            <ProfileRecentlyViewed initialHistory={data.readingHistory} />
-            <ProfileDangerZone />
-          </div>
-          <ProfileSidebar profile={profile} onProfileChange={setProfile} />
+      <div className="shell profile-layout">
+        <div>
+          <ProfilePage initialProfile={profile} onProfileChange={setProfile} />
+          <ProfilePasswordSection />
+          <ProfileCommentHistory initialComments={data.comments} />
+          <ProfileRecentlyViewed initialHistory={data.readingHistory} />
+          <ProfileDangerZone />
         </div>
-      </ErrorBoundary>
-    </>
+        <ProfileSidebar profile={profile} onProfileChange={setProfile} />
+      </div>
+    </ErrorBoundary>
   );
 }

@@ -15,7 +15,7 @@ import {
   validateHandle,
   validateNewPassword,
 } from "@/features/auth/lib/validation";
-import { PasswordStrengthHint } from "@/components/ui/PasswordStrengthHint";
+import { PasswordStrengthHint } from "@/components/common/PasswordStrengthHint";
 import {
   formatAuthProvider,
   getLastAuthProvider,
@@ -24,8 +24,8 @@ import {
   registerWithEmail,
   startSocialAuth,
 } from "@/features/auth/api/registerApi";
-import { AuthIntro } from "@/components/ui/AuthIntro";
-import { AuthConfirm } from "@/components/ui/AuthConfirm";
+import { AuthIntro } from "@/features/auth/components/AuthIntro";
+import { AuthConfirm } from "@/features/auth/components/AuthConfirm";
 
 export function SignUpForm() {
   const [fields, setFields] = useState<SignUpFields>({

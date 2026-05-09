@@ -60,50 +60,105 @@ apps/web/
     images/
 
   pages/
-    +config.ts
-    +onBeforeRender.ts
+    +config.ts               ← accessLevel: 'public' default; meta registration; passToClient
+    +guard.ts                ← global SSR guard (reads accessLevel, enforces redirects)
+    +onBeforeRender.ts       ← resolves initialUser for header on every request
+    +Layout.tsx              ← root layout wrapped in ErrorBoundary
+    +Head.tsx
     index/
       +Page.tsx
     about/
       +Page.tsx
-    contact/
+    archive/
       +Page.tsx
     blog/
       +Page.tsx
-    blog/@slug/
+      @slug/
+        +Page.tsx
+        +config.ts
+    contact/
+      +Page.tsx
+    editor/
+      +Page.tsx
+    privacy/
+      +Page.tsx
+    tags/
+      +Page.tsx
+    terms/
+      +Page.tsx
+    _error/
       +Page.tsx
     (auth)/
+      +config.ts             ← accessLevel: 'guest-only', prerender: false
+      +Layout.tsx
       signin/
         +Page.tsx
       signup/
         +Page.tsx
       forgot-password/
         +Page.tsx
-    dashboard/
-      +Page.tsx
-    dashboard/posts/
-      +Page.tsx
-    dashboard/profile/
-      +Page.tsx
+      reset-password/
+        +Page.tsx
+      auth/callback/
+        +Page.tsx
+    (user)/
+      +config.ts             ← accessLevel: 'auth-required', prerender: false
+      +Layout.tsx
+      profile/
+        +Page.tsx
+        +data.ts
+    (admin)/
+      +config.ts             ← accessLevel: 'admin-required', prerender: false
+      +Layout.tsx
+      dashboard/
+        +Page.tsx
+        posts/
+          +Page.tsx
 
   src/
     components/
-      ui/
+      ErrorBoundary.tsx      ← root-level, used by all layouts
       common/
+        ErrorPage.tsx
+        MaintenancePage.tsx
+        PasswordStrengthHint.tsx
+      ui/
+        Brand.tsx
+        FormMessage.tsx
       layout/
+        Header/
+        Footer/
     features/
-      blog/
       auth/
-      dashboard/
+        api/
+        components/
+        guards/
+        lib/
+        session/
+        auth.css
+        authTypes.ts
+      blog/
+      profile/
+        api/
+        components/
+        hooks/
+        lib/
+        profile.css
+        profileTypes.ts
       admin/
+      dashboard/
     layouts/
+      AppShell.tsx
+      AuthShell.tsx
+      DashboardShell.tsx
     lib/
       api/
+      auth/
       env/
-      utils/
+      theme/
     hooks/
     styles/
-    types/
+    assets/
 ```
 
 ## Route Tree
@@ -111,17 +166,31 @@ apps/web/
 The canonical route ownership in `apps/web` is:
 
 ```text
+Public (prerendered at build time)
 /                       -> pages/index/+Page.tsx
 /about                  -> pages/about/+Page.tsx
-/contact                -> pages/contact/+Page.tsx
+/archive                -> pages/archive/+Page.tsx
 /blog                   -> pages/blog/+Page.tsx
 /blog/:slug             -> pages/blog/@slug/+Page.tsx
+/contact                -> pages/contact/+Page.tsx
+/editor                 -> pages/editor/+Page.tsx
+/privacy                -> pages/privacy/+Page.tsx
+/tags                   -> pages/tags/+Page.tsx
+/terms                  -> pages/terms/+Page.tsx
+
+Guest-only auth (SSR per request, accessLevel: 'guest-only')
 /signin                 -> pages/(auth)/signin/+Page.tsx
 /signup                 -> pages/(auth)/signup/+Page.tsx
 /forgot-password        -> pages/(auth)/forgot-password/+Page.tsx
-/dashboard              -> pages/dashboard/+Page.tsx
-/dashboard/posts        -> pages/dashboard/posts/+Page.tsx
-/dashboard/profile      -> pages/dashboard/profile/+Page.tsx
+/reset-password         -> pages/(auth)/reset-password/+Page.tsx
+/auth/callback          -> pages/(auth)/auth/callback/+Page.tsx
+
+Auth-required (SSR per request, accessLevel: 'auth-required')
+/profile                -> pages/(user)/profile/+Page.tsx
+
+Admin-required (SSR per request, accessLevel: 'admin-required')
+/dashboard              -> pages/(admin)/dashboard/+Page.tsx
+/dashboard/posts        -> pages/(admin)/dashboard/posts/+Page.tsx
 ```
 
 `pages/` is for route entry files only. It should not become a dumping ground for reusable components or feature logic.
@@ -188,18 +257,20 @@ Layout components may know about app routes, branding, and shell-level controls 
 
 Organize business-area code by feature:
 
-- `blog/`
-- `auth/`
-- `dashboard/`
-- `admin/`
+- `auth/` — signin, signup, password recovery, session, guards
+- `profile/` — private user profile page
+- `blog/` — public post listing and detail
+- `dashboard/` — admin dashboard overview
+- `admin/` — admin post/tag/user/comment management
 
-Each feature may contain:
+Each feature owns:
 
-- `components/`
-- `api/`
-- `hooks/`
-- `types.ts`
-- `utils.ts`
+- `components/` — feature-specific UI
+- `api/` — API call functions for that feature
+- `hooks/` — hooks used only within that feature
+- `lib/` — pure helpers (validation, formatting) used only within that feature
+- `<feature>Types.ts` — **one types file per feature**, named `<feature>Types.ts`
+- `<feature>.css` — feature-specific styles, imported via `global.css`
 
 Example:
 
@@ -210,29 +281,46 @@ src/features/blog/
     BlogCard.tsx
     BlogArticle.tsx
   api/
-    get-posts.ts
-    get-post-by-slug.ts
+    postsApi.ts
   hooks/
     usePosts.ts
-  types.ts
+  blogTypes.ts
 ```
 
-Feature folders are the default place for page sections and feature behavior.
-
-Auth-specific page content belongs in `src/features/auth/`, not in layout shells or route files. For example:
+The `auth` feature has additional sub-folders for session management and guards:
 
 ```text
 src/features/auth/
+  api/
+    currentUserApi.ts
+    signInApi.ts
+    registerApi.ts
+    resetPasswordApi.ts
   components/
-    SignInIntro.tsx
-    SignInSidePanel.tsx
-    SignUpIntro.tsx
-    SignUpSidePanel.tsx
-    ForgotPasswordIntro.tsx
-    ForgotPasswordSidePanel.tsx
+    AuthConfirm.tsx
+    AuthIntro.tsx
+    AuthFooterLinks.tsx
+    AuthProviderButtons.tsx
     SignInForm.tsx
     SignUpForm.tsx
     ForgotPasswordForm.tsx
+    ResetPasswordForm.tsx
+    SignInSidePanel.tsx
+    SignUpSidePanel.tsx
+    ForgotPasswordSidePanel.tsx
+    ResetPasswordSidePanel.tsx
+  guards/
+    AuthGuard.tsx       ← @deprecated, replaced by +guard.ts
+    RequireAdmin.tsx    ← client-side hydration fallback only
+  lib/
+    validation.ts
+    lastAuthProvider.ts
+  session/
+    CurrentSessionContext.tsx
+    useCurrentSession.ts
+    index.ts
+  auth.css
+  authTypes.ts
 ```
 
 ### `src/layouts/`
@@ -275,12 +363,37 @@ Feature-specific CSS lives next to the feature (`src/features/<feature>/<feature
 
 **Critical SSR rule:** Never import CSS inside a component file. CSS imported via JS is not included in the SSR HTML and breaks on hard page refresh. All CSS files must be registered in `global.css` via `@import`.
 
-### `src/types/`
+### Type Files
 
-Use `src/types/` for shared frontend types that are not specific to one feature.
+Each feature has exactly one types file: `src/features/<feature>/<feature>Types.ts`.
 
-If types are shared across apps, move them into `packages/` instead of importing directly between `apps/web` and `apps/api`.
-Feature-specific types should stay in `src/features/*/types.ts`.
+- `authTypes.ts` — session types, guard types, auth API contracts
+- `profileTypes.ts` — `PrivateProfile`, `ProfileComment`, `ProfileReadingHistoryItem`
+- `blogTypes.ts` — `Post`, `PostSummary` (when blog feature is built)
+
+Do not create a `src/types/` directory for feature-specific types. If types are truly shared across multiple features (not just one), place them in `src/features/<feature>/<feature>Types.ts` of the owning feature and import from there, or move them to `packages/shared-types` if shared across apps.
+
+For Vike-specific type augmentation (`PageContext`, `Config`, `AccessLevel`), use `src/vike.d.ts`.
+
+## ErrorBoundary Placement
+
+`src/components/ErrorBoundary.tsx` is the single error boundary component for the app. It accepts an optional `fallback` prop; when omitted it renders `<ErrorPage code={500} />`.
+
+Every layout must wrap its content in an `ErrorBoundary`:
+
+| Layout | Boundary placement |
+|---|---|
+| `pages/+Layout.tsx` | Wraps entire tree — catches errors on all public routes |
+| `pages/(user)/+Layout.tsx` | Wraps `<AppShell>` — catches profile page errors |
+| `pages/(admin)/+Layout.tsx` | Wraps `<RequireAdmin><DashboardShell>` — catches admin errors |
+| `src/layouts/AppShell.tsx` | Wraps `<main>` only — keeps Header/Footer visible on content crash |
+
+Place boundaries as close to the error source as the UX requires — but every layout must have at least one. Do not add per-page boundaries unless that page needs a custom fallback.
+
+Rules:
+- Never place an `ErrorBoundary` inside a hook or functional component without a class wrapper.
+- Boundaries do not catch errors in async event handlers — those must be caught in try/catch.
+- The root `pages/+Layout.tsx` boundary is the last safety net; inner boundaries provide better scope.
 
 ## Component Splitting Rules
 
@@ -325,13 +438,14 @@ src/features/dashboard/components/
 
 ### Reuse only when reuse is real
 
-Do not prematurely move everything into shared folders.
+Do not prematurely move everything into shared folders. Use this 4-question placement test:
 
-Rules of thumb:
+1. **Is it used by only one feature?** → keep it in `src/features/<feature>/components/`
+2. **Is it a low-level stateless primitive (button, input, badge)?** → `src/components/ui/`
+3. **Is it shared across two or more features?** → `src/components/common/`
+4. **Is it a full page frame (header, footer, shell)?** → `src/components/layout/` or `src/layouts/`
 
-- one-route-only component: keep it in the owning feature
-- reused across multiple features: move to `src/components/common/`
-- low-level primitive: move to `src/components/ui/`
+Cross-feature components (shared by 2+ features) must go to `common/`, not stay in either feature folder.
 
 ## Admin And Dashboard Guidance
 
