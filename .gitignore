@@ -17,6 +17,10 @@ docs/*
 docs/architecture/*
 !docs/architecture/auth-authorization.md
 !docs/architecture/profile-page.md
+!docs/architecture/domain-model.md
+!docs/architecture/post-structure.md
+!docs/architecture/supabase-ssr-auth.md
+!docs/architecture/api-contract.md
 !docs/setup/
 docs/setup/*
 !docs/setup/frontend-structure.md

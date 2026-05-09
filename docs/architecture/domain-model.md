@@ -77,6 +77,75 @@ Use a separate table only if the app needs searchable upload records, ownership,
 - one post has many stars through `post_stars`
 - one user can star many posts through `post_stars`
 
+## Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    users {
+        int id PK
+        string supabase_user_id UK
+        string email UK
+        string display_name
+        string first_name
+        string last_name
+        string role
+        timestamp created_at
+    }
+    posts {
+        int id PK
+        int user_id FK
+        string title
+        string slug UK
+        string status
+        string excerpt
+        json body
+        string cover_image
+        bool is_featured
+        timestamp published_at
+        timestamp created_at
+    }
+    tags {
+        int id PK
+        string name
+        string slug UK
+        timestamp created_at
+    }
+    post_tag {
+        int post_id FK
+        int tag_id FK
+    }
+    post_stars {
+        int id PK
+        int post_id FK
+        int user_id FK
+        timestamp created_at
+    }
+    comments {
+        int id PK
+        int post_id FK
+        int user_id FK
+        string body
+        timestamp created_at
+    }
+    post_views {
+        int id PK
+        int post_id FK
+        int user_id FK
+        int read_progress
+        timestamp last_viewed_at
+    }
+
+    users ||--o{ posts : "writes"
+    users ||--o{ comments : "writes"
+    users ||--o{ post_stars : "stars"
+    users ||--o{ post_views : "views"
+    posts ||--o{ comments : "has"
+    posts ||--o{ post_stars : "receives"
+    posts ||--o{ post_views : "tracked by"
+    posts ||--o{ post_tag : ""
+    tags ||--o{ post_tag : ""
+```
+
 ## Legacy Mapping
 
 - `Account` -> `users`
