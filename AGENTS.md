@@ -21,7 +21,9 @@ For new sessions, read in this order:
 1. `README.md`
 2. `docs/setup/repository-conventions.md`
 3. `docs/setup/context-strategy.md`
-4. Task-specific files in `apps/api`, `apps/web`, or `docs`
+4. `docs/setup/agent-workflow.md`
+5. `docs/setup/deployment.md`
+6. Task-specific files in `apps/api`, `apps/web`, or `docs`
 
 ## App Ownership
 

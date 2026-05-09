@@ -13,22 +13,36 @@ When running under Claude, use these model tiers per agent type:
 ```text
 -feature-            -> sonnet  (feature orchestration, use Plan subagent type)
 -feature-auto-       -> main session workflow (full automated section close-out — plan + implement + verify + commit)
--commit              -> haiku   (diff inspection, staging, commit hygiene)
+-commit              -> haiku   (diff inspection, staging, commit hygiene, use general-purpose subagent type)
 -plan-               -> sonnet  (subtask decomposition for feature agent delegation, use Plan subagent type)
 -tutorial-           -> sonnet  (manual coding tutorial for a specific task, use Plan subagent type)
 -architecture-       -> sonnet  (boundary analysis, use Plan subagent type)
--ux-                 -> sonnet  (screen state and copy design)
--core-react-         -> sonnet  (frontend implementation)
--core-php-           -> sonnet  (backend implementation)
+-ux-                 -> sonnet  (screen state and copy design, use general-purpose subagent type)
+-core-react-         -> sonnet  (frontend implementation, use general-purpose subagent type)
+-core-php-           -> sonnet  (backend implementation, use general-purpose subagent type)
 -qa-frontend-        -> sonnet  (read-only review, use Explore subagent type)
 -qa-backend-         -> sonnet  (read-only review, use Explore subagent type)
 -qa-                 -> main session workflow (parallel frontend + backend QA, synthesized report)
--review-             -> sonnet  (general review)
--implement-          -> sonnet  (scoped implementation)
--pr-                 -> haiku   (GitHub PR description, plain text ready to paste)
+-review-             -> sonnet  (general review, use general-purpose subagent type)
+-implement-          -> sonnet  (scoped implementation, use general-purpose subagent type)
+-pr-                 -> haiku   (GitHub PR description, plain text ready to paste, use general-purpose subagent type)
+-deploy-             -> sonnet  (deployment checklist and verification, use general-purpose subagent type)
 ```
 
-Use `haiku` only for commit work. Use `sonnet` for everything else unless the task requires deep multi-file reasoning, in which case `opus` is acceptable.
+Use `haiku` only for commit and PR work. Use `sonnet` for everything else unless the task requires deep multi-file reasoning, in which case `opus` is acceptable.
+
+## Background Execution Rules
+
+**All sub-agents run in the background.** This applies to every spawned agent without exception.
+
+Rules:
+- Always spawn with `run_in_background: true`.
+- The main session stays free for user interaction while agents run.
+- When an agent completes, the main session receives a notification automatically.
+- After integrating the result, the main session posts the full agent output into the main chat.
+- After posting, close the agent to free the concurrent agent slot.
+- Do not silently absorb an agent result — always surface it to the user in the main chat after it arrives.
+- If multiple independent agents are spawned at once, send them all in a single message so they run in parallel.
 
 ## Routing Syntax
 
@@ -50,6 +64,7 @@ Use these prefixes in user requests:
 -review- <task>
 -implement- <task>
 -pr-
+-deploy-
 ```
 
 Multiple prefixes in one request should run in parallel when the tasks are independent.
@@ -72,19 +87,18 @@ Main session   -> coordinate, answer the user, integrate results
 ## Main Session Responsibilities
 
 - Interpret the routing prefix.
-- Spawn the designated agent with a narrow task.
-- Continue useful coordination work while agents run when the main task is not blocked.
-- Wait for required agent results before finalizing.
-- Report which agent result was used.
-- Surface the agent result back in the main chat after integrating it, especially for `-plan-` requests.
-- Close completed agents after integrating their result to avoid hitting the concurrent agent limit.
+- Spawn the designated agent with `run_in_background: true`.
+- Continue useful coordination work while agents run — the main session is never blocked by a background agent.
+- Wait for the completion notification, then integrate the result.
+- Post the full agent result into the main chat after integrating it.
+- Close the completed agent after posting its result.
 - Do not silently convert a requested agent task into main-thread work unless spawning is blocked and the user is informed.
 
 ## Commit Agent
 
 Use a commit agent for `-commit`.
 
-Use the cheapest narrow agent that is sufficient for commit work. Commit work is mostly diff inspection, staging, and commit hygiene, so prefer low reasoning effort unless the diff is unusually complex. Under Claude, use `haiku` model with `general-purpose` subagent type.
+Use the cheapest narrow agent that is sufficient for commit work. Commit work is mostly diff inspection, staging, and commit hygiene, so prefer low reasoning effort unless the diff is unusually complex. Under Claude, use `haiku` model with `general-purpose` subagent type, `run_in_background: true`. When done, main session posts the commit hashes and tree status to chat, then closes the agent.
 
 Responsibilities:
 
@@ -124,7 +138,7 @@ Rules:
 
 ## Feature Agent
 
-Use a feature agent for `-feature- <feature-name>`. Under Claude, use `Plan` subagent type.
+Use a feature agent for `-feature- <feature-name>`. Under Claude, use `Plan` subagent type, `run_in_background: true`. When done, main session posts the full status table and next-step recommendation to chat, then closes the agent.
 
 The feature agent is the top-level orchestrator for large features that span multiple sections (e.g. profile page, auth, admin dashboard). It owns the full picture — what sections exist, what phase each section is in, and what the next concrete step is. It delegates down to `-plan-`, `-core-php-`, `-core-react-`, `-qa-backend-`, `-qa-frontend-`, and `-commit` for actual work.
 
@@ -198,13 +212,13 @@ Use `-feature-auto- <feature-name> <section>` to fully close a feature section w
 
 ### How the main session executes it
 
-1. **Plan** — Spawn a Plan sub-agent in **foreground** (main session needs the plan before anything else can proceed). Brief it to verify actual file state and return a complete structured subtask list with dependency order, owner per subtask, and verification checklist.
+1. **Plan** — Spawn a Plan sub-agent in **background** (`run_in_background: true`). Wait for the notification, then integrate the result: a complete structured subtask list with dependency order, owner per subtask, and verification checklist. Close the plan agent after integrating.
 
-2. **Backend** — Spawn `-core-php-` agents in **background** (`run_in_background: true`) so the main session stays free for user interaction. Where subtasks are independent, spawn them in parallel. Where one depends on another, wait for the notification before spawning the next.
+2. **Backend** — Spawn `-core-php-` agents in **background** (`run_in_background: true`) so the main session stays free for user interaction. Where subtasks are independent, spawn them in parallel. Where one depends on another, wait for the notification before spawning the next. Close each agent after integrating its result.
 
-3. **Verify backend** — Run `php artisan test` in foreground (fast, must gate the next phase). If any new test fails, spawn a `-core-php-` fix agent before continuing. Do not proceed to frontend wiring if tests are red.
+3. **Verify backend** — Run `php artisan test` in foreground (fast, must gate the next phase). If any new test fails, spawn a `-core-php-` fix agent in background before continuing. Do not proceed to frontend wiring if tests are red.
 
-4. **Frontend** — Spawn `-core-react-` agents in **background** for types, API function, and component in dependency order. Main session stays free.
+4. **Frontend** — Spawn `-core-react-` agents in **background** for types, API function, and component in dependency order. Close each agent after integrating its result.
 
 5. **Typecheck** — Run `npx tsc --noEmit` from `apps/web` to verify the frontend compiles clean.
 
@@ -231,7 +245,7 @@ User: -feature-auto- profile page security review
       -feature-auto- profile page cleanup
 
 Main session:
-  → Spawns Plan agents for both sections in parallel (foreground, but both can be sent in one message)
+  → Spawns Plan agents for both sections in parallel (background, sent in one message)
   → Spawns backend agents for both in background (parallel)
   → Waits for both backend notifications
   → Runs tests once (covers both)
@@ -261,7 +275,7 @@ Main session:
 
 ## Planning Agent
 
-Use a planning agent for `-plan- <task>`. Under Claude, use `Plan` subagent type.
+Use a planning agent for `-plan- <task>`. Under Claude, use `Plan` subagent type, `run_in_background: true`. When done, main session posts the full subtask list and commit grouping to chat, then closes the agent.
 
 The planning agent is the task decomposition layer between the feature agent and the implementation sub-agents. It reads the feature context and breaks a section/phase down into discrete, delegatable subtasks — one per sub-agent call. Its output is structured so the feature agent (or main session) can read it and spawn the right sub-agents in order.
 
@@ -286,7 +300,7 @@ Rules:
 
 ## Tutorial Agent
 
-Use a tutorial agent for `-tutorial- <task>`. Under Claude, use `Plan` subagent type.
+Use a tutorial agent for `-tutorial- <task>`. Under Claude, use `Plan` subagent type, `run_in_background: true`. When done, main session posts the full tutorial to chat, then closes the agent.
 
 The tutorial agent is for manual coding guidance. Use it when you want a step-by-step walkthrough to implement something yourself rather than delegating to a sub-agent.
 
@@ -309,7 +323,7 @@ Rules:
 
 ## Architecture Agent
 
-Use an architecture agent for `-architecture- <task>`. Under Claude, use `Plan` subagent type.
+Use an architecture agent for `-architecture- <task>`. Under Claude, use `Plan` subagent type, `run_in_background: true`. When done, main session posts the boundary analysis and recommendations to chat, then closes the agent.
 
 Responsibilities:
 
@@ -321,7 +335,7 @@ Responsibilities:
 
 ## UX/UI Design Agent
 
-Use a UX/UI design agent for `-ux- <task>`.
+Use a UX/UI design agent for `-ux- <task>`. Under Claude, use `general-purpose` subagent type, `run_in_background: true`. When done, main session posts the screen states, copy, and component recommendations to chat, then closes the agent.
 
 Responsibilities:
 
@@ -333,7 +347,7 @@ Responsibilities:
 
 ## Core React/TypeScript Developer Agent
 
-Use a React/TypeScript implementation agent for `-core-react- <task>`.
+Use a React/TypeScript implementation agent for `-core-react- <task>`. Under Claude, use `general-purpose` subagent type, `run_in_background: true`. When done, main session posts the changed files and verification results to chat, then closes the agent.
 
 Responsibilities:
 
@@ -352,7 +366,7 @@ Rules:
 
 ## Core PHP/Laravel Developer Agent
 
-Use a PHP/Laravel implementation agent for `-core-php- <task>`.
+Use a PHP/Laravel implementation agent for `-core-php- <task>`. Under Claude, use `general-purpose` subagent type, `run_in_background: true`. When done, main session posts the changed files and test results to chat, then closes the agent.
 
 Responsibilities:
 
@@ -369,6 +383,9 @@ Rules:
 - Follow existing Laravel guard, middleware, and API response patterns.
 - Follow `docs/setup/security.md` backend conventions: auth gating, `$fillable` discipline, `$hidden`, input validation rules, throttle on mutations, Resource field whitelist.
 - Controllers must only contain the five RESTful methods: `index`, `show`, `store`, `update`, `destroy`. Do not add custom action methods (e.g. `comments()`, `history()`). If a resource needs its own endpoint, create a separate dedicated controller for it.
+- Controllers must not contain business logic. Validate input via FormRequest, call a service method, return a resource. That is all.
+- Models must not contain business logic. Models own columns (`$fillable`, `$hidden`, `casts()`), relationships, and nothing else.
+- Any logic that decides what to do with data belongs in a service under `app/Services/<Domain>/`. Create the service if it does not exist.
 - When adding, removing, or changing `/api/v1` routes, update Pest route coverage in `apps/api/tests/Feature/Routes/ApiRouteCoverageTest.php`.
 - Add or update behavior tests beside the owned endpoint area, for example `tests/Feature/Auth`, `tests/Feature/Profile`, `tests/Feature/Public`, or `tests/Feature/Admin`.
 - Run the relevant Pest suite before reporting done, using `php artisan test` or a targeted test command from `apps/api`.
@@ -381,7 +398,7 @@ Rules:
 
 ## Frontend QA Agent
 
-Use a frontend QA agent for `-qa-frontend- <task>`. Under Claude, use `Explore` subagent type (read-only, does not write files).
+Use a frontend QA agent for `-qa-frontend- <task>`. Under Claude, use `Explore` subagent type (read-only, does not write files), `run_in_background: true`. When done, main session posts the full QA report to chat, then closes the agent.
 
 ### Read first
 
@@ -432,7 +449,7 @@ Do not edit files unless separately assigned implementation.
 
 ## Backend QA Agent
 
-Use a backend QA agent for `-qa-backend- <task>`. Under Claude, use `Explore` subagent type (read-only, does not write files).
+Use a backend QA agent for `-qa-backend- <task>`. Under Claude, use `Explore` subagent type (read-only, does not write files), `run_in_background: true`. When done, main session posts the full QA report to chat, then closes the agent.
 
 ### Read first
 
@@ -553,7 +570,7 @@ Minimum rule:
 
 ## PR Description Agent
 
-Use a PR description agent for `-pr-`. Under Claude, use `haiku` model with `general-purpose` subagent type.
+Use a PR description agent for `-pr-`. Under Claude, use `haiku` model with `general-purpose` subagent type, `run_in_background: true`. When done, main session posts the PR description (inside a fenced code block) to chat, then closes the agent.
 
 Responsibilities:
 
@@ -584,12 +601,96 @@ Rules:
 - Do not add a PR title line inside the body — GitHub has a separate title field.
 - Test plan items must be specific and manually verifiable, not generic ("tests pass").
 
+## Review Agent
+
+Use a review agent for `-review- <task>`. Under Claude, use `general-purpose` subagent type, `run_in_background: true`. When done, main session posts the full review findings to chat, then closes the agent.
+
+Responsibilities:
+
+- Read the relevant brief template from `docs/prompts/review-brief.md`.
+- Read task-specific files listed in the brief.
+- Report bugs, regressions, security concerns, and missing tests using the brief's priority order.
+- Do not edit files.
+
+## Implementation Agent
+
+Use an implementation agent for `-implement- <task>`. Under Claude, use `general-purpose` subagent type, `run_in_background: true`. When done, main session posts the changed files and verification results to chat, then closes the agent.
+
+Responsibilities:
+
+- Read the relevant brief template from `docs/prompts/implementation-brief.md`.
+- Read `docs/setup/techstack.md` first.
+- Implement only the files explicitly listed in scope.
+- Run relevant verification (tests, typecheck) before reporting done.
+- Report changed files and verification status.
+
+Rules:
+
+- Do not broaden scope beyond what the brief defines.
+- Follow `docs/setup/security.md` conventions for whichever app is in scope.
+- When touching `apps/api`, follow all `-core-php-` rules. When touching `apps/web`, follow all `-core-react-` rules.
+
+## Deploy Agent
+
+Use a deploy agent for `-deploy-`. Under Claude, use `general-purpose` subagent type, `run_in_background: true`. When done, main session posts the full deployment report to chat, then closes the agent.
+
+Responsibilities:
+
+1. Read `docs/setup/deployment.md` — full deployment architecture and checklists
+2. Read `docs/setup/environment-matrix.md` — required env vars per environment
+3. Read `docs/setup/techstack.md` — cache driver decisions and storage conventions
+4. Inspect the current state of the repo:
+   - Check `database/migrations/` for cache and session table migrations
+   - Check `apps/api/Dockerfile` exists
+   - Check `apps/api/config/database.php` has `render_cache` connection
+   - Check `apps/api/config/filesystems.php` has `supabase` disk
+5. Report a deployment readiness checklist — what is done, what is missing, what must be done before deploying
+6. Walk through each service in order: Supabase → Render PostgreSQL → Render Web Service → Vercel → cron-job.org
+7. For each service, report the exact steps needed based on current repo state
+
+### Output format
+
+```text
+## Deployment Readiness
+
+### ✅ Ready
+- list of things confirmed ready
+
+### ❌ Missing — must fix before deploy
+- [file or step] — what is missing and what to do
+
+### ⚠️ Manual steps — cannot be automated
+- Supabase: ...
+- Render: ...
+- Vercel: ...
+- cron-job.org: ...
+
+### Deploy order
+1. ...
+2. ...
+```
+
+Rules:
+
+- Do not edit files unless a missing migration or config is blocking the deploy and the fix is trivial
+- Always verify actual file state — do not assume anything is in place
+- Flag any env var that is required in production but not documented in `environment-matrix.md`
+- Do not expose or guess secret values — reference env var names only
+
 ## Agent Cleanup
 
-After an agent completes and its result is integrated, close it.
+Every sub-agent lifecycle follows this sequence:
+
+1. Spawn with `run_in_background: true`.
+2. Wait for the completion notification.
+3. Integrate the result.
+4. Post the result to the main chat.
+5. Close the agent.
+
+Never let a completed agent linger after its result has been posted.
 
 If spawning fails because the agent thread limit is reached:
 
-1. Close completed agents.
+1. Close completed agents that have already had their results posted.
 2. Retry the requested spawn.
 3. If spawning still fails, inform the user and continue only with approval or a clear fallback.
