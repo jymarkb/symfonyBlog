@@ -6,7 +6,7 @@ import type {
   ResetPasswordFields,
 } from "@/features/auth/authTypes";
 import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
-import { AuthIntro } from "@/components/ui/AuthIntro";
+import { AuthIntro } from "@/features/auth/components/AuthIntro";
 import {
   signOutAfterPasswordUpdate,
   startPasswordRecoverySession,
@@ -16,7 +16,7 @@ import {
   passwordStrength,
   validateNewPassword,
 } from "@/features/auth/lib/validation";
-import { PasswordStrengthHint } from "@/components/ui/PasswordStrengthHint";
+import { PasswordStrengthHint } from "@/components/common/PasswordStrengthHint";
 import { logError } from "@/lib/utils/logError";
 import { getApiErrorMessage } from "@/lib/api/apiErrors";
 

@@ -74,6 +74,74 @@ This document defines the structure, data flow, and implementation status for th
                                            so it renders with correct auth state on first HTML response
 ```
 
+## Diagrams
+
+### Component tree
+
+```mermaid
+flowchart TD
+    A[pages/user/profile/+Page.tsx] --> B[ErrorBoundary]
+    B --> C[ProfileHead\nSSR prop]
+    B --> D[.profile-layout two-col grid]
+    D --> E[Left column]
+    D --> F[ProfileSidebar\nstats + notifications]
+    E --> G[ProfilePage\naccount form]
+    E --> H[ProfilePasswordSection\nSupabase re-auth]
+    E --> I[ProfileCommentHistory\nlast 10 comments]
+    E --> J[ProfileRecentlyViewed\nlast 10 views]
+    E --> K[ProfileDangerZone\ndelete account]
+```
+
+### SSR data loading on page request
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Vike as Vike SSR
+    participant Supabase
+    participant Laravel
+
+    Browser->>Vike: GET /profile (session cookie)
+
+    Note over Vike: guard() — auth check
+    Vike->>Supabase: getSession()
+    Supabase-->>Vike: access_token
+    Vike->>Laravel: GET /session
+    Laravel-->>Vike: { user, permissions }
+
+    Note over Vike: data() — parallel fetch
+    Vike->>Laravel: GET /profile
+    Vike->>Laravel: GET /profile/comments
+    Vike->>Laravel: GET /profile/reading-history
+    Laravel-->>Vike: profile + comments + history
+
+    Note over Vike: onBeforeRender() — header data
+    Vike->>Laravel: GET /session
+    Laravel-->>Vike: initialUser
+
+    Vike-->>Browser: Full HTML — all data baked in, zero loading flash
+
+    Note over Browser: React hydrates — no extra fetches on mount
+```
+
+### Mutation flow (account form save)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant ProfilePage
+    participant Laravel
+    participant SessionContext
+
+    User->>ProfilePage: Submit form
+    ProfilePage->>Laravel: PATCH /api/v1/profile
+    Laravel-->>ProfilePage: Updated PrivateProfile
+    ProfilePage->>SessionContext: refreshSession()
+    SessionContext->>Laravel: GET /api/v1/session
+    Laravel-->>SessionContext: Updated user
+    Note over SessionContext: Header re-renders\nwith new display name
+```
+
 ## Route and Auth
 
 The page lives at `pages/(user)/profile/+Page.tsx`. Auth is enforced at the server level:

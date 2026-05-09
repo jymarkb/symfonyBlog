@@ -1,7 +1,7 @@
 import { SignInForm } from '@/features/auth/components/SignInForm'
 import { SignInSidePanel } from '@/features/auth/components/SignInSidePanel'
 import { AuthShell } from '@/layouts/AuthShell'
-import { AuthIntro } from '@/components/ui/AuthIntro'
+import { AuthIntro } from '@/features/auth/components/AuthIntro'
 
 export default function Page() {
   return (

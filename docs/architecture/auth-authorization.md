@@ -16,15 +16,21 @@ This document defines the target frontend authentication and authorization struc
 3. Frontend auth wiring            done for signup/signin/password recovery
 4. Backend authorization scaffold  done for current routes
 5. Backend authorization tests     done with Pest route and role coverage
-6. Frontend session provider       done
-7. Frontend route guards           done for guest/user/admin route groups
+6. Frontend session provider       done — cookie-based via @supabase/ssr
+7. Frontend route guards           done — single global pages/+guard.ts reads accessLevel
+                                         from route config; per-group +guard.ts files removed;
+                                         RequireAuth and RequireGuest deleted;
+                                         RequireAdmin kept as client-side hydration fallback only
 8. Frontend profile wiring         done for private /profile
 9. Frontend auth visibility        done for header account/admin states
+10. SSR auth (cookie-based)        done — @supabase/ssr replaces localStorage;
+                                         createBrowserClient for client, factory for server;
+                                         resolveServerAuth() shared by guard/data/onBeforeRender
 ```
 
 Backend/Supabase setup currently includes the `auth:api` guard, Supabase bearer-token verification through JWKS, local `users.supabase_user_id` mapping, the current-user session endpoint, CORS config, JSON `401` behavior for API routes, and the initial admin middleware/role helpers.
 
-Frontend auth wiring currently includes email signup, email confirmation callback handling, Google/GitHub social auth, email/password signin, guest-only auth pages, last-used social provider hints, forgot-password email requests, reset-password completion through Supabase Auth, a current-session provider, role-aware header state, protected user/admin route groups, and private profile load/update wiring.
+Frontend auth wiring currently includes email signup, email confirmation callback handling, Google/GitHub social auth, email/password signin, guest-only auth pages, last-used social provider hints, forgot-password email requests, reset-password completion through Supabase Auth, a current-session provider (cookie-based), role-aware header state, server-side route guards via global `+guard.ts`, and private profile SSR load/update wiring.
 
 ## Backend Auth Implementation
 
@@ -243,6 +249,51 @@ Admin user  -> /dashboard
 
 Guest-only auth pages (`/signin`, `/signup`, `/forgot-password`, and `/reset-password`) do not render their auth UI for already signed-in users. They use the current frontend session state to send normal users to `/` and admins to `/dashboard`.
 
+## Frontend Route Guard Architecture
+
+Auth gating is enforced server-side in a single file: `pages/+guard.ts`.
+
+Each route group declares its access level in its `+config.ts`:
+
+```text
+pages/+config.ts             → accessLevel: 'public'         (default)
+pages/(auth)/+config.ts      → accessLevel: 'guest-only'     → authenticated users redirect to /
+pages/(user)/+config.ts      → accessLevel: 'auth-required'  → guests redirect to /signin
+pages/(admin)/+config.ts     → accessLevel: 'admin-required' → guests → /signin, non-admins → /
+```
+
+The global guard reads `pageContext.config.accessLevel`, calls `resolveServerAuth()` (which reads the Supabase session cookie and calls `GET /api/v1/session`), and returns a redirect or `undefined` (continue). No HTML is rendered for unauthorized requests.
+
+```mermaid
+flowchart TD
+    A[Browser request] --> B[pages/+guard.ts]
+    B --> C{accessLevel?}
+
+    C -->|public| D[No check — continue to render]
+
+    C -->|guest-only| E{Session cookie?}
+    E -->|No| F[Continue — render auth page]
+    E -->|Yes| G[HTTP 302 → /]
+
+    C -->|auth-required| H{Session cookie?}
+    H -->|No| I[HTTP 302 → /signin]
+    H -->|Yes| J[resolveServerAuth\ngetSession + GET /session]
+    J -->|valid user| K[Continue — render page]
+    J -->|invalid| I
+
+    C -->|admin-required| L{Session cookie?}
+    L -->|No| M[HTTP 302 → /signin]
+    L -->|Yes| N[resolveServerAuth]
+    N -->|not admin| O[HTTP 302 → /]
+    N -->|admin| P[Continue — render page]
+```
+
+Client-side fallbacks:
+
+- `AuthGuard.tsx` — deprecated, replaced by server guard
+- `RequireAdmin.tsx` — kept as client-side hydration fallback only; not the primary gate
+- `RequireAuth.tsx`, `RequireGuest.tsx` — **deleted**, replaced by server guard
+
 ## Frontend Folder Structure
 
 Keep route files thin and put behavior in feature folders.
@@ -251,14 +302,21 @@ Keep route files thin and put behavior in feature folders.
 apps/web/src
 ├── features
 │   ├── auth
-│   │   ├── components
-│   │   ├── hooks
-│   │   ├── api
-│   │   └── types.ts
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── guards/           ← AuthGuard (@deprecated), RequireAdmin (client fallback)
+│   │   ├── lib/
+│   │   ├── session/          ← CurrentSessionContext, useCurrentSession
+│   │   └── authTypes.ts
+│   ├── profile
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── lib/
+│   │   └── profileTypes.ts
 │   ├── admin
 │   ├── blog
-│   ├── comments
-│   └── profile
+│   └── dashboard
 │
 ├── layouts
 │   ├── AppShell.tsx
@@ -266,14 +324,15 @@ apps/web/src
 │   └── DashboardShell.tsx
 │
 ├── lib
-│   ├── api
-│   ├── auth
-│   └── env
+│   ├── api/
+│   ├── auth/                 ← resolveServerAuth, supabaseClient, supabaseServerClient, getAccessToken
+│   └── env/
 │
 └── components
-    ├── ui
-    ├── common
-    └── layout
+    ├── ErrorBoundary.tsx
+    ├── ui/
+    ├── common/
+    └── layout/
 ```
 
 ## API Touchpoints
@@ -309,9 +368,9 @@ Admin
 └── POST /api/v1/admin/uploads
 ```
 
-## Mermaid Visualization
+## Diagrams
 
-Paste this into Mermaid Live Editor: https://mermaid.live
+### App area map
 
 ```mermaid
 flowchart TD
@@ -355,6 +414,61 @@ flowchart TD
   J --> M["Laravel API: Create Comment"]
   G2 --> N["Laravel API: Admin Posts"]
   G4 --> O["Laravel API: Admin Comment Moderation"]
+```
+
+### Email/password signin flow
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Supabase
+    participant Laravel
+
+    Browser->>Supabase: signInWithPassword(email, password)
+    Supabase-->>Browser: session (access_token in cookie)
+    Browser->>Laravel: GET /api/v1/session
+    Laravel-->>Browser: { user, permissions }
+    Browser->>Browser: redirect / or /dashboard by role
+```
+
+### OAuth signin flow (Google / GitHub)
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Supabase
+    participant Provider as OAuth Provider
+    participant Laravel
+
+    Browser->>Supabase: signInWithOAuth(provider)
+    Supabase-->>Browser: redirect to provider
+    Browser->>Provider: authorize
+    Provider-->>Browser: redirect to /auth/callback?code=...
+    Browser->>Supabase: exchangeCodeForSession(code)
+    Supabase-->>Browser: session (access_token in cookie)
+    Browser->>Laravel: GET /api/v1/session
+    Laravel-->>Browser: { user, permissions } (creates/syncs local user)
+    Browser->>Browser: redirect / or /dashboard by role
+```
+
+### Password recovery flow
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Supabase
+    participant Laravel
+
+    Browser->>Supabase: resetPasswordForEmail(email)
+    Supabase-->>Browser: show neutral confirmation (no email reveal)
+    Note over Browser: User clicks link in email
+    Browser->>Browser: /reset-password?code=...
+    Browser->>Supabase: exchangeCodeForSession(code)
+    Supabase-->>Browser: recovery session
+    Browser->>Supabase: updateUser({ password })
+    Supabase-->>Browser: ok
+    Browser->>Supabase: signOut()
+    Browser->>Browser: redirect /signin
 ```
 
 ## Current Branch Acceptance Checks

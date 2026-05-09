@@ -4,7 +4,7 @@ import { updatePassword } from "@/features/auth/api/resetPasswordApi";
 import { useCurrentSession } from "@/features/auth/session";
 import { passwordStrength, validateNewPassword } from "@/features/auth/lib/validation";
 import { supabase } from "@/lib/auth/supabaseClient";
-import { PasswordStrengthHint } from "@/components/ui/PasswordStrengthHint";
+import { PasswordStrengthHint } from "@/components/common/PasswordStrengthHint";
 import { logError } from "@/lib/utils/logError";
 import { getApiErrorMessage } from "@/lib/api/apiErrors";
 import { ProfileSection } from "@/features/profile/components/ProfileSection";

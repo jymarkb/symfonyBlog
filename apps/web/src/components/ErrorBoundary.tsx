@@ -1,6 +1,11 @@
 import { Component, ReactNode } from "react";
 
-interface Props { children: ReactNode; }
+import { ErrorPage } from "@/components/common/ErrorPage";
+
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
 interface State { hasError: boolean; }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -14,18 +19,9 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('ErrorBoundary caught:', error, info);
   }
 
-  resetError() {
-    this.setState({ hasError: false });
-  }
-
   render() {
     if (this.state.hasError) {
-      return (
-        <div className="page-error">
-          <p>Something went wrong. Please try again.</p>
-          <button onClick={() => this.setState({ hasError: false })}>Try again</button>
-        </div>
-      );
+      return this.props.fallback ?? <ErrorPage code={500} />;
     }
     return this.props.children;
   }
