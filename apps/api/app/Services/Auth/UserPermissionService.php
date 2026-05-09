@@ -34,7 +34,7 @@ class UserPermissionService
         return $this->isAdmin($user);
     }
 
-    public function canManageCategories(User $user): bool
+    public function canManageTags(User $user): bool
     {
         return $this->isAdmin($user);
     }
@@ -52,7 +52,7 @@ class UserPermissionService
             'manage_posts' => $this->canManagePosts($user),
             'manage_users' => $this->canManageUsers($user),
             'moderate_comments' => $this->canModerateComments($user),
-            'manage_categories' => $this->canManageCategories($user),
+            'manage_tags' => $this->canManageTags($user),
             'upload_media' => $this->canUploadMedia($user),
         ];
     }

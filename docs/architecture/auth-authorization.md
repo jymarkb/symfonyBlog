@@ -92,7 +92,7 @@ apps/web
     ├── /dashboard/posts/:id/edit
     ├── /dashboard/users
     ├── /dashboard/comments
-    └── /dashboard/categories
+    └── /dashboard/tags
 ```
 
 `/profile` is the signed-in user's private profile/settings page. It can include fields from `design/profile.html`, such as email, password update, notification settings, comment history, reading history, and account deletion.
@@ -122,7 +122,7 @@ Admin
 ├── Create/edit/delete posts
 ├── Manage users
 ├── Moderate comments
-└── Manage categories
+└── Manage tags
 ```
 
 ## Backend Authorization Scaffold
@@ -145,14 +145,14 @@ GET /api/v1/admin/users
 PATCH /api/v1/admin/users/{user}
 GET /api/v1/admin/comments
 PATCH /api/v1/admin/comments/{comment}
-GET /api/v1/admin/categories
-POST /api/v1/admin/categories
-PATCH /api/v1/admin/categories/{category}
-DELETE /api/v1/admin/categories/{category}
+GET /api/v1/admin/tags
+POST /api/v1/admin/tags
+PATCH /api/v1/admin/tags/{tag}
+DELETE /api/v1/admin/tags/{tag}
 POST /api/v1/admin/uploads
 ```
 
-Admin controller placeholders prove the route and middleware boundary. Real admin business logic comes later by feature area: post publishing, user moderation, comment moderation, category management, media uploads, and website stats.
+Admin controller placeholders prove the route and middleware boundary. Real admin business logic comes later by feature area: post publishing, user moderation, comment moderation, tag management, media uploads, and website stats.
 
 Controllers should use resource-style method names: `index`, `store`, `show`, `update`, and `destroy`. Avoid action-specific method names such as `moderate`; represent moderation as a resource update unless the action truly needs a separate endpoint.
 
@@ -283,15 +283,18 @@ The frontend should rely on these backend capabilities:
 ```text
 Public
 ├── GET /api/v1/posts
+├── GET /api/v1/posts/{slug}
 ├── GET /api/v1/profiles/{handle}
-├── GET /api/v1/categories
+├── GET /api/v1/tags
 └── POST /api/v1/posts/{slug}/view
 
 Authenticated user
 ├── GET /api/v1/session
 ├── GET /api/v1/profile
 ├── PATCH /api/v1/profile
-└── DELETE /api/v1/profile
+├── DELETE /api/v1/profile
+├── POST /api/v1/posts/{slug}/stars
+└── DELETE /api/v1/posts/{slug}/stars
 
 Admin
 ├── GET /api/v1/admin/posts
@@ -302,7 +305,7 @@ Admin
 ├── PATCH /api/v1/admin/comments/{id}
 ├── GET /api/v1/admin/users
 ├── PATCH /api/v1/admin/users/{id}
-├── CRUD /api/v1/admin/categories
+├── CRUD /api/v1/admin/tags
 └── POST /api/v1/admin/uploads
 ```
 
@@ -375,4 +378,4 @@ flowchart TD
 - Guest users are redirected to `/signin` when trying to comment.
 - Normal users can add comments.
 - Comment edit/delete buttons are visible only to the comment owner or an admin.
-- Admin users can create/edit/delete posts, manage users, moderate comments, manage categories, upload media, and review dashboard stats once those business features are implemented.
+- Admin users can create/edit/delete posts, manage users, moderate comments, manage tags, upload media, and review dashboard stats once those business features are implemented.

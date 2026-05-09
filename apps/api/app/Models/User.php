@@ -46,6 +46,16 @@ class User extends Authenticatable
         return $this->hasMany(PostView::class);
     }
 
+    public function postStars(): HasMany
+    {
+        return $this->hasMany(PostStar::class);
+    }
+
+    public function starredPosts()
+    {
+        return $this->belongsToMany(Post::class, 'post_stars')->withTimestamps();
+    }
+
     protected function casts(): array
     {
         return [

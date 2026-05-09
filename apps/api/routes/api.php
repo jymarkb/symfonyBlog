@@ -3,15 +3,18 @@
 use App\Http\Controllers\Api\V1\SessionController;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\PostController as PublicPostController;
+use App\Http\Controllers\Api\V1\PostStarController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\PublicProfileController;
 use App\Http\Controllers\Api\V1\ProfileCommentController;
 use App\Http\Controllers\Api\V1\ProfileNotificationController;
 use App\Http\Controllers\Api\V1\ProfileReadingHistoryController;
+use App\Http\Controllers\Api\V1\TagController as PublicTagController;
 use App\Http\Controllers\Api\V1\Admin\PostController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\CommentController;
-use App\Http\Controllers\Api\V1\Admin\CategoryController;
+use App\Http\Controllers\Api\V1\Admin\TagController;
 use App\Http\Controllers\Api\V1\Admin\UploadController;
 
 Route::prefix('v1')->group(function () {
@@ -24,8 +27,9 @@ Route::prefix('v1')->group(function () {
     | middleware appended to the api group. Opt-outs must be explicit.
     */
     Route::withoutMiddleware(Authenticate::using('api'))->group(function () {
-        Route::get('/posts', fn() => response()->json([]))->middleware('throttle:public-api');
-        Route::get('/categories', fn() => response()->json([]))->middleware('throttle:public-api');
+        Route::get('/posts', [PublicPostController::class, 'index'])->middleware('throttle:public-api');
+        Route::get('/posts/{slug}', [PublicPostController::class, 'show'])->middleware('throttle:public-api');
+        Route::get('/tags', [PublicTagController::class, 'index'])->middleware('throttle:public-api');
         Route::get('/profiles/{handle}', [PublicProfileController::class, 'show'])->middleware('throttle:public-api');
         Route::post('/posts/{slug}/view', fn() => response()->json([], 202))->middleware('throttle:post-view');
     });
@@ -45,6 +49,9 @@ Route::prefix('v1')->group(function () {
         Route::patch('/profile', [ProfileController::class, 'update'])->middleware('throttle:profile-mutations');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware('throttle:profile-delete');
 
+        Route::post('/posts/{slug}/stars', [PostStarController::class, 'store'])->middleware('throttle:profile-mutations');
+        Route::delete('/posts/{slug}/stars', [PostStarController::class, 'destroy'])->middleware('throttle:profile-mutations');
+
         /*
         |----------------------------------------------------------------------
         | Admin routes — authenticated + admin permission required
@@ -62,10 +69,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/comments', [CommentController::class, 'index'])->middleware('throttle:admin-read');
             Route::patch('/comments/{comment}', [CommentController::class, 'update'])->middleware('throttle:admin-mutations');
 
-            Route::get('/categories', [CategoryController::class, 'index'])->middleware('throttle:admin-read');
-            Route::post('/categories', [CategoryController::class, 'store'])->middleware('throttle:admin-mutations');
-            Route::patch('/categories/{category}', [CategoryController::class, 'update'])->middleware('throttle:admin-mutations');
-            Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->middleware('throttle:admin-mutations');
+            Route::get('/tags', [TagController::class, 'index'])->middleware('throttle:admin-read');
+            Route::post('/tags', [TagController::class, 'store'])->middleware('throttle:admin-mutations');
+            Route::patch('/tags/{tag}', [TagController::class, 'update'])->middleware('throttle:admin-mutations');
+            Route::delete('/tags/{tag}', [TagController::class, 'destroy'])->middleware('throttle:admin-mutations');
 
             Route::post('/uploads', [UploadController::class, 'store'])->middleware('throttle:admin-mutations');
         });
