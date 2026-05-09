@@ -28,24 +28,18 @@ export async function startPasswordRecoverySession() {
   }
 
   if (authCode) {
-    const { error } = await supabase.auth.exchangeCodeForSession(authCode);
-    if (error) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
+    if (error || !data.session?.access_token) {
       throw new Error("This reset link has expired or was already used.");
     }
   } else if (hashAccessToken && hashRefreshToken) {
-    const { error } = await supabase.auth.setSession({
+    const { data, error } = await supabase.auth.setSession({
       access_token: hashAccessToken,
       refresh_token: hashRefreshToken,
     });
-    if (error) {
+    if (error || !data.session?.access_token) {
       throw new Error("This reset link has expired or was already used.");
     }
-  }
-
-  const { data, error } = await supabase.auth.getSession();
-
-  if (error || !data.session?.access_token) {
-    throw new Error("We could not verify this reset link. Please request a new one.");
   }
 }
 
