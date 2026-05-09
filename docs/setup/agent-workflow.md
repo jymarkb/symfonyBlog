@@ -60,8 +60,12 @@ Codex cost rule: prefer lowering reasoning effort for narrow, mechanical tasks (
 
 **All sub-agents run in the background.** This applies to every spawned agent without exception.
 
+Provider note:
+- Claude agents use the explicit `run_in_background: true` field.
+- Codex agents use the async `spawn_agent` lifecycle. Do not pass a `run_in_background` field in Codex; spawn the agent, continue useful local work, and call `wait_agent` only when the result is needed.
+
 Rules:
-- Always spawn with `run_in_background: true`.
+- Always spawn in the provider's background/async mode.
 - The main session stays free for user interaction while agents run.
 - When an agent completes, the main session receives a notification automatically.
 - After integrating the result, the main session posts the full agent output into the main chat.
@@ -112,7 +116,7 @@ Main session   -> coordinate, answer the user, integrate results
 ## Main Session Responsibilities
 
 - Interpret the routing prefix.
-- Spawn the designated agent with `run_in_background: true`.
+- Spawn the designated agent in the provider's background/async mode.
 - Continue useful coordination work while agents run — the main session is never blocked by a background agent.
 - Wait for the completion notification, then integrate the result.
 - Post the full agent result into the main chat after integrating it.
@@ -237,9 +241,9 @@ Use `-feature-auto- <feature-name> <section>` to fully close a feature section w
 
 ### How the main session executes it
 
-1. **Plan** — Spawn a Plan sub-agent in **background** (`run_in_background: true`). Wait for the notification, then integrate the result: a complete structured subtask list with dependency order, owner per subtask, and verification checklist. Close the plan agent after integrating.
+1. **Plan** — Spawn a Plan sub-agent in the provider's background/async mode. Wait for the notification, then integrate the result: a complete structured subtask list with dependency order, owner per subtask, and verification checklist. Close the plan agent after integrating.
 
-2. **Backend** — Spawn `-core-php-` agents in **background** (`run_in_background: true`) so the main session stays free for user interaction. Where subtasks are independent, spawn them in parallel. Where one depends on another, wait for the notification before spawning the next. Close each agent after integrating its result.
+2. **Backend** — Spawn `-core-php-` agents in the provider's background/async mode so the main session stays free for user interaction. Where subtasks are independent, spawn them in parallel. Where one depends on another, wait for the notification before spawning the next. Close each agent after integrating its result.
 
 3. **Verify backend** — Run `php artisan test` in foreground (fast, must gate the next phase). If any new test fails, spawn a `-core-php-` fix agent in background before continuing. Do not proceed to frontend wiring if tests are red.
 
@@ -528,7 +532,7 @@ Use this when you want both frontend and backend QA run together and synthesized
 
 ### How the main session executes it
 
-1. Spawn `-qa-frontend-` and `-qa-backend-` as `Explore` subagents **in parallel** (`run_in_background: true` for both, sent in a single message).
+1. Spawn `-qa-frontend-` and `-qa-backend-` as read-only subagents **in parallel** using the provider's background/async mode.
 2. Wait for both task notifications to arrive.
 3. Read both result summaries.
 4. Synthesize into one unified report:
@@ -706,7 +710,7 @@ Rules:
 
 Every sub-agent lifecycle follows this sequence:
 
-1. Spawn with `run_in_background: true`.
+1. Spawn in the provider's background/async mode.
 2. Wait for the completion notification.
 3. Integrate the result.
 4. Post the result to the main chat.
