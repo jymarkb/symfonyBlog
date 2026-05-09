@@ -211,12 +211,21 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 - [ ] Optional fields (nullable columns) typed as `T | null`, not just `T`
 - [ ] Non-null assertions (`!`) only used where null is structurally impossible — not as a workaround for missing guards
 - [ ] `tsc --noEmit` produces zero errors after any change
+- [ ] All types for a feature live in one file: `src/features/<feature>/<feature>Types.ts` — no split type files (e.g. no separate `sessionTypes.ts` or `contextTypes.ts` alongside the main types file)
+- [ ] No feature-specific types placed in `src/types/` — that folder is for genuinely cross-feature shared types only
 
 ### 13. Dead and inconsistent UI
 
 - [ ] Every visible checkbox, dropdown, toggle, or button either does something or is explicitly disabled with an explanation
 - [ ] Placeholder/stub UI (disabled buttons, hardcoded "Coming soon" text) is intentional and documented — not accidentally shipped unfinished
 - [ ] Feature parity between similar pages (e.g., "Last used" badge on sign-in AND sign-up, not just one)
+
+### 14. Component placement
+
+- [ ] Components with a feature word in the name (`Auth`, `Profile`, `Post`, `Dashboard`) live inside that feature's `components/` folder — not in `components/ui/` or `components/common/`
+- [ ] `components/ui/` contains only truly generic, stateless primitives with no feature-domain knowledge
+- [ ] `components/common/` is used only when a component is actively shared by 2+ features — not preemptively
+- [ ] No feature imports a component from another feature's folder — cross-feature shared components go to `components/common/` first
 
 ---
 
@@ -267,3 +276,4 @@ Update this section when new QA checks are added:
 - **2026-05-08** — Updated route guards section: `RequireAuth`/`RequireGuest` replaced by `+guard.ts` server-side guards; added `prerender: false` check and `initialX` prop SSR hydration check.
 - **2026-05-08** — Global security centralization. Frontend: per-group guards replaced by single `pages/+guard.ts` reading `accessLevel`; `resolveServerAuth()` is the only permitted server-side session resolver. Backend: default-deny global auth; `auth:api`/`admin` references replaced with default middleware + `permission:admin`; canonical 401/403 body shapes added to API response consistency checks.
 - **2026-05-09** — OAuth callback: added check for redundant `getSession()` call after `exchangeCodeForSession`/`setSession` — use the session returned directly. Error boundaries: `ErrorBoundary` must wrap root, user, and admin layouts with `<ErrorPage code={500} />` as fallback. Dead guard cleanup: `RequireAuth` and `RequireGuest` removed; `RequireAdmin` is the only permitted client-side fallback guard.
+- **2026-05-09** — Component placement: added section 14 — feature-named components must live in their feature folder, not `components/ui/`. Types consolidation: one types file per feature, no split sub-files. Cross-feature components go to `components/common/` only when real reuse exists.

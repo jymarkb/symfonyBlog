@@ -302,6 +302,8 @@ Use this decision order when placing a new component:
 
 **`components/ui/`** — generic primitives with no feature context. Build these once, reuse everywhere:
 ```text
+Brand.tsx     (site logo — accepts optional href and className)
+FormMessage   (generic error/success alert)
 Button        (variants: primary, ghost, sm)
 Input         (text, email, password, textarea, select)
 Badge         (status variants: published, draft, review)
@@ -314,32 +316,40 @@ Pagination
 
 **`components/common/`** — shared across 2+ features, more opinionated than primitives:
 ```text
-PostCard      (blog listing + dashboard top posts)
-PostRow       (index page + archive listings)
-CommentBlock  (post thread + profile history — when blog comments are built)
-AuthorBlock   (post header + featured post + comments)
-EmptyState    (404 + any empty list state)
-Card          (generic bordered container)
+PasswordStrengthHint  (used by auth forms AND profile password section)
+ErrorPage             (404/500 shared template)
+MaintenancePage       (maintenance mode page)
+PostCard              (blog listing + dashboard top posts)
+PostRow               (index page + archive listings)
+CommentBlock          (post thread + profile history — when blog comments are built)
+AuthorBlock           (post header + featured post + comments)
+EmptyState            (404 + any empty list state)
+Card                  (generic bordered container)
 ```
 
 **`features/<name>/`** — owned by one feature, stays there even if it looks reusable:
 ```text
 features/blog/       → PostLayout, TOC, Callout, RelatedPosts, Footnotes
-features/auth/       → OAuthButtons, AuthSidePanel, PasswordStrength
+features/auth/       → AuthConfirm, AuthIntro, OAuthButtons, AuthSidePanel
 features/dashboard/  → StatCard, BarChart, TopPostsTable, ModerationBox
 features/profile/    → ProfileHead, CommentHistory, DangerZone, Sidebar
 features/contact/    → ContactChannel, TopicPills, FAQ
 ```
 
 **Current state (what's been ported):**
-- All auth components are correctly in `features/auth/` — no move needed
-- All profile components are correctly in `features/profile/` — no move needed
+- All auth components are correctly in `features/auth/` — `AuthConfirm`, `AuthIntro` moved there from `ui/`
+- All profile components are correctly in `features/profile/`
+- `PasswordStrengthHint` is in `components/common/` — used by both `features/auth/` and `features/profile/`
+- `components/ui/` contains only truly generic primitives: `Brand.tsx`, `FormMessage.tsx`
 - `features/profile/components/comment/` holds `CommentList` and `CommentSkeleton` — correct, they use profile-specific types
-- `components/ui/Brand.tsx` — the site logo component; accepts optional `href` (renders as `<a>`) and `className` props. Use this everywhere instead of inlining the logo markup.
-- `components/ui/` has no other React components yet — remaining primitives live in the design CSS only
-- `components/common/` is intentionally empty — shared opinionated components will be added as real reuse emerges
 
 **Do not move components preemptively.** Only move when a component is actually needed by a second feature. Three similar components in different features is better than a premature abstraction in `common/`.
+
+**Test for correct placement before creating a component:**
+- Does the name include a feature word (`Auth`, `Profile`, `Post`, `Dashboard`)? → it belongs in that feature
+- Is it truly stateless and has no feature-domain knowledge? → `components/ui/`
+- Is it used or will be used by 2+ features? → `components/common/`
+- When in doubt, start in the feature — move to `common/` only when real reuse happens
 
 ### API client conventions
 
@@ -395,6 +405,9 @@ Fonts: `font-sans` → Poppins, `font-mono` → JetBrains Mono. Use `font-mono-t
 - All API response shapes have a corresponding TypeScript type in the feature's types file
 - Field names in TypeScript types must exactly match the API JSON keys
 - Use `type` not `interface` for data shapes
+- **One types file per feature** — all types for a feature live in `src/features/<feature>/<feature>Types.ts`. Do not split types into sub-files (e.g. no `sessionTypes.ts` alongside `authTypes.ts`). If a sub-module needs types, import from the feature root types file.
+- **`src/types/` is for cross-feature shared types only** — only use it when a type is genuinely needed by 2+ features and has no feature ownership. Do not put feature-specific types here.
+- Context value types and status union types belong in the same feature types file as the domain types they reference — not in a separate context types file
 
 ### Auth conventions (frontend)
 
