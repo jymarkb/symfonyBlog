@@ -5,16 +5,16 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('returns public posts placeholder', function () {
+it('returns public posts collection', function () {
     $this->getJson('/api/v1/posts')
         ->assertOk()
-        ->assertExactJson([]);
+        ->assertJsonStructure(['data']);
 });
 
-it('returns public categories placeholder', function () {
-    $this->getJson('/api/v1/categories')
+it('returns public tags collection', function () {
+    $this->getJson('/api/v1/tags')
         ->assertOk()
-        ->assertExactJson([]);
+        ->assertJsonStructure(['data']);
 });
 
 it('accepts public post view tracking placeholder', function () {
@@ -43,13 +43,13 @@ it('returns 429 when the public posts rate limit is exceeded', function () {
         ->assertTooManyRequests();
 });
 
-it('returns 429 when the public categories rate limit is exceeded', function () {
+it('returns 429 when the public tags rate limit is exceeded', function () {
     $cacheKey = md5('public-api' . '127.0.0.1');
     for ($i = 0; $i < 60; $i++) {
         \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
     }
 
-    $this->getJson('/api/v1/categories')
+    $this->getJson('/api/v1/tags')
         ->assertTooManyRequests();
 });
 

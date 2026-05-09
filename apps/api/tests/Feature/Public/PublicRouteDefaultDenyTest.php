@@ -12,7 +12,7 @@ function publicRoutes(): array
 {
     return [
         'GET posts'          => ['GET',  '/api/v1/posts'],
-        'GET categories'     => ['GET',  '/api/v1/categories'],
+        'GET tags'           => ['GET',  '/api/v1/tags'],
         'GET public profile' => ['GET',  '/api/v1/profiles/@nobody'],
         'POST post view'     => ['POST', '/api/v1/posts/some-slug/view'],
     ];
@@ -30,6 +30,6 @@ it('does not return 401 on public routes even when a malformed token is sent', f
     expect($response->status())->not->toBe(401);
 })->with([
     'GET posts'      => ['GET',  '/api/v1/posts'],
-    'GET categories' => ['GET',  '/api/v1/categories'],
+    'GET tags'       => ['GET',  '/api/v1/tags'],
     'POST post view' => ['POST', '/api/v1/posts/any-slug/view'],
 ]);

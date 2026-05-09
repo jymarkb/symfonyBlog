@@ -25,7 +25,7 @@ function adminOnlyRoutes(): array
         'POST admin posts'      => ['POST', '/api/v1/admin/posts'],
         'GET admin users'       => ['GET',  '/api/v1/admin/users'],
         'GET admin comments'    => ['GET',  '/api/v1/admin/comments'],
-        'GET admin categories'  => ['GET',  '/api/v1/admin/categories'],
+        'GET admin tags'        => ['GET',  '/api/v1/admin/tags'],
         'POST admin uploads'    => ['POST', '/api/v1/admin/uploads'],
     ];
 }

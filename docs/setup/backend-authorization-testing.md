@@ -30,10 +30,10 @@ GET    /api/v1/admin/users
 PATCH  /api/v1/admin/users/{user}
 GET    /api/v1/admin/comments
 PATCH  /api/v1/admin/comments/{comment}
-GET    /api/v1/admin/categories
-POST   /api/v1/admin/categories
-PATCH  /api/v1/admin/categories/{category}
-DELETE /api/v1/admin/categories/{category}
+GET    /api/v1/admin/tags
+POST   /api/v1/admin/tags
+PATCH  /api/v1/admin/tags/{tag}
+DELETE /api/v1/admin/tags/{tag}
 POST   /api/v1/admin/uploads
 ```
 
