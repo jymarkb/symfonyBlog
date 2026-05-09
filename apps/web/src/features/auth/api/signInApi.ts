@@ -25,12 +25,3 @@ export async function signInWithEmail(params: SignInInput) {
   return fetchCurrentUser(accessToken);
 }
 
-export async function getSignedInUser() {
-  const { data, error } = await supabase.auth.getSession();
-
-  if (error || !data.session?.access_token) {
-    return null;
-  }
-
-  return fetchCurrentUser(data.session.access_token);
-}

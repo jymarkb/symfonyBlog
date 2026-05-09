@@ -31,6 +31,31 @@ When running under Claude, use these model tiers per agent type:
 
 Use `haiku` only for commit and PR work. Use `sonnet` for everything else unless the task requires deep multi-file reasoning, in which case `opus` is acceptable.
 
+## Codex Model And Reasoning Tiers
+
+When running under Codex, sub-agents inherit the main session model by default. Use reasoning effort to split cost first, and override the model only when the user explicitly asks or the task has a clear need for a different available GPT model.
+
+```text
+-feature-            -> inherited model, medium reasoning  (feature orchestration/status, explorer/default sub-agent when explicitly delegated)
+-feature-auto-       -> main session workflow              (plan + implement + verify + docs; do not auto-commit)
+-commit              -> inherited model, low reasoning     (diff inspection, explicit staging, commit hygiene)
+-plan-               -> inherited model, medium reasoning  (subtask decomposition and dependency order)
+-tutorial-           -> inherited model, medium reasoning  (manual coding tutorial for a specific task)
+-architecture-       -> inherited model, high reasoning    (boundary analysis and cross-app design decisions)
+-ux-                 -> inherited model, medium reasoning  (screen state, interaction, and copy design)
+-core-react-         -> inherited model, medium reasoning  (frontend implementation)
+-core-php-           -> inherited model, medium reasoning  (backend implementation)
+-qa-frontend-        -> inherited model, low/medium reasoning (read-only frontend review; use medium for broad UI risk)
+-qa-backend-         -> inherited model, low/medium reasoning (read-only backend review; use medium for auth/data risk)
+-qa-                 -> main session workflow              (parallel frontend + backend QA, synthesized report)
+-review-             -> inherited model, medium reasoning  (general review; raise to high for complex behavioral risk)
+-implement-          -> inherited model, medium reasoning  (scoped implementation)
+-pr-                 -> inherited model, low reasoning     (PR description, plain text ready to paste)
+-deploy-             -> inherited model, medium reasoning  (deployment checklist and verification)
+```
+
+Codex cost rule: prefer lowering reasoning effort for narrow, mechanical tasks (`-commit`, `-pr-`, small QA checks) before changing models. Use high reasoning for architecture, security-sensitive changes, complex migrations, or multi-system behavior. If the current Codex toolset does not support a documented sub-agent behavior from this file, the main session should state the limitation briefly and continue with the closest safe workflow.
+
 ## Background Execution Rules
 
 **All sub-agents run in the background.** This applies to every spawned agent without exception.

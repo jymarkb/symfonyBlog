@@ -22,6 +22,10 @@ docs/setup/*
 !docs/setup/frontend-structure.md
 !docs/setup/security.md
 !docs/setup/agent-workflow.md
+!docs/setup/techstack.md
+!docs/setup/qa-checklist.md
+!docs/setup/environment-matrix.md
+!docs/setup/deployment.md
 !docs/qa/
 docs/qa/*
 !docs/qa/README.md
