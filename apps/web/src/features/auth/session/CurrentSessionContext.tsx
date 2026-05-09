@@ -13,11 +13,11 @@ import type {
 } from "@supabase/supabase-js";
 
 import { fetchCurrentUser } from "@/features/auth/api/currentUserApi";
-import type { CurrentSession } from "@/features/auth/authTypes";
 import type {
+  CurrentSession,
   CurrentSessionContextValue,
   CurrentSessionStatus,
-} from "@/features/auth/session/currentSessionTypes";
+} from "@/features/auth/authTypes";
 import { ApiError } from "@/lib/api/apiClient";
 import { supabase } from "@/lib/auth/supabaseClient";
 

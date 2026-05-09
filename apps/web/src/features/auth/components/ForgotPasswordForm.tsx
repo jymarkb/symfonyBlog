@@ -3,8 +3,8 @@ import { useState } from "react";
 
 import type { ForgotPasswordErrors } from "@/features/auth/authTypes";
 import { AuthFooterLinks } from "@/features/auth/components/AuthFooterLinks";
-import { AuthIntro } from "@/components/ui/AuthIntro";
-import { AuthConfirm } from "@/components/ui/AuthConfirm";
+import { AuthIntro } from "@/features/auth/components/AuthIntro";
+import { AuthConfirm } from "@/features/auth/components/AuthConfirm";
 import { validateEmail } from "@/features/auth/lib/validation";
 import { sendPasswordResetEmail } from "@/features/auth/api/resetPasswordApi";
 import { logError } from "@/lib/utils/logError";
