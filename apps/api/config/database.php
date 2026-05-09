@@ -99,6 +99,18 @@ return [
             'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
 
+        // separate PostgreSQL instance on Render for cache + sessions only
+        // keeps cache writes off the Supabase primary database
+        'render_cache' => [
+            'driver' => 'pgsql',
+            'url' => env('RENDER_CACHE_DATABASE_URL'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),
