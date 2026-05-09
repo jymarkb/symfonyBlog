@@ -68,6 +68,69 @@ apps/web/pages/+onBeforeRender.ts               — global SSR hook using resolv
 apps/web/src/vike.d.ts                          — AccessLevel type; Config and PageContext augmentation
 ```
 
+## Request Flow Diagrams
+
+### Public prerendered page (e.g. `/`) — guest vs authenticated
+
+```mermaid
+flowchart TD
+    A[Browser requests /] --> B[Vercel CDN]
+    B --> C[Serves pre-built static HTML\ninitialUser = null]
+    C --> D[Browser receives HTML\nHeader shows guest nav]
+    D --> E[React hydrates]
+    E --> F{Session cookie?}
+    F -- No --> G[CurrentSessionProvider\nstatus = guest\nno API call]
+    F -- Yes --> H[CurrentSessionProvider\ncalls fetchCurrentUser\nLaravel GET /session]
+    H --> I[status = authenticated\nHeader re-renders\nguest → auth nav flash]
+    G --> J[Page interactive — guest]
+    I --> J2[Page interactive — logged in]
+```
+
+### Auth-required page (e.g. `/profile`) — SSR per request
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Vike as Vike SSR (Vercel)
+    participant Supabase
+    participant Laravel
+
+    Browser->>Vike: GET /profile (with session cookie)
+
+    Note over Vike: guard() runs
+    Vike->>Supabase: getSession() from cookie
+    Supabase-->>Vike: access_token
+    Vike->>Laravel: GET /api/v1/session
+    Laravel-->>Vike: { user, permissions }
+    Note over Vike: auth OK → continue
+
+    Note over Vike: data() runs
+    Vike->>Supabase: getSession() from cookie
+    Supabase-->>Vike: access_token
+    Vike->>Laravel: GET /profile + /comments + /reading-history (parallel)
+    Laravel-->>Vike: profile, comments, history
+
+    Note over Vike: onBeforeRender() runs
+    Vike->>Supabase: getSession() from cookie
+    Supabase-->>Vike: access_token
+    Vike->>Laravel: GET /api/v1/session
+    Laravel-->>Vike: initialUser { displayName, handle, isAdmin }
+
+    Note over Vike: render() — full HTML with all data baked in
+    Vike-->>Browser: Complete HTML (no loading flash)
+
+    Note over Browser: React hydrates — no extra API calls needed
+```
+
+### Guest visiting auth-required page
+
+```mermaid
+flowchart LR
+    A[Browser GET /profile\nno cookie] --> B[Vike guard\ngetSession → null]
+    B --> C[HTTP 302 redirect\nLocation: /signin]
+    C --> D[No HTML rendered\nno JS executed]
+```
+
 ## Vike Hook Execution Order
 
 In Vike 0.4, server-side hooks execute in this order per request:
