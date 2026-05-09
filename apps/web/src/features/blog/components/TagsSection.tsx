@@ -1,39 +1,28 @@
-import type { PostTag } from '@/features/blog/blogTypes';
+import type { PostTag } from "@/features/blog/blogTypes";
 
 type Props = {
-  initialTags?: PostTag[];
+  tags?: PostTag[];
 };
 
-export function TagsSection({ initialTags }: Props) {
-  const isLoading = initialTags === undefined;
-  const tags = initialTags ?? [];
+export function TagsSection({ tags }: Props) {
+  if (tags !== undefined && tags.length === 0) {
+    return null;
+  }
 
   return (
-    <section className="shell py-12" id="tags">
-      <p className="section-eyebrow mb-4">Topics</p>
-      <h2 className="h-display mb-6 text-3xl text-ink">Browse by tag</h2>
-
-      {isLoading && (
-        <p className="text-sm text-ink-4">Loading tags…</p>
-      )}
-
-      {!isLoading && tags.length === 0 && (
-        <p className="text-sm text-ink-4">No tags yet.</p>
-      )}
-
-      {!isLoading && tags.length > 0 && (
-        <div className="flex flex-nowrap gap-2 overflow-x-auto pb-2">
-          {tags.map((tag, index) => (
-            <a
-              key={tag.id}
-              href={`/blog?tag=${tag.slug}`}
-              className={`tag t-${(index % 5) + 1} flex-shrink-0`}
-            >
-              {tag.name}
+    <div className="side-block">
+      <h4>Tags</h4>
+      <div className="tag-cloud">
+        {tags === undefined ? (
+          <span>Loading tags…</span>
+        ) : (
+          tags.map((tag, index) => (
+            <a key={tag.id} href={`/blog?tag=${tag.slug}`}>
+              <span className={`tag t-${(index % 5) + 1}`}>{tag.name}</span>
             </a>
-          ))}
-        </div>
-      )}
-    </section>
+          ))
+        )}
+      </div>
+    </div>
   );
 }
