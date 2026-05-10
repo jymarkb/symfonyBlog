@@ -8,7 +8,6 @@ import { LatestPostsSection } from "@/features/blog/components/LatestPostsSectio
 import { AboutCard } from "@/features/blog/components/AboutCard";
 import { CurrentlyReadingBlock } from "@/features/blog/components/CurrentlyReadingBlock";
 import { RecentProjectsBlock } from "@/features/blog/components/RecentProjectsBlock";
-import { NewsletterBlock } from "@/features/blog/components/NewsletterBlock";
 import { TagsSection } from "@/features/blog/components/TagsSection";
 
 export default function Page() {
@@ -26,7 +25,6 @@ export default function Page() {
             <AboutCard />
             <CurrentlyReadingBlock />
             <RecentProjectsBlock />
-            <NewsletterBlock />
             <TagsSection tags={data.tags} />
           </aside>
         </div>

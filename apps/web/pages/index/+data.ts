@@ -1,4 +1,3 @@
-import { fetchFeaturedPosts, fetchLatestPosts, fetchTags } from '@/features/blog/api/blogApi';
 import type { HomePageData, PostSummary, PostTag } from '@/features/blog/blogTypes';
 
 const PLACEHOLDER_AUTHOR = { id: 1, display_name: 'Jymb', handle: '@jymb', avatar_url: null };
@@ -100,20 +99,10 @@ const PLACEHOLDER_TAGS: PostTag[] = [
   { id: 4, name: 'testing', slug: 'testing' },
 ];
 
-export async function data(): Promise<HomePageData> {
-  const [featuredResult, latestResult, tagsResult] = await Promise.allSettled([
-    fetchFeaturedPosts(),
-    fetchLatestPosts(),
-    fetchTags(),
-  ]);
-
-  const featuredPosts = featuredResult.status === 'fulfilled' ? featuredResult.value : [];
-  const latestPosts = latestResult.status === 'fulfilled' ? latestResult.value : [];
-  const tags = tagsResult.status === 'fulfilled' ? tagsResult.value : [];
-
+export function data(): HomePageData {
   return {
-    featuredPosts: featuredPosts.length > 0 ? featuredPosts : PLACEHOLDER_FEATURED,
-    latestPosts: latestPosts.length > 0 ? latestPosts : PLACEHOLDER_LATEST,
-    tags: tags.length > 0 ? tags : PLACEHOLDER_TAGS,
+    featuredPosts: PLACEHOLDER_FEATURED,
+    latestPosts: PLACEHOLDER_LATEST,
+    tags: PLACEHOLDER_TAGS,
   };
 }
