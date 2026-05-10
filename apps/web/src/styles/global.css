@@ -4,6 +4,7 @@
 @import "../features/auth/auth.css";
 @import "../features/profile/profile.css";
 @import "../components/common/errorPage.css";
+@import "../features/blog/blog.css";
 
 * {
   box-sizing: border-box;
