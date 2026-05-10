@@ -1,28 +1,34 @@
-import { AppShell } from '@/layouts/AppShell'
+import { useData } from "vike-react/useData";
+import type { HomePageData } from "@/features/blog/blogTypes";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AppShell } from "@/layouts/AppShell";
+import { HeroSection } from "@/features/blog/components/HeroSection";
+import { FeaturedPostsSection } from "@/features/blog/components/FeaturedPostsSection";
+import { LatestPostsSection } from "@/features/blog/components/LatestPostsSection";
+import { AboutCard } from "@/features/blog/components/AboutCard";
+import { CurrentlyReadingBlock } from "@/features/blog/components/CurrentlyReadingBlock";
+import { RecentProjectsBlock } from "@/features/blog/components/RecentProjectsBlock";
+import { TagsSection } from "@/features/blog/components/TagsSection";
 
 export default function Page() {
+  const data = useData<HomePageData>();
   return (
     <AppShell>
-      <section className="shell py-16 md:py-24">
-        <p className="eyebrow">
-          Frontend foundation
-        </p>
-        <h1 className="h-display mt-4 max-w-3xl text-5xl md:text-7xl">
-          Theme tokens are ready for the design port.
-        </h1>
-        <p className="mt-6 max-w-2xl text-lg leading-8 text-ink-3">
-          The design CSS now has a Tailwind-friendly theme layer for colors,
-          typography, shell width, cards, buttons, tags, and common surfaces.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <a className="btn btn-primary" href="/blog">
-            View blog
-          </a>
-          <a className="btn" href="/dashboard">
-            Dashboard
-          </a>
+      <ErrorBoundary>
+        <HeroSection />
+        <div className="shell blog-main">
+          <div>
+            <FeaturedPostsSection initialPosts={data.featuredPosts} />
+            <LatestPostsSection initialPosts={data.latestPosts} />
+          </div>
+          <aside className="sidebar">
+            <AboutCard />
+            <CurrentlyReadingBlock />
+            <RecentProjectsBlock />
+            <TagsSection tags={data.tags} />
+          </aside>
         </div>
-      </section>
+      </ErrorBoundary>
     </AppShell>
-  )
+  );
 }
