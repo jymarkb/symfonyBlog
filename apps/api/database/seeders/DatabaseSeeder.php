@@ -20,12 +20,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::where('email', 'test@example.com')->first()
+        $user = User::where('email', 'dev.jymarkb@gmail.com')->first()
             ?? User::factory()->create([
-                'email' => 'test@example.com',
-                'handle' => '@jymb',
-                'display_name' => 'Jymb',
-                'role' => User::ROLE_ADMIN,
+                'email' => 'dev.jymarkb@gmail.com',
+                'handle' => '@jymarkb',
+                'display_name' => 'Jymark',
+                'role' => User::ROLE_USER,
             ]);
 
         $tags = collect(['AI Agents', 'Infrastructure', 'Engineering', 'Testing', 'Workflow'])
@@ -64,6 +64,7 @@ class DatabaseSeeder extends Seeder
                 ["I rewrote my note-taking system for the fifth time. Here's what stuck.", 'workflow'],
                 ['Vector databases are a deployment problem, not a math problem.', 'infrastructure'],
                 ['A short defense of boring stacks.', 'engineering'],
+                ['The only diagram I ever draw before writing code.', 'engineering'],
             ])->map(function (array $sample) use ($tags, $user) {
                 [$title, $tagSlug] = $sample;
 
