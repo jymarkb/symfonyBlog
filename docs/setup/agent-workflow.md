@@ -412,7 +412,7 @@ Rules:
 - Follow existing Laravel guard, middleware, and API response patterns.
 - Follow `docs/setup/security.md` backend conventions: auth gating, `$fillable` discipline, `$hidden`, input validation rules, throttle on mutations, Resource field whitelist.
 - Controllers must only contain the five RESTful methods: `index`, `show`, `store`, `update`, `destroy`. Do not add custom action methods (e.g. `comments()`, `history()`). If a resource needs its own endpoint, create a separate dedicated controller for it.
-- Controllers must not contain business logic. Validate input via FormRequest, call a service method, return a resource. That is all.
+- Controllers must not contain business logic. Validate input via FormRequest, call a service method, return a resource. That is all. No `Model::query()`, no `where()` chains, no Eloquent calls of any kind inside a controller — read or write. There is no "simple enough to skip the service" exception.
 - Models must not contain business logic. Models own columns (`$fillable`, `$hidden`, `casts()`), relationships, and nothing else.
 - Any logic that decides what to do with data belongs in a service under `app/Services/<Domain>/`. Create the service if it does not exist.
 - When adding, removing, or changing `/api/v1` routes, update Pest route coverage in `apps/api/tests/Feature/Routes/ApiRouteCoverageTest.php`.
