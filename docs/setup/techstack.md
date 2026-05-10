@@ -46,10 +46,10 @@ This document is the primary reference for any agent planning or implementing wo
 - Business logic lives in `apps/api/app/Services/`
 - Services are organised by domain: `Services/Profile/`, `Services/Post/`, `Services/Auth/`, etc.
 - Services are injectable via Laravel's service container
-- **Controllers are thin** — they validate input (via FormRequest), call one service method, and return a resource. No business logic inside a controller.
+- **Controllers are thin** — they validate input (via FormRequest), call one service method, and return a resource. That is all. No Eloquent queries, no `Model::query()`, no `where()` chains inside a controller — ever.
 - **Models are thin** — they define columns (`$fillable`, `$hidden`, `casts()`), relationships, and nothing else. No business logic inside a model.
-- Any logic that decides *what* to do with data (auto-set `published_at`, wrap in a transaction, fire an event, sync a pivot) belongs in a service method.
-- Every controller that writes data must go through a service. Read-only controllers (single-table, no logic) may query the model directly only when no transformation or decision is needed.
+- Any logic that decides *what* to do with data (filtering, sorting, eager loading, pagination, auto-setting `published_at`, firing an event, syncing a pivot) belongs in a service method.
+- Every controller — read or write — must call a service. There is no "simple enough to skip the service" exception.
 
 ### Repository conventions
 

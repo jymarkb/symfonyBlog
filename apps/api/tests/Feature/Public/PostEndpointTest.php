@@ -68,9 +68,28 @@ it('filters published posts by tag slug', function () {
         ->assertJsonPath('data.0.tags.0.slug', 'ai-agents');
 });
 
+it('filters published posts by featured flag', function () {
+    Post::factory()->featured()->create([
+        'slug' => 'featured-post',
+    ]);
+
+    Post::factory()->create([
+        'slug' => 'regular-post',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $this->getJson('/api/v1/posts?featured=true')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.slug', 'featured-post')
+        ->assertJsonPath('data.0.is_featured', true);
+});
+
 it('returns 404 for draft post detail', function () {
     Post::factory()->draft()->create(['slug' => 'draft-post']);
 
     $this->getJson('/api/v1/posts/draft-post')
         ->assertNotFound();
 });
+
