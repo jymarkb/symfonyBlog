@@ -7,16 +7,16 @@ import type {
 } from "@/features/blog/blogTypes";
 
 export async function fetchFeaturedPosts(): Promise<PostSummary[]> {
-  const response = await apiRequest<PostsResponse>("/api/v1/posts?featured=true");
+  const response = await apiRequest<PostsResponse>("/posts?featured=true");
   return response.data;
 }
 
 export async function fetchLatestPosts(): Promise<PostSummary[]> {
-  const response = await apiRequest<PostsResponse>("/api/v1/posts?per_page=6");
+  const response = await apiRequest<PostsResponse>("/posts?per_page=6");
   return response.data;
 }
 
 export async function fetchTags(): Promise<PostTag[]> {
-  const response = await apiRequest<TagsResponse>("/api/v1/tags");
+  const response = await apiRequest<TagsResponse>("/tags");
   return response.data;
 }
