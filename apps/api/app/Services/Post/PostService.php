@@ -23,7 +23,8 @@ class PostService
                 $query->where('is_featured', filter_var($request->query('featured'), FILTER_VALIDATE_BOOLEAN));
             })
             ->when($request->filled('search'), function ($query) use ($request) {
-                $search = '%' . strtolower(substr($request->string('search')->toString(), 0, 100)) . '%';
+                $term = strtolower(substr($request->string('search')->toString(), 0, 100));
+                $search = '%' . addcslashes($term, '%_') . '%';
 
                 $query->where(function ($searchQuery) use ($search) {
                     $searchQuery
