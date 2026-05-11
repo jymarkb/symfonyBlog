@@ -457,7 +457,8 @@
 }
 .chip {
   font-family: var(--font-mono); font-size: 12px;
-  padding: 6px 12px;
+  padding: 10px 16px;
+  min-height: 44px;
   border: 1px solid var(--rule);
   border-radius: 999px;
   color: var(--ink-3);
