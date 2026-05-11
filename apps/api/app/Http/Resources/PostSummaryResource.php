@@ -11,14 +11,12 @@ class PostSummaryResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
             'title' => $this->title,
             'slug' => $this->slug,
             'excerpt' => $this->excerpt,
             'cover_image' => $this->cover_image,
             'reading_time' => $this->reading_time,
             'is_featured' => $this->is_featured,
-            'status' => $this->status,
             'published_at' => $this->published_at?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),

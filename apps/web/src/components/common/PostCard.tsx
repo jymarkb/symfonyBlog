@@ -7,7 +7,11 @@ type Props = {
 export function PostRow({ post }: Props) {
   const dateDisplay =
     post.published_at != null
-      ? post.published_at.slice(0, 10).replace(/-/g, "·")
+      ? new Date(post.published_at).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
       : "";
 
   const readingTimeDisplay =
@@ -15,31 +19,27 @@ export function PostRow({ post }: Props) {
 
   return (
     <article className="post-row">
-      <div className="post-date">{dateDisplay}</div>
-
-      <div className="post-body">
-        <h3>
-          <a href={`/blog/@${post.slug}`}>{post.title}</a>
+      <div className="post-row-body">
+        <h3 className="post-row-title">
+          <a href={`/blog/${post.slug}`}>{post.title}</a>
         </h3>
-
-        {post.excerpt != null && <p className="dek">{post.excerpt}</p>}
-
+        {post.excerpt != null && (
+          <p className="post-row-dek">{post.excerpt}</p>
+        )}
         {(post.tags ?? []).length > 0 && (
-          <div className="row-meta">
+          <div className="post-row-tags">
             {(post.tags ?? []).map((tag, index) => (
-              <span key={tag.id} className={`tag t-${(index % 5) + 1}`}>
-                {tag.name}
-              </span>
+              <span key={tag.id} className={`tag t-${(index % 5) + 1}`}>{tag.name}</span>
             ))}
           </div>
         )}
       </div>
-
-      {readingTimeDisplay != null ? (
-        <div className="post-time">{readingTimeDisplay}</div>
-      ) : (
-        <div className="post-time" />
-      )}
+      <div className="post-row-aside">
+        <span className="post-row-date">{dateDisplay}</span>
+        {readingTimeDisplay != null && (
+          <span className="post-row-time">{readingTimeDisplay}</span>
+        )}
+      </div>
     </article>
   );
 }

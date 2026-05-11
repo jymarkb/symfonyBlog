@@ -7,16 +7,36 @@ import type {
 } from "@/features/blog/blogTypes";
 
 export async function fetchFeaturedPosts(): Promise<PostSummary[]> {
-  const response = await apiRequest<PostsResponse>("/api/v1/posts?featured=true");
+  const response = await apiRequest<PostsResponse>("/posts?featured=true");
   return response.data;
 }
 
-export async function fetchLatestPosts(): Promise<PostSummary[]> {
-  const response = await apiRequest<PostsResponse>("/api/v1/posts?per_page=6");
-  return response.data;
+export async function fetchLatestPosts(): Promise<{ posts: PostSummary[]; total: number }> {
+  const response = await apiRequest<PostsResponse>("/posts?per_page=6");
+  return { posts: response.data, total: response.meta.total };
 }
 
 export async function fetchTags(): Promise<PostTag[]> {
-  const response = await apiRequest<TagsResponse>("/api/v1/tags");
+  const response = await apiRequest<TagsResponse>("/tags");
   return response.data;
+}
+
+export async function fetchArchivePosts(params?: {
+  search?: string;
+  tag?: string;
+  page?: number;
+  per_page?: number;
+}): Promise<{ posts: PostSummary[]; total: number; lastPage: number; currentPage: number }> {
+  const qs = new URLSearchParams();
+  if (params?.search) qs.set("search", params.search);
+  if (params?.tag) qs.set("tag", params.tag);
+  if (params?.page !== undefined) qs.set("page", String(params.page));
+  if (params?.per_page !== undefined) qs.set("per_page", String(params.per_page));
+  const response = await apiRequest<PostsResponse>("/posts?" + qs.toString());
+  return {
+    posts: response.data,
+    total: response.meta.total,
+    lastPage: response.meta.last_page,
+    currentPage: response.meta.current_page,
+  };
 }

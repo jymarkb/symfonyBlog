@@ -13,9 +13,13 @@ class PostStarController extends Controller
     {
         $post = $this->publishedPost($slug);
 
-        $post->stars()->firstOrCreate([
-            'user_id' => $request->user()->id,
-        ]);
+        $existing = $post->stars()->where('user_id', $request->user()->id)->first();
+
+        if (! $existing) {
+            $star = $post->stars()->make();
+            $star->user_id = $request->user()->id;
+            $star->save();
+        }
 
         return response()->json([], 201);
     }

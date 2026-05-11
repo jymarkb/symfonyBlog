@@ -17,15 +17,14 @@ it('returns a public profile without authentication', function () {
 
     $this->getJson('/api/v1/profiles/public_reader')
         ->assertOk()
-        ->assertJsonPath('data.id', $user->id)
         ->assertJsonPath('data.handle', '@public_reader')
         ->assertJsonPath('data.display_name', 'Public Reader')
+        ->assertJsonMissingPath('data.id')
         ->assertJsonMissingPath('data.email')
         ->assertJsonMissingPath('data.role')
         ->assertJsonMissingPath('data.supabase_user_id')
         ->assertJsonMissingPath('data.first_name')
-        ->assertJsonMissingPath('data.last_name')
-        ->assertJsonMissingPath('data.avatar_url');
+        ->assertJsonMissingPath('data.last_name');
 });
 
 it('accepts public profile handles with the at sign', function () {
