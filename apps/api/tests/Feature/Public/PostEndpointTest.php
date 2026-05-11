@@ -156,6 +156,54 @@ it('returns paginated response with meta and links envelope', function () {
     expect($meta['last_page'])->toBeGreaterThanOrEqual(2);
 });
 
+it('filters posts by search term matching title', function () {
+    Post::factory()->create([
+        'title' => 'unique-zephyr-title-xyz',
+        'slug' => 'unique-zephyr-title-xyz',
+        'excerpt' => 'A normal excerpt without special terms.',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    Post::factory()->create([
+        'title' => 'An entirely different post title',
+        'slug' => 'different-post-title',
+        'excerpt' => 'Another normal excerpt.',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $response = $this->getJson('/api/v1/posts?search=unique-zephyr-title-xyz')
+        ->assertOk()
+        ->assertJsonCount(1, 'data');
+
+    $response->assertJsonPath('data.0.slug', 'unique-zephyr-title-xyz');
+});
+
+it('filters posts by search term matching excerpt', function () {
+    Post::factory()->create([
+        'title' => 'A normal post title',
+        'slug' => 'normal-post-title',
+        'excerpt' => 'unique-zephyr-excerpt-xyz is the excerpt here.',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    Post::factory()->create([
+        'title' => 'Another post title',
+        'slug' => 'another-post-title',
+        'excerpt' => 'This excerpt has nothing special in it.',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $response = $this->getJson('/api/v1/posts?search=unique-zephyr-excerpt-xyz')
+        ->assertOk()
+        ->assertJsonCount(1, 'data');
+
+    $response->assertJsonPath('data.0.slug', 'normal-post-title');
+});
+
 it('returns correct response shape and excludes sensitive fields for featured posts', function () {
     Post::factory()->featured()->create();
 
