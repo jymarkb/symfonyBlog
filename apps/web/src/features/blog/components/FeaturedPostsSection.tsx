@@ -9,16 +9,10 @@ export function FeaturedPostsSection({ initialPosts }: Props) {
   const isLoading = initialPosts === undefined;
   const post = initialPosts?.[0];
 
-  const monthYear = new Date().toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  });
-
   return (
     <section>
       <div className="section-head">
         <h2>Featured</h2>
-        <span className="count">{monthYear}</span>
       </div>
       {(isLoading || !post) && (
         <article className="featured">
