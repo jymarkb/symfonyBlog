@@ -558,3 +558,6 @@
 @media (max-width: 720px) {
   .arc-item { grid-template-columns: 1fr; gap: 4px; }
 }
+@media (max-width: 400px) {
+  .search { min-width: 0; width: 100%; }
+}
