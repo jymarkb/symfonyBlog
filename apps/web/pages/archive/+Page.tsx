@@ -16,6 +16,7 @@ export default function Page() {
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const hasMounted = useRef(false);
 
@@ -26,6 +27,9 @@ export default function Page() {
         const result = await fetchArchivePosts(params);
         setPosts(result.posts);
         setTotal(result.total);
+        setError(null);
+      } catch {
+        setError('Failed to load posts. Please try again.');
       } finally {
         setIsLoading(false);
       }
@@ -60,6 +64,9 @@ export default function Page() {
           </div>
         </section>
         <div className="shell">
+          {error != null && (
+            <p className="load-error">{error}</p>
+          )}
           <ArchiveStatsStrip posts={posts} total={total} isLoading={isLoading} />
           <ArchiveSection posts={posts} isLoading={isLoading} />
         </div>
