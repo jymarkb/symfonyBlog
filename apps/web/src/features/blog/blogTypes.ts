@@ -72,3 +72,11 @@ export type HomePageData = {
   totalPosts: number;
   tags: PostTag[];
 };
+
+export type ArchivePageData = {
+  posts: PostSummary[];
+  total: number;
+  lastPage: number;
+  currentPage: number;
+  tags: PostTag[];
+};
