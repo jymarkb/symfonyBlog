@@ -11,9 +11,9 @@ export async function fetchFeaturedPosts(): Promise<PostSummary[]> {
   return response.data;
 }
 
-export async function fetchLatestPosts(): Promise<PostSummary[]> {
+export async function fetchLatestPosts(): Promise<{ posts: PostSummary[]; total: number }> {
   const response = await apiRequest<PostsResponse>("/posts?per_page=6");
-  return response.data;
+  return { posts: response.data, total: response.meta.total };
 }
 
 export async function fetchTags(): Promise<PostTag[]> {

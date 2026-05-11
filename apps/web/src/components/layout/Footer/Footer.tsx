@@ -29,8 +29,7 @@ export function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <span>© 2021-2026 jymb · CC BY-NC 4.0</span>
-          <span>built by hand · last deploy 2d ago</span>
+          <span>© 2021–2026 jymb</span>
         </div>
       </div>
     </footer>

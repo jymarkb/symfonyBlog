@@ -69,5 +69,6 @@ export type TagsResponse = {
 export type HomePageData = {
   featuredPosts: PostSummary[];
   latestPosts: PostSummary[];
+  totalPosts: number;
   tags: PostTag[];
 };
