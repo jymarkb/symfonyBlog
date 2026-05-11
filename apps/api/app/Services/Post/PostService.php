@@ -23,12 +23,12 @@ class PostService
                 $query->where('is_featured', filter_var($request->query('featured'), FILTER_VALIDATE_BOOLEAN));
             })
             ->when($request->filled('search'), function ($query) use ($request) {
-                $search = substr($request->string('search')->toString(), 0, 100);
+                $search = '%' . strtolower(substr($request->string('search')->toString(), 0, 100)) . '%';
 
                 $query->where(function ($searchQuery) use ($search) {
                     $searchQuery
-                        ->where('title', 'like', '%' . $search . '%')
-                        ->orWhere('excerpt', 'like', '%' . $search . '%');
+                        ->whereRaw('LOWER(title) LIKE ?', [$search])
+                        ->orWhereRaw('LOWER(excerpt) LIKE ?', [$search]);
                 });
             })
             ->latest('published_at')
