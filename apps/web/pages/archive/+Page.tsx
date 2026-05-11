@@ -62,7 +62,10 @@ export default function Page() {
       </section>
       <div className="shell">
         {error != null && (
-          <p className="load-error" role="status" aria-live="polite">{error}</p>
+          <div className="load-error" role="status" aria-live="polite">
+            <span>{error}</span>
+            <button onClick={() => void load({ search, tag: activeTag ?? undefined, per_page: 50 })}>Retry</button>
+          </div>
         )}
         <ArchiveStatsStrip posts={posts} total={total} isLoading={isLoading} />
         <ArchiveSection posts={posts} isLoading={isLoading} />
