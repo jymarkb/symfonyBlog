@@ -106,14 +106,12 @@ it('returns correct response shape and excludes sensitive fields for post listin
         'data' => [
             '*' => [
                 'id',
-                'user_id',
                 'title',
                 'slug',
                 'excerpt',
                 'cover_image',
                 'reading_time',
                 'is_featured',
-                'status',
                 'published_at',
                 'created_at',
                 'updated_at',
@@ -129,6 +127,8 @@ it('returns correct response shape and excludes sensitive fields for post listin
     ]);
 
     $response
+        ->assertJsonMissingPath('data.0.user_id')
+        ->assertJsonMissingPath('data.0.status')
         ->assertJsonMissingPath('data.0.role')
         ->assertJsonMissingPath('data.0.supabase_user_id')
         ->assertJsonMissingPath('data.0.author.role')
@@ -166,14 +166,12 @@ it('returns correct response shape and excludes sensitive fields for featured po
         'data' => [
             '*' => [
                 'id',
-                'user_id',
                 'title',
                 'slug',
                 'excerpt',
                 'cover_image',
                 'reading_time',
                 'is_featured',
-                'status',
                 'published_at',
                 'created_at',
                 'updated_at',
@@ -189,6 +187,8 @@ it('returns correct response shape and excludes sensitive fields for featured po
     ]);
 
     $response
+        ->assertJsonMissingPath('data.0.user_id')
+        ->assertJsonMissingPath('data.0.status')
         ->assertJsonMissingPath('data.0.role')
         ->assertJsonMissingPath('data.0.supabase_user_id')
         ->assertJsonMissingPath('data.0.author.role')
