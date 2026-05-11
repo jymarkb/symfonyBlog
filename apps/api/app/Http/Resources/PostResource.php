@@ -10,7 +10,9 @@ class PostResource extends PostSummaryResource
     {
         return [
             ...parent::toArray($request),
-            'body' => $this->body,
+            'user_id' => $this->user_id,
+            'status'  => $this->status,
+            'body'    => $this->body,
         ];
     }
 }

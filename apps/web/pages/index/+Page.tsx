@@ -7,6 +7,7 @@ import { FeaturedPostsSection } from "@/features/blog/components/FeaturedPostsSe
 import { LatestPostsSection } from "@/features/blog/components/LatestPostsSection";
 import { AboutCard } from "@/features/blog/components/AboutCard";
 import { CurrentlyReadingBlock } from "@/features/blog/components/CurrentlyReadingBlock";
+import { ListeningNowBlock } from "@/features/blog/components/ListeningNowBlock";
 import { RecentProjectsBlock } from "@/features/blog/components/RecentProjectsBlock";
 import { TagsSection } from "@/features/blog/components/TagsSection";
 
@@ -15,14 +16,15 @@ export default function Page() {
   return (
     <AppShell>
       <ErrorBoundary>
-        <HeroSection />
+        <HeroSection total={data.totalPosts} />
         <div className="shell blog-main">
           <div>
             <FeaturedPostsSection initialPosts={data.featuredPosts} />
-            <LatestPostsSection initialPosts={data.latestPosts} />
+            <LatestPostsSection initialPosts={data.latestPosts} total={data.totalPosts} />
           </div>
           <aside className="sidebar">
             <AboutCard />
+            <ListeningNowBlock />
             <CurrentlyReadingBlock />
             <RecentProjectsBlock />
             <TagsSection tags={data.tags} />

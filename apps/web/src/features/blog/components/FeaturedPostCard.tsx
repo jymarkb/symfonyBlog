@@ -22,18 +22,15 @@ export function FeaturedPostCard({ post }: Props) {
   const authorInitial =
     (post.author.display_name ?? post.author.handle).charAt(0).toUpperCase();
 
+  const hasImage = post.cover_image != null;
+
   return (
-    <article className="featured">
-      {post.cover_image != null ? (
+    <article className={`featured${hasImage ? '' : ' featured--no-image'}`}>
+      {hasImage && (
         <img
           className="featured-img"
-          src={post.cover_image}
+          src={post.cover_image!}
           alt={post.title}
-        />
-      ) : (
-        <div
-          className="featured-img img-placeholder"
-          data-label="Cover image"
         />
       )}
 
@@ -41,7 +38,7 @@ export function FeaturedPostCard({ post }: Props) {
         <span className="eyebrow">{eyebrow}</span>
 
         <h3>
-          <a href={`/blog/@${post.slug}`}>{post.title}</a>
+          <a href={`/blog/${post.slug}`}>{post.title}</a>
         </h3>
 
         {post.excerpt != null && <p className="dek">{post.excerpt}</p>}
