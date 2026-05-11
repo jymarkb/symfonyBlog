@@ -64,6 +64,7 @@ export function ArchiveFilterBar({
       <label className="search">
         <input
           type="search"
+          aria-label="Search essays"
           placeholder="Search essays…"
           value={inputValue}
           onChange={handleInputChange}

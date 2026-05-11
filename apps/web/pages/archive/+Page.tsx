@@ -3,7 +3,6 @@ import { useData } from 'vike-react/useData';
 import type { ArchivePageData } from '@/features/blog/blogTypes';
 import { fetchArchivePosts } from '@/features/blog/api/blogApi';
 import { AppShell } from '@/layouts/AppShell';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ArchiveFilterBar } from '@/features/blog/components/ArchiveFilterBar';
 import ArchiveSection from '@/features/blog/components/ArchiveSection';
 import ArchiveStatsStrip from '@/features/blog/components/ArchiveStatsStrip';
@@ -47,29 +46,27 @@ export default function Page() {
 
   return (
     <AppShell>
-      <ErrorBoundary>
-        <section className="page-head">
-          <div className="shell">
-            <span className="eyebrow">Archive</span>
-            <h1>Every essay, <em>every idea</em></h1>
-            <p className="lede">A complete index of everything published here — searchable, filterable, and grouped by year.</p>
-            <ArchiveFilterBar
-              tags={data.tags}
-              activeTag={activeTag}
-              searchValue={search}
-              onTagChange={setActiveTag}
-              onSearchChange={setSearch}
-            />
-          </div>
-        </section>
+      <section className="page-head">
         <div className="shell">
-          {error != null && (
-            <p className="load-error" role="status" aria-live="polite">{error}</p>
-          )}
-          <ArchiveStatsStrip posts={posts} total={total} isLoading={isLoading} />
-          <ArchiveSection posts={posts} isLoading={isLoading} />
+          <span className="eyebrow">Archive</span>
+          <h1>Every essay, <em>every idea</em></h1>
+          <p className="lede">A complete index of everything published here — searchable, filterable, and grouped by year.</p>
+          <ArchiveFilterBar
+            tags={data.tags}
+            activeTag={activeTag}
+            searchValue={search}
+            onTagChange={setActiveTag}
+            onSearchChange={setSearch}
+          />
         </div>
-      </ErrorBoundary>
+      </section>
+      <div className="shell">
+        {error != null && (
+          <p className="load-error" role="status" aria-live="polite">{error}</p>
+        )}
+        <ArchiveStatsStrip posts={posts} total={total} isLoading={isLoading} />
+        <ArchiveSection posts={posts} isLoading={isLoading} />
+      </div>
     </AppShell>
   );
 }
