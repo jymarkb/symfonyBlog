@@ -21,7 +21,7 @@ class RequirePermission
         }
 
         if (! ($this->permissions->permissionsFor($user)[$permission] ?? false)) {
-            throw new AuthorizationException("Requires permission: {$permission}.");
+            throw new AuthorizationException('Forbidden.');
         }
 
         return $next($request);
