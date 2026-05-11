@@ -536,8 +536,8 @@
 }
 .arc-title:hover { color: var(--accent-ink); }
 .arc-title .tags-inline {
-  display: inline-flex; gap: 4px; margin-left: 8px;
-  vertical-align: middle;
+  display: flex; gap: 4px; flex-wrap: wrap;
+  margin-top: 6px;
 }
 .arc-meta {
   font-family: var(--font-mono);
