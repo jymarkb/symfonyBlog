@@ -392,3 +392,169 @@
 
 /* Tags cloud */
 .tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* =====================================================
+   ARCHIVE PAGE
+   ===================================================== */
+
+/* Page header */
+.page-head { padding: 56px 0 36px; border-bottom: 1px solid var(--rule); }
+.page-head h1 {
+  font-family: var(--font-sans);
+  font-size: 56px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 0 0 14px;
+  line-height: 1.05;
+}
+.page-head h1 em {
+  font-family: var(--font-sans); font-weight: 400; color: var(--accent-ink);
+}
+.page-head .lede {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  color: var(--ink-3);
+  max-width: 60ch;
+  margin: 0 0 28px;
+  line-height: 1.55;
+}
+
+/* Toolbar — search + filter chips row */
+.toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.search {
+  flex: 1; min-width: 280px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--paper);
+  transition: border-color 0.15s;
+}
+.search:focus-within { border-color: var(--accent); }
+.search input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  background: transparent;
+  color: var(--ink);
+}
+.search kbd {
+  font-family: var(--font-mono); font-size: 11px;
+  padding: 2px 6px; border: 1px solid var(--rule); border-radius: 3px;
+  color: var(--ink-4); background: var(--paper-2);
+}
+
+/* Filter chips */
+.filter-chips {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.chip {
+  font-family: var(--font-mono); font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--ink-3);
+  background: var(--paper);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chip:hover { background: var(--paper-2); }
+.chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* Stats strip */
+.stats {
+  display: flex; gap: 32px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--ink-4);
+}
+.stats .stat { display: flex; flex-direction: column; gap: 2px; }
+.stats .stat .num { font-family: var(--font-sans); font-size: 22px; font-weight: 600; color: var(--ink); letter-spacing: -0.02em; }
+
+/* Archive year groups */
+.archive {
+  padding: 40px 0 0;
+  display: grid;
+  gap: 56px;
+}
+.year-block { display: grid; grid-template-columns: 120px 1fr; gap: 40px; align-items: start; }
+.year-label {
+  position: sticky; top: 88px;
+  font-family: var(--font-sans);
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  line-height: 0.9;
+}
+.year-label .count {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-4);
+  font-weight: 500;
+  letter-spacing: 0;
+  margin-top: 6px;
+}
+
+/* Archive item list */
+.arc-list { display: grid; gap: 0; }
+.arc-item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 24px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--rule-2);
+  align-items: baseline;
+  transition: padding-left 0.2s, background 0.15s;
+}
+.arc-item:hover {
+  background: color-mix(in oklab, var(--paper-2) 60%, transparent);
+  padding-left: 8px;
+}
+.arc-item:last-child { border-bottom: 0; }
+.arc-date {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-4);
+}
+.arc-title {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.arc-title:hover { color: var(--accent-ink); }
+.arc-title .tags-inline {
+  display: inline-flex; gap: 4px; margin-left: 8px;
+  vertical-align: middle;
+}
+.arc-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-4);
+  display: flex; gap: 12px; align-items: center;
+  white-space: nowrap;
+}
+.arc-meta .comment-count {
+  display: inline-flex; align-items: center; gap: 3px;
+}
+
+/* Responsive — archive */
+@media (max-width: 760px) {
+  .year-block { grid-template-columns: 1fr; gap: 16px; }
+  .page-head h1 { font-size: 40px; }
+}
+@media (max-width: 720px) {
+  .arc-item { grid-template-columns: 1fr; gap: 4px; }
+}
