@@ -20,3 +20,23 @@ export async function fetchTags(): Promise<PostTag[]> {
   const response = await apiRequest<TagsResponse>("/tags");
   return response.data;
 }
+
+export async function fetchArchivePosts(params?: {
+  search?: string;
+  tag?: string;
+  page?: number;
+  per_page?: number;
+}): Promise<{ posts: PostSummary[]; total: number; lastPage: number; currentPage: number }> {
+  const qs = new URLSearchParams();
+  if (params?.search) qs.set("search", params.search);
+  if (params?.tag) qs.set("tag", params.tag);
+  if (params?.page !== undefined) qs.set("page", String(params.page));
+  if (params?.per_page !== undefined) qs.set("per_page", String(params.per_page));
+  const response = await apiRequest<PostsResponse>("/posts?" + qs.toString());
+  return {
+    posts: response.data,
+    total: response.meta.total,
+    lastPage: response.meta.last_page,
+    currentPage: response.meta.current_page,
+  };
+}
