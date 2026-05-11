@@ -204,6 +204,56 @@ it('filters posts by search term matching excerpt', function () {
     $response->assertJsonPath('data.0.slug', 'normal-post-title');
 });
 
+it('returns empty data array when search matches no posts', function () {
+    Post::factory()->create([
+        'title' => 'A published post about Laravel',
+        'slug' => 'published-laravel-post',
+        'excerpt' => 'Some excerpt here.',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $this->getJson('/api/v1/posts?search=xyzzy-nomatch-term')
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+});
+
+it('filters posts by featured=false', function () {
+    Post::factory()->featured()->create([
+        'slug' => 'featured-post',
+    ]);
+
+    Post::factory()->create([
+        'slug' => 'non-featured-post',
+        'status' => 'published',
+        'published_at' => now(),
+        'is_featured' => false,
+    ]);
+
+    $this->getJson('/api/v1/posts?featured=false')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.slug', 'non-featured-post')
+        ->assertJsonPath('data.0.is_featured', false);
+});
+
+it('clamps per_page to minimum of 1 when given zero', function () {
+    Post::factory()->count(2)->create([
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $response = $this->getJson('/api/v1/posts?per_page=0')
+        ->assertOk();
+
+    expect($response->json('meta.per_page'))->toBe(1);
+});
+
+it('returns 200 for guest access to post listing', function () {
+    $this->getJson('/api/v1/posts')
+        ->assertOk();
+});
+
 it('returns correct response shape and excludes sensitive fields for featured posts', function () {
     Post::factory()->featured()->create();
 
