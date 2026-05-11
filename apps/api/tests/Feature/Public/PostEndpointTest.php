@@ -156,10 +156,10 @@ it('returns paginated response with meta and links envelope', function () {
     expect($meta['last_page'])->toBeGreaterThanOrEqual(2);
 });
 
-it('filters posts by search term matching title', function () {
+it('filters posts by search term matching title case-insensitively', function () {
     Post::factory()->create([
-        'title' => 'unique-zephyr-title-xyz',
-        'slug' => 'unique-zephyr-title-xyz',
+        'title' => 'VectorSearch Fundamentals',
+        'slug' => 'vector-search-fundamentals',
         'excerpt' => 'A normal excerpt without special terms.',
         'status' => 'published',
         'published_at' => now(),
@@ -173,11 +173,11 @@ it('filters posts by search term matching title', function () {
         'published_at' => now(),
     ]);
 
-    $response = $this->getJson('/api/v1/posts?search=unique-zephyr-title-xyz')
+    $response = $this->getJson('/api/v1/posts?search=vector')
         ->assertOk()
         ->assertJsonCount(1, 'data');
 
-    $response->assertJsonPath('data.0.slug', 'unique-zephyr-title-xyz');
+    $response->assertJsonPath('data.0.slug', 'vector-search-fundamentals');
 });
 
 it('filters posts by search term matching excerpt', function () {
