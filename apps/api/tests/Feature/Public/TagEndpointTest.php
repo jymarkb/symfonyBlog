@@ -21,7 +21,9 @@ it('returns 200 with correct data structure and field shape', function () {
         ])
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.name', 'Laravel')
-        ->assertJsonPath('data.0.slug', 'laravel');
+        ->assertJsonPath('data.0.slug', 'laravel')
+        ->assertJsonMissingPath('data.0.role')
+        ->assertJsonMissingPath('data.0.supabase_user_id');
 });
 
 it('returns tags ordered alphabetically by name', function () {
