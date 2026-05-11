@@ -57,7 +57,6 @@ export default function Page() {
               tags={data.tags}
               activeTag={activeTag}
               searchValue={search}
-              total={total}
               onTagChange={setActiveTag}
               onSearchChange={setSearch}
             />
@@ -65,7 +64,7 @@ export default function Page() {
         </section>
         <div className="shell">
           {error != null && (
-            <p className="load-error">{error}</p>
+            <p className="load-error" role="status" aria-live="polite">{error}</p>
           )}
           <ArchiveStatsStrip posts={posts} total={total} isLoading={isLoading} />
           <ArchiveSection posts={posts} isLoading={isLoading} />
