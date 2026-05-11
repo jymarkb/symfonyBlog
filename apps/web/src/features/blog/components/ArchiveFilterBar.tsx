@@ -5,7 +5,6 @@ type Props = {
   tags: PostTag[];
   activeTag: string | null;
   searchValue: string;
-  total: number;
   onTagChange: (slug: string | null) => void;
   onSearchChange: (value: string) => void;
 };
