@@ -93,3 +93,106 @@ it('returns 404 for draft post detail', function () {
         ->assertNotFound();
 });
 
+it('returns correct response shape and excludes sensitive fields for post listing', function () {
+    Post::factory()->create([
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $response = $this->getJson('/api/v1/posts')
+        ->assertOk();
+
+    $response->assertJsonStructure([
+        'data' => [
+            '*' => [
+                'id',
+                'user_id',
+                'title',
+                'slug',
+                'excerpt',
+                'cover_image',
+                'reading_time',
+                'is_featured',
+                'status',
+                'published_at',
+                'created_at',
+                'updated_at',
+                'author' => [
+                    'id',
+                    'display_name',
+                    'handle',
+                    'avatar_url',
+                ],
+                'tags',
+            ],
+        ],
+    ]);
+
+    $response
+        ->assertJsonMissingPath('data.0.role')
+        ->assertJsonMissingPath('data.0.supabase_user_id')
+        ->assertJsonMissingPath('data.0.author.role')
+        ->assertJsonMissingPath('data.0.author.supabase_user_id')
+        ->assertJsonMissingPath('data.0.body');
+});
+
+it('returns paginated response with meta and links envelope', function () {
+    // Default per_page is 12; seed 14 posts to span at least 2 pages
+    Post::factory()->count(14)->create([
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $response = $this->getJson('/api/v1/posts')
+        ->assertOk();
+
+    $response->assertJsonStructure([
+        'meta' => ['current_page', 'per_page', 'total', 'last_page'],
+        'links' => ['first', 'last', 'prev', 'next'],
+    ]);
+
+    $meta = $response->json('meta');
+    expect($meta['total'])->toBeGreaterThanOrEqual(14);
+    expect($meta['last_page'])->toBeGreaterThanOrEqual(2);
+});
+
+it('returns correct response shape and excludes sensitive fields for featured posts', function () {
+    Post::factory()->featured()->create();
+
+    $response = $this->getJson('/api/v1/posts?featured=true')
+        ->assertOk();
+
+    $response->assertJsonStructure([
+        'data' => [
+            '*' => [
+                'id',
+                'user_id',
+                'title',
+                'slug',
+                'excerpt',
+                'cover_image',
+                'reading_time',
+                'is_featured',
+                'status',
+                'published_at',
+                'created_at',
+                'updated_at',
+                'author' => [
+                    'id',
+                    'display_name',
+                    'handle',
+                    'avatar_url',
+                ],
+                'tags',
+            ],
+        ],
+    ]);
+
+    $response
+        ->assertJsonMissingPath('data.0.role')
+        ->assertJsonMissingPath('data.0.supabase_user_id')
+        ->assertJsonMissingPath('data.0.author.role')
+        ->assertJsonMissingPath('data.0.author.supabase_user_id')
+        ->assertJsonMissingPath('data.0.body');
+});
+
