@@ -6,11 +6,11 @@ import {
 import type { HomePageData } from '@/features/blog/blogTypes';
 
 export async function data(): Promise<HomePageData> {
-  const [featuredPosts, latestPosts, tags] = await Promise.all([
+  const [featuredPosts, { posts: latestPosts, total: totalPosts }, tags] = await Promise.all([
     fetchFeaturedPosts(),
     fetchLatestPosts(),
     fetchTags(),
   ]);
 
-  return { featuredPosts, latestPosts, tags };
+  return { featuredPosts, latestPosts, totalPosts, tags };
 }
