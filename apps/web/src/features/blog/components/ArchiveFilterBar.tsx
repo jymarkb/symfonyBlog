@@ -10,6 +10,7 @@ type Props = {
   onTagChange: (slug: string | null) => void;
   onYearChange: (year: number | null) => void;
   onSearchChange: (value: string) => void;
+  suggestedTags?: PostTag[];
 };
 
 export function ArchiveFilterBar({
@@ -21,6 +22,7 @@ export function ArchiveFilterBar({
   onTagChange,
   onYearChange,
   onSearchChange,
+  suggestedTags = [],
 }: Props) {
   const [inputValue, setInputValue] = useState(searchValue);
   const [tagOpen, setTagOpen] = useState(false);
@@ -266,6 +268,20 @@ export function ArchiveFilterBar({
           )}
         </div>
       </div>
+      {suggestedTags.length > 0 && (
+        <div className="suggested-tags">
+          <span className="suggested-tags-label">Suggested topics:</span>
+          {suggestedTags.map((tag) => (
+            <button
+              key={tag.slug}
+              className="filter-btn filter-btn--pill"
+              onClick={() => onTagChange(tag.slug)}
+            >
+              {tag.name}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
