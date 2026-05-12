@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\ReservedSlug;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -19,7 +20,7 @@ class UpdatePostRequest extends FormRequest
 
         return [
             'title' => ['sometimes', 'required', 'string', 'max:255'],
-            'slug' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('posts', 'slug')->ignore($postId)],
+            'slug' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('posts', 'slug')->ignore($postId), new ReservedSlug()],
             'excerpt' => ['sometimes', 'nullable', 'string', 'max:500'],
             'cover_image' => ['sometimes', 'nullable', 'url:https', 'max:2048'],
             'reading_time' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:65535'],
