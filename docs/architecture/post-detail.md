@@ -18,12 +18,12 @@ Top-level `/<slug>` was chosen over `/blog/<slug>` for SEO (shorter path, slug i
 
 ```text
 1. Design          done — design/post-v2.html ported to React components
-2. Backend         partial — GET /api/v1/posts/{slug} exists and returns PostDetailResource with body
-                             reserved slug validation not yet added
-                             cache layer not yet added
+2. Backend         done — GET /api/v1/posts/{slug} returns PostDetailResource with body
+                          reserved slug validation via app/Rules/ReservedSlug.php
+                          cache layer via PostRepository (posts.slug.{slug}, 10 min TTL)
 3. Wiring          done — pages/@slug/ route wired with SSR, BlockRenderer, PostRail, +Head.tsx
-4. Tests           partial — PostEndpointTest covers basic shape; detail assertions incomplete
-                             reserved slug rejection tests not yet added
+4. Tests           done — PostEndpointTest: detail shape, sensitive field guards, 404 cases
+                          AdminPostValidationTest: reserved slug rejection (store + update)
 ```
 
 ## Sections
@@ -31,15 +31,15 @@ Top-level `/<slug>` was chosen over `/blog/<slug>` for SEO (shorter path, slug i
 | Section | Design | Backend | Wiring | Tests |
 |---|---|---|---|---|
 | Page route (`pages/@slug/`) | n/a | n/a | ✅ | n/a |
-| SSR data fetch + 404 guard | n/a | ✅ | ✅ | ⏳ |
+| SSR data fetch + 404 guard | n/a | ✅ | ✅ | ✅ |
 | Left rail (author, stats, TOC stub, actions) | ✅ | ✅ | ✅ | n/a |
 | Post header (title, dek, cover) | ✅ | ✅ | ✅ | n/a |
 | Block body (`BlockRenderer`) | ✅ | ✅ | ✅ | n/a |
 | Post footer (tags, share row, stubs) | ✅ | ✅ | ✅ | n/a |
 | SEO Head (title, canonical, OG, JSON-LD) | ✅ | n/a | ✅ | n/a |
-| Reserved slug validation | n/a | ⏳ | n/a | ⏳ |
-| Cache layer (`posts.slug.{slug}`) | n/a | ⏳ | n/a | n/a |
-| Detail shape + sensitive field tests | n/a | ✅ | n/a | ⚠️ |
+| Reserved slug validation | n/a | ✅ | n/a | ✅ |
+| Cache layer (`posts.slug.{slug}`) | n/a | ✅ | n/a | n/a |
+| Detail shape + sensitive field tests | n/a | ✅ | n/a | ✅ |
 
 ## Deferred
 
