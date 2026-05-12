@@ -64,6 +64,11 @@ export function ArchiveFilterBar({
     const handleClick = (e: MouseEvent) => {
       if (tagRef.current && !tagRef.current.contains(e.target as Node)) setTagOpen(false);
       if (yearRef.current && !yearRef.current.contains(e.target as Node)) setYearOpen(false);
+      if (comboMenuRef.current && comboTriggerRef.current &&
+          !comboMenuRef.current.contains(e.target as Node) &&
+          !comboTriggerRef.current.contains(e.target as Node)) {
+        setComboOpen(false);
+      }
     };
     document.addEventListener('keydown', handleKey);
     document.addEventListener('mousedown', handleClick);

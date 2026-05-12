@@ -25,7 +25,7 @@ function getInitialYear(): number | null {
 
 function getInitialSearch(): string {
   if (typeof window === 'undefined') return '';
-  return new URLSearchParams(window.location.search).get('search') ?? '';
+  return (new URLSearchParams(window.location.search).get('search') ?? '').toLowerCase();
 }
 
 export default function Page() {
@@ -44,7 +44,7 @@ export default function Page() {
 
   const config = useConfig();
   config({
-    Head: search && total < 3
+    Head: search && !isLoading && total < 3
       ? <meta name="robots" content="noindex, follow" />
       : null,
   });
@@ -83,7 +83,7 @@ export default function Page() {
       hasMounted.current = true;
       return;
     }
-    void load({ search, tag: activeTag ?? undefined, year: activeYear ?? undefined, page: 1 });
+    void load({ search: search.toLowerCase(), tag: activeTag ?? undefined, year: activeYear ?? undefined, page: 1 });
   }, [search, activeTag, activeYear, load]);
 
   // Push ?tag and ?year to URL when filters change (skip first mount)
@@ -109,9 +109,14 @@ export default function Page() {
     else document.title = 'Archive · jymb.blog';
   }, [activeTag, activeYear, search]);
 
+  const handleTagChange = useCallback((slug: string | null) => {
+    setActiveTag(slug);
+    setSearch('');
+  }, []);
+
   const handleLoadMore = useCallback(() => {
     void load(
-      { search, tag: activeTag ?? undefined, year: activeYear ?? undefined, page: currentPage + 1 },
+      { search: search.toLowerCase(), tag: activeTag ?? undefined, year: activeYear ?? undefined, page: currentPage + 1 },
       true,
     );
   }, [load, search, activeTag, activeYear, currentPage]);
@@ -136,7 +141,7 @@ export default function Page() {
             activeTag={activeTag}
             activeYear={activeYear}
             searchValue={search}
-            onTagChange={setActiveTag}
+            onTagChange={handleTagChange}
             onYearChange={setActiveYear}
             onSearchChange={setSearch}
             suggestedTags={suggestedTags}
@@ -150,7 +155,7 @@ export default function Page() {
             <button onClick={() => void load({ search, tag: activeTag ?? undefined, year: activeYear ?? undefined, page: 1 })}>Retry</button>
           </div>
         )}
-        <ArchiveSection posts={posts} isLoading={isLoading} onTagChange={setActiveTag} />
+        <ArchiveSection posts={posts} isLoading={isLoading} onTagChange={handleTagChange} />
 
         {!isLoading && hasMore && (
           <div className="load-more-row">
