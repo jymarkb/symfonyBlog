@@ -39,11 +39,11 @@ export default function ArchiveStatsStrip({ posts, total, isLoading }: Props) {
   const commentsFormatted = comments.toLocaleString();
 
   // Since — earliest publication year
-  const publishedPosts = posts.filter((p) => p.published_at);
+  const publishedPosts = posts.filter((p): p is PostSummary & { published_at: string } => p.published_at != null);
   const since =
     publishedPosts.length > 0
       ? Math.min(
-          ...publishedPosts.map((p) => new Date(p.published_at!).getFullYear())
+          ...publishedPosts.map((p) => new Date(p.published_at).getFullYear())
         )
       : null;
   const sinceValue = since != null ? String(since) : '—';
