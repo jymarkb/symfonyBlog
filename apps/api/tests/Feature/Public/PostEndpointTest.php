@@ -513,3 +513,63 @@ it('ignores single character search and returns unfiltered results', function ()
     $response->assertStatus(200);
     expect($response->json('meta.total'))->toBe($all);
 });
+
+it('returns correct response shape and excludes sensitive fields for post detail', function () {
+    $post = Post::factory()->create([
+        'slug' => 'shape-test-post',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $response = $this->getJson('/api/v1/posts/shape-test-post')
+        ->assertOk();
+
+    $response->assertJsonStructure([
+        'data' => [
+            'id',
+            'title',
+            'slug',
+            'excerpt',
+            'cover_image',
+            'reading_time',
+            'is_featured',
+            'published_at',
+            'created_at',
+            'updated_at',
+            'author' => [
+                'id',
+                'display_name',
+                'handle',
+                'avatar_url',
+            ],
+            'tags',
+            'comments_count',
+            'stars_count',
+            'body',
+        ],
+    ]);
+
+    $response
+        ->assertJsonMissingPath('data.user_id')
+        ->assertJsonMissingPath('data.status')
+        ->assertJsonMissingPath('data.role')
+        ->assertJsonMissingPath('data.supabase_user_id')
+        ->assertJsonMissingPath('data.author.role')
+        ->assertJsonMissingPath('data.author.supabase_user_id');
+});
+
+it('returns 404 for non-existent post slug', function () {
+    $this->getJson('/api/v1/posts/this-slug-does-not-exist')
+        ->assertNotFound();
+});
+
+it('returns 404 for archived post detail', function () {
+    Post::factory()->create([
+        'slug' => 'archived-post',
+        'status' => 'archived',
+        'published_at' => null,
+    ]);
+
+    $this->getJson('/api/v1/posts/archived-post')
+        ->assertNotFound();
+});
