@@ -52,9 +52,7 @@ export function PostRail({ post }: { post: PostDetail }) {
         </div>
         <div className="stat-pill">
           <span className="stat-val">
-            <a href="#comments" style={{ color: 'inherit' }}>
-              {post.comments_count ?? 0}
-            </a>
+            <span>{post.comments_count ?? 0}</span>
           </span>
           <span className="stat-lbl">Comments</span>
         </div>
@@ -80,7 +78,7 @@ export function PostRail({ post }: { post: PostDetail }) {
         <div className="rail-actions">
           <button disabled><span>Copy link</span><kbd>⌘L</kbd></button>
           <button disabled><span>Print</span><kbd>⌘P</kbd></button>
-          <a href="#comments"><span>Comments</span><kbd>C</kbd></a>
+          <button disabled><span>Comments</span><kbd>C</kbd></button>
         </div>
       </div>
 
