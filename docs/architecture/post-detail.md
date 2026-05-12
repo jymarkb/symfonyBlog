@@ -8,7 +8,7 @@ The post detail page at `/<slug>` renders a single published post for public rea
 - SSR via `+data.ts` fetches the post by slug before HTML is sent.
 - `prerender: false` — posts are dynamic (published_at, comment counts change).
 - URL is top-level clean slug (e.g. `jymb.blog/why-rust-matters`) — no `/blog/` prefix.
-- Design reference: `design/post.html` — source of truth for layout, typography, and interaction.
+- Design reference: `design/post-v2.html` — source of truth for layout, typography, and interaction.
 
 ## URL Decision
 
@@ -17,27 +17,29 @@ Top-level `/<slug>` was chosen over `/blog/<slug>` for SEO (shorter path, slug i
 ## Implementation Progress
 
 ```text
-1. Design          pending — design/post.html exists as reference
-2. Backend         partial — GET /api/v1/posts/{slug} exists and returns PostResource with body
+1. Design          done — design/post-v2.html ported to React components
+2. Backend         partial — GET /api/v1/posts/{slug} exists and returns PostDetailResource with body
                              reserved slug validation not yet added
                              cache layer not yet added
-3. Wiring          pending — pages/@slug/ route not yet created
+3. Wiring          done — pages/@slug/ route wired with SSR, BlockRenderer, PostRail, +Head.tsx
 4. Tests           partial — PostEndpointTest covers basic shape; detail assertions incomplete
+                             reserved slug rejection tests not yet added
 ```
 
 ## Sections
 
 | Section | Design | Backend | Wiring | Tests |
 |---|---|---|---|---|
-| Page route (`pages/@slug/`) | n/a | n/a | ⏳ | n/a |
-| SSR data fetch + 404 guard | n/a | ✅ | ⏳ | ⏳ |
-| Article head (title, byline, cover) | ✅ | ✅ | ⏳ | n/a |
-| Block body renderer | ✅ | ✅ | ⏳ | n/a |
-| Article foot (tags, share row) | ✅ | ✅ | ⏳ | n/a |
-| SEO Head (title, canonical, OG, JSON-LD) | ✅ | n/a | ⏳ | n/a |
+| Page route (`pages/@slug/`) | n/a | n/a | ✅ | n/a |
+| SSR data fetch + 404 guard | n/a | ✅ | ✅ | ⏳ |
+| Left rail (author, stats, TOC stub, actions) | ✅ | ✅ | ✅ | n/a |
+| Post header (title, dek, cover) | ✅ | ✅ | ✅ | n/a |
+| Block body (`BlockRenderer`) | ✅ | ✅ | ✅ | n/a |
+| Post footer (tags, share row, stubs) | ✅ | ✅ | ✅ | n/a |
+| SEO Head (title, canonical, OG, JSON-LD) | ✅ | n/a | ✅ | n/a |
 | Reserved slug validation | n/a | ⏳ | n/a | ⏳ |
 | Cache layer (`posts.slug.{slug}`) | n/a | ⏳ | n/a | n/a |
-| Detail shape + sensitive field tests | n/a | ✅ | n/a | ⏳ |
+| Detail shape + sensitive field tests | n/a | ✅ | n/a | ⚠️ |
 
 ## Deferred
 
@@ -65,6 +67,15 @@ Post body is stored as `BlockElement[]` JSON — a custom block schema (not Mark
 Supported node types: `heading` (h1–h6 via `level`), `paragraph`, `blockquote`, `pre`/`code`, `callout`, `ul`, `ol`, `hr`. Text nodes within `children[]` support inline marks: `bold`, `italic`, `code`, `link`.
 
 No `dangerouslySetInnerHTML` — each node type renders as safe React elements.
+
+## Layout (from post-v2.html)
+
+Two-column layout:
+- **Left rail** (`.post-rail`) — author card, stat pills (stars, comments, date/read time), sticky TOC stub, reading progress stub, action buttons
+- **Right column** (`.post-content`) — `block-title`, `block-dek`, `block-cover`, `block-body` (BlockRenderer output), footnotes, `post-footer` (tags, reactions stub, share row, related essays stub)
+- **Comments section** (`.comments-wrap`) — below the main layout, deferred
+
+Block body is rendered by `BlockRenderer` from `@jymarkb/block-editor/render` (already installed at `^1.2.1`).
 
 ## Key Files
 
