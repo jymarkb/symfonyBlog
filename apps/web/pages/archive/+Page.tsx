@@ -9,6 +9,19 @@ import ArchiveStatsStrip from '@/features/blog/components/ArchiveStatsStrip';
 
 const PER_PAGE = 50;
 
+function getInitialTag(): string | null {
+  if (typeof window === 'undefined') return null;
+  return new URLSearchParams(window.location.search).get('tag');
+}
+
+function getInitialYear(): number | null {
+  if (typeof window === 'undefined') return null;
+  const raw = new URLSearchParams(window.location.search).get('year');
+  if (raw == null) return null;
+  const n = parseInt(raw, 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 export default function Page() {
   const data = useData<ArchivePageData>();
 
@@ -16,14 +29,15 @@ export default function Page() {
   const [total, setTotal] = useState(data.total);
   const [currentPage, setCurrentPage] = useState(data.currentPage);
   const [lastPage, setLastPage] = useState(data.lastPage);
-  const [activeTag, setActiveTag] = useState<string | null>(null);
-  const [activeYear, setActiveYear] = useState<number | null>(null);
+  const [activeTag, setActiveTag] = useState<string | null>(getInitialTag);
+  const [activeYear, setActiveYear] = useState<number | null>(getInitialYear);
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const hasMounted = useRef(false);
+  const hasParamsMounted = useRef(false);
 
   const load = useCallback(
     async (params: { search?: string; tag?: string; year?: number; page?: number }, append = false) => {
@@ -52,6 +66,29 @@ export default function Page() {
     }
     void load({ search, tag: activeTag ?? undefined, year: activeYear ?? undefined, page: 1 });
   }, [search, activeTag, activeYear, load]);
+
+  // Push ?tag and ?year to URL when filters change (skip first mount)
+  useEffect(() => {
+    if (!hasParamsMounted.current) {
+      hasParamsMounted.current = true;
+      return;
+    }
+    const params = new URLSearchParams();
+    if (activeTag !== null) params.set('tag', activeTag);
+    if (activeYear !== null) params.set('year', String(activeYear));
+    const qs = params.toString();
+    history.pushState(null, '', '/archive' + (qs ? '?' + qs : ''));
+  }, [activeTag, activeYear]);
+
+  // Update document.title reactively on filter changes
+  useEffect(() => {
+    const tag = activeTag;
+    const year = activeYear;
+    if (tag && year) document.title = `${tag} · ${year} · Archive · jymb.blog`;
+    else if (tag) document.title = `${tag} · Archive · jymb.blog`;
+    else if (year) document.title = `${year} · Archive · jymb.blog`;
+    else document.title = 'Archive · jymb.blog';
+  }, [activeTag, activeYear]);
 
   const handleLoadMore = useCallback(() => {
     void load(
