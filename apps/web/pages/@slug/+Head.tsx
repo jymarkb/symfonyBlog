@@ -10,7 +10,7 @@ export default function Head() {
     headline: post.title,
     description: post.excerpt ?? '',
     datePublished: post.published_at,
-    url: `https://jymb.blog/${post.slug}`,
+    url: `https://jymb.blog/${encodeURIComponent(post.slug)}`,
     author: {
       '@type': 'Person',
       name: post.author.display_name,
@@ -26,13 +26,13 @@ export default function Head() {
     <>
       <title>{post.title} — jymb.blog</title>
       <meta name="description" content={post.excerpt ?? ''} />
-      <link rel="canonical" href={`https://jymb.blog/${post.slug}`} />
+      <link rel="canonical" href={`https://jymb.blog/${encodeURIComponent(post.slug)}`} />
       <meta property="og:site_name" content="jymb.blog" />
 
       <meta property="og:type" content="article" />
       <meta property="og:title" content={post.title} />
       <meta property="og:description" content={post.excerpt ?? ''} />
-      <meta property="og:url" content={`https://jymb.blog/${post.slug}`} />
+      <meta property="og:url" content={`https://jymb.blog/${encodeURIComponent(post.slug)}`} />
       {post.cover_image != null && (
         <meta property="og:image" content={post.cover_image} />
       )}

@@ -41,9 +41,9 @@ export default function Page() {
             {/* Share row */}
             <div className="share-row">
               <div className="share-links">
-                <a href={`https://twitter.com/intent/tweet?url=https://jymb.blog/${post.slug}&text=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">X / Twitter</a>
-                <a href={`https://news.ycombinator.com/submitlink?u=https://jymb.blog/${post.slug}&t=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">Hacker News</a>
-                <a href={`mailto:?subject=${encodeURIComponent(post.title)}&body=https://jymb.blog/${post.slug}`}>Email</a>
+                <a href={`https://twitter.com/intent/tweet?url=https://jymb.blog/${encodeURIComponent(post.slug)}&text=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">X / Twitter</a>
+                <a href={`https://news.ycombinator.com/submitlink?u=https://jymb.blog/${encodeURIComponent(post.slug)}&t=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">Hacker News</a>
+                <a href={`mailto:?subject=${encodeURIComponent(post.title)}&body=https://jymb.blog/${encodeURIComponent(post.slug)}`}>Email</a>
               </div>
             </div>
             {/* Related essays stub — deferred */}
