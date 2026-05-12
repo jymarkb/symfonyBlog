@@ -35,6 +35,7 @@ export function ArchiveFilterBar({
   // C-1: refs for focus management
   const comboTriggerRef = useRef<HTMLButtonElement>(null);
   const comboMenuRef = useRef<HTMLDivElement>(null);
+  const hasOpenedCombo = useRef(false);
 
   useEffect(() => {
     setInputValue(searchValue);
@@ -42,7 +43,7 @@ export function ArchiveFilterBar({
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
+      const value = e.target.value.toLowerCase();
       setInputValue(value);
       if (debounceTimer.current !== null) clearTimeout(debounceTimer.current);
       debounceTimer.current = setTimeout(() => onSearchChange(value), 300);
@@ -81,7 +82,7 @@ export function ArchiveFilterBar({
   // C-1: move focus into drawer on open, restore to trigger on close
   useEffect(() => {
     if (comboOpen) {
-      // Focus first focusable element inside the drawer
+      hasOpenedCombo.current = true;
       const menu = comboMenuRef.current;
       if (menu) {
         const focusable = menu.querySelector<HTMLElement>(
@@ -89,8 +90,7 @@ export function ArchiveFilterBar({
         );
         focusable?.focus();
       }
-    } else {
-      // Restore focus to the trigger button when drawer closes
+    } else if (hasOpenedCombo.current) {
       comboTriggerRef.current?.focus();
     }
   }, [comboOpen]);
