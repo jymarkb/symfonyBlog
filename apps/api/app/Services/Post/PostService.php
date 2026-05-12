@@ -63,6 +63,15 @@ class PostService
             ->all();
     }
 
+    public function listForAdmin(): LengthAwarePaginator
+    {
+        return Post::query()
+            ->with(['user', 'tags'])
+            ->withCount(['comments', 'stars'])
+            ->latest()
+            ->paginate(20);
+    }
+
     public function findPublishedBySlug(string $slug): Post
     {
         return $this->repository->getPublishedBySlug($slug);

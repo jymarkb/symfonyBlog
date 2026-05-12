@@ -19,13 +19,7 @@ class PostController extends Controller
 
     public function index(): AnonymousResourceCollection
     {
-        $posts = Post::query()
-            ->with(['user', 'tags'])
-            ->withCount(['comments', 'stars'])
-            ->latest()
-            ->paginate(20);
-
-        return PostResource::collection($posts);
+        return PostResource::collection($this->service->listForAdmin());
     }
 
     public function store(StorePostRequest $request): JsonResponse
@@ -52,10 +46,10 @@ class PostController extends Controller
         return new PostResource($post);
     }
 
-    public function destroy(Post $post): JsonResponse
+    public function destroy(Post $post): \Illuminate\Http\Response
     {
         $this->service->delete($post);
 
-        return response()->json([], 204);
+        return response()->noContent();
     }
 }
