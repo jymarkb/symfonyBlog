@@ -13,6 +13,12 @@ export type PostTag = {
   id: number;
   name: string;
   slug: string;
+  posts_count: number | null;
+};
+
+export type PostYear = {
+  year: number;
+  count: number;
 };
 
 // ── Primary resource shapes ───────────────────────────────────────────────────
@@ -32,9 +38,9 @@ export type PostSummary = {
   created_at: string | null;
   updated_at: string | null;
   author: PostAuthor;
-  tags: PostTag[] | undefined;
-  comments_count: number | undefined;
-  stars_count: number | undefined;
+  tags: PostTag[] | null;
+  comments_count: number | null;
+  stars_count: number | null;
 };
 
 // ── API response wrappers ─────────────────────────────────────────────────────
@@ -79,4 +85,5 @@ export type ArchivePageData = {
   lastPage: number;
   currentPage: number;
   tags: PostTag[];
+  years: PostYear[];
 };

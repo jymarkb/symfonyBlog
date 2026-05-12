@@ -7,23 +7,43 @@ use Illuminate\Support\Facades\RateLimiter;
 uses(RefreshDatabase::class);
 
 it('returns 200 with correct data structure and field shape', function () {
-    Tag::factory()->create([
+    $tag = Tag::factory()->create([
         'name' => 'Laravel',
         'slug' => 'laravel',
     ]);
+
+    $post = \App\Models\Post::factory()->create([
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+    $post->tags()->attach($tag);
 
     $this->getJson('/api/v1/tags')
         ->assertOk()
         ->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'name', 'slug'],
+                '*' => ['id', 'name', 'slug', 'posts_count'],
             ],
         ])
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.name', 'Laravel')
         ->assertJsonPath('data.0.slug', 'laravel')
+        ->assertJsonPath('data.0.posts_count', 1)
         ->assertJsonMissingPath('data.0.role')
         ->assertJsonMissingPath('data.0.supabase_user_id');
+});
+
+it('posts_count reflects only published posts', function () {
+    $tag = Tag::factory()->create(['slug' => 'engineering']);
+
+    $published = \App\Models\Post::factory()->create(['status' => 'published', 'published_at' => now()]);
+    $draft = \App\Models\Post::factory()->draft()->create();
+    $published->tags()->attach($tag);
+    $draft->tags()->attach($tag);
+
+    $this->getJson('/api/v1/tags')
+        ->assertOk()
+        ->assertJsonPath('data.0.posts_count', 1);
 });
 
 it('returns tags ordered alphabetically by name', function () {
