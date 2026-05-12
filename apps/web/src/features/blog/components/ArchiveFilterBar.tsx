@@ -280,7 +280,7 @@ export function ArchiveFilterBar({
             <button
               key={tag.slug}
               className="filter-btn filter-btn--pill"
-              onClick={() => onTagChange(tag.slug)}
+              onClick={() => handleTagSelect(tag.slug)}
             >
               {tag.name}
             </button>

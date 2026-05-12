@@ -152,7 +152,7 @@ export default function Page() {
         {error != null && (
           <div className="load-error" role="alert" aria-live="assertive">
             <span>{error}</span>
-            <button onClick={() => void load({ search, tag: activeTag ?? undefined, year: activeYear ?? undefined, page: 1 })}>Retry</button>
+            <button onClick={() => void load({ search: search.toLowerCase(), tag: activeTag ?? undefined, year: activeYear ?? undefined, page: 1 })}>Retry</button>
           </div>
         )}
         <ArchiveSection posts={posts} isLoading={isLoading} onTagChange={handleTagChange} />

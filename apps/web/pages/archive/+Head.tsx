@@ -2,9 +2,14 @@ import { usePageContext } from 'vike-react/usePageContext'
 
 export default function Head() {
   const { urlParsed } = usePageContext()
-  const tag = urlParsed.search['tag'] ?? null
-  const year = urlParsed.search['year'] ?? null
-  const search = urlParsed.search['search'] ?? null
+  const rawYear = urlParsed.search['year'] ?? null;
+  const year = rawYear && /^\d{4}$/.test(rawYear) && parseInt(rawYear) >= 2000 && parseInt(rawYear) <= 2099
+    ? rawYear
+    : null;
+  const rawTag = urlParsed.search['tag'] ?? null;
+  const tag = rawTag ? rawTag.replace(/[<>]/g, '').slice(0, 100) : null;
+  const rawSearch = urlParsed.search['search'] ?? null;
+  const search = rawSearch ? rawSearch.replace(/[<>]/g, '').toLowerCase().slice(0, 100) : null;
 
   let title = 'Archive'
   if (tag && year) title = `${tag} · ${year} · Archive`

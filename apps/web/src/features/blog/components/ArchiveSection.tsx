@@ -6,7 +6,7 @@ import { ArchiveRow } from './ArchiveRow';
 type Props = {
   posts: PostSummary[];
   isLoading: boolean;
-  onTagChange?: (slug: string) => void;
+  onTagChange?: (slug: string | null) => void;
 };
 
 function groupByYear(posts: PostSummary[]): Map<number, PostSummary[]> {
