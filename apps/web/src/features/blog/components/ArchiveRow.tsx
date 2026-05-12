@@ -29,7 +29,7 @@ export function ArchiveRow({ post, onTagChange }: Props) {
       </span>
 
       <div className="arc-title">
-        <a href={`/blog/${post.slug}`}>{post.title}</a>
+        <a href={`/${post.slug}`}>{post.title}</a>
         {post.excerpt != null && (
           <p className="arc-dek">{post.excerpt}</p>
         )}

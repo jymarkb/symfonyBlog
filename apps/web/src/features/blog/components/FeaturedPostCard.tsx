@@ -38,7 +38,7 @@ export function FeaturedPostCard({ post }: Props) {
         <span className="eyebrow">{eyebrow}</span>
 
         <h3>
-          <a href={`/blog/${post.slug}`}>{post.title}</a>
+          <a href={`/${post.slug}`}>{post.title}</a>
         </h3>
 
         {post.excerpt != null && <p className="dek">{post.excerpt}</p>}
