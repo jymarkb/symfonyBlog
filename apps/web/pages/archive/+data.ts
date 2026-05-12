@@ -13,8 +13,10 @@ export async function data(pageContext: PageContextServer): Promise<ArchivePageD
   const parsedYear = rawYear !== undefined ? parseInt(rawYear, 10) : NaN;
   const year = Number.isFinite(parsedYear) && parsedYear > 0 ? parsedYear : undefined;
 
+  const search = pageContext.urlParsed.search['search'] ?? undefined;
+
   const [{ posts, total, lastPage, currentPage }, tags, years] = await Promise.all([
-    fetchArchivePosts({ per_page: 50, tag, year }),
+    fetchArchivePosts({ per_page: 50, tag, year, search }),
     fetchTags(),
     fetchPostYears(),
   ]);
