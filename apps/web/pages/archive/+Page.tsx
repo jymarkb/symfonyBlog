@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useData } from 'vike-react/useData';
+import { useConfig } from 'vike-react/useConfig';
 import type { ArchivePageData } from '@/features/blog/blogTypes';
 import { fetchArchivePosts } from '@/features/blog/api/blogApi';
 import { AppShell } from '@/layouts/AppShell';
@@ -22,6 +23,11 @@ function getInitialYear(): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+function getInitialSearch(): string {
+  if (typeof window === 'undefined') return '';
+  return new URLSearchParams(window.location.search).get('search') ?? '';
+}
+
 export default function Page() {
   const data = useData<ArchivePageData>();
 
@@ -31,10 +37,23 @@ export default function Page() {
   const [lastPage, setLastPage] = useState(data.lastPage);
   const [activeTag, setActiveTag] = useState<string | null>(getInitialTag);
   const [activeYear, setActiveYear] = useState<number | null>(getInitialYear);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(getInitialSearch);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const config = useConfig();
+  config({
+    Head: search && total < 3
+      ? <meta name="robots" content="noindex, follow" />
+      : null,
+  });
+
+  const suggestedTags = search.trim()
+    ? data.tags.filter(t =>
+        t.name.toLowerCase().includes(search.trim().toLowerCase())
+      )
+    : [];
 
   const hasMounted = useRef(false);
   const hasParamsMounted = useRef(false);
@@ -76,19 +95,19 @@ export default function Page() {
     const params = new URLSearchParams();
     if (activeTag !== null) params.set('tag', activeTag);
     if (activeYear !== null) params.set('year', String(activeYear));
+    if (search.trim()) params.set('search', search.trim().toLowerCase());
     const qs = params.toString();
     history.pushState(null, '', '/archive' + (qs ? '?' + qs : ''));
-  }, [activeTag, activeYear]);
+  }, [activeTag, activeYear, search]);
 
   // Update document.title reactively on filter changes
   useEffect(() => {
-    const tag = activeTag;
-    const year = activeYear;
-    if (tag && year) document.title = `${tag} · ${year} · Archive · jymb.blog`;
-    else if (tag) document.title = `${tag} · Archive · jymb.blog`;
-    else if (year) document.title = `${year} · Archive · jymb.blog`;
+    if (activeTag && activeYear) document.title = `${activeTag} · ${activeYear} · Archive · jymb.blog`;
+    else if (activeTag) document.title = `${activeTag} · Archive · jymb.blog`;
+    else if (activeYear) document.title = `${activeYear} · Archive · jymb.blog`;
+    else if (search.trim()) document.title = `Search: ${search.trim()} · Archive · jymb.blog`;
     else document.title = 'Archive · jymb.blog';
-  }, [activeTag, activeYear]);
+  }, [activeTag, activeYear, search]);
 
   const handleLoadMore = useCallback(() => {
     void load(
@@ -120,6 +139,7 @@ export default function Page() {
             onTagChange={setActiveTag}
             onYearChange={setActiveYear}
             onSearchChange={setSearch}
+            suggestedTags={suggestedTags}
           />
         </div>
       </section>
