@@ -26,8 +26,8 @@ Phase 5 — Sitemap / RSS      blocked (needs server route + post detail working
 | Global: OG + Twitter defaults  | ✅     | ⏳     | Via `pages/+Head.tsx` |
 | Global: noindex private pages  | ✅     | ⏳     | `(auth)`, `(admin)`, `(user)` layout +Head.tsx |
 | Global: robots.txt             | ✅     | ⏳     | `apps/web/public/robots.txt` |
-| Archive: URL params            | ✅     | ⏳     | Read ?tag=/?year= on load; push on change |
-| Archive: dynamic Head          | ✅     | ⏳     | Title/desc/canonical change with active params |
+| Archive: URL params            | ✅     | ✅     | Read ?tag=/?year= on load; push on change |
+| Archive: dynamic Head          | ✅     | ✅     | Title/desc/canonical change with active params |
 | Tags: redirect to archive      | ✅     | ✅     | /tags → /archive, /tags/@slug → /archive?tag=slug |
 | Home: +Head.tsx                | ✅     | ⏳     | Static title/desc/canonical/OG |
 | Terms: +Head.tsx               | ✅     | ⏳     | Static |
