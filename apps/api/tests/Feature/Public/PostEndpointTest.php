@@ -43,7 +43,9 @@ it('returns a published post detail with blog editor block body', function () {
         ->assertJsonPath('data.body.0.style.base.fontSize', '36px')
         ->assertJsonMissingPath('data.content_html')
         ->assertJsonMissingPath('data.content_css')
-        ->assertJsonMissingPath('data.content_js');
+        ->assertJsonMissingPath('data.content_js')
+        ->assertJsonMissingPath('data.user_id')
+        ->assertJsonMissingPath('data.status');
 });
 
 it('filters published posts by tag slug', function () {
@@ -122,6 +124,8 @@ it('returns correct response shape and excludes sensitive fields for post listin
                     'avatar_url',
                 ],
                 'tags',
+                'comments_count',
+                'stars_count',
             ],
         ],
     ]);
@@ -156,10 +160,10 @@ it('returns paginated response with meta and links envelope', function () {
     expect($meta['last_page'])->toBeGreaterThanOrEqual(2);
 });
 
-it('filters posts by search term matching title', function () {
+it('filters posts by search term matching title case-insensitively', function () {
     Post::factory()->create([
-        'title' => 'unique-zephyr-title-xyz',
-        'slug' => 'unique-zephyr-title-xyz',
+        'title' => 'VectorSearch Fundamentals',
+        'slug' => 'vector-search-fundamentals',
         'excerpt' => 'A normal excerpt without special terms.',
         'status' => 'published',
         'published_at' => now(),
@@ -173,11 +177,11 @@ it('filters posts by search term matching title', function () {
         'published_at' => now(),
     ]);
 
-    $response = $this->getJson('/api/v1/posts?search=unique-zephyr-title-xyz')
+    $response = $this->getJson('/api/v1/posts?search=vector')
         ->assertOk()
         ->assertJsonCount(1, 'data');
 
-    $response->assertJsonPath('data.0.slug', 'unique-zephyr-title-xyz');
+    $response->assertJsonPath('data.0.slug', 'vector-search-fundamentals');
 });
 
 it('filters posts by search term matching excerpt', function () {
@@ -202,6 +206,56 @@ it('filters posts by search term matching excerpt', function () {
         ->assertJsonCount(1, 'data');
 
     $response->assertJsonPath('data.0.slug', 'normal-post-title');
+});
+
+it('returns empty data array when search matches no posts', function () {
+    Post::factory()->create([
+        'title' => 'A published post about Laravel',
+        'slug' => 'published-laravel-post',
+        'excerpt' => 'Some excerpt here.',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $this->getJson('/api/v1/posts?search=xyzzy-nomatch-term')
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+});
+
+it('filters posts by featured=false', function () {
+    Post::factory()->featured()->create([
+        'slug' => 'featured-post',
+    ]);
+
+    Post::factory()->create([
+        'slug' => 'non-featured-post',
+        'status' => 'published',
+        'published_at' => now(),
+        'is_featured' => false,
+    ]);
+
+    $this->getJson('/api/v1/posts?featured=false')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.slug', 'non-featured-post')
+        ->assertJsonPath('data.0.is_featured', false);
+});
+
+it('clamps per_page to minimum of 1 when given zero', function () {
+    Post::factory()->count(2)->create([
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $response = $this->getJson('/api/v1/posts?per_page=0')
+        ->assertOk();
+
+    expect($response->json('meta.per_page'))->toBe(1);
+});
+
+it('returns 200 for guest access to post listing', function () {
+    $this->getJson('/api/v1/posts')
+        ->assertOk();
 });
 
 it('returns correct response shape and excludes sensitive fields for featured posts', function () {
@@ -230,6 +284,8 @@ it('returns correct response shape and excludes sensitive fields for featured po
                     'avatar_url',
                 ],
                 'tags',
+                'comments_count',
+                'stars_count',
             ],
         ],
     ]);
@@ -244,3 +300,147 @@ it('returns correct response shape and excludes sensitive fields for featured po
         ->assertJsonMissingPath('data.0.body');
 });
 
+
+it('filters published posts by year', function () {
+    Post::factory()->create([
+        'slug' => 'old-post',
+        'status' => 'published',
+        'published_at' => '2023-06-15 00:00:00',
+    ]);
+
+    Post::factory()->create([
+        'slug' => 'new-post',
+        'status' => 'published',
+        'published_at' => '2026-01-10 00:00:00',
+    ]);
+
+    $this->getJson('/api/v1/posts?year=2023')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.slug', 'old-post');
+});
+
+it('returns available years for published posts only', function () {
+    Post::factory()->create(['status' => 'published', 'published_at' => '2024-03-01 00:00:00']);
+    Post::factory()->create(['status' => 'published', 'published_at' => '2023-11-01 00:00:00']);
+    Post::factory()->draft()->create();
+
+    $response = $this->getJson('/api/v1/posts/years')->assertOk();
+
+    $data = $response->json('data');
+
+    // Each entry must be an object with year and count keys
+    expect($data)->toBeArray();
+    expect($data)->not->toBeEmpty();
+
+    $yearValues = array_column($data, 'year');
+    $countValues = array_column($data, 'count');
+
+    expect($yearValues)->toContain(2024)->toContain(2023);
+
+    // Drafts must be excluded — only 2 published posts, so exactly 2 entries
+    expect($data)->toHaveCount(2);
+
+    // count values must be positive integers
+    foreach ($countValues as $count) {
+        expect($count)->toBeInt()->toBeGreaterThan(0);
+    }
+
+    // Years must be in descending order (full sorted-order assertion)
+    $sorted = $yearValues;
+    rsort($sorted);
+    expect($yearValues)->toBe($sorted);
+});
+
+it('clamps per_page to maximum of 50 when given 999', function () {
+    $response = $this->getJson('/api/v1/posts?per_page=999')
+        ->assertOk();
+
+    expect($response->json('meta.per_page'))->toBe(50);
+});
+
+it('filters published posts by year and tag combined', function () {
+    $tag = Tag::factory()->create(['slug' => 'php']);
+
+    $matching = Post::factory()->create([
+        'slug' => 'php-2023-post',
+        'status' => 'published',
+        'published_at' => '2023-05-01 00:00:00',
+    ]);
+    $matching->tags()->attach($tag);
+
+    // Same year, different tag
+    Post::factory()->create([
+        'slug' => 'other-2023-post',
+        'status' => 'published',
+        'published_at' => '2023-07-01 00:00:00',
+    ]);
+
+    // Same tag, different year
+    $other = Post::factory()->create([
+        'slug' => 'php-2024-post',
+        'status' => 'published',
+        'published_at' => '2024-03-01 00:00:00',
+    ]);
+    $other->tags()->attach($tag);
+
+    $this->getJson('/api/v1/posts?year=2023&tag=php')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.slug', 'php-2023-post');
+});
+
+it('filters published posts by year and search combined', function () {
+    Post::factory()->create([
+        'title' => 'Laravel Tips 2023',
+        'slug' => 'laravel-tips-2023',
+        'excerpt' => 'Some excerpt.',
+        'status' => 'published',
+        'published_at' => '2023-06-01 00:00:00',
+    ]);
+
+    // Same year, no search match
+    Post::factory()->create([
+        'title' => 'Unrelated 2023 post',
+        'slug' => 'unrelated-2023',
+        'excerpt' => 'Nothing here.',
+        'status' => 'published',
+        'published_at' => '2023-08-01 00:00:00',
+    ]);
+
+    // Search match, wrong year
+    Post::factory()->create([
+        'title' => 'Laravel Tips 2024',
+        'slug' => 'laravel-tips-2024',
+        'excerpt' => 'Some excerpt.',
+        'status' => 'published',
+        'published_at' => '2024-02-01 00:00:00',
+    ]);
+
+    $this->getJson('/api/v1/posts?year=2023&search=laravel')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.slug', 'laravel-tips-2023');
+});
+
+it('returns 200 with empty data for non-numeric year value', function () {
+    Post::factory()->create([
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $this->getJson('/api/v1/posts?year=abc')
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+});
+
+it('returns 200 with empty data for negative year value', function () {
+    Post::factory()->create([
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $this->getJson('/api/v1/posts?year=-1')
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+});

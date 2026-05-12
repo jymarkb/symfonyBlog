@@ -28,7 +28,7 @@ export default function ArchiveStatsStrip({ posts, total, isLoading }: Props) {
   const avgReadMin =
     postsWithReadingTime.length > 0
       ? Math.round(
-          posts.reduce((s, p) => s + (p.reading_time ?? 0), 0) /
+          postsWithReadingTime.reduce((s, p) => s + (p.reading_time ?? 0), 0) /
             postsWithReadingTime.length
         )
       : null;

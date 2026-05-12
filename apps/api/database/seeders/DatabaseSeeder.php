@@ -81,6 +81,20 @@ class DatabaseSeeder extends Seeder
             }),
         );
 
+        // Bulk posts spread across 3 years — enough to span multiple pagination pages
+        $allTagIds = $tags->values()->pluck('id')->toArray();
+        Post::factory()
+            ->count(80)
+            ->create([
+                'user_id' => $user->id,
+                'published_at' => fn() => fake()->dateTimeBetween('-3 years', 'now'),
+            ])
+            ->each(function (Post $post) use ($allTagIds) {
+                $post->tags()->sync(
+                    fake()->randomElements($allTagIds, fake()->numberBetween(1, 3)),
+                );
+            });
+
         Post::factory()
             ->count(2)
             ->draft()

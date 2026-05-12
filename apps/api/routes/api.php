@@ -28,6 +28,7 @@ Route::prefix('v1')->group(function () {
     */
     Route::withoutMiddleware(Authenticate::using('api'))->group(function () {
         Route::get('/posts', [PublicPostController::class, 'index'])->middleware('throttle:public-api');
+        Route::get('/posts/years', [PublicPostController::class, 'years'])->middleware('throttle:public-api');
         Route::get('/posts/{slug}', [PublicPostController::class, 'show'])->middleware('throttle:public-api');
         Route::get('/tags', [PublicTagController::class, 'index'])->middleware('throttle:public-api');
         Route::get('/profiles/{handle}', [PublicProfileController::class, 'show'])->middleware('throttle:public-api');

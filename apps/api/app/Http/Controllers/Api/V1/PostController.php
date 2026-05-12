@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\PostResource;
+use App\Http\Resources\PostDetailResource;
 use App\Http\Resources\PostSummaryResource;
 use App\Services\Post\PostService;
 use Illuminate\Http\Request;
@@ -22,9 +22,14 @@ class PostController extends Controller
         );
     }
 
-    public function show(string $slug): PostResource
+    public function years(): \Illuminate\Http\JsonResponse
     {
-        return new PostResource(
+        return response()->json(['data' => $this->postService->availableYears()]);
+    }
+
+    public function show(string $slug): PostDetailResource
+    {
+        return new PostDetailResource(
             $this->postService->findPublishedBySlug($slug)
         );
     }
