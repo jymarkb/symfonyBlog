@@ -32,7 +32,7 @@ export async function fetchArchivePosts(params?: {
   const qs = new URLSearchParams();
   if (params?.search) qs.set("search", params.search);
   if (params?.tag) qs.set("tag", params.tag);
-  if (params?.year !== undefined) qs.set("year", String(params.year));
+  if (params?.year != null) qs.set("year", String(params.year));
   if (params?.page !== undefined) qs.set("page", String(params.page));
   if (params?.per_page !== undefined) qs.set("per_page", String(params.per_page));
   const response = await apiRequest<PostsResponse>("/posts?" + qs.toString());

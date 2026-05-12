@@ -19,7 +19,7 @@ class PostService
                 $query->whereHas('tags', fn($tagQuery) => $tagQuery
                     ->where('slug', $request->string('tag')->toString()));
             })
-            ->when($request->has('featured'), function ($query) use ($request) {
+            ->when($request->filled('featured'), function ($query) use ($request) {
                 $query->where('is_featured', filter_var($request->query('featured'), FILTER_VALIDATE_BOOLEAN));
             })
             ->when($request->filled('year'), function ($query) use ($request) {
@@ -27,7 +27,7 @@ class PostService
             })
             ->when($request->filled('search'), function ($query) use ($request) {
                 $term = strtolower(substr($request->string('search')->toString(), 0, 100));
-                $search = '%' . addcslashes($term, '%_') . '%';
+                $search = '%' . addcslashes($term, '%_\\') . '%';
 
                 $query->where(function ($searchQuery) use ($search) {
                     $searchQuery
@@ -45,7 +45,7 @@ class PostService
             ->where('status', 'published')
             ->whereNotNull('published_at')
             ->selectRaw('EXTRACT(YEAR FROM published_at)::int AS year, COUNT(*) AS count')
-            ->groupBy('year')
+            ->groupByRaw('EXTRACT(YEAR FROM published_at)::int')
             ->orderByDesc('year')
             ->get()
             ->map(fn ($row) => ['year' => (int) $row->year, 'count' => (int) $row->count])

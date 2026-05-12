@@ -30,6 +30,10 @@ export function ArchiveFilterBar({
   const tagRef = useRef<HTMLDivElement>(null);
   const yearRef = useRef<HTMLDivElement>(null);
 
+  // C-1: refs for focus management
+  const comboTriggerRef = useRef<HTMLButtonElement>(null);
+  const comboMenuRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setInputValue(searchValue);
   }, [searchValue]);
@@ -67,6 +71,23 @@ export function ArchiveFilterBar({
     };
   }, [tagOpen, yearOpen, comboOpen]);
 
+  // C-1: move focus into drawer on open, restore to trigger on close
+  useEffect(() => {
+    if (comboOpen) {
+      // Focus first focusable element inside the drawer
+      const menu = comboMenuRef.current;
+      if (menu) {
+        const focusable = menu.querySelector<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        focusable?.focus();
+      }
+    } else {
+      // Restore focus to the trigger button when drawer closes
+      comboTriggerRef.current?.focus();
+    }
+  }, [comboOpen]);
+
   const activeTagData = activeTag != null ? tags.find((t) => t.slug === activeTag) : null;
   const activeCount = (activeTag !== null ? 1 : 0) + (activeYear !== null ? 1 : 0);
 
@@ -80,17 +101,28 @@ export function ArchiveFilterBar({
     [onYearChange],
   );
 
+  // C-2: role="option" and aria-selected moved from <li> to <button>
   const tagItems = (
     <>
-      <li role="option" aria-selected={activeTag === null}>
-        <button className={`filter-item${activeTag === null ? ' active' : ''}`} onClick={() => handleTagSelect(null)}>
+      <li>
+        <button
+          role="option"
+          aria-selected={activeTag === null}
+          className={`filter-item${activeTag === null ? ' active' : ''}`}
+          onClick={() => handleTagSelect(null)}
+        >
           <span className="filter-item-name">All topics</span>
           <span className="filter-item-check" aria-hidden="true">{activeTag === null ? '✓' : ''}</span>
         </button>
       </li>
       {tags.map((tag) => (
-        <li key={tag.slug} role="option" aria-selected={activeTag === tag.slug}>
-          <button className={`filter-item${activeTag === tag.slug ? ' active' : ''}`} onClick={() => handleTagSelect(tag.slug)}>
+        <li key={tag.slug}>
+          <button
+            role="option"
+            aria-selected={activeTag === tag.slug}
+            className={`filter-item${activeTag === tag.slug ? ' active' : ''}`}
+            onClick={() => handleTagSelect(tag.slug)}
+          >
             <span className="filter-item-name">{tag.name}</span>
             <span className="filter-item-check" aria-hidden="true">{activeTag === tag.slug ? '✓' : ''}</span>
             {tag.posts_count != null && <span className="filter-item-count">{tag.posts_count}</span>}
@@ -102,15 +134,25 @@ export function ArchiveFilterBar({
 
   const yearItems = (
     <>
-      <li role="option" aria-selected={activeYear === null}>
-        <button className={`filter-item${activeYear === null ? ' active' : ''}`} onClick={() => handleYearSelect(null)}>
+      <li>
+        <button
+          role="option"
+          aria-selected={activeYear === null}
+          className={`filter-item${activeYear === null ? ' active' : ''}`}
+          onClick={() => handleYearSelect(null)}
+        >
           <span className="filter-item-name">All years</span>
           <span className="filter-item-check" aria-hidden="true">{activeYear === null ? '✓' : ''}</span>
         </button>
       </li>
       {years.map(({ year, count }) => (
-        <li key={year} role="option" aria-selected={activeYear === year}>
-          <button className={`filter-item filter-item--pill${activeYear === year ? ' active' : ''}`} onClick={() => handleYearSelect(year)}>
+        <li key={year}>
+          <button
+            role="option"
+            aria-selected={activeYear === year}
+            className={`filter-item filter-item--pill${activeYear === year ? ' active' : ''}`}
+            onClick={() => handleYearSelect(year)}
+          >
             <span className="filter-item-name">{year}</span>
             <span className="filter-item-check" aria-hidden="true">{activeYear === year ? '✓' : ''}</span>
             <span className="filter-item-count">{count}</span>
@@ -176,11 +218,13 @@ export function ArchiveFilterBar({
 
         {/* Mobile: combined icon button + bottom drawer */}
         <div className="filter-combo">
+          {/* M-1: dynamic aria-label includes active count */}
           <button
+            ref={comboTriggerRef}
             className={`filter-btn filter-btn--icon${activeCount > 0 ? ' active' : ''}`}
             aria-haspopup="dialog"
             aria-expanded={comboOpen}
-            aria-label="Filters"
+            aria-label={activeCount > 0 ? `Filters (${activeCount} active)` : 'Filters'}
             onClick={() => setComboOpen((o) => !o)}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -191,14 +235,22 @@ export function ArchiveFilterBar({
               <circle cx="10" cy="8" r="2" fill="var(--paper)" stroke="currentColor" strokeWidth="1.5"/>
               <circle cx="6" cy="12" r="2" fill="var(--paper)" stroke="currentColor" strokeWidth="1.5"/>
             </svg>
+            {/* M-1: badge span no longer needs its own aria-label */}
             {activeCount > 0 && (
-              <span className="filter-badge" aria-label={`${activeCount} filters active`}>{activeCount}</span>
+              <span className="filter-badge" aria-hidden="true">{activeCount}</span>
             )}
           </button>
           {comboOpen && (
             <>
               <div className="filter-drawer-backdrop" onClick={() => setComboOpen(false)} aria-hidden="true" />
-              <div className="filter-combo-menu" role="dialog" aria-label="Filters">
+              {/* C-1: aria-modal="true" added; ref attached for focus management */}
+              <div
+                ref={comboMenuRef}
+                className="filter-combo-menu"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Filters"
+              >
                 <div className="filter-drawer-handle" aria-hidden="true" />
                 <p className="filter-section-label">Topic</p>
                 <ul role="listbox" aria-label="Filter by topic">{tagItems}</ul>
