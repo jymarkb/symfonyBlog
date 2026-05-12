@@ -66,3 +66,39 @@ it('accepts a valid non-reserved slug on post update', function () {
         ->patchJson("/api/v1/admin/posts/{$post->id}", ['slug' => 'my-updated-slug'])
         ->assertOk();
 });
+
+it('rejects reserved slug case-insensitively on update', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    $post = Post::factory()->create(['user_id' => $admin->id, 'slug' => 'original-slug']);
+
+    $this->actingAs($admin, 'api')
+        ->patchJson("/api/v1/admin/posts/{$post->id}", ['slug' => 'ABOUT'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['slug']);
+});
+
+it('rejects guests from admin post mutation routes', function (string $method, string $url) {
+    $post = Post::factory()->create();
+    $resolvedUrl = str_replace('{post}', (string) $post->id, $url);
+
+    $this->json($method, $resolvedUrl)
+        ->assertUnauthorized();
+})->with([
+    ['POST', '/api/v1/admin/posts'],
+    ['PATCH', '/api/v1/admin/posts/{post}'],
+    ['DELETE', '/api/v1/admin/posts/{post}'],
+]);
+
+it('forbids regular users from admin post mutation routes', function (string $method, string $url) {
+    $user = User::factory()->create(['role' => User::ROLE_USER]);
+    $post = Post::factory()->create();
+    $resolvedUrl = str_replace('{post}', (string) $post->id, $url);
+
+    $this->actingAs($user, 'api')
+        ->json($method, $resolvedUrl)
+        ->assertForbidden();
+})->with([
+    ['POST', '/api/v1/admin/posts'],
+    ['PATCH', '/api/v1/admin/posts/{post}'],
+    ['DELETE', '/api/v1/admin/posts/{post}'],
+]);
