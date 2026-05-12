@@ -46,7 +46,11 @@ it('returns a published post detail with blog editor block body', function () {
         ->assertJsonMissingPath('data.content_css')
         ->assertJsonMissingPath('data.content_js')
         ->assertJsonMissingPath('data.user_id')
-        ->assertJsonMissingPath('data.status');
+        ->assertJsonMissingPath('data.status')
+        ->assertJsonMissingPath('data.created_at')
+        ->assertJsonMissingPath('data.updated_at')
+        ->assertJsonMissingPath('data.author.id')
+        ->assertJsonMissingPath('data.author.email');
 });
 
 it('filters published posts by tag slug', function () {
@@ -456,7 +460,31 @@ it('returns 429 when years rate limit is exceeded', function () {
     }
 
     $this->getJson('/api/v1/posts/years')
-        ->assertStatus(429);
+        ->assertTooManyRequests();
+});
+
+it('returns 429 when posts index rate limit is exceeded', function () {
+    $cacheKey = md5('public-api' . '127.0.0.1');
+
+    for ($i = 0; $i < 60; $i++) {
+        RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->getJson('/api/v1/posts')
+        ->assertTooManyRequests();
+});
+
+it('returns 429 when posts show rate limit is exceeded', function () {
+    $post = Post::factory()->create();
+
+    $cacheKey = md5('public-api' . '127.0.0.1');
+
+    for ($i = 0; $i < 60; $i++) {
+        RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->getJson("/api/v1/posts/{$post->slug}")
+        ->assertTooManyRequests();
 });
 
 it('filters by tag and search combined', function () {
