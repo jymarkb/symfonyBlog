@@ -29,7 +29,7 @@ export function FeaturedPostCard({ post }: Props) {
       {hasImage && (
         <img
           className="featured-img"
-          src={post.cover_image!}
+          src={post.cover_image ?? ''}
           alt={post.title}
         />
       )}
@@ -73,7 +73,7 @@ export function FeaturedPostCard({ post }: Props) {
             </>
           )}
 
-          {post.comments_count !== undefined && (
+          {post.comments_count != null && (
             <>
               <span>·</span>
               <span>{post.comments_count} comments</span>
