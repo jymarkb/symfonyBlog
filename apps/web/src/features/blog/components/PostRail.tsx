@@ -41,7 +41,7 @@ export function PostRail({ post }: { post: PostDetail }) {
           {/* bio is not present in PostDetail — stub text */}
           Engineer and writer.
         </p>
-        <a className="btn btn-sm rail-follow" href="#">Follow</a>
+        <button className="btn btn-sm rail-follow" disabled>Follow</button>
       </div>
 
       {/* Post stats */}
