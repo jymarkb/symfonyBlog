@@ -5,6 +5,7 @@ import type {
   PostSummary,
   PostTag,
   PostYear,
+  PostDetail,
 } from "@/features/blog/blogTypes";
 
 export async function fetchFeaturedPosts(): Promise<PostSummary[]> {
@@ -46,5 +47,10 @@ export async function fetchArchivePosts(params?: {
 
 export async function fetchPostYears(): Promise<PostYear[]> {
   const response = await apiRequest<{ data: PostYear[] }>("/posts/years");
+  return response.data;
+}
+
+export async function fetchPostBySlug(slug: string): Promise<PostDetail> {
+  const response = await apiRequest<{ data: PostDetail }>(`/posts/${encodeURIComponent(slug)}`);
   return response.data;
 }
