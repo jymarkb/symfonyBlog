@@ -88,12 +88,12 @@ export default function Page() {
       </section>
       <div className="shell">
         {error != null && (
-          <div className="load-error" role="status" aria-live="polite">
+          <div className="load-error" role="alert" aria-live="assertive">
             <span>{error}</span>
             <button onClick={() => void load({ search, tag: activeTag ?? undefined, year: activeYear ?? undefined, page: 1 })}>Retry</button>
           </div>
         )}
-        <ArchiveSection posts={posts} isLoading={isLoading} />
+        <ArchiveSection posts={posts} isLoading={isLoading} onTagChange={setActiveTag} />
 
         {!isLoading && hasMore && (
           <div className="load-more-row">

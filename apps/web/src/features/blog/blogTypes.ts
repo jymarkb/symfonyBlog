@@ -38,9 +38,9 @@ export type PostSummary = {
   created_at: string | null;
   updated_at: string | null;
   author: PostAuthor;
-  tags: PostTag[] | undefined;
-  comments_count: number | undefined;
-  stars_count: number | undefined;
+  tags: PostTag[] | null;
+  comments_count: number | null;
+  stars_count: number | null;
 };
 
 // ── API response wrappers ─────────────────────────────────────────────────────

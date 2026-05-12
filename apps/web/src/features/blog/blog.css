@@ -533,7 +533,7 @@
   list-style: none;
 }
 /* Year pill menu opens leftward to avoid right-edge overflow */
-.filter-pills .filter-dropdown:last-child .filter-menu { left: auto; right: 0; }
+.filter-menu--year { left: auto; right: 0; }
 /* Year items as pills */
 .filter-menu--year .filter-item { border-radius: 999px; }
 
@@ -753,7 +753,7 @@
   line-height: 1.35;
   color: var(--ink);
 }
-.arc-title:hover { color: var(--accent-ink); }
+.arc-title a:hover { color: var(--accent-ink); }
 .arc-dek {
   font-family: var(--font-serif);
   font-size: 14px;
