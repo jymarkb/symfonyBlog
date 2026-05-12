@@ -13,6 +13,101 @@ type Props = {
   suggestedTags?: PostTag[];
 };
 
+// ---------------------------------------------------------------------------
+// Helper: FilterMenuList
+// Renders the <li> items (the "All …" entry + mapped items) for a filter menu.
+// The caller provides the wrapping <ul role="listbox">.
+// ---------------------------------------------------------------------------
+type FilterItem = {
+  value: string | number | null;
+  label: string;
+  count?: number;
+  pill?: boolean;
+};
+
+function FilterMenuList<T extends string | number>({
+  items,
+  activeValue,
+  onSelect,
+}: {
+  items: FilterItem[];
+  activeValue: T | null;
+  onSelect: (value: T | null) => void;
+}) {
+  return (
+    <>
+      {items.map((item) => {
+        const isActive = item.value === activeValue;
+        const baseClass = `filter-item${item.pill ? ' filter-item--pill' : ''}`;
+        return (
+          <li key={item.value ?? '__all__'}>
+            <button
+              role="option"
+              aria-selected={isActive}
+              className={`${baseClass}${isActive ? ' active' : ''}`}
+              onClick={() => onSelect(item.value as T | null)}
+            >
+              <span className="filter-item-name">{item.label}</span>
+              <span className="filter-item-check" aria-hidden="true">
+                {isActive ? '✓' : ''}
+              </span>
+              {item.count != null && (
+                <span className="filter-item-count">{item.count}</span>
+              )}
+            </button>
+          </li>
+        );
+      })}
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Helper: FilterDropdown
+// Renders the desktop pill-button + conditional listbox dropdown wrapper.
+// ---------------------------------------------------------------------------
+function FilterDropdown({
+  label,
+  isOpen,
+  isActive,
+  ariaLabel,
+  onToggle,
+  dropdownRef,
+  menuClassName,
+  children,
+}: {
+  label: React.ReactNode;
+  isOpen: boolean;
+  isActive: boolean;
+  ariaLabel: string;
+  onToggle: () => void;
+  dropdownRef: React.RefObject<HTMLDivElement | null>;
+  menuClassName: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="filter-dropdown" ref={dropdownRef}>
+      <button
+        className={`filter-btn filter-btn--pill${isActive ? ' active' : ''}`}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        onClick={onToggle}
+      >
+        {label}
+        <span className="filter-caret" aria-hidden="true">▾</span>
+      </button>
+      {isOpen && (
+        <ul className={menuClassName} role="listbox" aria-label={ariaLabel}>
+          {children}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
 export function ArchiveFilterBar({
   tags,
   years,
@@ -108,66 +203,16 @@ export function ArchiveFilterBar({
     [onYearChange],
   );
 
-  // C-2: role="option" and aria-selected moved from <li> to <button>
-  const tagItems = (
-    <>
-      <li>
-        <button
-          role="option"
-          aria-selected={activeTag === null}
-          className={`filter-item${activeTag === null ? ' active' : ''}`}
-          onClick={() => handleTagSelect(null)}
-        >
-          <span className="filter-item-name">All topics</span>
-          <span className="filter-item-check" aria-hidden="true">{activeTag === null ? '✓' : ''}</span>
-        </button>
-      </li>
-      {tags.map((tag) => (
-        <li key={tag.slug}>
-          <button
-            role="option"
-            aria-selected={activeTag === tag.slug}
-            className={`filter-item${activeTag === tag.slug ? ' active' : ''}`}
-            onClick={() => handleTagSelect(tag.slug)}
-          >
-            <span className="filter-item-name">{tag.name}</span>
-            <span className="filter-item-check" aria-hidden="true">{activeTag === tag.slug ? '✓' : ''}</span>
-            {tag.posts_count != null && <span className="filter-item-count">{tag.posts_count}</span>}
-          </button>
-        </li>
-      ))}
-    </>
-  );
+  // Build item arrays for FilterMenuList
+  const tagFilterItems: FilterItem[] = [
+    { value: null, label: 'All topics' },
+    ...tags.map((tag) => ({ value: tag.slug, label: tag.name, count: tag.posts_count ?? undefined })),
+  ];
 
-  const yearItems = (
-    <>
-      <li>
-        <button
-          role="option"
-          aria-selected={activeYear === null}
-          className={`filter-item${activeYear === null ? ' active' : ''}`}
-          onClick={() => handleYearSelect(null)}
-        >
-          <span className="filter-item-name">All years</span>
-          <span className="filter-item-check" aria-hidden="true">{activeYear === null ? '✓' : ''}</span>
-        </button>
-      </li>
-      {years.map(({ year, count }) => (
-        <li key={year}>
-          <button
-            role="option"
-            aria-selected={activeYear === year}
-            className={`filter-item filter-item--pill${activeYear === year ? ' active' : ''}`}
-            onClick={() => handleYearSelect(year)}
-          >
-            <span className="filter-item-name">{year}</span>
-            <span className="filter-item-check" aria-hidden="true">{activeYear === year ? '✓' : ''}</span>
-            <span className="filter-item-count">{count}</span>
-          </button>
-        </li>
-      ))}
-    </>
-  );
+  const yearFilterItems: FilterItem[] = [
+    { value: null, label: 'All years' },
+    ...years.map(({ year, count }) => ({ value: year, label: String(year), count, pill: true })),
+  ];
 
   return (
     <div className="toolbar-wrap">
@@ -190,36 +235,38 @@ export function ArchiveFilterBar({
 
         {/* Desktop: separate pill dropdowns */}
         <div className="filter-pills">
-          <div className="filter-dropdown" ref={tagRef}>
-            <button
-              className={`filter-btn filter-btn--pill${activeTag !== null ? ' active' : ''}`}
-              aria-haspopup="listbox"
-              aria-expanded={tagOpen}
-              onClick={() => { setTagOpen((o) => !o); setYearOpen(false); }}
-            >
-              {activeTagData != null ? activeTagData.name : 'Topic'}
-              <span className="filter-caret" aria-hidden="true">▾</span>
-            </button>
-            {tagOpen && (
-              <ul className="filter-menu" role="listbox" aria-label="Filter by topic">{tagItems}</ul>
-            )}
-          </div>
+          <FilterDropdown
+            label={activeTagData != null ? activeTagData.name : 'Topic'}
+            isOpen={tagOpen}
+            isActive={activeTag !== null}
+            ariaLabel="Filter by topic"
+            onToggle={() => { setTagOpen((o) => !o); setYearOpen(false); }}
+            dropdownRef={tagRef}
+            menuClassName="filter-menu"
+          >
+            <FilterMenuList<string>
+              items={tagFilterItems}
+              activeValue={activeTag}
+              onSelect={handleTagSelect}
+            />
+          </FilterDropdown>
 
           {years.length > 0 && (
-            <div className="filter-dropdown" ref={yearRef}>
-              <button
-                className={`filter-btn filter-btn--pill${activeYear !== null ? ' active' : ''}`}
-                aria-haspopup="listbox"
-                aria-expanded={yearOpen}
-                onClick={() => { setYearOpen((o) => !o); setTagOpen(false); }}
-              >
-                {activeYear != null ? activeYear : 'Year'}
-                <span className="filter-caret" aria-hidden="true">▾</span>
-              </button>
-              {yearOpen && (
-                <ul className="filter-menu filter-menu--year" role="listbox" aria-label="Filter by year">{yearItems}</ul>
-              )}
-            </div>
+            <FilterDropdown
+              label={activeYear != null ? activeYear : 'Year'}
+              isOpen={yearOpen}
+              isActive={activeYear !== null}
+              ariaLabel="Filter by year"
+              onToggle={() => { setYearOpen((o) => !o); setTagOpen(false); }}
+              dropdownRef={yearRef}
+              menuClassName="filter-menu filter-menu--year"
+            >
+              <FilterMenuList<number>
+                items={yearFilterItems}
+                activeValue={activeYear}
+                onSelect={handleYearSelect}
+              />
+            </FilterDropdown>
           )}
         </div>
 
@@ -260,12 +307,24 @@ export function ArchiveFilterBar({
               >
                 <div className="filter-drawer-handle" aria-hidden="true" />
                 <p className="filter-section-label">Topic</p>
-                <ul role="listbox" aria-label="Filter by topic">{tagItems}</ul>
+                <ul role="listbox" aria-label="Filter by topic">
+                  <FilterMenuList<string>
+                    items={tagFilterItems}
+                    activeValue={activeTag}
+                    onSelect={handleTagSelect}
+                  />
+                </ul>
                 {years.length > 0 && (
                   <>
                     <div className="filter-combo-divider" />
                     <p className="filter-section-label">Year</p>
-                    <ul role="listbox" aria-label="Filter by year">{yearItems}</ul>
+                    <ul role="listbox" aria-label="Filter by year">
+                      <FilterMenuList<number>
+                        items={yearFilterItems}
+                        activeValue={activeYear}
+                        onSelect={handleYearSelect}
+                      />
+                    </ul>
                   </>
                 )}
               </div>
