@@ -24,7 +24,12 @@ export default function Head() {
     ? `Posts matching "${search}" on jymb.blog.`
     : 'All essays, sorted by date.'
 
-  const canonical = `https://jymb.blog/archive${urlParsed.searchOriginal ?? ''}`
+  const params = new URLSearchParams();
+  if (tag) params.set('tag', tag);
+  if (year) params.set('year', year);
+  if (search) params.set('search', search.toLowerCase());
+  const qs = params.toString();
+  const canonical = `https://jymb.blog/archive${qs ? '?' + qs : ''}`
 
   return (
     <>

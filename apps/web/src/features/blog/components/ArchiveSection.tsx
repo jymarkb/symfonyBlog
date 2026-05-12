@@ -1,6 +1,6 @@
 // apps/web/src/features/blog/components/ArchiveSection.tsx
 
-import { PostSummary } from '../blogTypes';
+import type { PostSummary } from '../blogTypes';
 import { ArchiveRow } from './ArchiveRow';
 
 type Props = {
