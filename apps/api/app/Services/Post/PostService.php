@@ -23,10 +23,15 @@ class PostService
                 $query->where('is_featured', filter_var($request->query('featured'), FILTER_VALIDATE_BOOLEAN));
             })
             ->when($request->filled('year'), function ($query) use ($request) {
-                $query->whereRaw('EXTRACT(YEAR FROM published_at)::int = ?', [(int) $request->integer('year')]);
+                $year = (int) $request->integer('year');
+                if ($year >= 2000 && $year <= 2099) {
+                    $query->whereRaw('EXTRACT(YEAR FROM published_at)::int = ?', [$year]);
+                }
             })
             ->when($request->filled('search'), function ($query) use ($request) {
-                $term = strtolower(substr($request->string('search')->toString(), 0, 100));
+                $raw = $request->string('search')->toString();
+                $term = strtolower(substr(trim($raw), 0, 100));
+                if (strlen($term) < 2) return;
                 $search = '%' . addcslashes($term, '%_\\') . '%';
 
                 $query->where(function ($searchQuery) use ($search) {
