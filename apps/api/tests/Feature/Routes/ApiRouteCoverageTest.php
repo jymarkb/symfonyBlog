@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 it('keeps api v1 route test coverage explicit', function () {
     $documentedRoutes = [
         'GET api/v1/posts',
+        'GET api/v1/posts/years',
         'GET api/v1/posts/{slug}',
         'GET api/v1/tags',
         'POST api/v1/posts/{slug}/view',

@@ -29,7 +29,7 @@ export function PostRow({ post }: Props) {
         {(post.tags ?? []).length > 0 && (
           <div className="post-row-tags">
             {(post.tags ?? []).map((tag, index) => (
-              <span key={tag.id} className={`tag t-${(index % 5) + 1}`}>{tag.name}</span>
+              <a key={tag.id} href={`/tags/${tag.slug}`} className={`tag t-${(index % 5) + 1}`}>{tag.name}</a>
             ))}
           </div>
         )}

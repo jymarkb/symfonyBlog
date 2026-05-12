@@ -13,6 +13,12 @@ export type PostTag = {
   id: number;
   name: string;
   slug: string;
+  posts_count: number | null;
+};
+
+export type PostYear = {
+  year: number;
+  count: number;
 };
 
 // ── Primary resource shapes ───────────────────────────────────────────────────
@@ -79,4 +85,5 @@ export type ArchivePageData = {
   lastPage: number;
   currentPage: number;
   tags: PostTag[];
+  years: PostYear[];
 };

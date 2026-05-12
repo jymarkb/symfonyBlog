@@ -1,25 +1,35 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { PostTag } from '../blogTypes';
+import type { PostTag, PostYear } from '../blogTypes';
 
 type Props = {
   tags: PostTag[];
+  years: PostYear[];
   activeTag: string | null;
+  activeYear: number | null;
   searchValue: string;
   onTagChange: (slug: string | null) => void;
+  onYearChange: (year: number | null) => void;
   onSearchChange: (value: string) => void;
 };
 
 export function ArchiveFilterBar({
   tags,
+  years,
   activeTag,
+  activeYear,
   searchValue,
   onTagChange,
+  onYearChange,
   onSearchChange,
 }: Props) {
   const [inputValue, setInputValue] = useState(searchValue);
+  const [tagOpen, setTagOpen] = useState(false);
+  const [yearOpen, setYearOpen] = useState(false);
+  const [comboOpen, setComboOpen] = useState(false);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tagRef = useRef<HTMLDivElement>(null);
+  const yearRef = useRef<HTMLDivElement>(null);
 
-  // Sync inputValue if searchValue prop is reset externally (e.g. cleared by parent)
   useEffect(() => {
     setInputValue(searchValue);
   }, [searchValue]);
@@ -28,64 +38,181 @@ export function ArchiveFilterBar({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       setInputValue(value);
-
-      if (debounceTimer.current !== null) {
-        clearTimeout(debounceTimer.current);
-      }
-      debounceTimer.current = setTimeout(() => {
-        onSearchChange(value);
-      }, 300);
+      if (debounceTimer.current !== null) clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => onSearchChange(value), 300);
     },
     [onSearchChange],
   );
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (debounceTimer.current !== null) {
-        clearTimeout(debounceTimer.current);
-      }
+      if (debounceTimer.current !== null) clearTimeout(debounceTimer.current);
     };
   }, []);
 
-  const handleAllClick = useCallback(() => {
-    onTagChange(null);
-  }, [onTagChange]);
+  useEffect(() => {
+    if (!tagOpen && !yearOpen && !comboOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setTagOpen(false); setYearOpen(false); setComboOpen(false); }
+    };
+    const handleClick = (e: MouseEvent) => {
+      if (tagRef.current && !tagRef.current.contains(e.target as Node)) setTagOpen(false);
+      if (yearRef.current && !yearRef.current.contains(e.target as Node)) setYearOpen(false);
+    };
+    document.addEventListener('keydown', handleKey);
+    document.addEventListener('mousedown', handleClick);
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      document.removeEventListener('mousedown', handleClick);
+    };
+  }, [tagOpen, yearOpen, comboOpen]);
 
-  const handleTagClick = useCallback(
-    (slug: string) => {
-      onTagChange(slug);
-    },
+  const activeTagData = activeTag != null ? tags.find((t) => t.slug === activeTag) : null;
+  const activeCount = (activeTag !== null ? 1 : 0) + (activeYear !== null ? 1 : 0);
+
+  const handleTagSelect = useCallback(
+    (slug: string | null) => { onTagChange(slug); setTagOpen(false); setComboOpen(false); },
     [onTagChange],
   );
 
-  return (
-    <div className="toolbar">
-      <label className="search">
-        <input
-          type="search"
-          aria-label="Search essays"
-          placeholder="Search essays…"
-          value={inputValue}
-          onChange={handleInputChange}
-        />
-      </label>
-      <div className="filter-chips">
-        <button
-          className={`chip${activeTag === null ? ' active' : ''}`}
-          onClick={handleAllClick}
-        >
-          All
+  const handleYearSelect = useCallback(
+    (year: number | null) => { onYearChange(year); setYearOpen(false); setComboOpen(false); },
+    [onYearChange],
+  );
+
+  const tagItems = (
+    <>
+      <li role="option" aria-selected={activeTag === null}>
+        <button className={`filter-item${activeTag === null ? ' active' : ''}`} onClick={() => handleTagSelect(null)}>
+          <span className="filter-item-name">All topics</span>
+          <span className="filter-item-check" aria-hidden="true">{activeTag === null ? '✓' : ''}</span>
         </button>
-        {tags.map((tag) => (
-          <button
-            key={tag.slug}
-            className={`chip${activeTag === tag.slug ? ' active' : ''}`}
-            onClick={() => handleTagClick(tag.slug)}
-          >
-            {tag.name}
+      </li>
+      {tags.map((tag) => (
+        <li key={tag.slug} role="option" aria-selected={activeTag === tag.slug}>
+          <button className={`filter-item${activeTag === tag.slug ? ' active' : ''}`} onClick={() => handleTagSelect(tag.slug)}>
+            <span className="filter-item-name">{tag.name}</span>
+            <span className="filter-item-check" aria-hidden="true">{activeTag === tag.slug ? '✓' : ''}</span>
+            {tag.posts_count != null && <span className="filter-item-count">{tag.posts_count}</span>}
           </button>
-        ))}
+        </li>
+      ))}
+    </>
+  );
+
+  const yearItems = (
+    <>
+      <li role="option" aria-selected={activeYear === null}>
+        <button className={`filter-item${activeYear === null ? ' active' : ''}`} onClick={() => handleYearSelect(null)}>
+          <span className="filter-item-name">All years</span>
+          <span className="filter-item-check" aria-hidden="true">{activeYear === null ? '✓' : ''}</span>
+        </button>
+      </li>
+      {years.map(({ year, count }) => (
+        <li key={year} role="option" aria-selected={activeYear === year}>
+          <button className={`filter-item filter-item--pill${activeYear === year ? ' active' : ''}`} onClick={() => handleYearSelect(year)}>
+            <span className="filter-item-name">{year}</span>
+            <span className="filter-item-check" aria-hidden="true">{activeYear === year ? '✓' : ''}</span>
+            <span className="filter-item-count">{count}</span>
+          </button>
+        </li>
+      ))}
+    </>
+  );
+
+  return (
+    <div className="toolbar-wrap">
+      <div className="toolbar">
+        <label className="search">
+          <span className="search-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" strokeWidth="1.5"/>
+              <line x1="8.8" y1="8.8" x2="12.5" y2="12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </span>
+          <input
+            type="search"
+            aria-label="Search essays"
+            placeholder="Search essays…"
+            value={inputValue}
+            onChange={handleInputChange}
+          />
+        </label>
+
+        {/* Desktop: separate pill dropdowns */}
+        <div className="filter-pills">
+          <div className="filter-dropdown" ref={tagRef}>
+            <button
+              className={`filter-btn filter-btn--pill${activeTag !== null ? ' active' : ''}`}
+              aria-haspopup="listbox"
+              aria-expanded={tagOpen}
+              onClick={() => { setTagOpen((o) => !o); setYearOpen(false); }}
+            >
+              {activeTagData != null ? activeTagData.name : 'Topic'}
+              <span className="filter-caret" aria-hidden="true">▾</span>
+            </button>
+            {tagOpen && (
+              <ul className="filter-menu" role="listbox" aria-label="Filter by topic">{tagItems}</ul>
+            )}
+          </div>
+
+          {years.length > 0 && (
+            <div className="filter-dropdown" ref={yearRef}>
+              <button
+                className={`filter-btn filter-btn--pill${activeYear !== null ? ' active' : ''}`}
+                aria-haspopup="listbox"
+                aria-expanded={yearOpen}
+                onClick={() => { setYearOpen((o) => !o); setTagOpen(false); }}
+              >
+                {activeYear != null ? activeYear : 'Year'}
+                <span className="filter-caret" aria-hidden="true">▾</span>
+              </button>
+              {yearOpen && (
+                <ul className="filter-menu filter-menu--year" role="listbox" aria-label="Filter by year">{yearItems}</ul>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Mobile: combined icon button + bottom drawer */}
+        <div className="filter-combo">
+          <button
+            className={`filter-btn filter-btn--icon${activeCount > 0 ? ' active' : ''}`}
+            aria-haspopup="dialog"
+            aria-expanded={comboOpen}
+            aria-label="Filters"
+            onClick={() => setComboOpen((o) => !o)}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <line x1="2" y1="4" x2="14" y2="4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="5" cy="4" r="2" fill="var(--paper)" stroke="currentColor" strokeWidth="1.5"/>
+              <circle cx="10" cy="8" r="2" fill="var(--paper)" stroke="currentColor" strokeWidth="1.5"/>
+              <circle cx="6" cy="12" r="2" fill="var(--paper)" stroke="currentColor" strokeWidth="1.5"/>
+            </svg>
+            {activeCount > 0 && (
+              <span className="filter-badge" aria-label={`${activeCount} filters active`}>{activeCount}</span>
+            )}
+          </button>
+          {comboOpen && (
+            <>
+              <div className="filter-drawer-backdrop" onClick={() => setComboOpen(false)} aria-hidden="true" />
+              <div className="filter-combo-menu" role="dialog" aria-label="Filters">
+                <div className="filter-drawer-handle" aria-hidden="true" />
+                <p className="filter-section-label">Topic</p>
+                <ul role="listbox" aria-label="Filter by topic">{tagItems}</ul>
+                {years.length > 0 && (
+                  <>
+                    <div className="filter-combo-divider" />
+                    <p className="filter-section-label">Year</p>
+                    <ul role="listbox" aria-label="Filter by year">{yearItems}</ul>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
