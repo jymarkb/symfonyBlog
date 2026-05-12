@@ -22,6 +22,11 @@ class PostController extends Controller
         );
     }
 
+    public function years(): \Illuminate\Http\JsonResponse
+    {
+        return response()->json(['data' => $this->postService->availableYears()]);
+    }
+
     public function show(string $slug): PostResource
     {
         return new PostResource(

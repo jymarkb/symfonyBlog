@@ -294,3 +294,35 @@ it('returns correct response shape and excludes sensitive fields for featured po
         ->assertJsonMissingPath('data.0.body');
 });
 
+
+it('filters published posts by year', function () {
+    Post::factory()->create([
+        'slug' => 'old-post',
+        'status' => 'published',
+        'published_at' => '2023-06-15 00:00:00',
+    ]);
+
+    Post::factory()->create([
+        'slug' => 'new-post',
+        'status' => 'published',
+        'published_at' => '2026-01-10 00:00:00',
+    ]);
+
+    $this->getJson('/api/v1/posts?year=2023')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.slug', 'old-post');
+});
+
+it('returns available years for published posts only', function () {
+    Post::factory()->create(['status' => 'published', 'published_at' => '2024-03-01 00:00:00']);
+    Post::factory()->create(['status' => 'published', 'published_at' => '2023-11-01 00:00:00']);
+    Post::factory()->draft()->create();
+
+    $response = $this->getJson('/api/v1/posts/years')->assertOk();
+
+    $years = $response->json('data');
+    expect($years)->toContain(2024)->toContain(2023);
+    expect($years)->not->toContain(null);
+    expect($years[0])->toBeGreaterThan($years[1]);
+});

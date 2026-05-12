@@ -46,6 +46,8 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 - [ ] Enum/option fields use `in:value1,value2,...` — no open string inputs for constrained sets
 - [ ] File uploads (if any): MIME type, extension, max size — never trust `Content-Type` header alone
 - [ ] No injection risk in raw query fragments (use query builder bindings, not string concat)
+- [ ] Case-insensitive text search uses `LOWER(column) LIKE ?` with `strtolower()` on the PHP side — plain `LIKE` is case-sensitive on PostgreSQL (unlike MySQL/SQLite) and will silently miss results when the stored value uses mixed case
+- [ ] LIKE wildcard inputs are escaped with `addcslashes($term, '%_')` before being wrapped in `%...%` — unescaped `%` and `_` in user input become metacharacters and match unintended rows
 - [ ] Request body size is not unlimited — check for missing `max` rules on text fields
 
 ### 5. Rate limiting (OWASP API #4)
@@ -159,7 +161,8 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 - [ ] Network failure (no response) is handled separately from API error (response with error status)
 - [ ] 429 Too Many Requests shows a user-friendly message — not a raw status code or a blank page
 - [ ] 401 on a private page triggers a sign-out and redirect — not just an error banner
-- [ ] Retry or refresh affordance available where appropriate (e.g., a "Try again" button on error state)
+- [ ] Retry or refresh affordance available where appropriate — a "Try again" button must be rendered alongside error messages, not just a message that says "please try again" with no button
+- [ ] SSR pages with client-side filtering use a `hasMounted` ref guard to skip the initial `useEffect` fetch — without this the page double-fetches on hydration (SSR data is already in state from `useData()`)
 
 ### 6. Error message hygiene
 
@@ -189,6 +192,8 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 - [ ] Concurrent requests for the same resource are deduplicated or the last one wins (no race between two fetches)
 - [ ] Lists with unbounded length have pagination or virtualization
 - [ ] Large data sets do not cause layout shifts (render skeleton with known height)
+- [ ] Aggregate calculations (average, sum, min/max) that operate on a filtered subset reduce over that filtered subset — not over the full array with a denominator derived from the subset; `fullArray.reduce(...) / filteredSubset.length` silently produces wrong averages when the arrays differ in length
+- [ ] Props declared in a component's type are actually destructured and used — unused props that survive in the interface silently accept values from the parent without effect; review `Props` type and destructured parameters together
 
 ### 10. Accessibility basics
 
@@ -213,6 +218,7 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 - [ ] `tsc --noEmit` produces zero errors after any change
 - [ ] All types for a feature live in one file: `src/features/<feature>/<feature>Types.ts` — no split type files (e.g. no separate `sessionTypes.ts` or `contextTypes.ts` alongside the main types file)
 - [ ] No feature-specific types placed in `src/types/` — that folder is for genuinely cross-feature shared types only
+- [ ] Import style matches the export style — named exports use `import { Component }`, default exports use `import Component`; a mismatch compiles in some bundler configs but silently imports `undefined` at runtime
 
 ### 13. Dead and inconsistent UI
 
@@ -277,3 +283,4 @@ Update this section when new QA checks are added:
 - **2026-05-08** — Global security centralization. Frontend: per-group guards replaced by single `pages/+guard.ts` reading `accessLevel`; `resolveServerAuth()` is the only permitted server-side session resolver. Backend: default-deny global auth; `auth:api`/`admin` references replaced with default middleware + `permission:admin`; canonical 401/403 body shapes added to API response consistency checks.
 - **2026-05-09** — OAuth callback: added check for redundant `getSession()` call after `exchangeCodeForSession`/`setSession` — use the session returned directly. Error boundaries: `ErrorBoundary` must wrap root, user, and admin layouts with `<ErrorPage code={500} />` as fallback. Dead guard cleanup: `RequireAuth` and `RequireGuest` removed; `RequireAdmin` is the only permitted client-side fallback guard.
 - **2026-05-09** — Component placement: added section 14 — feature-named components must live in their feature folder, not `components/ui/`. Types consolidation: one types file per feature, no split sub-files. Cross-feature components go to `components/common/` only when real reuse exists.
+- **2026-05-12** — Archive page QA (5 rounds). New backend checks: PostgreSQL LIKE is case-sensitive (must use `LOWER(col) LIKE ?` + `strtolower()`); LIKE inputs must be wildcard-escaped with `addcslashes($term, '%_')`. New frontend checks: error state must include a retry button (not just text); SSR pages need a `hasMounted` ref guard to prevent double-fetch on hydration; import style must match export style (named vs default mismatch silently imports undefined); aggregates over a filtered subset must reduce over that subset (not the full array); unused Props interface fields must be removed from the type and call site.

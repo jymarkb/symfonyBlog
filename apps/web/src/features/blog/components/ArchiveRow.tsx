@@ -13,14 +13,25 @@ export function ArchiveRow({ post }: Props) {
         })
       : "";
 
+  const formattedYear =
+    post.published_at != null
+      ? new Date(post.published_at).getFullYear()
+      : null;
+
   const tags = post.tags ?? [];
 
   return (
     <article className="arc-item">
-      <span className="arc-date">{formattedDate}</span>
+      <span className="arc-date">
+        {formattedDate}
+        {formattedYear != null && <span className="arc-date-year">{formattedYear}</span>}
+      </span>
 
       <div className="arc-title">
         <a href={`/blog/${post.slug}`}>{post.title}</a>
+        {post.excerpt != null && (
+          <p className="arc-dek">{post.excerpt}</p>
+        )}
         {tags.length > 0 && (
           <div className="tags-inline">
             {tags.map((tag, index) => (
@@ -39,7 +50,9 @@ export function ArchiveRow({ post }: Props) {
       <div className="arc-meta">
         {post.reading_time != null && <span>{post.reading_time} min</span>}
         {post.comments_count !== undefined && post.comments_count > 0 && (
-          <span className="comment-count">💬 {post.comments_count}</span>
+          <span className="comment-count" aria-label={`${post.comments_count} comments`}>
+            <span aria-hidden="true">💬</span> {post.comments_count}
+          </span>
         )}
       </div>
     </article>
