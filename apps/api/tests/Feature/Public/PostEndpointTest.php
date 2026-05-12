@@ -321,8 +321,25 @@ it('returns available years for published posts only', function () {
 
     $response = $this->getJson('/api/v1/posts/years')->assertOk();
 
-    $years = $response->json('data');
-    expect($years)->toContain(2024)->toContain(2023);
-    expect($years)->not->toContain(null);
-    expect($years[0])->toBeGreaterThan($years[1]);
+    $data = $response->json('data');
+
+    // Each entry must be an object with year and count keys
+    expect($data)->toBeArray();
+    expect($data)->not->toBeEmpty();
+
+    $yearValues = array_column($data, 'year');
+    $countValues = array_column($data, 'count');
+
+    expect($yearValues)->toContain(2024)->toContain(2023);
+
+    // Drafts must be excluded — only 2 published posts, so exactly 2 entries
+    expect($data)->toHaveCount(2);
+
+    // count values must be positive integers
+    foreach ($countValues as $count) {
+        expect($count)->toBeInt()->toBeGreaterThan(0);
+    }
+
+    // Years must be in descending order
+    expect($yearValues[0])->toBeGreaterThan($yearValues[1]);
 });

@@ -9,7 +9,7 @@ uses(RefreshDatabase::class);
 function fakeClaims(array $overrides = []): object
 {
     return (object) [
-        'sub'           => 'supabase-uuid-' . fake()->uuid(),
+        'sub'           => fake()->uuid(),
         'email'         => fake()->unique()->safeEmail(),
         'user_metadata' => ['display_name' => 'Test User'],
         ...$overrides,
