@@ -17,7 +17,7 @@ export function TagsSection({ tags }: Props) {
           <span>Loading tags…</span>
         ) : (
           tags.map((tag, index) => (
-            <a key={tag.id} href={`/tags/${tag.slug}`}>
+            <a key={tag.id} href={`/archive?tag=${encodeURIComponent(tag.slug)}`}>
               <span className={`tag t-${(index % 5) + 1}`}>{tag.name}</span>
             </a>
           ))

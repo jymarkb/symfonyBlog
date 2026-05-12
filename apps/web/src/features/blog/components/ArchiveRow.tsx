@@ -47,7 +47,7 @@ export function ArchiveRow({ post, onTagChange }: Props) {
               ) : (
                 <a
                   key={tag.id}
-                  href={`/tags/${tag.slug}`}
+                  href={`/archive?tag=${encodeURIComponent(tag.slug)}`}
                   className={`tag t-${(index % 5) + 1}`}
                 >
                   {tag.name}
