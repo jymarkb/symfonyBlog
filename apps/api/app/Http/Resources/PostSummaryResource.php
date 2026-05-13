@@ -19,6 +19,7 @@ class PostSummaryResource extends JsonResource
             'is_featured' => $this->is_featured,
             'published_at' => $this->published_at?->toISOString(),
             'author' => [
+                'id' => $this->user?->id,
                 'display_name' => $this->user?->display_name,
                 'handle' => $this->user?->handle,
                 'avatar_url' => $this->user?->avatar_url,
