@@ -18,3 +18,13 @@ export async function tryGetAccessToken(): Promise<string | null> {
   const { data } = await supabase.auth.getSession();
   return data.session?.access_token ?? null;
 }
+
+// Returns the active Supabase token without redirecting, or null if none.
+// Swallows network errors so callers can treat them as "unauthenticated".
+export async function probeAccessToken(): Promise<string | null> {
+  try {
+    return await tryGetAccessToken();
+  } catch {
+    return null;
+  }
+}
