@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ApiError } from '@/lib/api/apiClient';
 import { getAccessToken } from '@/lib/auth/getAccessToken';
@@ -14,6 +14,8 @@ type AuthorCardProps = {
   onOpenAuthGate?: (callback: () => void) => void;
 };
 
+const PENDING_FOLLOW_KEY = 'pending_follow_author_id';
+
 export function AuthorCard({ post, variant, onOpenAuthGate }: AuthorCardProps) {
   const { author } = post;
   const displayName = author.display_name ?? author.handle;
@@ -26,13 +28,40 @@ export function AuthorCard({ post, variant, onOpenAuthGate }: AuthorCardProps) {
   const pendingFollowRef = useRef<(() => void) | null>(null);
   const { isAuthenticated } = useCurrentSession();
 
+  // OAuth path: after redirect back, apply the pending follow stored before OAuth started
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const pending = sessionStorage.getItem(PENDING_FOLLOW_KEY);
+    if (pending && parseInt(pending) === author.id) {
+      sessionStorage.removeItem(PENDING_FOLLOW_KEY);
+      void applyFollow();
+    }
+  }, [isAuthenticated]);
+
+  async function applyFollow() {
+    setBusy(true);
+    try {
+      const accessToken = await getAccessToken();
+      await followAuthor(author.id, accessToken);
+      setFollowing(true);
+    } catch {
+      // silent — user can click Follow again
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleFollow() {
     if (busy) return;
     if (!isAuthenticated) {
+      // Store intent for OAuth path (page will navigate away)
+      sessionStorage.setItem(PENDING_FOLLOW_KEY, String(author.id));
+      // Callback for email sign-in path (page stays, apply directly)
+      const callback = () => void applyFollow();
       if (onOpenAuthGate) {
-        onOpenAuthGate(() => { window.location.replace(`/${post.slug}`); });
+        onOpenAuthGate(callback);
       } else {
-        pendingFollowRef.current = () => { window.location.replace(`/${post.slug}`); };
+        pendingFollowRef.current = callback;
         setAuthGateOpen(true);
       }
       return;
@@ -50,10 +79,12 @@ export function AuthorCard({ post, variant, onOpenAuthGate }: AuthorCardProps) {
     } catch (err) {
       setFollowing(!next);
       if (err instanceof ApiError && err.status === 401) {
+        sessionStorage.setItem(PENDING_FOLLOW_KEY, String(author.id));
+        const callback = () => void applyFollow();
         if (onOpenAuthGate) {
-          onOpenAuthGate(() => { window.location.replace(`/${post.slug}`); });
+          onOpenAuthGate(callback);
         } else {
-          pendingFollowRef.current = () => { window.location.replace(`/${post.slug}`); };
+          pendingFollowRef.current = callback;
           setAuthGateOpen(true);
         }
       }
@@ -91,7 +122,10 @@ export function AuthorCard({ post, variant, onOpenAuthGate }: AuthorCardProps) {
         {!onOpenAuthGate && (
           <AuthGateModal
             isOpen={authGateOpen}
-            onClose={() => setAuthGateOpen(false)}
+            onClose={() => {
+              setAuthGateOpen(false);
+              sessionStorage.removeItem(PENDING_FOLLOW_KEY);
+            }}
             onSuccess={() => {
               setAuthGateOpen(false);
               pendingFollowRef.current?.();
@@ -132,7 +166,10 @@ export function AuthorCard({ post, variant, onOpenAuthGate }: AuthorCardProps) {
       {!onOpenAuthGate && (
         <AuthGateModal
           isOpen={authGateOpen}
-          onClose={() => setAuthGateOpen(false)}
+          onClose={() => {
+            setAuthGateOpen(false);
+            sessionStorage.removeItem(PENDING_FOLLOW_KEY);
+          }}
           onSuccess={() => {
             setAuthGateOpen(false);
             pendingFollowRef.current?.();
