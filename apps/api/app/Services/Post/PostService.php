@@ -118,6 +118,26 @@ class PostService
         $post->delete();
     }
 
+    public function getUserStateForPost(Post $post, \App\Models\User $user): array
+    {
+        $reactionService = app(\App\Services\Post\PostReactionService::class);
+        $followService = app(\App\Services\Follow\FollowService::class);
+
+        $isStarred = \App\Models\PostStar::where('post_id', $post->id)
+            ->where('user_id', $user->id)
+            ->exists();
+
+        $isFollowing = $followService->isFollowing($user, (int) $post->user_id);
+
+        $reaction = $reactionService->getUserReaction($post, $user);
+
+        return [
+            'is_starred' => $isStarred,
+            'is_following' => $isFollowing,
+            'reaction' => $reaction,
+        ];
+    }
+
     private function postData(array $validated): array
     {
         $data = Arr::except($validated, ['tag_ids']);
