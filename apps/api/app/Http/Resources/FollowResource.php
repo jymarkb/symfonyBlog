@@ -9,8 +9,6 @@ class FollowResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $this->author->loadCount('followers');
-
         return [
             'follower_id'     => $this->follower_id,
             'author_id'       => $this->author_id,
