@@ -3,7 +3,6 @@
 use App\Models\AuthorFollow;
 use App\Models\Post;
 use App\Models\PostReaction;
-use App\Models\PostStar;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -24,27 +23,25 @@ it('returns default false state for authenticated user with no interactions', fu
         ->assertOk()
         ->assertJson([
             'data' => [
-                'is_starred' => false,
                 'is_following' => false,
                 'reaction' => null,
             ],
         ]);
 });
 
-it('returns is_starred true when user has starred the post', function () {
+it('returns reaction star when user has starred the post via reactions', function () {
     $user = User::factory()->create();
     $post = Post::factory()->create(['slug' => 'starred-post', 'status' => 'published', 'published_at' => now()]);
 
-    PostStar::factory()->create(['post_id' => $post->id, 'user_id' => $user->id]);
+    PostReaction::create(['post_id' => $post->id, 'user_id' => $user->id, 'reaction' => 'star']);
 
     $this->actingAs($user, 'api')
         ->getJson('/api/v1/posts/starred-post/me')
         ->assertOk()
         ->assertJson([
             'data' => [
-                'is_starred' => true,
+                'reaction' => 'star',
                 'is_following' => false,
-                'reaction' => null,
             ],
         ]);
 });
@@ -63,7 +60,6 @@ it('returns is_following true when user follows the post author', function () {
         ->assertOk()
         ->assertJson([
             'data' => [
-                'is_starred' => false,
                 'is_following' => true,
                 'reaction' => null,
             ],
@@ -85,7 +81,6 @@ it('returns the reaction type when user has reacted to the post', function () {
         ->assertJson([
             'data' => [
                 'reaction' => 'helpful',
-                'is_starred' => false,
                 'is_following' => false,
             ],
         ]);

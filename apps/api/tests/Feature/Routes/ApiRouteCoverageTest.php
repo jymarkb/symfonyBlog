@@ -22,9 +22,6 @@ it('keeps api v1 route test coverage explicit', function () {
         'GET api/v1/posts/{slug}/me',
         'POST api/v1/posts/{slug}/reactions',
 
-        'POST api/v1/posts/{slug}/stars',
-        'DELETE api/v1/posts/{slug}/stars',
-
         'POST api/v1/authors/{authorId}/follow',
         'DELETE api/v1/authors/{authorId}/follow',
 
