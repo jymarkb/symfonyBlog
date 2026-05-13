@@ -7,6 +7,7 @@ import { signInWithEmail } from "@/features/auth/api/signInApi";
 import { startSocialAuth } from "@/features/auth/api/registerApi";
 import { validateEmail, validatePassword } from "@/features/auth/lib/validation";
 import { getLastAuthProvider } from "@/features/auth/lib/lastAuthProvider";
+import { setAuthReturnTo } from "@/features/auth/lib/authReturnTo";
 import { logError } from "@/lib/utils/logError";
 
 type Props = {
@@ -69,6 +70,7 @@ export function ModalSignInForm({ onSuccess, onSwitchToSignUp }: Props) {
     setSocialSubmitting(provider);
     setErrors({});
     try {
+      setAuthReturnTo(window.location.pathname);
       await startSocialAuth(provider);
     } catch (error) {
       logError(error);

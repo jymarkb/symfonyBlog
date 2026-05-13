@@ -9,6 +9,7 @@ import {
   getPendingAuthProvider,
   setLastAuthProvider,
 } from "@/features/auth/lib/lastAuthProvider";
+import { getAndClearAuthReturnTo } from "@/features/auth/lib/authReturnTo";
 
 export default function Page() {
   const hasStarted = useRef(false);
@@ -97,7 +98,8 @@ export default function Page() {
         return;
       }
 
-      window.location.replace("/");
+      const returnTo = getAndClearAuthReturnTo();
+      window.location.replace(returnTo ?? "/");
     }
 
     finishAuth().catch(() => {
