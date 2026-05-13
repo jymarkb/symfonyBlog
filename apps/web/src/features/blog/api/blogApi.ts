@@ -58,20 +58,6 @@ export async function fetchPostBySlug(slug: string): Promise<PostDetail> {
   return response.data;
 }
 
-export async function starPost(slug: string, accessToken: string): Promise<void> {
-  await apiRequest(`/posts/${encodeURIComponent(slug)}/stars`, {
-    method: 'POST',
-    accessToken,
-  });
-}
-
-export async function unstarPost(slug: string, accessToken: string): Promise<void> {
-  await apiRequest(`/posts/${encodeURIComponent(slug)}/stars`, {
-    method: 'DELETE',
-    accessToken,
-  });
-}
-
 export async function followAuthor(authorId: number, accessToken: string): Promise<void> {
   await apiRequest(`/authors/${authorId}/follow`, {
     method: 'POST',

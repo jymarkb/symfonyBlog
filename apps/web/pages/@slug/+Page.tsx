@@ -8,7 +8,7 @@ import type { TocHeading } from '@/features/blog/components/PostRail';
 import { AuthorCard } from '@/features/blog/components/AuthorCard';
 import { ReactionButton } from '@/features/blog/components/ReactionButton';
 import type { PostDetailPageData, PostDetail, ReactionCounts } from '@/features/blog/blogTypes';
-import { starPost, unstarPost } from '@/features/blog/api/blogApi';
+import { toggleReaction } from '@/features/blog/api/blogApi';
 import { ApiError } from '@/lib/api/apiClient';
 import { getAccessToken } from '@/lib/auth/getAccessToken';
 import { useCurrentSession } from '@/features/auth/session/useCurrentSession';
@@ -85,20 +85,20 @@ function StarButton({ slug, initialCount, initialStarred, openAuthGate }: StarBu
     }
     setBusy(true);
     setError(false);
-    const next = !starred;
-    setStarred(next);
-    setCount((c) => (c ?? 0) + (next ? 1 : -1));
+    const wasStarred = starred;
+    const delta = wasStarred ? -1 : 1;
+    setStarred(!wasStarred);
+    setCount((c) => (c ?? 0) + delta);
     try {
       const accessToken = await getAccessToken();
-      if (next) {
-        await starPost(slug, accessToken);
-      } else {
-        await unstarPost(slug, accessToken);
-      }
+      const result = await toggleReaction(slug, 'star', accessToken);
+      setStarred(result.reaction === 'star');
+      setCount(result.counts.star);
     } catch (err) {
-      setStarred(!next);
-      setCount((c) => (c ?? 0) + (next ? -1 : 1));
+      setStarred(wasStarred);
+      setCount((c) => (c ?? 0) - delta);
       if (err instanceof ApiError && err.status === 401) {
+        sessionStorage.setItem(PENDING_STAR_KEY, slug);
         openAuthGate(() => void toggle());
       } else if (!(err instanceof Error && err.message === 'Session expired.')) {
         setError(true);
@@ -265,8 +265,8 @@ export default function Page() {
                 <div className="pe-btns">
                   <StarButton
                     slug={post.slug}
-                    initialCount={post.stars_count ?? null}
-                    initialStarred={userState?.is_starred ?? false}
+                    initialCount={reactionCounts.star}
+                    initialStarred={userState?.reaction === 'star'}
                     openAuthGate={(cb) => {
                       pendingStarRef.current = cb;
                       setAuthGateOpen(true);

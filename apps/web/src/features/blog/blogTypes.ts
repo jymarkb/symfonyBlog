@@ -25,16 +25,16 @@ export type PostYear = {
   count: number;
 };
 
-export type ReactionType = 'helpful' | 'fire' | 'insightful';
+export type ReactionType = 'star' | 'helpful' | 'fire' | 'insightful';
 
 export type ReactionCounts = {
+  star: number;
   helpful: number;
   fire: number;
   insightful: number;
 };
 
 export type PostUserState = {
-  is_starred: boolean;
   is_following: boolean;
   reaction: ReactionType | null;
 };
