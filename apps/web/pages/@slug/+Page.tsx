@@ -50,14 +50,40 @@ function extractHeadings(blocks: BlockElement[]): TocHeading[] {
   return headings;
 }
 
+type ReactionButtonProps = {
+  emoji: string;
+  label: string;
+  openAuthGate: (callback: () => void) => void;
+};
+
+function ReactionButton({ emoji, label, openAuthGate }: ReactionButtonProps) {
+  const { isAuthenticated } = useCurrentSession();
+
+  function handleClick() {
+    if (!isAuthenticated) {
+      openAuthGate(() => {});
+    }
+  }
+
+  return (
+    <button
+      className="react-btn"
+      onClick={handleClick}
+      aria-label={label}
+    >
+      {emoji} <span className="count">—</span>
+    </button>
+  );
+}
+
 type StarButtonProps = {
   slug: string;
-  initialCount: number;
+  initialCount: number | null;
   openAuthGate: (callback: () => void) => void;
 };
 
 function StarButton({ slug, initialCount, openAuthGate }: StarButtonProps) {
-  const [count, setCount] = useState(initialCount);
+  const [count, setCount] = useState<number | null>(initialCount);
   const [starred, setStarred] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
@@ -73,7 +99,7 @@ function StarButton({ slug, initialCount, openAuthGate }: StarButtonProps) {
     setError(false);
     const next = !starred;
     setStarred(next);
-    setCount((c) => c + (next ? 1 : -1));
+    setCount((c) => (c ?? 0) + (next ? 1 : -1));
     try {
       const accessToken = await getAccessToken();
       if (next) {
@@ -83,7 +109,7 @@ function StarButton({ slug, initialCount, openAuthGate }: StarButtonProps) {
       }
     } catch (err) {
       setStarred(!next);
-      setCount((c) => c + (next ? -1 : 1));
+      setCount((c) => (c ?? 0) + (next ? -1 : 1));
       if (err instanceof ApiError && err.status === 401) {
         openAuthGate(() => void toggle());
       } else if (!(err instanceof Error && err.message === 'Session expired.')) {
@@ -105,7 +131,7 @@ function StarButton({ slug, initialCount, openAuthGate }: StarButtonProps) {
       >
         <span className="star-cta-icon">{starred ? '★' : '☆'}</span>
         <span className="star-cta-label">{starred ? 'Starred' : 'Star'}</span>
-        <span className="star-cta-count">{count.toLocaleString()}</span>
+        <span className="star-cta-count">{count !== null ? count.toLocaleString() : '—'}</span>
       </button>
       {error && <span className="star-cta-error" role="alert">Something went wrong. Try again.</span>}
     </div>
@@ -250,15 +276,15 @@ export default function Page() {
                 <div className="pe-btns">
                   <StarButton
                     slug={post.slug}
-                    initialCount={post.stars_count ?? 0}
+                    initialCount={post.stars_count ?? null}
                     openAuthGate={(cb) => {
                       pendingStarRef.current = cb;
                       setAuthGateOpen(true);
                     }}
                   />
-                  <button className="react-btn" disabled>👍 <span className="count">—</span></button>
-                  <button className="react-btn" disabled>🔥 <span className="count">—</span></button>
-                  <button className="react-btn" disabled>💡 <span className="count">—</span></button>
+                  <ReactionButton emoji="👍" label="Helpful" openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
+                  <ReactionButton emoji="🔥" label="Fire" openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
+                  <ReactionButton emoji="💡" label="Insightful" openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
                 </div>
               </div>
               <div className="pe-tags">
@@ -286,7 +312,7 @@ export default function Page() {
             <div className="discussion">
               <div className="discussion-header">
                 <h4 className="discussion-title">Discussion</h4>
-                <span className="discussion-count">0 comments</span>
+                <span className="discussion-count">{post.comments_count != null ? `${post.comments_count} ${post.comments_count === 1 ? 'comment' : 'comments'}` : '—'}</span>
               </div>
               <div className="discussion-gate">
                 <div className="discussion-gate-avatar" aria-hidden="true">?</div>
