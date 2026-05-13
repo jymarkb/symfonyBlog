@@ -16,9 +16,10 @@ type Props = {
   headings: TocHeading[];
   activeId?: string;
   bodyRef: React.RefObject<HTMLDivElement | null>;
+  initialFollowing?: boolean;
 };
 
-export function PostRail({ post, headings, activeId = '', bodyRef }: Props) {
+export function PostRail({ post, headings, activeId = '', bodyRef, initialFollowing }: Props) {
   const progressRef = useRef<HTMLElement>(null);
   const readoutRef = useRef<HTMLSpanElement>(null);
   const maxPct = useRef(0);
@@ -61,7 +62,7 @@ export function PostRail({ post, headings, activeId = '', bodyRef }: Props) {
     <aside className="post-rail">
 
       {/* Author card */}
-      <AuthorCard post={post} variant="rail" />
+      <AuthorCard post={post} variant="rail" initialFollowing={initialFollowing} />
 
       {/* TOC + progress */}
       {headings.length > 0 && (
