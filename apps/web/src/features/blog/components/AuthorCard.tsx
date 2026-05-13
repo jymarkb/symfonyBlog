@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 
 import { ApiError } from '@/lib/api/apiClient';
 import { getAccessToken } from '@/lib/auth/getAccessToken';
+import { useCurrentSession } from '@/features/auth/session/useCurrentSession';
 import { AuthGateModal } from '@/features/auth/components/AuthGateModal';
 import { followAuthor, unfollowAuthor } from '../api/blogApi';
 import { getInitials } from '../lib/getInitials';
@@ -23,9 +24,19 @@ export function AuthorCard({ post, variant, onOpenAuthGate }: AuthorCardProps) {
   const [busy, setBusy] = useState(false);
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const pendingFollowRef = useRef<(() => void) | null>(null);
+  const { isAuthenticated } = useCurrentSession();
 
   async function handleFollow() {
     if (busy) return;
+    if (!isAuthenticated) {
+      if (onOpenAuthGate) {
+        onOpenAuthGate(() => void handleFollow());
+      } else {
+        pendingFollowRef.current = () => void handleFollow();
+        setAuthGateOpen(true);
+      }
+      return;
+    }
     setBusy(true);
     const next = !following;
     setFollowing(next);
@@ -42,8 +53,8 @@ export function AuthorCard({ post, variant, onOpenAuthGate }: AuthorCardProps) {
         if (onOpenAuthGate) {
           onOpenAuthGate(() => void handleFollow());
         } else {
-          setAuthGateOpen(true);
           pendingFollowRef.current = () => void handleFollow();
+          setAuthGateOpen(true);
         }
       }
     } finally {

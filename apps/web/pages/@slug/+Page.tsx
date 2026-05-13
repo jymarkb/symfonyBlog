@@ -10,6 +10,7 @@ import type { PostDetailPageData, PostDetail } from '@/features/blog/blogTypes';
 import { starPost, unstarPost } from '@/features/blog/api/blogApi';
 import { ApiError } from '@/lib/api/apiClient';
 import { getAccessToken } from '@/lib/auth/getAccessToken';
+import { useCurrentSession } from '@/features/auth/session/useCurrentSession';
 import { AuthGateModal } from '@/features/auth/components/AuthGateModal';
 
 function formatDate(dateStr: string | null): string {
@@ -60,9 +61,14 @@ function StarButton({ slug, initialCount, openAuthGate }: StarButtonProps) {
   const [starred, setStarred] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  const { isAuthenticated } = useCurrentSession();
 
   async function toggle() {
     if (busy) return;
+    if (!isAuthenticated) {
+      openAuthGate(() => void toggle());
+      return;
+    }
     setBusy(true);
     setError(false);
     const next = !starred;
