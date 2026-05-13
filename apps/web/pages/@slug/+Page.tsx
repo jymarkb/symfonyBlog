@@ -6,7 +6,8 @@ import { AppShell } from '@/layouts/AppShell';
 import { PostRail } from '@/features/blog/components/PostRail';
 import type { TocHeading } from '@/features/blog/components/PostRail';
 import { AuthorCard } from '@/features/blog/components/AuthorCard';
-import type { PostDetailPageData, PostDetail } from '@/features/blog/blogTypes';
+import { ReactionButton } from '@/features/blog/components/ReactionButton';
+import type { PostDetailPageData, PostDetail, ReactionCounts } from '@/features/blog/blogTypes';
 import { starPost, unstarPost } from '@/features/blog/api/blogApi';
 import { ApiError } from '@/lib/api/apiClient';
 import { getAccessToken } from '@/lib/auth/getAccessToken';
@@ -50,50 +51,35 @@ function extractHeadings(blocks: BlockElement[]): TocHeading[] {
   return headings;
 }
 
-type ReactionButtonProps = {
-  emoji: string;
-  label: string;
-  postSlug: string;
-  openAuthGate: (callback: () => void) => void;
-};
-
-function ReactionButton({ emoji, label, postSlug, openAuthGate }: ReactionButtonProps) {
-  const { isAuthenticated } = useCurrentSession();
-
-  function handleClick() {
-    if (!isAuthenticated) {
-      openAuthGate(() => { window.location.replace(`/${postSlug}`); });
-      return;
-    }
-  }
-
-  return (
-    <button
-      className="react-btn"
-      onClick={handleClick}
-      aria-label={label}
-    >
-      {emoji} <span className="count">—</span>
-    </button>
-  );
-}
+const PENDING_STAR_KEY = 'pending_star_slug';
 
 type StarButtonProps = {
   slug: string;
   initialCount: number | null;
+  initialStarred?: boolean;
   openAuthGate: (callback: () => void) => void;
 };
 
-function StarButton({ slug, initialCount, openAuthGate }: StarButtonProps) {
+function StarButton({ slug, initialCount, initialStarred, openAuthGate }: StarButtonProps) {
   const [count, setCount] = useState<number | null>(initialCount);
-  const [starred, setStarred] = useState(false);
+  const [starred, setStarred] = useState(initialStarred ?? false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   const { isAuthenticated } = useCurrentSession();
 
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const pending = sessionStorage.getItem(PENDING_STAR_KEY);
+    if (pending === slug) {
+      sessionStorage.removeItem(PENDING_STAR_KEY);
+      void toggle();
+    }
+  }, [isAuthenticated]);
+
   async function toggle() {
     if (busy) return;
     if (!isAuthenticated) {
+      sessionStorage.setItem(PENDING_STAR_KEY, slug);
       openAuthGate(() => void toggle());
       return;
     }
@@ -198,7 +184,8 @@ function PostMetaBar({ post }: PostMetaBarProps) {
 }
 
 export default function Page() {
-  const { post } = useData<PostDetailPageData>();
+  const { post, userState } = useData<PostDetailPageData>();
+  const [reactionCounts, setReactionCounts] = useState<ReactionCounts>(post.reaction_counts);
   const bodyRef = useRef<HTMLDivElement>(null);
   const mobileBarRef = useRef<HTMLDivElement>(null);
   const mobileMaxPct = useRef(0);
@@ -258,7 +245,7 @@ export default function Page() {
         <div className="mobile-reading-bar-fill" ref={mobileBarRef} />
       </div>
       <div className="post-layout">
-        <PostRail post={post} headings={headings} activeId={activeId} bodyRef={bodyRef} />
+        <PostRail post={post} headings={headings} activeId={activeId} bodyRef={bodyRef} initialFollowing={userState?.is_following ?? false} />
         <div className="post-content">
           <PostMetaBar post={post} />
           <h1 id="post-title" className="block-title">{post.title}</h1>
@@ -279,14 +266,42 @@ export default function Page() {
                   <StarButton
                     slug={post.slug}
                     initialCount={post.stars_count ?? null}
+                    initialStarred={userState?.is_starred ?? false}
                     openAuthGate={(cb) => {
                       pendingStarRef.current = cb;
                       setAuthGateOpen(true);
                     }}
                   />
-                  <ReactionButton emoji="👍" label="Helpful" postSlug={post.slug} openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
-                  <ReactionButton emoji="🔥" label="Fire" postSlug={post.slug} openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
-                  <ReactionButton emoji="💡" label="Insightful" postSlug={post.slug} openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
+                  <ReactionButton
+                    emoji="👍"
+                    label="Helpful"
+                    reactionType="helpful"
+                    postSlug={post.slug}
+                    initialCount={reactionCounts.helpful}
+                    initialActive={userState?.reaction === 'helpful'}
+                    openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }}
+                    onCountsUpdate={setReactionCounts}
+                  />
+                  <ReactionButton
+                    emoji="🔥"
+                    label="Fire"
+                    reactionType="fire"
+                    postSlug={post.slug}
+                    initialCount={reactionCounts.fire}
+                    initialActive={userState?.reaction === 'fire'}
+                    openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }}
+                    onCountsUpdate={setReactionCounts}
+                  />
+                  <ReactionButton
+                    emoji="💡"
+                    label="Insightful"
+                    reactionType="insightful"
+                    postSlug={post.slug}
+                    initialCount={reactionCounts.insightful}
+                    initialActive={userState?.reaction === 'insightful'}
+                    openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }}
+                    onCountsUpdate={setReactionCounts}
+                  />
                 </div>
               </div>
               <div className="pe-tags">
@@ -306,7 +321,7 @@ export default function Page() {
                 <a className="share-chip" href={`https://reddit.com/submit?url=https://jymb.blog/${encodeURIComponent(post.slug)}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">↑ Reddit</a>
               </div>
             </div>
-            <AuthorCard post={post} variant="footer" />
+            <AuthorCard post={post} variant="footer" initialFollowing={userState?.is_following ?? false} />
             <div className="related">
               <h4 className="related-label">Related essays</h4>
               <p className="related-empty">Similar posts will appear here once more content is published.</p>
