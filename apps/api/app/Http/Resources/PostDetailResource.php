@@ -11,6 +11,11 @@ class PostDetailResource extends PostSummaryResource
         return [
             ...parent::toArray($request),
             'body' => $this->body,
+            'reaction_counts' => [
+                'helpful' => (int) ($this->helpful_reactions_count ?? 0),
+                'fire' => (int) ($this->fire_reactions_count ?? 0),
+                'insightful' => (int) ($this->insightful_reactions_count ?? 0),
+            ],
         ];
     }
 }
