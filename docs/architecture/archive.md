@@ -30,6 +30,9 @@ The archive page at `/archive` is a fully filterable, searchable index of all pu
 | Search input         | ✅     | ✅      | ✅     | ✅    |
 | Stats strip          | ✅     | ✅      | ✅     | ✅    |
 | Year-grouped list    | ✅     | ✅      | ✅     | ✅    |
+| URL params (?tag=, ?year=, ?search=) | ✅ | n/a  | ✅     | ⏳    |
+| SEO Head (dynamic title, canonical, noindex rule) | ✅ | n/a | ✅ | n/a |
+| Suggested tags (search active) | ✅ | n/a | ✅ | n/a |
 
 ## Key Files
 

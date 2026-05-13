@@ -3,6 +3,7 @@
 use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\RateLimiter;
 
 uses(RefreshDatabase::class);
 
@@ -45,7 +46,11 @@ it('returns a published post detail with blog editor block body', function () {
         ->assertJsonMissingPath('data.content_css')
         ->assertJsonMissingPath('data.content_js')
         ->assertJsonMissingPath('data.user_id')
-        ->assertJsonMissingPath('data.status');
+        ->assertJsonMissingPath('data.status')
+        ->assertJsonMissingPath('data.created_at')
+        ->assertJsonMissingPath('data.updated_at')
+        ->assertJsonMissingPath('data.author.id')
+        ->assertJsonMissingPath('data.author.email');
 });
 
 it('filters published posts by tag slug', function () {
@@ -115,10 +120,7 @@ it('returns correct response shape and excludes sensitive fields for post listin
                 'reading_time',
                 'is_featured',
                 'published_at',
-                'created_at',
-                'updated_at',
                 'author' => [
-                    'id',
                     'display_name',
                     'handle',
                     'avatar_url',
@@ -137,7 +139,11 @@ it('returns correct response shape and excludes sensitive fields for post listin
         ->assertJsonMissingPath('data.0.supabase_user_id')
         ->assertJsonMissingPath('data.0.author.role')
         ->assertJsonMissingPath('data.0.author.supabase_user_id')
-        ->assertJsonMissingPath('data.0.body');
+        ->assertJsonMissingPath('data.0.body')
+        ->assertJsonMissingPath('data.0.author.id')
+        ->assertJsonMissingPath('data.0.author.email')
+        ->assertJsonMissingPath('data.0.created_at')
+        ->assertJsonMissingPath('data.0.updated_at');
 });
 
 it('returns paginated response with meta and links envelope', function () {
@@ -275,10 +281,7 @@ it('returns correct response shape and excludes sensitive fields for featured po
                 'reading_time',
                 'is_featured',
                 'published_at',
-                'created_at',
-                'updated_at',
                 'author' => [
-                    'id',
                     'display_name',
                     'handle',
                     'avatar_url',
@@ -297,7 +300,11 @@ it('returns correct response shape and excludes sensitive fields for featured po
         ->assertJsonMissingPath('data.0.supabase_user_id')
         ->assertJsonMissingPath('data.0.author.role')
         ->assertJsonMissingPath('data.0.author.supabase_user_id')
-        ->assertJsonMissingPath('data.0.body');
+        ->assertJsonMissingPath('data.0.body')
+        ->assertJsonMissingPath('data.0.author.id')
+        ->assertJsonMissingPath('data.0.author.email')
+        ->assertJsonMissingPath('data.0.created_at')
+        ->assertJsonMissingPath('data.0.updated_at');
 });
 
 
@@ -423,7 +430,7 @@ it('filters published posts by year and search combined', function () {
         ->assertJsonPath('data.0.slug', 'laravel-tips-2023');
 });
 
-it('returns 200 with empty data for non-numeric year value', function () {
+it('returns 200 with unfiltered data for non-numeric year value', function () {
     Post::factory()->create([
         'status' => 'published',
         'published_at' => now(),
@@ -431,10 +438,10 @@ it('returns 200 with empty data for non-numeric year value', function () {
 
     $this->getJson('/api/v1/posts?year=abc')
         ->assertOk()
-        ->assertJsonCount(0, 'data');
+        ->assertJsonCount(1, 'data');
 });
 
-it('returns 200 with empty data for negative year value', function () {
+it('returns 200 with unfiltered data for negative year value', function () {
     Post::factory()->create([
         'status' => 'published',
         'published_at' => now(),
@@ -442,5 +449,67 @@ it('returns 200 with empty data for negative year value', function () {
 
     $this->getJson('/api/v1/posts?year=-1')
         ->assertOk()
-        ->assertJsonCount(0, 'data');
+        ->assertJsonCount(1, 'data');
+});
+
+it('returns 429 when years rate limit is exceeded', function () {
+    $cacheKey = md5('public-api' . '127.0.0.1');
+
+    for ($i = 0; $i < 60; $i++) {
+        RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->getJson('/api/v1/posts/years')
+        ->assertTooManyRequests();
+});
+
+it('returns 429 when posts index rate limit is exceeded', function () {
+    $cacheKey = md5('public-api' . '127.0.0.1');
+
+    for ($i = 0; $i < 60; $i++) {
+        RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->getJson('/api/v1/posts')
+        ->assertTooManyRequests();
+});
+
+it('returns 429 when posts show rate limit is exceeded', function () {
+    $post = Post::factory()->create();
+
+    $cacheKey = md5('public-api' . '127.0.0.1');
+
+    for ($i = 0; $i < 60; $i++) {
+        RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->getJson("/api/v1/posts/{$post->slug}")
+        ->assertTooManyRequests();
+});
+
+it('filters by tag and search combined', function () {
+    $tag = Tag::factory()->create(['name' => 'PHP', 'slug' => 'php']);
+    $matching = Post::factory()->create(['title' => 'PHP arrays guide', 'status' => 'published', 'published_at' => now()]);
+    $matching->tags()->attach($tag);
+    $nonMatchingTag = Post::factory()->create(['title' => 'PHP loops', 'status' => 'published', 'published_at' => now()]);
+    // has tag but title does not match search
+    $nonMatchingTag->tags()->attach($tag);
+    $noTag = Post::factory()->create(['title' => 'PHP arrays deep dive', 'status' => 'published', 'published_at' => now()]);
+    // matches search but has no tag
+
+    $response = $this->getJson('/api/v1/posts?tag=php&search=arrays');
+    $response->assertStatus(200);
+    $data = $response->json('data');
+    $slugs = collect($data)->pluck('slug')->all();
+    expect($slugs)->toContain($matching->slug);
+    expect($slugs)->not->toContain($nonMatchingTag->slug);
+    expect($slugs)->not->toContain($noTag->slug);
+});
+
+it('ignores single character search and returns unfiltered results', function () {
+    Post::factory()->count(3)->create(['status' => 'published', 'published_at' => now()]);
+    $all = $this->getJson('/api/v1/posts')->json('meta.total');
+    $response = $this->getJson('/api/v1/posts?search=a');
+    $response->assertStatus(200);
+    expect($response->json('meta.total'))->toBe($all);
 });

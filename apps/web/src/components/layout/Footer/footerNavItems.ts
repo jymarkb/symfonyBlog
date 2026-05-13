@@ -5,7 +5,6 @@ export const footerLinkGroups: FooterLinkGroup[] = [
     title: "Read",
     links: [
       { label: "Archive", href: "/archive" },
-      { label: "Tags", href: "/tags" },
     ],
   },
   {

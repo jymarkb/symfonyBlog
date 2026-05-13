@@ -29,7 +29,7 @@ export function PostRow({ post }: Props) {
         {(post.tags ?? []).length > 0 && (
           <div className="post-row-tags">
             {(post.tags ?? []).map((tag, index) => (
-              <a key={tag.id} href={`/tags/${tag.slug}`} className={`tag t-${(index % 5) + 1}`}>{tag.name}</a>
+              <a key={tag.id} href={`/archive?tag=${encodeURIComponent(tag.slug)}`} className={`tag t-${(index % 5) + 1}`}>{tag.name}</a>
             ))}
           </div>
         )}

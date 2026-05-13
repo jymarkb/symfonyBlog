@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useData } from 'vike-react/useData';
+import { useConfig } from 'vike-react/useConfig';
 import type { ArchivePageData } from '@/features/blog/blogTypes';
 import { fetchArchivePosts } from '@/features/blog/api/blogApi';
 import { AppShell } from '@/layouts/AppShell';
@@ -9,6 +10,24 @@ import ArchiveStatsStrip from '@/features/blog/components/ArchiveStatsStrip';
 
 const PER_PAGE = 50;
 
+function getInitialTag(): string | null {
+  if (typeof window === 'undefined') return null;
+  return new URLSearchParams(window.location.search).get('tag');
+}
+
+function getInitialYear(): number | null {
+  if (typeof window === 'undefined') return null;
+  const raw = new URLSearchParams(window.location.search).get('year');
+  if (raw == null) return null;
+  const n = parseInt(raw, 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function getInitialSearch(): string {
+  if (typeof window === 'undefined') return '';
+  return (new URLSearchParams(window.location.search).get('search') ?? '').toLowerCase();
+}
+
 export default function Page() {
   const data = useData<ArchivePageData>();
 
@@ -16,14 +35,28 @@ export default function Page() {
   const [total, setTotal] = useState(data.total);
   const [currentPage, setCurrentPage] = useState(data.currentPage);
   const [lastPage, setLastPage] = useState(data.lastPage);
-  const [activeTag, setActiveTag] = useState<string | null>(null);
-  const [activeYear, setActiveYear] = useState<number | null>(null);
-  const [search, setSearch] = useState('');
+  const [activeTag, setActiveTag] = useState<string | null>(getInitialTag);
+  const [activeYear, setActiveYear] = useState<number | null>(getInitialYear);
+  const [search, setSearch] = useState(getInitialSearch);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const config = useConfig();
+  config({
+    Head: search && !isLoading && total < 3
+      ? <meta name="robots" content="noindex, follow" />
+      : null,
+  });
+
+  const suggestedTags = search.trim()
+    ? data.tags.filter(t =>
+        t.name.toLowerCase().includes(search.trim().toLowerCase())
+      )
+    : [];
+
   const hasMounted = useRef(false);
+  const hasParamsMounted = useRef(false);
 
   const load = useCallback(
     async (params: { search?: string; tag?: string; year?: number; page?: number }, append = false) => {
@@ -50,12 +83,40 @@ export default function Page() {
       hasMounted.current = true;
       return;
     }
-    void load({ search, tag: activeTag ?? undefined, year: activeYear ?? undefined, page: 1 });
+    void load({ search: search.toLowerCase(), tag: activeTag ?? undefined, year: activeYear ?? undefined, page: 1 });
   }, [search, activeTag, activeYear, load]);
+
+  // Push ?tag and ?year to URL when filters change (skip first mount)
+  useEffect(() => {
+    if (!hasParamsMounted.current) {
+      hasParamsMounted.current = true;
+      return;
+    }
+    const params = new URLSearchParams();
+    if (activeTag !== null) params.set('tag', activeTag);
+    if (activeYear !== null) params.set('year', String(activeYear));
+    if (search.trim()) params.set('search', search.trim().toLowerCase());
+    const qs = params.toString();
+    history.pushState(null, '', '/archive' + (qs ? '?' + qs : ''));
+  }, [activeTag, activeYear, search]);
+
+  // Update document.title reactively on filter changes
+  useEffect(() => {
+    if (activeTag && activeYear) document.title = `${activeTag} · ${activeYear} · Archive · jymb.blog`;
+    else if (activeTag) document.title = `${activeTag} · Archive · jymb.blog`;
+    else if (activeYear) document.title = `${activeYear} · Archive · jymb.blog`;
+    else if (search.trim()) document.title = `Search: ${search.trim()} · Archive · jymb.blog`;
+    else document.title = 'Archive · jymb.blog';
+  }, [activeTag, activeYear, search]);
+
+  const handleTagChange = useCallback((slug: string | null) => {
+    setActiveTag(slug);
+    setSearch('');
+  }, []);
 
   const handleLoadMore = useCallback(() => {
     void load(
-      { search, tag: activeTag ?? undefined, year: activeYear ?? undefined, page: currentPage + 1 },
+      { search: search.toLowerCase(), tag: activeTag ?? undefined, year: activeYear ?? undefined, page: currentPage + 1 },
       true,
     );
   }, [load, search, activeTag, activeYear, currentPage]);
@@ -80,9 +141,10 @@ export default function Page() {
             activeTag={activeTag}
             activeYear={activeYear}
             searchValue={search}
-            onTagChange={setActiveTag}
+            onTagChange={handleTagChange}
             onYearChange={setActiveYear}
             onSearchChange={setSearch}
+            suggestedTags={suggestedTags}
           />
         </div>
       </section>
@@ -90,10 +152,10 @@ export default function Page() {
         {error != null && (
           <div className="load-error" role="alert" aria-live="assertive">
             <span>{error}</span>
-            <button onClick={() => void load({ search, tag: activeTag ?? undefined, year: activeYear ?? undefined, page: 1 })}>Retry</button>
+            <button onClick={() => void load({ search: search.toLowerCase(), tag: activeTag ?? undefined, year: activeYear ?? undefined, page: 1 })}>Retry</button>
           </div>
         )}
-        <ArchiveSection posts={posts} isLoading={isLoading} onTagChange={setActiveTag} />
+        <ArchiveSection posts={posts} isLoading={isLoading} onTagChange={handleTagChange} />
 
         {!isLoading && hasMore && (
           <div className="load-more-row">
