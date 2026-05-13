@@ -47,15 +47,37 @@ Top-level `/<slug>` was chosen over `/blog/<slug>` for SEO (shorter path, slug i
 |---|---|---|---|---|
 | Load current user state (`GET /posts/{slug}/me`) | ✅ | ✅ | ✅ | ✅ |
 | Reaction system (`POST /posts/{slug}/reactions`) | ✅ | ✅ | ✅ | ✅ |
-| Follow initial state (seeded from `userState`) | ✅ | ✅ | ✅ | ✅ |
+| Follow / Unfollow author (`POST/DELETE /authors/{id}/follow`) | ✅ | ✅ | ✅ | ✅ |
 
-Key files added:
+### Follow / Unfollow architecture
+
+State ownership: `isFollowing` and `followersCount` are owned at the `+Page.tsx` level and passed down to both `AuthorCard` instances (rail + footer) via `initialFollowing`, `initialFollowersCount`, and `onFollowChange`. This ensures both instances always show the same state.
+
+OAuth flow: when a guest clicks Follow, `pending_follow_author_id` is stored in `sessionStorage`. After OAuth redirect and re-mount, a single `useEffect([isAuthenticated])` in `+Page.tsx` picks up the key, clears it, and calls `followAuthor()`. The result updates page-level state which propagates to both cards.
+
+Fresh follower count: `GET /posts/{slug}/me` (`PostUserStateResource`) returns `followers_count` loaded directly from the DB, bypassing the 10-minute post cache. `POST /authors/{id}/follow` (`FollowResource`) also returns the updated `followers_count` so the UI is immediately accurate after a follow.
+
+204 body skip: `apiClient.ts` skips `response.json()` for 204 and 304 responses. The unfollow DELETE returns 204 (no body) — without this guard the JSON parse throws and the optimistic UI update silently reverts.
+
+Key files added / changed:
 - `apps/api/app/Models/PostReaction.php` + migration `2026_05_14_000001_create_post_reactions_table.php`
 - `apps/api/app/Services/Post/PostReactionService.php` — toggle, getCounts, getUserReaction
+- `apps/api/app/Services/Post/PostService.php` — `getUserStateForPost` loads author `followers_count` fresh via `loadCount`
 - `apps/api/app/Http/Controllers/Api/V1/PostUserStateController.php` — GET /posts/{slug}/me
 - `apps/api/app/Http/Controllers/Api/V1/PostReactionController.php` — POST /posts/{slug}/reactions
-- `apps/web/src/features/blog/components/ReactionButton.tsx` — optimistic UI, auth gate, OAuth sessionStorage intent
-- `apps/web/pages/@slug/+data.ts` — parallel-fetches userState for authenticated users via resolveServerAuth
+- `apps/api/app/Http/Controllers/Api/V1/AuthorFollowController.php` — POST/DELETE /authors/{id}/follow
+- `apps/api/app/Http/Resources/FollowResource.php` — returns `followers_count` after follow
+- `apps/api/app/Http/Resources/PostUserStateResource.php` — returns `is_following`, `reaction`, `followers_count`
+- `apps/api/routes/api.php` — `->where('authorId', '[0-9]+')` enforces integer-only route param
+- `apps/api/tests/Feature/Follow/AuthorFollowTest.php` — 12 tests: guest 401, auth flow, idempotency, self-follow, BOLA isolation, rate limits, route param validation
+- `apps/api/tests/Feature/Public/PostUserStateTest.php` — 6 tests including sensitive field assertions
+- `apps/web/src/lib/api/apiClient.ts` — 204/304 body skip
+- `apps/web/src/lib/auth/getAccessToken.ts` — `tryGetAccessToken()` soft probe (no redirect) for auth-context-lag
+- `apps/web/src/features/blog/api/blogApi.ts` — `followAuthor` returns `{ followers_count }`; `fetchPostUserState` typed against updated `PostUserState`
+- `apps/web/src/features/blog/blogTypes.ts` — `PostUserState` includes `followers_count: number`
+- `apps/web/src/features/blog/components/AuthorCard.tsx` — single `useEffect` for prop sync; `onFollowChange` callback; no page-reload auth logic (moved to page)
+- `apps/web/src/features/blog/components/PostRail.tsx` — threads `initialFollowersCount` and `onFollowChange` to `AuthorCard`
+- `apps/web/pages/@slug/+Page.tsx` — owns `isFollowing`/`followersCount` state; page-level pending follow handler; client-side `userState` fallback fetch
 
 ## Deferred
 

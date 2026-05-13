@@ -81,17 +81,66 @@ Purpose:
 
 - list available blog tags
 
-### `POST /api/v1/posts/{slug}/stars`
+### `GET /api/v1/posts/{slug}/me`
 
 Purpose:
 
-- star a post as the authenticated user
+- return the authenticated user's interaction state for a post
 
-### `DELETE /api/v1/posts/{slug}/stars`
+Response shape (`data`):
+
+- `is_following` — boolean, whether the user follows the post's author
+- `reaction` — `"star" | "helpful" | "fire" | "insightful" | null`
+- `followers_count` — current follower count for the post's author (loaded fresh, not from post cache)
+
+Auth: required (`auth:api`). Returns 401 for guests.
+
+### `POST /api/v1/posts/{slug}/reactions`
 
 Purpose:
 
-- remove the authenticated user's star from a post
+- toggle a reaction on a post (idempotent — posting the same reaction removes it)
+
+Request body:
+
+- `reaction` — required, one of `star | helpful | fire | insightful`
+
+Response shape (`data`):
+
+- `reaction` — the active reaction after toggle, or `null` if removed
+- `counts` — object with keys `star`, `helpful`, `fire`, `insightful` (integer each)
+
+Auth: required (`auth:api`). Returns 401 for guests.
+
+### `POST /api/v1/authors/{authorId}/follow`
+
+Purpose:
+
+- follow an author as the authenticated user (idempotent via `firstOrCreate`)
+
+Route constraint: `authorId` must match `[0-9]+` — non-integer segments return 404.
+
+Request body:
+
+- `author_id` — required integer, must exist in `users` table
+
+Response shape (`data`):
+
+- `follower_id`, `author_id`, `created_at`, `followers_count`
+
+Returns 201. Returns 422 for self-follow or non-existent author.
+Auth: required (`auth:api`). Rate-limited: `throttle:profile-mutations`.
+
+### `DELETE /api/v1/authors/{authorId}/follow`
+
+Purpose:
+
+- unfollow an author as the authenticated user
+
+Route constraint: `authorId` must match `[0-9]+` — non-integer segments return 404.
+
+Returns 204 No Content. Idempotent — unfollowing a non-followed author also returns 204.
+Auth: required (`auth:api`). Rate-limited: `throttle:profile-mutations`.
 
 ### `GET /api/v1/profiles/{handle}`
 
