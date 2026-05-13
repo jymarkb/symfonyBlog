@@ -23,7 +23,7 @@ export default function CommentList({ commentList }: { commentList: ProfileComme
             <div className="on">
               <span>
                 On{" "}
-                <a href={`/blog/${comment.post_slug}`}>{comment.post_title}</a>
+                <a href={`/${comment.post_slug}`}>{comment.post_title}</a>
               </span>
               <span>{formatted}</span>
             </div>

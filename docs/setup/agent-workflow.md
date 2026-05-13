@@ -13,6 +13,7 @@ When running under Claude, use these model tiers per agent type:
 ```text
 -feature-            -> sonnet  (feature orchestration, use Plan subagent type)
 -feature-auto-       -> main session workflow (full automated section close-out — plan + implement + verify + commit)
+-autotest-           -> main session workflow (iterative QA fix loop — runs until all 🔴 bugs cleared and tests green)
 -commit              -> haiku   (diff inspection, staging, commit hygiene, use general-purpose subagent type)
 -plan-               -> sonnet  (subtask decomposition for feature agent delegation, use Plan subagent type)
 -tutorial-           -> sonnet  (manual coding tutorial for a specific task, use Plan subagent type)
@@ -39,6 +40,7 @@ When running under Codex, sub-agents inherit the main session model by default. 
 ```text
 -feature-            -> inherited model, medium reasoning  (feature orchestration/status, explorer/default sub-agent when explicitly delegated)
 -feature-auto-       -> main session workflow              (plan + implement + verify + docs; do not auto-commit)
+-autotest-           -> main session workflow              (iterative QA fix loop; runs until all 🔴 bugs cleared and tests green)
 -commit              -> inherited model, low reasoning     (diff inspection, explicit staging, commit hygiene)
 -plan-               -> inherited model, medium reasoning  (subtask decomposition and dependency order)
 -tutorial-           -> inherited model, medium reasoning  (manual coding tutorial for a specific task)
@@ -81,6 +83,7 @@ Use these prefixes in user requests:
 ```text
 -feature- <feature-name>
 -feature-auto- <feature-name> <section>
+-autotest- <feature-name>
 -commit
 -plan- <task>
 -tutorial- <task>
@@ -301,6 +304,55 @@ Main session:
   10. Update profile-page.md
   11. Spawn -feature- → confirm section is ✅ across all phases
   12. Report suggested commit grouping → user runs -commit manually
+```
+
+## AutoTest Agent
+
+Use `-autotest- <feature-name>` to automatically clear all QA bugs and make the feature green, without manual approval between fix iterations.
+
+**Important:** `-autotest-` is a **main session workflow** — the main session drives every iteration itself, not a single spawned agent.
+
+### How the main session executes it
+
+1. **QA** — Spawn `-qa-frontend-` and `-qa-backend-` in parallel (background). Wait for both notifications. Synthesize findings. If zero 🔴 bugs and all tests green, stop — post the clean report and suggested commit grouping.
+
+2. **Fix** — For each 🔴 bug:
+   - Frontend bugs → spawn `-core-react-` fix agents (background). Independent fixes run in parallel.
+   - Backend bugs → spawn `-core-php-` fix agents (background). Independent fixes run in parallel.
+   - Wait for all fix agents before proceeding.
+
+3. **Verify** — Run `php artisan test` (backend) and `npx tsc --noEmit` (frontend) in foreground. If red, spawn a targeted fix agent for the failure before continuing. Do not proceed to the next QA iteration if tests are red.
+
+4. **Loop** — Return to step 1. Re-run QA agents in parallel. Repeat until the synthesized report contains zero 🔴 bugs and all tests pass.
+
+5. **Report** — When green, post one consolidated summary: what was fixed each iteration, final test results, and suggested commit grouping. The user runs `-commit` manually.
+
+### Rules
+
+- Only fix 🔴 bugs per iteration. Do not auto-fix 🟡 gaps unless a gap causes a test failure.
+- Silent between iterations — do not post intermediate progress ("Iteration 1 done", "Fixing X") to the main chat. Only surface failures and the final green report.
+- Do NOT auto-commit. After reaching green, report the suggested commit grouping and wait for the user to run `-commit`.
+- Cap at 5 iterations. If the feature is not green after 5 fix cycles, stop and post the remaining open bugs with a note that manual intervention is needed.
+- Each iteration's QA agents must read `docs/setup/qa-checklist.md` and `docs/setup/security.md` before reviewing — brief them explicitly.
+- Track which bugs were fixed in which iteration so the final report shows the full fix history.
+
+### Output format (final report only)
+
+```text
+## AutoTest: <feature-name> — Green ✅ (or: Stopped after N iterations)
+
+### Iterations
+- Iteration 1: fixed X bugs — [list]
+- Iteration 2: fixed Y bugs — [list]
+- ...
+
+### Final test results
+- php artisan test: N passed, 0 failed
+- tsc --noEmit: clean
+
+### Suggested commit grouping
+- Commit 1: ...
+- Commit 2: ...
 ```
 
 ## Planning Agent

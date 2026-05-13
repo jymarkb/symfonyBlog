@@ -51,6 +51,10 @@ apps/web/src/features/blog/blog.css                      Archive CSS (page-head,
 apps/api/tests/Feature/Public/PostEndpointTest.php       Backend endpoint tests including search coverage
 ```
 
+## Deferred
+
+- **Multi-select topic + year filter** — current filter supports one active tag and one active year at a time. Multi-select (e.g. `?tag[]=react&tag[]=typescript`) is deferred. The search input covers the "posts about X and Y" use case adequately for a personal blog. Do not add multi-select UI or backend `tag[]` / `year[]` array params until explicitly scoped.
+
 ## Notes
 
 - `fetchArchivePosts` defaults to `per_page=50`. The page loads up to 50 posts SSR; filtering calls the same endpoint client-side.

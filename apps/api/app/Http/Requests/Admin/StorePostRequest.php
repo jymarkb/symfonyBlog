@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\ReservedSlug;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 
@@ -16,7 +17,7 @@ class StorePostRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'unique:posts,slug'],
+            'slug' => ['required', 'string', 'max:255', 'unique:posts,slug', new ReservedSlug()],
             'excerpt' => ['nullable', 'string', 'max:500'],
             'cover_image' => ['nullable', 'url:https', 'max:2048'],
             'reading_time' => ['nullable', 'integer', 'min:1', 'max:65535'],
