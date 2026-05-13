@@ -149,13 +149,13 @@ export default function Page() {
   const { isAuthenticated } = useCurrentSession();
 
   const {
-    activeReaction,
+    activeReactions,
     reactionCounts,
     busy: reactionBusy,
     handleReaction,
   } = usePendingReaction({
     postSlug: post.slug,
-    initialActiveReaction: userState?.reaction ?? null,
+    initialActiveReaction: userState?.reaction ?? [],
     initialCounts: post.reaction_counts,
     onOpenAuthGate: () => setAuthGateOpen(true),
   });
@@ -278,7 +278,7 @@ export default function Page() {
                 <div className="pe-btns">
                   <StarButton
                     count={reactionCounts.star}
-                    starred={activeReaction === 'star'}
+                    starred={activeReactions.includes('star')}
                     busy={reactionBusy}
                     onClick={() => void handleReaction('star')}
                   />
@@ -287,7 +287,7 @@ export default function Page() {
                     label="Helpful"
                     reactionType="helpful"
                     count={reactionCounts.helpful}
-                    isActive={activeReaction === 'helpful'}
+                    isActive={activeReactions.includes('helpful')}
                     busy={reactionBusy}
                     onClick={() => void handleReaction('helpful')}
                   />
@@ -296,7 +296,7 @@ export default function Page() {
                     label="Fire"
                     reactionType="fire"
                     count={reactionCounts.fire}
-                    isActive={activeReaction === 'fire'}
+                    isActive={activeReactions.includes('fire')}
                     busy={reactionBusy}
                     onClick={() => void handleReaction('fire')}
                   />
@@ -305,7 +305,7 @@ export default function Page() {
                     label="Insightful"
                     reactionType="insightful"
                     count={reactionCounts.insightful}
-                    isActive={activeReaction === 'insightful'}
+                    isActive={activeReactions.includes('insightful')}
                     busy={reactionBusy}
                     onClick={() => void handleReaction('insightful')}
                   />
