@@ -21,9 +21,9 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
   const { author } = post;
   const displayName = author.display_name ?? author.handle;
   const initials = getInitials(author.display_name, author.handle);
-  const followers = author.followers_count ?? 0;
 
   const [following, setFollowing] = useState(initialFollowing ?? false);
+  const [followerCount, setFollowerCount] = useState(author.followers_count ?? 0);
   const [busy, setBusy] = useState(false);
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const pendingFollowRef = useRef<(() => void) | null>(null);
@@ -35,6 +35,7 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
     const pending = sessionStorage.getItem(PENDING_FOLLOW_KEY);
     if (pending && parseInt(pending) === author.id) {
       sessionStorage.removeItem(PENDING_FOLLOW_KEY);
+      pendingFollowRef.current = null; // prevent onSuccess from firing a second applyFollow
       void applyFollow();
     }
   }, [isAuthenticated]);
@@ -45,6 +46,7 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
       const accessToken = await getAccessToken();
       await followAuthor(author.id, accessToken);
       setFollowing(true);
+      setFollowerCount(c => c + 1);
     } catch {
       // silent — user can click Follow again
     } finally {
@@ -70,6 +72,7 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
     setBusy(true);
     const next = !following;
     setFollowing(next);
+    setFollowerCount(c => c + (next ? 1 : -1));
     try {
       const accessToken = await getAccessToken();
       if (next) {
@@ -79,6 +82,7 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
       }
     } catch (err) {
       setFollowing(!next);
+      setFollowerCount(c => c + (next ? -1 : 1));
       if (err instanceof ApiError && err.status === 401) {
         sessionStorage.setItem(PENDING_FOLLOW_KEY, String(author.id));
         const callback = () => void applyFollow();
@@ -110,7 +114,7 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
         </div>
         {author.bio && <p className="rail-author-bio">{author.bio}</p>}
         <div className="rail-follow-group">
-          <span className="rail-followers">{followers.toLocaleString()} followers</span>
+          <span className="rail-followers">{followerCount.toLocaleString()} followers</span>
           <button
             className="btn btn-sm rail-follow"
             onClick={() => void handleFollow()}
@@ -129,6 +133,7 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
             }}
             onSuccess={() => {
               setAuthGateOpen(false);
+              sessionStorage.removeItem(PENDING_FOLLOW_KEY);
               pendingFollowRef.current?.();
               pendingFollowRef.current = null;
             }}
@@ -151,7 +156,7 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
           <div className="pac-sub">
             <span className="pac-handle">{author.handle}</span>
             <span className="pac-dot" aria-hidden="true">·</span>
-            <span className="pac-followers">{followers.toLocaleString()} followers</span>
+            <span className="pac-followers">{followerCount.toLocaleString()} followers</span>
           </div>
         </div>
         <button
@@ -173,6 +178,7 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
           }}
           onSuccess={() => {
             setAuthGateOpen(false);
+            sessionStorage.removeItem(PENDING_FOLLOW_KEY);
             pendingFollowRef.current?.();
             pendingFollowRef.current = null;
           }}
