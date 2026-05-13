@@ -18,7 +18,10 @@ class PostService
     {
         return Post::query()
             ->with(['user', 'tags'])
-            ->withCount(['comments', 'stars'])
+            ->withCount([
+                'comments',
+                'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star'),
+            ])
             ->where('status', 'published')
             ->whereNotNull('published_at')
             ->when($request->filled('tag'), function ($query) use ($request) {
@@ -67,7 +70,10 @@ class PostService
     {
         return Post::query()
             ->with(['user', 'tags'])
-            ->withCount(['comments', 'stars'])
+            ->withCount([
+                'comments',
+                'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star'),
+            ])
             ->latest()
             ->paginate(20);
     }
@@ -86,7 +92,7 @@ class PostService
         $post->save();
         $post->tags()->sync($tagIds);
 
-        return $post->load(['user', 'tags'])->loadCount(['comments', 'stars']);
+        return $post->load(['user', 'tags'])->loadCount(['comments', 'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star')]);
     }
 
     public function update(Post $post, array $validated, ?array $tagIds): Post
@@ -109,7 +115,7 @@ class PostService
             $post->tags()->sync($tagIds);
         }
 
-        return $post->load(['user', 'tags'])->loadCount(['comments', 'stars']);
+        return $post->load(['user', 'tags'])->loadCount(['comments', 'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star')]);
     }
 
     public function delete(Post $post): void
@@ -123,16 +129,10 @@ class PostService
         $reactionService = app(\App\Services\Post\PostReactionService::class);
         $followService = app(\App\Services\Follow\FollowService::class);
 
-        $isStarred = \App\Models\PostStar::where('post_id', $post->id)
-            ->where('user_id', $user->id)
-            ->exists();
-
         $isFollowing = $followService->isFollowing($user, (int) $post->user_id);
-
         $reaction = $reactionService->getUserReaction($post, $user);
 
         return [
-            'is_starred' => $isStarred,
             'is_following' => $isFollowing,
             'reaction' => $reaction,
         ];

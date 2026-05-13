@@ -8,7 +8,7 @@ use App\Models\User;
 
 class PostReactionService
 {
-    public const VALID_REACTIONS = ['helpful', 'fire', 'insightful'];
+    public const VALID_REACTIONS = ['star', 'helpful', 'fire', 'insightful'];
 
     /**
      * Toggle a reaction. If the user has the same reaction, remove it.
@@ -55,6 +55,7 @@ class PostReactionService
             ->pluck('total', 'reaction');
 
         return [
+            'star' => (int) ($rows['star'] ?? 0),
             'helpful' => (int) ($rows['helpful'] ?? 0),
             'fire' => (int) ($rows['fire'] ?? 0),
             'insightful' => (int) ($rows['insightful'] ?? 0),
