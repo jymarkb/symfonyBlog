@@ -12,17 +12,18 @@ type AuthorCardProps = {
   post: PostDetail;
   variant: 'rail' | 'footer';
   onOpenAuthGate?: (callback: () => void) => void;
+  initialFollowing?: boolean;
 };
 
 const PENDING_FOLLOW_KEY = 'pending_follow_author_id';
 
-export function AuthorCard({ post, variant, onOpenAuthGate }: AuthorCardProps) {
+export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: AuthorCardProps) {
   const { author } = post;
   const displayName = author.display_name ?? author.handle;
   const initials = getInitials(author.display_name, author.handle);
   const followers = author.followers_count ?? 0;
 
-  const [following, setFollowing] = useState(false);
+  const [following, setFollowing] = useState(initialFollowing ?? false);
   const [busy, setBusy] = useState(false);
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const pendingFollowRef = useRef<(() => void) | null>(null);
