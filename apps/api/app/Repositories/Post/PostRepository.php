@@ -16,9 +16,10 @@ class PostRepository
                 ->with(['user' => fn ($q) => $q->withCount('followers'), 'tags'])
                 ->withCount([
                     'comments',
-                    'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star'),
-                    'reactions as helpful_reactions_count' => fn ($q) => $q->where('reaction', 'helpful'),
-                    'reactions as fire_reactions_count' => fn ($q) => $q->where('reaction', 'fire'),
+                    'reactions as stars_count'               => fn ($q) => $q->where('reaction', 'star'),
+                    'reactions as star_reactions_count'      => fn ($q) => $q->where('reaction', 'star'),
+                    'reactions as helpful_reactions_count'   => fn ($q) => $q->where('reaction', 'helpful'),
+                    'reactions as fire_reactions_count'      => fn ($q) => $q->where('reaction', 'fire'),
                     'reactions as insightful_reactions_count' => fn ($q) => $q->where('reaction', 'insightful'),
                 ])
                 ->where('slug', $slug)
