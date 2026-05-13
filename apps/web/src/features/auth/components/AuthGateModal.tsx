@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 
-import type { AuthGateStatus, AuthGateTab, ExperimentVariant } from "@/features/auth/authTypes";
-import { trackExperiment } from "@/features/auth/api/experimentApi";
-import { getOrAssignVariant } from "@/features/auth/lib/experimentVariant";
+import type { AuthGateStatus, AuthGateTab } from "@/features/auth/authTypes";
 import { ModalSignInForm } from "@/features/auth/components/ModalSignInForm";
 import { ModalSignUpForm } from "@/features/auth/components/ModalSignUpForm";
 
@@ -34,21 +32,6 @@ export function AuthGateModal({ isOpen, onClose, onSuccess, defaultTab = "signin
   const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<Element | null>(null);
-  const variantRef = useRef<ExperimentVariant | null>(null);
-  const convertedRef = useRef(false);
-
-  // Track experiment trigger/dismiss on open/close
-  useEffect(() => {
-    if (isOpen) {
-      convertedRef.current = false;
-      variantRef.current = getOrAssignVariant();
-      void trackExperiment({ experiment: 'auth_gate', variant: variantRef.current, event: 'triggered' });
-    } else {
-      if (variantRef.current && !convertedRef.current) {
-        void trackExperiment({ experiment: 'auth_gate', variant: variantRef.current, event: 'dismissed' });
-      }
-    }
-  }, [isOpen]);
 
   // Reset tab when defaultTab changes
   useEffect(() => {
@@ -96,8 +79,6 @@ export function AuthGateModal({ isOpen, onClose, onSuccess, defaultTab = "signin
   }, [isOpen]);
 
   const handleSuccess = useCallback(() => {
-    convertedRef.current = true;
-    void trackExperiment({ experiment: 'auth_gate', variant: variantRef.current!, event: 'converted' });
     setStatus("success");
     setTimeout(() => {
       setStatus("idle");
