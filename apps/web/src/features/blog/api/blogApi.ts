@@ -68,3 +68,18 @@ export async function unstarPost(slug: string, accessToken: string): Promise<voi
     accessToken,
   });
 }
+
+export async function followAuthor(authorId: number, accessToken: string): Promise<void> {
+  await apiRequest(`/authors/${authorId}/follow`, {
+    method: 'POST',
+    accessToken,
+    body: { author_id: authorId },
+  });
+}
+
+export async function unfollowAuthor(authorId: number, accessToken: string): Promise<void> {
+  await apiRequest(`/authors/${authorId}/follow`, {
+    method: 'DELETE',
+    accessToken,
+  });
+}

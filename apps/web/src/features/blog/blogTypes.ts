@@ -90,6 +90,12 @@ export type PostDetailPageData = {
   post: PostDetail;
 };
 
+export interface FollowResponse {
+  follower_id: number;
+  author_id: number;
+  created_at: string;
+}
+
 export type ArchivePageData = {
   posts: PostSummary[];
   total: number;
