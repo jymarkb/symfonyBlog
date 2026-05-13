@@ -7,12 +7,12 @@ import { PostRail } from '@/features/blog/components/PostRail';
 import type { TocHeading } from '@/features/blog/components/PostRail';
 import { AuthorCard } from '@/features/blog/components/AuthorCard';
 import { ReactionButton } from '@/features/blog/components/ReactionButton';
-import type { PostDetailPageData, PostDetail, ReactionCounts, ReactionType } from '@/features/blog/blogTypes';
-import { toggleReaction, fetchPostUserState, followAuthor } from '@/features/blog/api/blogApi';
-import { ApiError } from '@/lib/api/apiClient';
+import type { PostDetailPageData, PostDetail } from '@/features/blog/blogTypes';
+import { fetchPostUserState, followAuthor } from '@/features/blog/api/blogApi';
 import { getAccessToken } from '@/lib/auth/getAccessToken';
 import { useCurrentSession } from '@/features/auth/session/useCurrentSession';
 import { AuthGateModal } from '@/features/auth/components/AuthGateModal';
+import { usePendingReaction } from '@/features/blog/hooks/usePendingReaction';
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return '';
@@ -51,68 +51,19 @@ function extractHeadings(blocks: BlockElement[]): TocHeading[] {
   return headings;
 }
 
-const PENDING_STAR_KEY = 'pending_star_slug';
-
 type StarButtonProps = {
-  slug: string;
-  initialCount: number | null;
-  initialStarred?: boolean;
-  openAuthGate: (callback: () => void) => void;
+  count: number | null;
+  starred: boolean;
+  busy: boolean;
+  onClick: () => void;
 };
 
-function StarButton({ slug, initialCount, initialStarred, openAuthGate }: StarButtonProps) {
-  const [count, setCount] = useState<number | null>(initialCount);
-  const [starred, setStarred] = useState(initialStarred ?? false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(false);
-  const { isAuthenticated } = useCurrentSession();
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    const pending = sessionStorage.getItem(PENDING_STAR_KEY);
-    if (pending === slug) {
-      sessionStorage.removeItem(PENDING_STAR_KEY);
-      void toggle();
-    }
-  }, [isAuthenticated]);
-
-  async function toggle() {
-    if (busy) return;
-    if (!isAuthenticated) {
-      sessionStorage.setItem(PENDING_STAR_KEY, slug);
-      openAuthGate(() => void toggle());
-      return;
-    }
-    setBusy(true);
-    setError(false);
-    const wasStarred = starred;
-    const delta = wasStarred ? -1 : 1;
-    setStarred(!wasStarred);
-    setCount((c) => (c ?? 0) + delta);
-    try {
-      const accessToken = await getAccessToken();
-      const result = await toggleReaction(slug, 'star', accessToken);
-      setStarred(result.reaction === 'star');
-      setCount(result.counts.star);
-    } catch (err) {
-      setStarred(wasStarred);
-      setCount((c) => (c ?? 0) - delta);
-      if (err instanceof ApiError && err.status === 401) {
-        sessionStorage.setItem(PENDING_STAR_KEY, slug);
-        openAuthGate(() => void toggle());
-      } else if (!(err instanceof Error && err.message === 'Session expired.')) {
-        setError(true);
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
-
+function StarButton({ count, starred, busy, onClick }: StarButtonProps) {
   return (
     <div className="star-cta-wrap">
       <button
         className={`star-cta${starred ? ' star-cta--active' : ''}`}
-        onClick={toggle}
+        onClick={onClick}
         disabled={busy}
         aria-label={starred ? 'Unstar this post' : 'Star this post'}
         aria-pressed={starred}
@@ -121,7 +72,6 @@ function StarButton({ slug, initialCount, initialStarred, openAuthGate }: StarBu
         <span className="star-cta-label">{starred ? 'Starred' : 'Star'}</span>
         <span className="star-cta-count">{count !== null ? count.toLocaleString() : '—'}</span>
       </button>
-      {error && <span className="star-cta-error" role="alert">Something went wrong. Try again.</span>}
     </div>
   );
 }
@@ -183,8 +133,6 @@ function PostMetaBar({ post }: PostMetaBarProps) {
   );
 }
 
-const PENDING_REACTION_KEY = 'pending_reaction';
-
 export default function Page() {
   const { post, userState: initialUserState } = useData<PostDetailPageData>();
   const [userState, setUserState] = useState(initialUserState);
@@ -192,19 +140,25 @@ export default function Page() {
   const [followersCount, setFollowersCount] = useState(
     initialUserState?.followers_count ?? post.author.followers_count ?? 0,
   );
-  const [reactionCounts, setReactionCounts] = useState<ReactionCounts>(post.reaction_counts);
-  const [activeReaction, setActiveReaction] = useState<ReactionType | null>(
-    initialUserState?.reaction ?? null,
-  );
-  const [reactionBusy, setReactionBusy] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const mobileBarRef = useRef<HTMLDivElement>(null);
   const mobileMaxPct = useRef(0);
   const headings = extractHeadings(post.body);
   const [activeId, setActiveId] = useState('');
   const [authGateOpen, setAuthGateOpen] = useState(false);
-  const pendingStarRef = useRef<(() => void) | null>(null);
   const { isAuthenticated } = useCurrentSession();
+
+  const {
+    activeReaction,
+    reactionCounts,
+    busy: reactionBusy,
+    handleReaction,
+  } = usePendingReaction({
+    postSlug: post.slug,
+    initialActiveReaction: userState?.reaction ?? null,
+    initialCounts: post.reaction_counts,
+    onOpenAuthGate: () => setAuthGateOpen(true),
+  });
 
   useEffect(() => {
     function update() {
@@ -258,7 +212,6 @@ export default function Page() {
         const token = await getAccessToken();
         const state = await fetchPostUserState(post.slug, token);
         setUserState(state);
-        setActiveReaction(state.reaction ?? null);
       } catch {}
     }
     void load();
@@ -290,56 +243,6 @@ export default function Page() {
     }
     void applyFollow();
   }, [isAuthenticated]);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    const raw = sessionStorage.getItem(PENDING_REACTION_KEY);
-    if (!raw) return;
-    try {
-      const pending = JSON.parse(raw) as { slug: string; reaction: string };
-      if (pending.slug === post.slug) {
-        sessionStorage.removeItem(PENDING_REACTION_KEY);
-        void handleReaction(pending.reaction as ReactionType);
-      }
-    } catch {
-      // malformed — ignore
-    }
-  }, [isAuthenticated]);
-
-  async function handleReaction(reactionType: ReactionType) {
-    if (reactionBusy) return;
-    if (!isAuthenticated) {
-      sessionStorage.setItem(PENDING_REACTION_KEY, JSON.stringify({ slug: post.slug, reaction: reactionType }));
-      pendingStarRef.current = () => void handleReaction(reactionType);
-      setAuthGateOpen(true);
-      return;
-    }
-    const prevReaction = activeReaction;
-    const prevCounts = { ...reactionCounts };
-    const nextReaction = activeReaction === reactionType ? null : reactionType;
-    setActiveReaction(nextReaction);
-    const nextCounts = { ...reactionCounts };
-    if (prevReaction) nextCounts[prevReaction] = Math.max(0, (nextCounts[prevReaction] ?? 0) - 1);
-    if (nextReaction) nextCounts[nextReaction] = (nextCounts[nextReaction] ?? 0) + 1;
-    setReactionCounts(nextCounts);
-    setReactionBusy(true);
-    try {
-      const accessToken = await getAccessToken();
-      const result = await toggleReaction(post.slug, reactionType, accessToken);
-      setActiveReaction(result.reaction);
-      setReactionCounts(result.counts);
-    } catch (err) {
-      setActiveReaction(prevReaction);
-      setReactionCounts(prevCounts);
-      if (err instanceof ApiError && err.status === 401) {
-        sessionStorage.setItem(PENDING_REACTION_KEY, JSON.stringify({ slug: post.slug, reaction: reactionType }));
-        pendingStarRef.current = () => void handleReaction(reactionType);
-        setAuthGateOpen(true);
-      }
-    } finally {
-      setReactionBusy(false);
-    }
-  }
 
   return (
     <AppShell>
@@ -374,13 +277,10 @@ export default function Page() {
                 <p className="pe-prompt">Found this useful?</p>
                 <div className="pe-btns">
                   <StarButton
-                    slug={post.slug}
-                    initialCount={reactionCounts.star}
-                    initialStarred={activeReaction === 'star'}
-                    openAuthGate={(cb) => {
-                      pendingStarRef.current = cb;
-                      setAuthGateOpen(true);
-                    }}
+                    count={reactionCounts.star}
+                    starred={activeReaction === 'star'}
+                    busy={reactionBusy}
+                    onClick={() => void handleReaction('star')}
                   />
                   <ReactionButton
                     emoji="👍"
@@ -461,11 +361,7 @@ export default function Page() {
       <AuthGateModal
         isOpen={authGateOpen}
         onClose={() => setAuthGateOpen(false)}
-        onSuccess={() => {
-          setAuthGateOpen(false);
-          pendingStarRef.current?.();
-          pendingStarRef.current = null;
-        }}
+        onSuccess={() => setAuthGateOpen(false)}
       />
     </AppShell>
   );
