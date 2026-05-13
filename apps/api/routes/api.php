@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\CommentController;
 use App\Http\Controllers\Api\V1\Admin\TagController;
 use App\Http\Controllers\Api\V1\Admin\UploadController;
+use App\Http\Controllers\Api\V1\ExperimentTrackController;
 
 Route::prefix('v1')->group(function () {
 
@@ -33,6 +34,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/tags', [PublicTagController::class, 'index'])->middleware('throttle:public-api');
         Route::get('/profiles/{handle}', [PublicProfileController::class, 'show'])->middleware('throttle:public-api');
         Route::post('/posts/{slug}/view', fn() => response()->json([], 202))->middleware('throttle:post-view');
+        Route::post('/experiments/track', [ExperimentTrackController::class, 'store'])->middleware('throttle:60,1');
     });
 
     /*
@@ -52,6 +54,9 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/posts/{slug}/stars', [PostStarController::class, 'store'])->middleware('throttle:profile-mutations');
         Route::delete('/posts/{slug}/stars', [PostStarController::class, 'destroy'])->middleware('throttle:profile-mutations');
+
+        Route::post('/authors/{authorId}/follow', [\App\Http\Controllers\Api\V1\AuthorFollowController::class, 'store'])->middleware('throttle:profile-mutations');
+        Route::delete('/authors/{authorId}/follow', [\App\Http\Controllers\Api\V1\AuthorFollowController::class, 'destroy'])->middleware('throttle:profile-mutations');
 
         /*
         |----------------------------------------------------------------------
@@ -76,6 +81,8 @@ Route::prefix('v1')->group(function () {
             Route::delete('/tags/{tag}', [TagController::class, 'destroy'])->middleware('throttle:admin-mutations');
 
             Route::post('/uploads', [UploadController::class, 'store'])->middleware('throttle:admin-mutations');
+
+            Route::get('/experiments', [\App\Http\Controllers\Api\V1\Admin\ExperimentController::class, 'index'])->middleware('throttle:admin-read');
         });
     });
 
