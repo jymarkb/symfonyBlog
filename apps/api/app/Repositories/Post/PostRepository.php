@@ -13,7 +13,7 @@ class PostRepository
             "posts.slug.{$slug}",
             now()->addMinutes(10),
             fn () => Post::query()
-                ->with(['user', 'tags'])
+                ->with(['user' => fn ($q) => $q->withCount('followers'), 'tags'])
                 ->withCount(['comments', 'stars'])
                 ->where('slug', $slug)
                 ->where('status', 'published')
