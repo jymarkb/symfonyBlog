@@ -17,7 +17,7 @@ class PostService
     public function listPublished(Request $request): LengthAwarePaginator
     {
         return Post::query()
-            ->with(['user', 'tags'])
+            ->with(['user' => fn ($q) => $q->withCount('followers'), 'tags'])
             ->withCount([
                 'comments',
                 'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star'),
@@ -69,7 +69,7 @@ class PostService
     public function listForAdmin(): LengthAwarePaginator
     {
         return Post::query()
-            ->with(['user', 'tags'])
+            ->with(['user' => fn ($q) => $q->withCount('followers'), 'tags'])
             ->withCount([
                 'comments',
                 'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star'),
@@ -81,7 +81,7 @@ class PostService
     public function findPublishedBySlug(string $slug): Post
     {
         return Post::query()
-            ->with(['user', 'tags'])
+            ->with(['user' => fn ($q) => $q->withCount('followers'), 'tags'])
             ->withCount([
                 'comments',
                 'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star'),
@@ -145,8 +145,10 @@ class PostService
         $isFollowing = $followService->isFollowing($user, (int) $post->user_id);
         $reaction = $reactionService->getUserReaction($post, $user);
 
-        $post->load('user');
-        $post->user->loadCount('followers');
+        $post->loadMissing('user');
+        if (! isset($post->user->followers_count)) {
+            $post->user->loadCount('followers');
+        }
 
         return [
             'is_following'    => $isFollowing,
