@@ -12,6 +12,12 @@ class Post extends Model
 {
     use HasFactory;
 
+    protected $hidden = [
+        'user_id',
+        'status',
+        'body',
+    ];
+
     protected $fillable = [
         'title',
         'slug',

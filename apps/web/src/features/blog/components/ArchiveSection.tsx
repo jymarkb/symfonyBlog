@@ -1,12 +1,12 @@
 // apps/web/src/features/blog/components/ArchiveSection.tsx
 
-import { PostSummary } from '../blogTypes';
+import type { PostSummary } from '../blogTypes';
 import { ArchiveRow } from './ArchiveRow';
 
 type Props = {
   posts: PostSummary[];
   isLoading: boolean;
-  onTagChange?: (slug: string) => void;
+  onTagChange?: (slug: string | null) => void;
 };
 
 function groupByYear(posts: PostSummary[]): Map<number, PostSummary[]> {

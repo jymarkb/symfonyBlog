@@ -23,6 +23,7 @@ When running under Claude, use these model tiers per agent type:
 -qa-frontend-        -> sonnet  (read-only review, use Explore subagent type)
 -qa-backend-         -> sonnet  (read-only review, use Explore subagent type)
 -qa-                 -> main session workflow (parallel frontend + backend QA, synthesized report)
+-autotest-           -> main session workflow (fix → test → repeat until all green; never stops on red)
 -review-             -> sonnet  (general review, use general-purpose subagent type)
 -implement-          -> sonnet  (scoped implementation, use general-purpose subagent type)
 -pr-                 -> haiku   (GitHub PR description, plain text ready to paste, use general-purpose subagent type)
@@ -579,6 +580,51 @@ Combined list of duplicate patterns across frontend that could be extracted
 - Main session posts ONE combined report — not two separate reports pasted together.
 - Do not implement fixes. Do not commit. Surface findings only.
 - If one subagent fails to complete, post that side's partial result with a note, then complete the other side.
+
+## Autotest Agent
+
+Use `-autotest- <scope>` to fix all failures and keep running until every test passes. This is a **main session workflow** — the main session drives every step itself.
+
+### How the main session executes it
+
+1. **Run tests** — Execute `cd apps/api && php artisan test` and `cd apps/web && npx tsc --noEmit` in parallel. Capture all failures.
+2. **If green** — Post final passing output and stop. Done.
+3. **If red** — Group failures by concern (backend test failures → `-core-php-` agents; frontend type errors → `-core-react-` agents). Spawn fix agents in background. Where failures are independent, spawn in parallel.
+4. **Wait** — Wait for all fix agents to complete.
+5. **Re-run tests** — Go back to step 1.
+6. **Repeat** — Never stop on red. Only stop when both `php artisan test` and `npx tsc --noEmit` exit clean.
+7. **Report** — Post the final green test output and a summary of all fixes made.
+
+### Rules
+
+- Never stop the loop because a fix agent failed or a fix looks partial — re-run tests and let the result decide.
+- If the same failure appears 3 times in a row without progress, surface it to the user and pause — it may require architectural input.
+- Do not auto-commit. After all tests green, report suggested commit grouping and wait for the user to run `-commit`.
+- **Silent mode** — do not post intermediate "round N" updates to main chat. Only post the final green summary. Surface failures immediately if the same test fails 3 consecutive rounds (the exception to silent mode).
+- When spawning fix agents, give them the exact failure output and the file paths — do not make them re-run the tests themselves.
+
+### Example
+
+```
+User: -autotest- archive page
+
+Main session:
+  Round 1:
+    → Run php artisan test + tsc --noEmit in parallel
+    → 3 PHP failures, 1 TS error
+    → Spawn -core-php- with failure output (parallel where independent)
+    → Spawn -core-react- with TS error
+    → Wait for both
+  Round 2:
+    → Re-run php artisan test + tsc --noEmit
+    → 1 PHP failure remains
+    → Spawn -core-php- fix agent
+    → Wait
+  Round 3:
+    → Re-run tests
+    → All green
+    → Post final summary + suggested commit grouping
+```
 
 ## Backend API Test Coverage
 
