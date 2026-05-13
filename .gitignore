@@ -24,6 +24,7 @@ docs/architecture/*
 !docs/architecture/archive.md
 !docs/architecture/landing-page.md
 !docs/architecture/seo.md
+!docs/architecture/post-detail.md
 !docs/roadmap/
 docs/roadmap/*
 !docs/roadmap/00-master-plan.md
