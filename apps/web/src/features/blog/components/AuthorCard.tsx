@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ApiError } from '@/lib/api/apiClient';
-import { getAccessToken } from '@/lib/auth/getAccessToken';
+import { getAccessToken, tryGetAccessToken } from '@/lib/auth/getAccessToken';
 import { useCurrentSession } from '@/features/auth/session/useCurrentSession';
 import { AuthGateModal } from '@/features/auth/components/AuthGateModal';
 import { followAuthor, unfollowAuthor } from '../api/blogApi';
@@ -13,61 +13,47 @@ type AuthorCardProps = {
   variant: 'rail' | 'footer';
   onOpenAuthGate?: (callback: () => void) => void;
   initialFollowing?: boolean;
+  initialFollowersCount?: number;
+  onFollowChange?: (following: boolean, count: number) => void;
 };
 
 const PENDING_FOLLOW_KEY = 'pending_follow_author_id';
 
-export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: AuthorCardProps) {
+export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing, initialFollowersCount, onFollowChange }: AuthorCardProps) {
   const { author } = post;
   const displayName = author.display_name ?? author.handle;
   const initials = getInitials(author.display_name, author.handle);
 
   const [following, setFollowing] = useState(initialFollowing ?? false);
-  const [followerCount, setFollowerCount] = useState(author.followers_count ?? 0);
+  const [followerCount, setFollowerCount] = useState(initialFollowersCount ?? author.followers_count ?? 0);
   const [busy, setBusy] = useState(false);
   const [authGateOpen, setAuthGateOpen] = useState(false);
-  const pendingFollowRef = useRef<(() => void) | null>(null);
   const { isAuthenticated } = useCurrentSession();
 
-  // OAuth path: after redirect back, apply the pending follow stored before OAuth started
   useEffect(() => {
-    if (!isAuthenticated) return;
-    const pending = sessionStorage.getItem(PENDING_FOLLOW_KEY);
-    if (pending && parseInt(pending) === author.id) {
-      sessionStorage.removeItem(PENDING_FOLLOW_KEY);
-      pendingFollowRef.current = null; // prevent onSuccess from firing a second applyFollow
-      void applyFollow();
+    setFollowing(initialFollowing ?? false);
+    if (initialFollowersCount !== undefined) {
+      setFollowerCount(initialFollowersCount);
     }
-  }, [isAuthenticated]);
-
-  async function applyFollow() {
-    setBusy(true);
-    try {
-      const accessToken = await getAccessToken();
-      await followAuthor(author.id, accessToken);
-      setFollowing(true);
-      setFollowerCount(c => c + 1);
-    } catch {
-      // silent — user can click Follow again
-    } finally {
-      setBusy(false);
-    }
-  }
+  }, [initialFollowing, initialFollowersCount]);
 
   async function handleFollow() {
     if (busy) return;
     if (!isAuthenticated) {
-      // Store intent for OAuth path (page will navigate away)
-      sessionStorage.setItem(PENDING_FOLLOW_KEY, String(author.id));
-      // Callback for email sign-in path (page stays, apply directly)
-      const callback = () => void applyFollow();
-      if (onOpenAuthGate) {
-        onOpenAuthGate(callback);
-      } else {
-        pendingFollowRef.current = callback;
-        setAuthGateOpen(true);
+      // isAuthenticated comes from CurrentSessionContext which waits for fetchCurrentUser
+      // before flipping to true. getSession() resolves immediately from localStorage, so
+      // we probe it here to avoid treating a mid-resolve authenticated user as a guest.
+      const token = await tryGetAccessToken();
+      if (!token) {
+        sessionStorage.setItem(PENDING_FOLLOW_KEY, String(author.id));
+        if (onOpenAuthGate) {
+          onOpenAuthGate(() => {});
+        } else {
+          setAuthGateOpen(true);
+        }
+        return;
       }
-      return;
+      // Token exists — context hasn't caught up yet; fall through to authenticated path.
     }
     setBusy(true);
     const next = !following;
@@ -76,20 +62,22 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
     try {
       const accessToken = await getAccessToken();
       if (next) {
-        await followAuthor(author.id, accessToken);
+        const result = await followAuthor(author.id, accessToken);
+        setFollowerCount(result.followers_count);
+        onFollowChange?.(true, result.followers_count);
       } else {
         await unfollowAuthor(author.id, accessToken);
+        const newCount = followerCount - 1;
+        onFollowChange?.(false, newCount);
       }
     } catch (err) {
       setFollowing(!next);
       setFollowerCount(c => c + (next ? -1 : 1));
       if (err instanceof ApiError && err.status === 401) {
         sessionStorage.setItem(PENDING_FOLLOW_KEY, String(author.id));
-        const callback = () => void applyFollow();
         if (onOpenAuthGate) {
-          onOpenAuthGate(callback);
+          onOpenAuthGate(() => {});
         } else {
-          pendingFollowRef.current = callback;
           setAuthGateOpen(true);
         }
       }
@@ -133,9 +121,6 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
             }}
             onSuccess={() => {
               setAuthGateOpen(false);
-              sessionStorage.removeItem(PENDING_FOLLOW_KEY);
-              pendingFollowRef.current?.();
-              pendingFollowRef.current = null;
             }}
           />
         )}
@@ -178,9 +163,6 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing }: 
           }}
           onSuccess={() => {
             setAuthGateOpen(false);
-            sessionStorage.removeItem(PENDING_FOLLOW_KEY);
-            pendingFollowRef.current?.();
-            pendingFollowRef.current = null;
           }}
         />
       )}

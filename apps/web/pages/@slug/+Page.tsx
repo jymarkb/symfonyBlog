@@ -7,8 +7,8 @@ import { PostRail } from '@/features/blog/components/PostRail';
 import type { TocHeading } from '@/features/blog/components/PostRail';
 import { AuthorCard } from '@/features/blog/components/AuthorCard';
 import { ReactionButton } from '@/features/blog/components/ReactionButton';
-import type { PostDetailPageData, PostDetail, ReactionCounts } from '@/features/blog/blogTypes';
-import { toggleReaction } from '@/features/blog/api/blogApi';
+import type { PostDetailPageData, PostDetail, ReactionCounts, ReactionType } from '@/features/blog/blogTypes';
+import { toggleReaction, fetchPostUserState, followAuthor } from '@/features/blog/api/blogApi';
 import { ApiError } from '@/lib/api/apiClient';
 import { getAccessToken } from '@/lib/auth/getAccessToken';
 import { useCurrentSession } from '@/features/auth/session/useCurrentSession';
@@ -183,9 +183,20 @@ function PostMetaBar({ post }: PostMetaBarProps) {
   );
 }
 
+const PENDING_REACTION_KEY = 'pending_reaction';
+
 export default function Page() {
-  const { post, userState } = useData<PostDetailPageData>();
+  const { post, userState: initialUserState } = useData<PostDetailPageData>();
+  const [userState, setUserState] = useState(initialUserState);
+  const [isFollowing, setIsFollowing] = useState(initialUserState?.is_following ?? false);
+  const [followersCount, setFollowersCount] = useState(
+    initialUserState?.followers_count ?? post.author.followers_count ?? 0,
+  );
   const [reactionCounts, setReactionCounts] = useState<ReactionCounts>(post.reaction_counts);
+  const [activeReaction, setActiveReaction] = useState<ReactionType | null>(
+    initialUserState?.reaction ?? null,
+  );
+  const [reactionBusy, setReactionBusy] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const mobileBarRef = useRef<HTMLDivElement>(null);
   const mobileMaxPct = useRef(0);
@@ -193,6 +204,7 @@ export default function Page() {
   const [activeId, setActiveId] = useState('');
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const pendingStarRef = useRef<(() => void) | null>(null);
+  const { isAuthenticated } = useCurrentSession();
 
   useEffect(() => {
     function update() {
@@ -239,13 +251,106 @@ export default function Page() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!isAuthenticated || userState !== null) return;
+    async function load() {
+      try {
+        const token = await getAccessToken();
+        const state = await fetchPostUserState(post.slug, token);
+        setUserState(state);
+        setActiveReaction(state.reaction ?? null);
+      } catch {}
+    }
+    void load();
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (userState === null) return;
+    setIsFollowing(userState.is_following);
+    setFollowersCount(userState.followers_count);
+  }, [userState]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const pending = sessionStorage.getItem('pending_follow_author_id');
+    if (!pending || parseInt(pending) !== post.author.id) return;
+    sessionStorage.removeItem('pending_follow_author_id');
+    async function applyFollow() {
+      try {
+        const token = await getAccessToken();
+        const result = await followAuthor(post.author.id, token);
+        setIsFollowing(true);
+        setFollowersCount(result.followers_count);
+      } catch {}
+    }
+    void applyFollow();
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const raw = sessionStorage.getItem(PENDING_REACTION_KEY);
+    if (!raw) return;
+    try {
+      const pending = JSON.parse(raw) as { slug: string; reaction: string };
+      if (pending.slug === post.slug) {
+        sessionStorage.removeItem(PENDING_REACTION_KEY);
+        void handleReaction(pending.reaction as ReactionType);
+      }
+    } catch {
+      // malformed — ignore
+    }
+  }, [isAuthenticated]);
+
+  async function handleReaction(reactionType: ReactionType) {
+    if (reactionBusy) return;
+    if (!isAuthenticated) {
+      sessionStorage.setItem(PENDING_REACTION_KEY, JSON.stringify({ slug: post.slug, reaction: reactionType }));
+      pendingStarRef.current = () => void handleReaction(reactionType);
+      setAuthGateOpen(true);
+      return;
+    }
+    const prevReaction = activeReaction;
+    const prevCounts = { ...reactionCounts };
+    const nextReaction = activeReaction === reactionType ? null : reactionType;
+    setActiveReaction(nextReaction);
+    const nextCounts = { ...reactionCounts };
+    if (prevReaction) nextCounts[prevReaction] = Math.max(0, (nextCounts[prevReaction] ?? 0) - 1);
+    if (nextReaction) nextCounts[nextReaction] = (nextCounts[nextReaction] ?? 0) + 1;
+    setReactionCounts(nextCounts);
+    setReactionBusy(true);
+    try {
+      const accessToken = await getAccessToken();
+      const result = await toggleReaction(post.slug, reactionType, accessToken);
+      setActiveReaction(result.reaction);
+      setReactionCounts(result.counts);
+    } catch (err) {
+      setActiveReaction(prevReaction);
+      setReactionCounts(prevCounts);
+      if (err instanceof ApiError && err.status === 401) {
+        sessionStorage.setItem(PENDING_REACTION_KEY, JSON.stringify({ slug: post.slug, reaction: reactionType }));
+        pendingStarRef.current = () => void handleReaction(reactionType);
+        setAuthGateOpen(true);
+      }
+    } finally {
+      setReactionBusy(false);
+    }
+  }
+
   return (
     <AppShell>
       <div className="mobile-reading-bar" aria-hidden="true">
         <div className="mobile-reading-bar-fill" ref={mobileBarRef} />
       </div>
       <div className="post-layout">
-        <PostRail post={post} headings={headings} activeId={activeId} bodyRef={bodyRef} initialFollowing={userState?.is_following ?? false} />
+        <PostRail
+          post={post}
+          headings={headings}
+          activeId={activeId}
+          bodyRef={bodyRef}
+          initialFollowing={isFollowing}
+          initialFollowersCount={followersCount}
+          onFollowChange={(following, count) => { setIsFollowing(following); setFollowersCount(count); }}
+        />
         <div className="post-content">
           <PostMetaBar post={post} />
           <h1 id="post-title" className="block-title">{post.title}</h1>
@@ -266,7 +371,7 @@ export default function Page() {
                   <StarButton
                     slug={post.slug}
                     initialCount={reactionCounts.star}
-                    initialStarred={userState?.reaction === 'star'}
+                    initialStarred={activeReaction === 'star'}
                     openAuthGate={(cb) => {
                       pendingStarRef.current = cb;
                       setAuthGateOpen(true);
@@ -276,31 +381,28 @@ export default function Page() {
                     emoji="👍"
                     label="Helpful"
                     reactionType="helpful"
-                    postSlug={post.slug}
-                    initialCount={reactionCounts.helpful}
-                    initialActive={userState?.reaction === 'helpful'}
-                    openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }}
-                    onCountsUpdate={setReactionCounts}
+                    count={reactionCounts.helpful}
+                    isActive={activeReaction === 'helpful'}
+                    busy={reactionBusy}
+                    onClick={() => void handleReaction('helpful')}
                   />
                   <ReactionButton
                     emoji="🔥"
                     label="Fire"
                     reactionType="fire"
-                    postSlug={post.slug}
-                    initialCount={reactionCounts.fire}
-                    initialActive={userState?.reaction === 'fire'}
-                    openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }}
-                    onCountsUpdate={setReactionCounts}
+                    count={reactionCounts.fire}
+                    isActive={activeReaction === 'fire'}
+                    busy={reactionBusy}
+                    onClick={() => void handleReaction('fire')}
                   />
                   <ReactionButton
                     emoji="💡"
                     label="Insightful"
                     reactionType="insightful"
-                    postSlug={post.slug}
-                    initialCount={reactionCounts.insightful}
-                    initialActive={userState?.reaction === 'insightful'}
-                    openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }}
-                    onCountsUpdate={setReactionCounts}
+                    count={reactionCounts.insightful}
+                    isActive={activeReaction === 'insightful'}
+                    busy={reactionBusy}
+                    onClick={() => void handleReaction('insightful')}
                   />
                 </div>
               </div>
@@ -321,7 +423,13 @@ export default function Page() {
                 <a className="share-chip" href={`https://reddit.com/submit?url=https://jymb.blog/${encodeURIComponent(post.slug)}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">↑ Reddit</a>
               </div>
             </div>
-            <AuthorCard post={post} variant="footer" initialFollowing={userState?.is_following ?? false} />
+            <AuthorCard
+              post={post}
+              variant="footer"
+              initialFollowing={isFollowing}
+              initialFollowersCount={followersCount}
+              onFollowChange={(following, count) => { setIsFollowing(following); setFollowersCount(count); }}
+            />
             <div className="related">
               <h4 className="related-label">Related essays</h4>
               <p className="related-empty">Similar posts will appear here once more content is published.</p>
