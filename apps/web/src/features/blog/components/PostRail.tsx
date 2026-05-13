@@ -17,9 +17,11 @@ type Props = {
   activeId?: string;
   bodyRef: React.RefObject<HTMLDivElement | null>;
   initialFollowing?: boolean;
+  initialFollowersCount?: number;
+  onFollowChange?: (following: boolean, count: number) => void;
 };
 
-export function PostRail({ post, headings, activeId = '', bodyRef, initialFollowing }: Props) {
+export function PostRail({ post, headings, activeId = '', bodyRef, initialFollowing, initialFollowersCount, onFollowChange }: Props) {
   const progressRef = useRef<HTMLElement>(null);
   const readoutRef = useRef<HTMLSpanElement>(null);
   const maxPct = useRef(0);
@@ -62,7 +64,7 @@ export function PostRail({ post, headings, activeId = '', bodyRef, initialFollow
     <aside className="post-rail">
 
       {/* Author card */}
-      <AuthorCard post={post} variant="rail" initialFollowing={initialFollowing} />
+      <AuthorCard post={post} variant="rail" initialFollowing={initialFollowing} initialFollowersCount={initialFollowersCount} onFollowChange={onFollowChange} />
 
       {/* TOC + progress */}
       {headings.length > 0 && (
