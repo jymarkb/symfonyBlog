@@ -28,10 +28,32 @@ function useIsMobile(): boolean {
 
 export function AuthGateModal({ isOpen, onClose, onSuccess, defaultTab = "signin" }: Props) {
   const [tab, setTab] = useState<AuthGateTab>(defaultTab);
+  const [slideDir, setSlideDir] = useState<"right" | "left">("right");
   const [status, setStatus] = useState<AuthGateStatus>("idle");
+  const [formHeight, setFormHeight] = useState<number | undefined>();
   const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<Element | null>(null);
+  const formOuterRef = useRef<HTMLDivElement>(null);
+
+  function switchTab(next: AuthGateTab) {
+    setSlideDir(next === "signup" ? "right" : "left");
+    setTab(next);
+  }
+
+  // Animate height when switching between forms
+  useEffect(() => {
+    const outer = formOuterRef.current;
+    if (!outer) return;
+    const inner = outer.firstElementChild as HTMLElement | null;
+    if (!inner) return;
+    const ro = new ResizeObserver(() => {
+      const h = (outer.firstElementChild as HTMLElement | null)?.offsetHeight;
+      if (h) setFormHeight(h);
+    });
+    ro.observe(inner);
+    return () => ro.disconnect();
+  }, [tab, isMobile]);
 
   // Reset tab when defaultTab changes
   useEffect(() => {
@@ -42,7 +64,6 @@ export function AuthGateModal({ isOpen, onClose, onSuccess, defaultTab = "signin
   useEffect(() => {
     if (isOpen) {
       triggerRef.current = document.activeElement;
-      // Focus first interactive element in modal after render
       const timer = setTimeout(() => {
         const focusable = containerRef.current?.querySelector<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -51,7 +72,6 @@ export function AuthGateModal({ isOpen, onClose, onSuccess, defaultTab = "signin
       }, 50);
       return () => clearTimeout(timer);
     } else {
-      // Restore focus on close
       if (triggerRef.current && "focus" in triggerRef.current) {
         (triggerRef.current as HTMLElement).focus();
       }
@@ -97,6 +117,28 @@ export function AuthGateModal({ isOpen, onClose, onSuccess, defaultTab = "signin
     </div>
   );
 
+  const formSlot = (
+    <div
+      ref={formOuterRef}
+      className="auth-gate-form-outer"
+      style={formHeight !== undefined ? { height: formHeight } : undefined}
+    >
+      <div key={tab} className={`auth-gate-form auth-gate-form--${slideDir}`}>
+        {tab === "signin" ? (
+          <ModalSignInForm
+            onSuccess={handleSuccess}
+            onSwitchToSignUp={() => switchTab("signup")}
+          />
+        ) : (
+          <ModalSignUpForm
+            onSuccess={handleSuccess}
+            onSwitchToSignIn={() => switchTab("signin")}
+          />
+        )}
+      </div>
+    </div>
+  );
+
   if (isMobile) {
     return ReactDOM.createPortal(
       <>
@@ -139,7 +181,7 @@ export function AuthGateModal({ isOpen, onClose, onSuccess, defaultTab = "signin
                   className={`auth-gate-tab${tab === "signin" ? " is-active" : ""}`}
                   role="tab"
                   aria-selected={tab === "signin"}
-                  onClick={() => setTab("signin")}
+                  onClick={() => switchTab("signin")}
                   type="button"
                 >
                   Sign in
@@ -148,24 +190,14 @@ export function AuthGateModal({ isOpen, onClose, onSuccess, defaultTab = "signin
                   className={`auth-gate-tab${tab === "signup" ? " is-active" : ""}`}
                   role="tab"
                   aria-selected={tab === "signup"}
-                  onClick={() => setTab("signup")}
+                  onClick={() => switchTab("signup")}
                   type="button"
                 >
                   Sign up
                 </button>
               </div>
 
-              {tab === "signin" ? (
-                <ModalSignInForm
-                  onSuccess={handleSuccess}
-                  onSwitchToSignUp={() => setTab("signup")}
-                />
-              ) : (
-                <ModalSignUpForm
-                  onSuccess={handleSuccess}
-                  onSwitchToSignIn={() => setTab("signin")}
-                />
-              )}
+              {formSlot}
             </>
           )}
         </div>
@@ -230,7 +262,7 @@ export function AuthGateModal({ isOpen, onClose, onSuccess, defaultTab = "signin
                 className={`auth-gate-tab${tab === "signin" ? " is-active" : ""}`}
                 role="tab"
                 aria-selected={tab === "signin"}
-                onClick={() => setTab("signin")}
+                onClick={() => switchTab("signin")}
                 type="button"
               >
                 Sign in
@@ -239,24 +271,14 @@ export function AuthGateModal({ isOpen, onClose, onSuccess, defaultTab = "signin
                 className={`auth-gate-tab${tab === "signup" ? " is-active" : ""}`}
                 role="tab"
                 aria-selected={tab === "signup"}
-                onClick={() => setTab("signup")}
+                onClick={() => switchTab("signup")}
                 type="button"
               >
                 Sign up
               </button>
             </div>
 
-            {tab === "signin" ? (
-              <ModalSignInForm
-                onSuccess={handleSuccess}
-                onSwitchToSignUp={() => setTab("signup")}
-              />
-            ) : (
-              <ModalSignUpForm
-                onSuccess={handleSuccess}
-                onSwitchToSignIn={() => setTab("signin")}
-              />
-            )}
+            {formSlot}
           </>
         )}
       </div>
