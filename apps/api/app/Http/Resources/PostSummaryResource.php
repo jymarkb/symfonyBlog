@@ -22,6 +22,8 @@ class PostSummaryResource extends JsonResource
                 'display_name' => $this->user?->display_name,
                 'handle' => $this->user?->handle,
                 'avatar_url' => $this->user?->avatar_url,
+                'bio' => $this->user?->bio,
+                'followers_count' => 0,
             ],
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'comments_count' => $this->whenCounted('comments'),
