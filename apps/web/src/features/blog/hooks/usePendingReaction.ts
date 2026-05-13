@@ -25,14 +25,12 @@ export function usePendingReaction({ postSlug, initialActiveReaction, initialCou
   const [reactionCounts, setReactionCounts] = useState<ReactionCounts>(initialCounts);
   const [busy, setBusy] = useState(false);
 
-  // Sync when page-level initial values update (e.g. after client-side userState fetch)
-  useEffect(() => {
-    setActiveReactions(initialActiveReaction);
-  }, [initialActiveReaction]);
-
-  useEffect(() => {
-    setReactionCounts(initialCounts);
-  }, [initialCounts]);
+  // Sync when page-level initial values update (e.g. after client-side userState fetch).
+  // JSON.stringify used as dep to guard against new-reference-same-value re-fires (e.g. [] !== []).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setActiveReactions(initialActiveReaction); }, [JSON.stringify(initialActiveReaction)]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setReactionCounts(initialCounts); }, [JSON.stringify(initialCounts)]);
 
   // Pick up pending reaction after login
   useEffect(() => {

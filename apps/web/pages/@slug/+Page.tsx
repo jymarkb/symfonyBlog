@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import { useData } from 'vike-react/useData';
 import { BlockRenderer } from '@jymarkb/block-editor/render';
 import type { BlockElement } from '@jymarkb/block-editor/render';
@@ -148,6 +148,8 @@ export default function Page() {
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const { isAuthenticated } = useCurrentSession();
 
+  const stableInitialReactions = useMemo(() => userState?.reaction ?? [], [userState]);
+
   const {
     activeReactions,
     reactionCounts,
@@ -155,7 +157,7 @@ export default function Page() {
     handleReaction,
   } = usePendingReaction({
     postSlug: post.slug,
-    initialActiveReaction: userState?.reaction ?? [],
+    initialActiveReaction: stableInitialReactions,
     initialCounts: post.reaction_counts,
     onOpenAuthGate: () => setAuthGateOpen(true),
   });
