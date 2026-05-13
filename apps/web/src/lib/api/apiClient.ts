@@ -40,5 +40,10 @@ export async function apiRequest<T>(
         throw new ApiError("Unable to complete API request.", response.status);
     }
 
+    // 204 No Content and 304 Not Modified carry no body — skip JSON parsing.
+    if (response.status === 204 || response.status === 304) {
+        return undefined as unknown as T;
+    }
+
     return response.json() as Promise<T>;
 }
