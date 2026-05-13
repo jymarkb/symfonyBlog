@@ -63,4 +63,9 @@ class Post extends Model
     {
         return $this->belongsToMany(User::class, 'post_stars')->withTimestamps();
     }
+
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(PostReaction::class);
+    }
 }
