@@ -61,7 +61,8 @@ function ReactionButton({ emoji, label, openAuthGate }: ReactionButtonProps) {
 
   function handleClick() {
     if (!isAuthenticated) {
-      openAuthGate(() => {});
+      openAuthGate(() => { window.location.reload(); });
+      return;
     }
   }
 
