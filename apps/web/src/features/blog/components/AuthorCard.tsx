@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { ApiError } from '@/lib/api/apiClient';
 import { getAccessToken, tryGetAccessToken } from '@/lib/auth/getAccessToken';
 import { useCurrentSession } from '@/features/auth/session/useCurrentSession';
-import { AuthGateModal } from '@/features/auth/components/AuthGateModal';
 import { followAuthor, unfollowAuthor } from '../api/blogApi';
 import { getInitials } from '../lib/getInitials';
 import type { PostDetail } from '../blogTypes';
@@ -27,7 +26,6 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing, in
   const [following, setFollowing] = useState(initialFollowing ?? false);
   const [followerCount, setFollowerCount] = useState(initialFollowersCount ?? author.followers_count ?? 0);
   const [busy, setBusy] = useState(false);
-  const [authGateOpen, setAuthGateOpen] = useState(false);
   const { isAuthenticated } = useCurrentSession();
 
   useEffect(() => {
@@ -43,14 +41,15 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing, in
       // isAuthenticated comes from CurrentSessionContext which waits for fetchCurrentUser
       // before flipping to true. getSession() resolves immediately from localStorage, so
       // we probe it here to avoid treating a mid-resolve authenticated user as a guest.
-      const token = await tryGetAccessToken();
+      let token: string | null = null;
+      try {
+        token = await tryGetAccessToken();
+      } catch {
+        // Supabase unreachable — treat as unauthenticated
+      }
       if (!token) {
         sessionStorage.setItem(PENDING_FOLLOW_KEY, String(author.id));
-        if (onOpenAuthGate) {
-          onOpenAuthGate(() => {});
-        } else {
-          setAuthGateOpen(true);
-        }
+        onOpenAuthGate?.(() => {});
         return;
       }
       // Token exists — context hasn't caught up yet; fall through to authenticated path.
@@ -58,7 +57,11 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing, in
     setBusy(true);
     const next = !following;
     setFollowing(next);
-    setFollowerCount(c => c + (next ? 1 : -1));
+    if (next) {
+      setFollowerCount(c => c + 1);
+    } else {
+      setFollowerCount(c => Math.max(0, c - 1));
+    }
     try {
       const accessToken = await getAccessToken();
       if (next) {
@@ -67,7 +70,11 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing, in
         onFollowChange?.(true, result.followers_count);
       } else {
         await unfollowAuthor(author.id, accessToken);
-        const newCount = followerCount - 1;
+        let newCount = 0;
+        setFollowerCount(c => {
+          newCount = Math.max(0, c - 1);
+          return newCount;
+        });
         onFollowChange?.(false, newCount);
       }
     } catch (err) {
@@ -75,11 +82,7 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing, in
       setFollowerCount(c => c + (next ? -1 : 1));
       if (err instanceof ApiError && err.status === 401) {
         sessionStorage.setItem(PENDING_FOLLOW_KEY, String(author.id));
-        if (onOpenAuthGate) {
-          onOpenAuthGate(() => {});
-        } else {
-          setAuthGateOpen(true);
-        }
+        onOpenAuthGate?.(() => {});
       }
     } finally {
       setBusy(false);
@@ -111,19 +114,6 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing, in
             {following ? 'Following' : 'Follow'}
           </button>
         </div>
-
-        {!onOpenAuthGate && (
-          <AuthGateModal
-            isOpen={authGateOpen}
-            onClose={() => {
-              setAuthGateOpen(false);
-              sessionStorage.removeItem(PENDING_FOLLOW_KEY);
-            }}
-            onSuccess={() => {
-              setAuthGateOpen(false);
-            }}
-          />
-        )}
       </div>
     );
   }
@@ -153,19 +143,6 @@ export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing, in
         </button>
       </div>
       {author.bio && <p className="pac-bio">{author.bio}</p>}
-
-      {!onOpenAuthGate && (
-        <AuthGateModal
-          isOpen={authGateOpen}
-          onClose={() => {
-            setAuthGateOpen(false);
-            sessionStorage.removeItem(PENDING_FOLLOW_KEY);
-          }}
-          onSuccess={() => {
-            setAuthGateOpen(false);
-          }}
-        />
-      )}
     </div>
   );
 }
