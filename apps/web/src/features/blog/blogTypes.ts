@@ -37,6 +37,7 @@ export type ReactionCounts = {
 export type PostUserState = {
   is_following: boolean;
   reaction: ReactionType | null;
+  followers_count: number;
 };
 
 export type ReactionToggleResponse = {

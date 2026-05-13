@@ -10,8 +10,9 @@ class PostUserStateResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'is_following' => $this->resource['is_following'],
-            'reaction' => $this->resource['reaction'],
+            'is_following'    => $this->resource['is_following'],
+            'reaction'        => $this->resource['reaction'],
+            'followers_count' => $this->resource['followers_count'],
         ];
     }
 }

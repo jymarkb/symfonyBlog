@@ -132,9 +132,13 @@ class PostService
         $isFollowing = $followService->isFollowing($user, (int) $post->user_id);
         $reaction = $reactionService->getUserReaction($post, $user);
 
+        $post->load('user');
+        $post->user->loadCount('followers');
+
         return [
-            'is_following' => $isFollowing,
-            'reaction' => $reaction,
+            'is_following'    => $isFollowing,
+            'reaction'        => $reaction,
+            'followers_count' => (int) ($post->user->followers_count ?? 0),
         ];
     }
 

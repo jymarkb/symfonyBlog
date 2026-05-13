@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\ProfileCommentController;
 use App\Http\Controllers\Api\V1\ProfileNotificationController;
 use App\Http\Controllers\Api\V1\ProfileReadingHistoryController;
 use App\Http\Controllers\Api\V1\TagController as PublicTagController;
+use App\Http\Controllers\Api\V1\AuthorFollowController;
 use App\Http\Controllers\Api\V1\Admin\PostController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\CommentController;
@@ -54,8 +55,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/posts/{slug}/me', [PostUserStateController::class, 'show'])->middleware('throttle:auth-read');
         Route::post('/posts/{slug}/reactions', [PostReactionController::class, 'store'])->middleware('throttle:profile-mutations');
 
-        Route::post('/authors/{authorId}/follow', [\App\Http\Controllers\Api\V1\AuthorFollowController::class, 'store'])->middleware('throttle:profile-mutations');
-        Route::delete('/authors/{authorId}/follow', [\App\Http\Controllers\Api\V1\AuthorFollowController::class, 'destroy'])->middleware('throttle:profile-mutations');
+        Route::post('/authors/{authorId}/follow', [AuthorFollowController::class, 'store'])->middleware('throttle:profile-mutations');
+        Route::delete('/authors/{authorId}/follow', [AuthorFollowController::class, 'destroy'])->middleware('throttle:profile-mutations');
 
         /*
         |----------------------------------------------------------------------
