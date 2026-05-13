@@ -31,6 +31,9 @@ export type ResetPasswordErrors = Partial<
 
 export type CallbackStatus = "loading" | "error";
 
+export type AuthGateTab = 'signin' | 'signup';
+export type AuthGateStatus = 'idle' | 'submitting' | 'success';
+
 export type AuthProviderButtonsProps = {
   compact?: boolean;
   disabled?: boolean;
@@ -79,6 +82,22 @@ export type CurrentSessionStatus =
   | "guest"
   | "authenticated"
   | "error";
+
+export type ExperimentVariant = 'modal' | 'redirect';
+export type ExperimentEvent = 'triggered' | 'converted' | 'dismissed';
+export interface TrackExperimentPayload {
+  experiment: string;
+  variant: ExperimentVariant;
+  event: ExperimentEvent;
+}
+
+export interface ExperimentVariantReport {
+  variant: string;
+  triggered: number;
+  converted: number;
+  dismissed: number;
+  conversion_rate: number;
+}
 
 export type CurrentSessionContextValue = {
   status: CurrentSessionStatus;
