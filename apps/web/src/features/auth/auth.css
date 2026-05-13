@@ -720,17 +720,76 @@
   .auth-gate-confirm {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 8px 0;
+    align-items: center;
+    text-align: center;
+    padding: 32px 28px 28px;
+    gap: 12px;
+  }
+
+  .auth-gate-confirm-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--accent) 8%, var(--paper));
+    border: 2px solid color-mix(in oklab, var(--accent) 25%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .auth-gate-confirm-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
   }
 
   .auth-gate-confirm-text {
-    font-family: var(--font-serif);
-    font-size: 14px;
-    color: var(--ink-3);
-    line-height: 1.55;
+    font-size: 13px;
+    color: var(--ink-4);
+    line-height: 1.6;
     margin: 0;
+    max-width: 30ch;
+  }
+
+  .auth-gate-confirm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* ── Form slide animations ── */
+
+  .auth-gate-form-outer {
+    overflow: hidden;
+    transition: height 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .auth-gate-form {
+    overflow: hidden;
+  }
+
+  .auth-gate-form--right {
+    animation: form-slide-right 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  .auth-gate-form--left {
+    animation: form-slide-left 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  @keyframes form-slide-right {
+    from { opacity: 0; transform: translateX(18px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes form-slide-left {
+    from { opacity: 0; transform: translateX(-18px); }
+    to   { opacity: 1; transform: translateX(0); }
   }
 
   /* ── Animations ── */
