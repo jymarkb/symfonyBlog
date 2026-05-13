@@ -12,6 +12,7 @@ import {
   validateNewPassword,
 } from "@/features/auth/lib/validation";
 import { formatAuthProvider, getLastAuthProvider } from "@/features/auth/lib/lastAuthProvider";
+import { setAuthReturnTo } from "@/features/auth/lib/authReturnTo";
 import { registerWithEmail, startSocialAuth } from "@/features/auth/api/registerApi";
 
 type Props = {
@@ -92,6 +93,7 @@ export function ModalSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
     setSocialSubmitting(provider);
     setErrors({});
     try {
+      setAuthReturnTo(window.location.pathname);
       await startSocialAuth(provider);
     } catch {
       setErrors({ server: "We were unable to create your account. Please try again." });
