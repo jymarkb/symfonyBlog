@@ -11,7 +11,7 @@ import {
   validateHandle,
   validateNewPassword,
 } from "@/features/auth/lib/validation";
-import { getLastAuthProvider } from "@/features/auth/lib/lastAuthProvider";
+import { formatAuthProvider, getLastAuthProvider } from "@/features/auth/lib/lastAuthProvider";
 import { registerWithEmail, startSocialAuth } from "@/features/auth/api/registerApi";
 
 type Props = {
@@ -72,7 +72,9 @@ export function ModalSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
 
       if (result.needsEmailConfirmation || !result.currentUser) {
         setConfirmMessage(
-          "Almost there. A confirmation email has been sent — open it to finish creating your account."
+          lastUsedProvider
+            ? `Almost there. A confirmation email may have been sent. If you don't see one, continue with ${formatAuthProvider(lastUsedProvider)} — your last sign-in method.`
+            : "Almost there. A confirmation email has been sent — open it to finish creating your account."
         );
         setFields({ displayName: "", handle: "", email: "", password: "", terms: false });
         return;
@@ -99,10 +101,23 @@ export function ModalSignUpForm({ onSuccess, onSwitchToSignIn }: Props) {
 
   if (confirmMessage) {
     return (
-      <div className="modal-body">
-        <div className="auth-gate-confirm" role="status" aria-live="polite">
-          <div className="auth-confirm-mark" aria-hidden="true">✉</div>
-          <p className="auth-gate-confirm-text">{confirmMessage}</p>
+      <div className="auth-gate-confirm" role="status" aria-live="polite">
+        <div className="auth-gate-confirm-icon" aria-hidden="true">✉</div>
+        <p className="auth-gate-confirm-title">Check your email</p>
+        <p className="auth-gate-confirm-text">{confirmMessage}</p>
+        <div className="auth-gate-confirm-actions">
+          {lastUsedProvider && (
+            <button
+              className="btn btn-primary"
+              disabled={socialSubmitting !== null}
+              onClick={() => void handleSocialRegister(lastUsedProvider)}
+              type="button"
+            >
+              {socialSubmitting === lastUsedProvider
+                ? `Opening ${formatAuthProvider(lastUsedProvider)}…`
+                : `Continue with ${formatAuthProvider(lastUsedProvider)}`}
+            </button>
+          )}
           <button
             className="btn btn-ghost"
             onClick={() => { setConfirmMessage(null); setErrors({}); }}
