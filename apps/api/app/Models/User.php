@@ -57,6 +57,16 @@ class User extends Authenticatable
         return $this->belongsToMany(Post::class, 'post_stars')->withTimestamps();
     }
 
+    public function followers(): HasMany
+    {
+        return $this->hasMany(AuthorFollow::class, 'author_id');
+    }
+
+    public function following(): HasMany
+    {
+        return $this->hasMany(AuthorFollow::class, 'follower_id');
+    }
+
     protected function casts(): array
     {
         return [
