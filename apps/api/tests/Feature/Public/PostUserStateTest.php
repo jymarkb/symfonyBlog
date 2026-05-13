@@ -26,7 +26,10 @@ it('returns default false state for authenticated user with no interactions', fu
                 'is_following' => false,
                 'reaction' => null,
             ],
-        ]);
+        ])
+        ->assertJsonMissingPath('data.supabase_user_id')
+        ->assertJsonMissingPath('data.role')
+        ->assertJsonMissingPath('data.email');
 });
 
 it('returns reaction star when user has starred the post via reactions', function () {
