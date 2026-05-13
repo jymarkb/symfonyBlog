@@ -41,13 +41,28 @@ Top-level `/<slug>` was chosen over `/blog/<slug>` for SEO (shorter path, slug i
 | Cache layer (`posts.slug.{slug}`) | n/a | ✅ | n/a | n/a |
 | Detail shape + sensitive field tests | n/a | ✅ | n/a | ✅ |
 
+## User Interaction State (Follow, Star, Reaction)
+
+| Section | Design | Backend | Wiring | Tests |
+|---|---|---|---|---|
+| Load current user state (`GET /posts/{slug}/me`) | ✅ | ✅ | ✅ | ✅ |
+| Reaction system (`POST /posts/{slug}/reactions`) | ✅ | ✅ | ✅ | ✅ |
+| Follow initial state (seeded from `userState`) | ✅ | ✅ | ✅ | ✅ |
+
+Key files added:
+- `apps/api/app/Models/PostReaction.php` + migration `2026_05_14_000001_create_post_reactions_table.php`
+- `apps/api/app/Services/Post/PostReactionService.php` — toggle, getCounts, getUserReaction
+- `apps/api/app/Http/Controllers/Api/V1/PostUserStateController.php` — GET /posts/{slug}/me
+- `apps/api/app/Http/Controllers/Api/V1/PostReactionController.php` — POST /posts/{slug}/reactions
+- `apps/web/src/features/blog/components/ReactionButton.tsx` — optimistic UI, auth gate, OAuth sessionStorage intent
+- `apps/web/pages/@slug/+data.ts` — parallel-fetches userState for authenticated users via resolveServerAuth
+
 ## Deferred
 
 - **TOC rail** — left rail (`<aside class="toc-rail">`) is an empty stub. Real scroll-spy TOC is a standalone task.
 - **Margin-notes rail** — right rail (`<aside class="margin-notes">`) is an empty stub. Deferred.
 - **Related posts** — design shows "Related essays" section. No backend endpoint exists. Deferred.
 - **Comments section** — full comment thread UI. Deferred.
-- **Star/reaction bar** — star API exists (`POST/DELETE /posts/{slug}/stars`) but UI is deferred.
 
 ## Reserved Slugs
 
