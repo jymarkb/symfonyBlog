@@ -6,6 +6,9 @@ import type {
   PostTag,
   PostYear,
   PostDetail,
+  PostUserState,
+  ReactionType,
+  ReactionToggleResponse,
 } from "@/features/blog/blogTypes";
 
 export async function fetchFeaturedPosts(): Promise<PostSummary[]> {
@@ -82,4 +85,20 @@ export async function unfollowAuthor(authorId: number, accessToken: string): Pro
     method: 'DELETE',
     accessToken,
   });
+}
+
+export async function fetchPostUserState(slug: string, accessToken: string): Promise<PostUserState> {
+  const response = await apiRequest<{ data: PostUserState }>(`/posts/${encodeURIComponent(slug)}/me`, {
+    accessToken,
+  });
+  return response.data;
+}
+
+export async function toggleReaction(slug: string, reaction: ReactionType, accessToken: string): Promise<ReactionToggleResponse> {
+  const response = await apiRequest<{ data: ReactionToggleResponse }>(`/posts/${encodeURIComponent(slug)}/reactions`, {
+    method: 'POST',
+    accessToken,
+    body: { reaction },
+  });
+  return response.data;
 }

@@ -25,6 +25,25 @@ export type PostYear = {
   count: number;
 };
 
+export type ReactionType = 'helpful' | 'fire' | 'insightful';
+
+export type ReactionCounts = {
+  helpful: number;
+  fire: number;
+  insightful: number;
+};
+
+export type PostUserState = {
+  is_starred: boolean;
+  is_following: boolean;
+  reaction: ReactionType | null;
+};
+
+export type ReactionToggleResponse = {
+  reaction: ReactionType | null;
+  counts: ReactionCounts;
+};
+
 // ── Primary resource shapes ───────────────────────────────────────────────────
 
 // Mirrors PostSummaryResource — returned by GET /api/v1/posts
@@ -48,6 +67,7 @@ export type PostSummary = {
 // Mirrors PostDetailResource — returned by GET /api/v1/posts/:slug
 export type PostDetail = PostSummary & {
   body: BlockElement[];
+  reaction_counts: ReactionCounts;
 };
 
 // ── API response wrappers ─────────────────────────────────────────────────────
@@ -88,6 +108,7 @@ export type HomePageData = {
 
 export type PostDetailPageData = {
   post: PostDetail;
+  userState: PostUserState | null;
 };
 
 export interface FollowResponse {
