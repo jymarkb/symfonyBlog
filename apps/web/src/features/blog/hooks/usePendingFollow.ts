@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { ApiError } from '@/lib/api/apiClient';
-import { getAccessToken, tryGetAccessToken } from '@/lib/auth/getAccessToken';
+import { getAccessToken, probeAccessToken } from '@/lib/auth/getAccessToken';
 import { followAuthor, unfollowAuthor } from '../api/blogApi';
 
 export const PENDING_FOLLOW_KEY = 'pending_follow_author_id';
@@ -40,12 +40,7 @@ export function usePendingFollow({
   async function handleFollow() {
     if (busy) return;
 
-    let token: string | null = null;
-    try {
-      token = await tryGetAccessToken();
-    } catch {
-      // Supabase unreachable — treat as unauthenticated
-    }
+    const token = await probeAccessToken();
     if (!token) {
       sessionStorage.setItem(PENDING_FOLLOW_KEY, String(authorId));
       onOpenAuthGate?.(() => {});
