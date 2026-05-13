@@ -58,12 +58,13 @@ export async function fetchPostBySlug(slug: string): Promise<PostDetail> {
   return response.data;
 }
 
-export async function followAuthor(authorId: number, accessToken: string): Promise<void> {
-  await apiRequest(`/authors/${authorId}/follow`, {
+export async function followAuthor(authorId: number, accessToken: string): Promise<{ followers_count: number }> {
+  const response = await apiRequest<{ data: { followers_count: number } }>(`/authors/${authorId}/follow`, {
     method: 'POST',
     accessToken,
     body: { author_id: authorId },
   });
+  return { followers_count: response.data.followers_count };
 }
 
 export async function unfollowAuthor(authorId: number, accessToken: string): Promise<void> {
