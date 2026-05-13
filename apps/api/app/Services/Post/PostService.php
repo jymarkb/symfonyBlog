@@ -80,20 +80,7 @@ class PostService
 
     public function findPublishedBySlug(string $slug): Post
     {
-        return Post::query()
-            ->with(['user' => fn ($q) => $q->withCount('followers'), 'tags'])
-            ->withCount([
-                'comments',
-                'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star'),
-                'reactions as star_reactions_count' => fn ($q) => $q->where('reaction', 'star'),
-                'reactions as helpful_reactions_count' => fn ($q) => $q->where('reaction', 'helpful'),
-                'reactions as fire_reactions_count' => fn ($q) => $q->where('reaction', 'fire'),
-                'reactions as insightful_reactions_count' => fn ($q) => $q->where('reaction', 'insightful'),
-            ])
-            ->where('slug', $slug)
-            ->where('status', 'published')
-            ->whereNotNull('published_at')
-            ->firstOrFail();
+        return $this->repository->getPublishedBySlug($slug);
     }
 
     public function create(array $validated, int $userId, array $tagIds): Post
@@ -146,9 +133,7 @@ class PostService
         $reaction = $reactionService->getUserReactions($post, $user);
 
         $post->loadMissing('user');
-        if (! isset($post->user->followers_count)) {
-            $post->user->loadCount('followers');
-        }
+        $post->user->loadCount('followers');
 
         return [
             'is_following'    => $isFollowing,
