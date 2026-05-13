@@ -9,6 +9,8 @@ export type PostAuthor = {
   display_name: string | null;
   handle: string;
   avatar_url: string | null;
+  bio: string | null;
+  followers_count: number;
 };
 
 export type PostTag = {
