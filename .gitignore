@@ -56,4 +56,4 @@ docs/qa/features/*
 !docs/qa/features/auth-signup.md
 !docs/qa/features/auth-forgot-password.md
 !docs/qa/features/auth-reset-password.md
-design/*
+design/

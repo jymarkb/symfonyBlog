@@ -1,16 +1,28 @@
+import { usePendingFollow } from '../hooks/usePendingFollow';
 import { getInitials } from '../lib/getInitials';
 import type { PostDetail } from '../blogTypes';
 
 type AuthorCardProps = {
   post: PostDetail;
   variant: 'rail' | 'footer';
+  onOpenAuthGate?: (callback: () => void) => void;
+  initialFollowing?: boolean;
+  initialFollowersCount?: number;
+  onFollowChange?: (following: boolean, count: number) => void;
 };
 
-export function AuthorCard({ post, variant }: AuthorCardProps) {
+export function AuthorCard({ post, variant, onOpenAuthGate, initialFollowing, initialFollowersCount, onFollowChange }: AuthorCardProps) {
   const { author } = post;
   const displayName = author.display_name ?? author.handle;
   const initials = getInitials(author.display_name, author.handle);
-  const followers = author.followers_count ?? 0;
+
+  const { following, followerCount, busy, handleFollow } = usePendingFollow({
+    authorId: author.id,
+    initialFollowing: initialFollowing ?? false,
+    initialFollowersCount: initialFollowersCount ?? author.followers_count ?? 0,
+    onFollowChange,
+    onOpenAuthGate,
+  });
 
   if (variant === 'rail') {
     return (
@@ -28,8 +40,14 @@ export function AuthorCard({ post, variant }: AuthorCardProps) {
         </div>
         {author.bio && <p className="rail-author-bio">{author.bio}</p>}
         <div className="rail-follow-group">
-          <span className="rail-followers">{followers.toLocaleString()} followers</span>
-          <button className="btn btn-sm rail-follow">Follow</button>
+          <span className="rail-followers">{followerCount.toLocaleString()} followers</span>
+          <button
+            className="btn btn-sm rail-follow"
+            onClick={() => void handleFollow()}
+            disabled={busy}
+          >
+            {following ? 'Following' : 'Follow'}
+          </button>
         </div>
       </div>
     );
@@ -48,10 +66,16 @@ export function AuthorCard({ post, variant }: AuthorCardProps) {
           <div className="pac-sub">
             <span className="pac-handle">{author.handle}</span>
             <span className="pac-dot" aria-hidden="true">·</span>
-            <span className="pac-followers">{followers.toLocaleString()} followers</span>
+            <span className="pac-followers">{followerCount.toLocaleString()} followers</span>
           </div>
         </div>
-        <button className="pac-follow">Follow</button>
+        <button
+          className="pac-follow"
+          onClick={() => void handleFollow()}
+          disabled={busy}
+        >
+          {following ? 'Following' : 'Follow'}
+        </button>
       </div>
       {author.bio && <p className="pac-bio">{author.bio}</p>}
     </div>

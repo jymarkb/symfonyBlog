@@ -31,6 +31,9 @@ export type ResetPasswordErrors = Partial<
 
 export type CallbackStatus = "loading" | "error";
 
+export type AuthGateTab = 'signin' | 'signup';
+export type AuthGateStatus = 'idle' | 'submitting' | 'success';
+
 export type AuthProviderButtonsProps = {
   compact?: boolean;
   disabled?: boolean;

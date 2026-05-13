@@ -457,3 +457,355 @@
 @media (max-width: 480px) {
   .oauth-btns-compact { grid-template-columns: 1fr; }
 }
+
+@layer components {
+  /* ── Auth gate backdrop ── */
+
+  .auth-gate-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.48);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 499;
+    animation: auth-gate-fade-in 0.18s ease;
+  }
+
+  /* ── Desktop centered modal ── */
+
+  .auth-gate-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(480px, calc(100vw - 48px));
+    border-radius: 12px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+    z-index: 500;
+    overflow: hidden;
+    animation: auth-gate-modal-in 0.2s ease;
+  }
+
+  /* ── Mobile bottom sheet ── */
+
+  .auth-gate-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 16px 16px 0 0;
+    width: 100%;
+    max-height: 90dvh;
+    overflow-y: auto;
+    background: var(--paper);
+    z-index: 500;
+    padding: 0 0 32px;
+    animation: auth-gate-sheet-up 0.25s ease;
+  }
+
+  /* ── Drag handle ── */
+
+  .auth-gate-drag-handle-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 12px 0 4px;
+  }
+
+  .auth-gate-drag-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--rule);
+  }
+
+  /* ── Modal header ── */
+
+  .auth-gate-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 0;
+  }
+
+  .auth-gate-modal-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .auth-gate-subtext {
+    padding: 6px 24px 0;
+    font-size: 13px;
+    color: var(--ink-4);
+    margin: 0;
+  }
+
+  /* ── Sheet header ── */
+
+  .auth-gate-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px 0;
+  }
+
+  .auth-gate-sheet-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* ── Close button ── */
+
+  .auth-gate-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: none;
+    border: 1px solid var(--rule);
+    color: var(--ink-4);
+    font-size: 16px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .auth-gate-close:hover {
+    background: var(--paper-2);
+    border-color: var(--ink-4);
+  }
+
+  /* ── Tab switcher ── */
+
+  .auth-gate-tabs {
+    display: flex;
+    gap: 0;
+    padding: 16px 24px 0;
+    border-bottom: 1px solid var(--rule);
+    margin-top: 4px;
+  }
+
+  .auth-gate-sheet .auth-gate-tabs {
+    padding: 12px 20px 0;
+  }
+
+  .auth-gate-tab {
+    padding: 0 0 12px;
+    margin-right: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-4);
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .auth-gate-tab.is-active {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+  }
+
+  /* ── Modal body (shared with forms) ── */
+
+  .modal-body {
+    padding: 20px 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .auth-gate-sheet .modal-body {
+    padding: 16px 20px 4px;
+    gap: 10px;
+  }
+
+  /* ── Alt row ── */
+
+  .modal-alt-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 24px 12px;
+    font-size: 13px;
+    color: var(--ink-4);
+    flex-wrap: wrap;
+    font-family: var(--font-serif);
+  }
+
+  .link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--accent-ink);
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .link-btn:hover { text-decoration: underline; }
+  .link-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* ── Error banner ── */
+
+  .auth-gate-error-banner {
+    background: color-mix(in oklab, oklch(0.55 0.18 25) 8%, var(--paper));
+    border: 1px solid color-mix(in oklab, oklch(0.55 0.18 25) 30%, var(--rule));
+    color: oklch(0.45 0.15 25);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .auth-gate-err-icon {
+    font-size: 14px;
+    line-height: 1.55;
+    flex-shrink: 0;
+  }
+
+  /* ── Success panel ── */
+
+  .auth-gate-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 40px 32px 36px;
+    gap: 16px;
+  }
+
+  .auth-gate-check {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .auth-gate-success-title {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .auth-gate-success-sub {
+    font-size: 14px;
+    color: var(--ink-4);
+    max-width: 32ch;
+    margin: 0;
+  }
+
+  /* ── Confirm state ── */
+
+  .auth-gate-confirm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 32px 28px 28px;
+    gap: 12px;
+  }
+
+  .auth-gate-confirm-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--accent) 8%, var(--paper));
+    border: 2px solid color-mix(in oklab, var(--accent) 25%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .auth-gate-confirm-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .auth-gate-confirm-text {
+    font-size: 13px;
+    color: var(--ink-4);
+    line-height: 1.6;
+    margin: 0;
+    max-width: 30ch;
+  }
+
+  .auth-gate-confirm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* ── Form slide animations ── */
+
+  .auth-gate-form-outer {
+    overflow: hidden;
+    transition: height 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .auth-gate-form {
+    overflow: hidden;
+  }
+
+  .auth-gate-form--right {
+    animation: form-slide-right 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  .auth-gate-form--left {
+    animation: form-slide-left 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  @keyframes form-slide-right {
+    from { opacity: 0; transform: translateX(18px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes form-slide-left {
+    from { opacity: 0; transform: translateX(-18px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── Animations ── */
+
+  @keyframes auth-gate-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes auth-gate-modal-in {
+    from { opacity: 0; transform: translate(-50%, calc(-50% + 12px)); }
+    to   { opacity: 1; transform: translate(-50%, -50%); }
+  }
+
+  @keyframes auth-gate-sheet-up {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+}

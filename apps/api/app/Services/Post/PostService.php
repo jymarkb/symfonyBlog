@@ -17,8 +17,11 @@ class PostService
     public function listPublished(Request $request): LengthAwarePaginator
     {
         return Post::query()
-            ->with(['user', 'tags'])
-            ->withCount(['comments', 'stars'])
+            ->with(['user' => fn ($q) => $q->withCount('followers'), 'tags'])
+            ->withCount([
+                'comments',
+                'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star'),
+            ])
             ->where('status', 'published')
             ->whereNotNull('published_at')
             ->when($request->filled('tag'), function ($query) use ($request) {
@@ -66,8 +69,11 @@ class PostService
     public function listForAdmin(): LengthAwarePaginator
     {
         return Post::query()
-            ->with(['user', 'tags'])
-            ->withCount(['comments', 'stars'])
+            ->with(['user' => fn ($q) => $q->withCount('followers'), 'tags'])
+            ->withCount([
+                'comments',
+                'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star'),
+            ])
             ->latest()
             ->paginate(20);
     }
@@ -86,7 +92,7 @@ class PostService
         $post->save();
         $post->tags()->sync($tagIds);
 
-        return $post->load(['user', 'tags'])->loadCount(['comments', 'stars']);
+        return $post->load(['user', 'tags'])->loadCount(['comments', 'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star')]);
     }
 
     public function update(Post $post, array $validated, ?array $tagIds): Post
@@ -109,13 +115,31 @@ class PostService
             $post->tags()->sync($tagIds);
         }
 
-        return $post->load(['user', 'tags'])->loadCount(['comments', 'stars']);
+        return $post->load(['user', 'tags'])->loadCount(['comments', 'reactions as stars_count' => fn ($q) => $q->where('reaction', 'star')]);
     }
 
     public function delete(Post $post): void
     {
         $this->repository->forgetBySlug($post->slug);
         $post->delete();
+    }
+
+    public function getUserStateForPost(Post $post, \App\Models\User $user): array
+    {
+        $reactionService = app(\App\Services\Post\PostReactionService::class);
+        $followService = app(\App\Services\Follow\FollowService::class);
+
+        $isFollowing = $followService->isFollowing($user, (int) $post->user_id);
+        $reaction = $reactionService->getUserReactions($post, $user);
+
+        $post->loadMissing('user');
+        $post->user->loadCount('followers');
+
+        return [
+            'is_following'    => $isFollowing,
+            'reaction'        => $reaction,
+            'followers_count' => (int) ($post->user->followers_count ?? 0),
+        ];
     }
 
     private function postData(array $validated): array
