@@ -49,7 +49,6 @@ it('returns a published post detail with blog editor block body', function () {
         ->assertJsonMissingPath('data.status')
         ->assertJsonMissingPath('data.created_at')
         ->assertJsonMissingPath('data.updated_at')
-        ->assertJsonMissingPath('data.author.id')
         ->assertJsonMissingPath('data.author.email');
 });
 
@@ -140,7 +139,6 @@ it('returns correct response shape and excludes sensitive fields for post listin
         ->assertJsonMissingPath('data.0.author.role')
         ->assertJsonMissingPath('data.0.author.supabase_user_id')
         ->assertJsonMissingPath('data.0.body')
-        ->assertJsonMissingPath('data.0.author.id')
         ->assertJsonMissingPath('data.0.author.email')
         ->assertJsonMissingPath('data.0.created_at')
         ->assertJsonMissingPath('data.0.updated_at');
@@ -301,7 +299,6 @@ it('returns correct response shape and excludes sensitive fields for featured po
         ->assertJsonMissingPath('data.0.author.role')
         ->assertJsonMissingPath('data.0.author.supabase_user_id')
         ->assertJsonMissingPath('data.0.body')
-        ->assertJsonMissingPath('data.0.author.id')
         ->assertJsonMissingPath('data.0.author.email')
         ->assertJsonMissingPath('data.0.created_at')
         ->assertJsonMissingPath('data.0.updated_at');
@@ -534,8 +531,6 @@ it('returns correct response shape and excludes sensitive fields for post detail
             'reading_time',
             'is_featured',
             'published_at',
-            'created_at',
-            'updated_at',
             'author' => [
                 'id',
                 'display_name',
@@ -545,6 +540,7 @@ it('returns correct response shape and excludes sensitive fields for post detail
             'tags',
             'comments_count',
             'stars_count',
+            'reaction_counts' => ['helpful', 'fire', 'insightful'],
             'body',
         ],
     ]);

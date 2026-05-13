@@ -1,16 +1,18 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import { useData } from 'vike-react/useData';
 import { BlockRenderer } from '@jymarkb/block-editor/render';
 import type { BlockElement } from '@jymarkb/block-editor/render';
-import { navigate } from 'vike/client/router';
 import { AppShell } from '@/layouts/AppShell';
 import { PostRail } from '@/features/blog/components/PostRail';
 import type { TocHeading } from '@/features/blog/components/PostRail';
 import { AuthorCard } from '@/features/blog/components/AuthorCard';
+import { ReactionButton } from '@/features/blog/components/ReactionButton';
 import type { PostDetailPageData, PostDetail } from '@/features/blog/blogTypes';
-import { starPost, unstarPost } from '@/features/blog/api/blogApi';
-import { ApiError } from '@/lib/api/apiClient';
+import { fetchPostUserState, followAuthor } from '@/features/blog/api/blogApi';
 import { getAccessToken } from '@/lib/auth/getAccessToken';
+import { useCurrentSession } from '@/features/auth/session/useCurrentSession';
+import { AuthGateModal } from '@/features/auth/components/AuthGateModal';
+import { usePendingReaction } from '@/features/blog/hooks/usePendingReaction';
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return '';
@@ -50,57 +52,26 @@ function extractHeadings(blocks: BlockElement[]): TocHeading[] {
 }
 
 type StarButtonProps = {
-  slug: string;
-  initialCount: number;
+  count: number | null;
+  starred: boolean;
+  busy: boolean;
+  onClick: () => void;
 };
 
-function StarButton({ slug, initialCount }: StarButtonProps) {
-  const [count, setCount] = useState(initialCount);
-  const [starred, setStarred] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(false);
-
-  async function toggle() {
-    if (busy) return;
-    setBusy(true);
-    setError(false);
-    const next = !starred;
-    setStarred(next);
-    setCount((c) => c + (next ? 1 : -1));
-    try {
-      const accessToken = await getAccessToken();
-      if (next) {
-        await starPost(slug, accessToken);
-      } else {
-        await unstarPost(slug, accessToken);
-      }
-    } catch (err) {
-      setStarred(!next);
-      setCount((c) => c + (next ? -1 : 1));
-      if (err instanceof ApiError && err.status === 401) {
-        navigate(`/signin?redirect=${encodeURIComponent('/' + slug)}`);
-      } else if (!(err instanceof Error && err.message === 'Session expired.')) {
-        setError(true);
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
-
+function StarButton({ count, starred, busy, onClick }: StarButtonProps) {
   return (
     <div className="star-cta-wrap">
       <button
         className={`star-cta${starred ? ' star-cta--active' : ''}`}
-        onClick={toggle}
+        onClick={onClick}
         disabled={busy}
         aria-label={starred ? 'Unstar this post' : 'Star this post'}
         aria-pressed={starred}
       >
         <span className="star-cta-icon">{starred ? '★' : '☆'}</span>
         <span className="star-cta-label">{starred ? 'Starred' : 'Star'}</span>
-        <span className="star-cta-count">{count.toLocaleString()}</span>
+        <span className="star-cta-count">{count !== null ? count.toLocaleString() : '—'}</span>
       </button>
-      {error && <span className="star-cta-error" role="alert">Something went wrong. Try again.</span>}
     </div>
   );
 }
@@ -163,12 +134,33 @@ function PostMetaBar({ post }: PostMetaBarProps) {
 }
 
 export default function Page() {
-  const { post } = useData<PostDetailPageData>();
+  const { post, userState: initialUserState } = useData<PostDetailPageData>();
+  const [userState, setUserState] = useState(initialUserState);
+  const [isFollowing, setIsFollowing] = useState(initialUserState?.is_following ?? false);
+  const [followersCount, setFollowersCount] = useState(
+    initialUserState?.followers_count ?? post.author.followers_count ?? 0,
+  );
   const bodyRef = useRef<HTMLDivElement>(null);
   const mobileBarRef = useRef<HTMLDivElement>(null);
   const mobileMaxPct = useRef(0);
   const headings = extractHeadings(post.body);
   const [activeId, setActiveId] = useState('');
+  const [authGateOpen, setAuthGateOpen] = useState(false);
+  const { isAuthenticated } = useCurrentSession();
+
+  const stableInitialReactions = useMemo(() => userState?.reaction ?? [], [userState]);
+
+  const {
+    activeReactions,
+    reactionCounts,
+    busy: reactionBusy,
+    handleReaction,
+  } = usePendingReaction({
+    postSlug: post.slug,
+    initialActiveReaction: stableInitialReactions,
+    initialCounts: post.reaction_counts,
+    onOpenAuthGate: () => setAuthGateOpen(true),
+  });
 
   useEffect(() => {
     function update() {
@@ -215,13 +207,60 @@ export default function Page() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!isAuthenticated || userState !== null) return;
+    async function load() {
+      try {
+        const token = await getAccessToken();
+        const state = await fetchPostUserState(post.slug, token);
+        setUserState(state);
+      } catch {}
+    }
+    void load();
+  }, [isAuthenticated, post.slug]);
+
+  useEffect(() => {
+    if (userState === null) return;
+    setIsFollowing(userState.is_following);
+    setFollowersCount(userState.followers_count);
+  }, [userState]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const pending = sessionStorage.getItem('pending_follow_author_id');
+    if (!pending || parseInt(pending) !== post.author.id) return;
+    sessionStorage.removeItem('pending_follow_author_id');
+    async function applyFollow() {
+      try {
+        const token = await getAccessToken();
+        const result = await followAuthor(post.author.id, token);
+        // State is only updated on success — no optimistic updates were made before
+        // the try block, so no rollback is needed on failure.
+        setIsFollowing(true);
+        setFollowersCount(result.followers_count);
+      } catch {
+        // API failure after auth: pending key was already removed above, so the
+        // follow intent is lost. No stale optimistic state to roll back.
+      }
+    }
+    void applyFollow();
+  }, [isAuthenticated]);
+
   return (
     <AppShell>
       <div className="mobile-reading-bar" aria-hidden="true">
         <div className="mobile-reading-bar-fill" ref={mobileBarRef} />
       </div>
       <div className="post-layout">
-        <PostRail post={post} headings={headings} activeId={activeId} bodyRef={bodyRef} />
+        <PostRail
+          post={post}
+          headings={headings}
+          activeId={activeId}
+          bodyRef={bodyRef}
+          initialFollowing={isFollowing}
+          initialFollowersCount={followersCount}
+          onFollowChange={(following, count) => { setIsFollowing(following); setFollowersCount(count); }}
+        />
         <div className="post-content">
           <PostMetaBar post={post} />
           <h1 id="post-title" className="block-title">{post.title}</h1>
@@ -239,10 +278,39 @@ export default function Page() {
                 <p className="pe-heading">Was this post helpful?</p>
                 <p className="pe-prompt">Found this useful?</p>
                 <div className="pe-btns">
-                  <StarButton slug={post.slug} initialCount={post.stars_count ?? 0} />
-                  <button className="react-btn" disabled>👍 <span className="count">—</span></button>
-                  <button className="react-btn" disabled>🔥 <span className="count">—</span></button>
-                  <button className="react-btn" disabled>💡 <span className="count">—</span></button>
+                  <StarButton
+                    count={reactionCounts.star}
+                    starred={activeReactions.includes('star')}
+                    busy={reactionBusy}
+                    onClick={() => void handleReaction('star')}
+                  />
+                  <ReactionButton
+                    emoji="👍"
+                    label="Helpful"
+                    reactionType="helpful"
+                    count={reactionCounts.helpful}
+                    isActive={activeReactions.includes('helpful')}
+                    busy={reactionBusy}
+                    onClick={() => void handleReaction('helpful')}
+                  />
+                  <ReactionButton
+                    emoji="🔥"
+                    label="Fire"
+                    reactionType="fire"
+                    count={reactionCounts.fire}
+                    isActive={activeReactions.includes('fire')}
+                    busy={reactionBusy}
+                    onClick={() => void handleReaction('fire')}
+                  />
+                  <ReactionButton
+                    emoji="💡"
+                    label="Insightful"
+                    reactionType="insightful"
+                    count={reactionCounts.insightful}
+                    isActive={activeReactions.includes('insightful')}
+                    busy={reactionBusy}
+                    onClick={() => void handleReaction('insightful')}
+                  />
                 </div>
               </div>
               <div className="pe-tags">
@@ -262,7 +330,13 @@ export default function Page() {
                 <a className="share-chip" href={`https://reddit.com/submit?url=https://jymb.blog/${encodeURIComponent(post.slug)}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">↑ Reddit</a>
               </div>
             </div>
-            <AuthorCard post={post} variant="footer" />
+            <AuthorCard
+              post={post}
+              variant="footer"
+              initialFollowing={isFollowing}
+              initialFollowersCount={followersCount}
+              onFollowChange={(following, count) => { setIsFollowing(following); setFollowersCount(count); }}
+            />
             <div className="related">
               <h4 className="related-label">Related essays</h4>
               <p className="related-empty">Similar posts will appear here once more content is published.</p>
@@ -270,7 +344,7 @@ export default function Page() {
             <div className="discussion">
               <div className="discussion-header">
                 <h4 className="discussion-title">Discussion</h4>
-                <span className="discussion-count">0 comments</span>
+                <span className="discussion-count">{post.comments_count != null ? `${post.comments_count} ${post.comments_count === 1 ? 'comment' : 'comments'}` : '—'}</span>
               </div>
               <div className="discussion-gate">
                 <div className="discussion-gate-avatar" aria-hidden="true">?</div>
@@ -286,7 +360,11 @@ export default function Page() {
           </footer>
         </div>
       </div>
-
+      <AuthGateModal
+        isOpen={authGateOpen}
+        onClose={() => setAuthGateOpen(false)}
+        onSuccess={() => setAuthGateOpen(false)}
+      />
     </AppShell>
   );
 }
