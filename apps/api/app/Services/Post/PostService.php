@@ -143,7 +143,7 @@ class PostService
         $followService = app(\App\Services\Follow\FollowService::class);
 
         $isFollowing = $followService->isFollowing($user, (int) $post->user_id);
-        $reaction = $reactionService->getUserReaction($post, $user);
+        $reaction = $reactionService->getUserReactions($post, $user);
 
         $post->loadMissing('user');
         if (! isset($post->user->followers_count)) {

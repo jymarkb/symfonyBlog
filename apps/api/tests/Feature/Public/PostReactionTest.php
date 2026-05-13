@@ -32,7 +32,7 @@ it('creates a reaction on first use and returns counts', function () {
         ->assertOk()
         ->assertJson([
             'data' => [
-                'reaction' => 'helpful',
+                'reaction' => ['helpful'],
                 'counts' => [
                     'helpful' => 1,
                     'fire' => 0,
@@ -54,7 +54,7 @@ it('toggles the reaction off when the same reaction is sent twice', function () 
         ->assertOk()
         ->assertJson([
             'data' => [
-                'reaction' => null,
+                'reaction' => [],
                 'counts' => [
                     'helpful' => 0,
                     'fire' => 0,
@@ -66,28 +66,68 @@ it('toggles the reaction off when the same reaction is sent twice', function () 
     expect(PostReaction::where('user_id', $user->id)->count())->toBe(0);
 });
 
-it('switches to a different reaction without creating a duplicate row', function () {
+it('adds a second reaction type without removing the first', function () {
     $user = User::factory()->create();
     Post::factory()->create(['slug' => 'test-post', 'status' => 'published', 'published_at' => now()]);
 
     $this->actingAs($user, 'api')
         ->postJson('/api/v1/posts/test-post/reactions', ['reaction' => 'helpful']);
 
+    $response = $this->actingAs($user, 'api')
+        ->postJson('/api/v1/posts/test-post/reactions', ['reaction' => 'fire'])
+        ->assertOk();
+
+    $reactions = $response->json('data.reaction');
+    sort($reactions);
+    expect($reactions)->toBe(['fire', 'helpful']);
+
+    expect($response->json('data.counts.helpful'))->toBe(1);
+    expect($response->json('data.counts.fire'))->toBe(1);
+
+    expect(PostReaction::where('user_id', $user->id)->count())->toBe(2);
+});
+
+it('toggling one reaction does not affect another active reaction', function () {
+    $user = User::factory()->create();
+    Post::factory()->create(['slug' => 'test-post', 'status' => 'published', 'published_at' => now()]);
+
     $this->actingAs($user, 'api')
-        ->postJson('/api/v1/posts/test-post/reactions', ['reaction' => 'insightful'])
-        ->assertOk()
-        ->assertJson([
-            'data' => [
-                'reaction' => 'insightful',
-                'counts' => [
-                    'helpful' => 0,
-                    'fire' => 0,
-                    'insightful' => 1,
-                ],
-            ],
-        ]);
+        ->postJson('/api/v1/posts/test-post/reactions', ['reaction' => 'star']);
+
+    $this->actingAs($user, 'api')
+        ->postJson('/api/v1/posts/test-post/reactions', ['reaction' => 'fire']);
+
+    // Now toggle fire off
+    $response = $this->actingAs($user, 'api')
+        ->postJson('/api/v1/posts/test-post/reactions', ['reaction' => 'fire'])
+        ->assertOk();
+
+    expect($response->json('data.reaction'))->toBe(['star']);
+    expect($response->json('data.counts.star'))->toBe(1);
+    expect($response->json('data.counts.fire'))->toBe(0);
 
     expect(PostReaction::where('user_id', $user->id)->count())->toBe(1);
+});
+
+it('allows all four reaction types to be active simultaneously', function () {
+    $user = User::factory()->create();
+    Post::factory()->create(['slug' => 'test-post', 'status' => 'published', 'published_at' => now()]);
+
+    foreach (['star', 'helpful', 'fire', 'insightful'] as $type) {
+        $this->actingAs($user, 'api')
+            ->postJson('/api/v1/posts/test-post/reactions', ['reaction' => $type])
+            ->assertOk();
+    }
+
+    $response = $this->actingAs($user, 'api')
+        ->getJson('/api/v1/posts/test-post/me')
+        ->assertOk();
+
+    $reactions = $response->json('data.reaction');
+    sort($reactions);
+    expect($reactions)->toBe(['fire', 'helpful', 'insightful', 'star']);
+
+    expect(PostReaction::where('user_id', $user->id)->count())->toBe(4);
 });
 
 it('returns 404 for non-published slug', function () {
