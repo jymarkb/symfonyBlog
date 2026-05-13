@@ -24,7 +24,7 @@ it('returns default false state for authenticated user with no interactions', fu
         ->assertJson([
             'data' => [
                 'is_following' => false,
-                'reaction' => null,
+                'reaction' => [],
             ],
         ])
         ->assertJsonMissingPath('data.supabase_user_id')
@@ -43,7 +43,7 @@ it('returns reaction star when user has starred the post via reactions', functio
         ->assertOk()
         ->assertJson([
             'data' => [
-                'reaction' => 'star',
+                'reaction' => ['star'],
                 'is_following' => false,
             ],
         ]);
@@ -64,7 +64,7 @@ it('returns is_following true when user follows the post author', function () {
         ->assertJson([
             'data' => [
                 'is_following' => true,
-                'reaction' => null,
+                'reaction' => [],
             ],
         ]);
 });
@@ -83,10 +83,26 @@ it('returns the reaction type when user has reacted to the post', function () {
         ->assertOk()
         ->assertJson([
             'data' => [
-                'reaction' => 'helpful',
+                'reaction' => ['helpful'],
                 'is_following' => false,
             ],
         ]);
+});
+
+it('returns multiple active reactions when user has applied several reaction types', function () {
+    $user = User::factory()->create();
+    $post = Post::factory()->create(['slug' => 'multi-react-post', 'status' => 'published', 'published_at' => now()]);
+
+    PostReaction::create(['post_id' => $post->id, 'user_id' => $user->id, 'reaction' => 'star']);
+    PostReaction::create(['post_id' => $post->id, 'user_id' => $user->id, 'reaction' => 'fire']);
+
+    $response = $this->actingAs($user, 'api')
+        ->getJson('/api/v1/posts/multi-react-post/me')
+        ->assertOk();
+
+    $reactions = $response->json('data.reaction');
+    sort($reactions);
+    expect($reactions)->toBe(['fire', 'star']);
 });
 
 it('returns 404 for non-published slug', function () {
