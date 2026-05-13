@@ -9,9 +9,9 @@ use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
-    public function show(Request $request): ProfileResource
+    public function show(Request $request, ProfileService $profiles): ProfileResource
     {
-        return new ProfileResource($request->user()->loadCount(['comments', 'postViews']));
+        return new ProfileResource($profiles->getAuthenticatedProfile($request->user()));
     }
 
     public function update(Request $request, ProfileService $profiles): ProfileResource
