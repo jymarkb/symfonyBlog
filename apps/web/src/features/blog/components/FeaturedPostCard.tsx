@@ -29,7 +29,7 @@ export function FeaturedPostCard({ post }: Props) {
       {hasImage && (
         <img
           className="featured-img"
-          src={post.cover_image!}
+          src={post.cover_image ?? ''}
           alt={post.title}
         />
       )}
@@ -38,7 +38,7 @@ export function FeaturedPostCard({ post }: Props) {
         <span className="eyebrow">{eyebrow}</span>
 
         <h3>
-          <a href={`/blog/${post.slug}`}>{post.title}</a>
+          <a href={`/${post.slug}`}>{post.title}</a>
         </h3>
 
         {post.excerpt != null && <p className="dek">{post.excerpt}</p>}
@@ -73,7 +73,7 @@ export function FeaturedPostCard({ post }: Props) {
             </>
           )}
 
-          {post.comments_count !== undefined && (
+          {post.comments_count != null && (
             <>
               <span>·</span>
               <span>{post.comments_count} comments</span>

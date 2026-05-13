@@ -21,7 +21,7 @@ export function ProfileRecentlyViewed({ initialHistory }: { initialHistory?: Pro
       <div className="viewed-list">
         {history.map((item) => (
           <div key={item.post_id} className="viewed-item">
-            <a href={`/blog/${item.post_slug}`}>{item.post_title}</a>
+            <a href={`/${item.post_slug}`}>{item.post_title}</a>
             <div className="viewed-meta">
               {new Date(item.last_viewed_at).toLocaleDateString()}
               <div className="read-progress-bar">

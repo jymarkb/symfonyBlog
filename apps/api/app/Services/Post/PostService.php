@@ -3,11 +3,17 @@
 namespace App\Services\Post;
 
 use App\Models\Post;
+use App\Repositories\Post\PostRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class PostService
 {
+    public function __construct(
+        private readonly PostRepository $repository,
+    ) {}
+
     public function listPublished(Request $request): LengthAwarePaginator
     {
         return Post::query()
@@ -57,14 +63,69 @@ class PostService
             ->all();
     }
 
-    public function findPublishedBySlug(string $slug): Post
+    public function listForAdmin(): LengthAwarePaginator
     {
         return Post::query()
             ->with(['user', 'tags'])
             ->withCount(['comments', 'stars'])
-            ->where('slug', $slug)
-            ->where('status', 'published')
-            ->whereNotNull('published_at')
-            ->firstOrFail();
+            ->latest()
+            ->paginate(20);
+    }
+
+    public function findPublishedBySlug(string $slug): Post
+    {
+        return $this->repository->getPublishedBySlug($slug);
+    }
+
+    public function create(array $validated, int $userId, array $tagIds): Post
+    {
+        $data = $this->postData($validated);
+
+        $post = new Post($data);
+        $post->user()->associate($userId);
+        $post->save();
+        $post->tags()->sync($tagIds);
+
+        return $post->load(['user', 'tags'])->loadCount(['comments', 'stars']);
+    }
+
+    public function update(Post $post, array $validated, ?array $tagIds): Post
+    {
+        $oldSlug = $post->slug;
+        $newSlug = $validated['slug'] ?? null;
+
+        // Forget the old slug before updating so stale cache is evicted immediately
+        $this->repository->forgetBySlug($oldSlug);
+
+        $data = $this->postData($validated);
+        $post->update($data);
+
+        // If the slug changed, also evict any cached entry under the new slug
+        if ($newSlug !== null && $newSlug !== $oldSlug) {
+            $this->repository->forgetBySlug($newSlug);
+        }
+
+        if ($tagIds !== null) {
+            $post->tags()->sync($tagIds);
+        }
+
+        return $post->load(['user', 'tags'])->loadCount(['comments', 'stars']);
+    }
+
+    public function delete(Post $post): void
+    {
+        $this->repository->forgetBySlug($post->slug);
+        $post->delete();
+    }
+
+    private function postData(array $validated): array
+    {
+        $data = Arr::except($validated, ['tag_ids']);
+
+        if (($data['status'] ?? null) === 'published' && empty($data['published_at'])) {
+            $data['published_at'] = now();
+        }
+
+        return $data;
     }
 }

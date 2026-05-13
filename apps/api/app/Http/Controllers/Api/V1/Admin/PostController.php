@@ -7,65 +7,49 @@ use App\Http\Requests\Admin\StorePostRequest;
 use App\Http\Requests\Admin\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
+use App\Services\Post\PostService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Arr;
 
 class PostController extends Controller
 {
+    public function __construct(
+        private readonly PostService $service,
+    ) {}
+
     public function index(): AnonymousResourceCollection
     {
-        $posts = Post::query()
-            ->with(['user', 'tags'])
-            ->withCount(['comments', 'stars'])
-            ->latest()
-            ->paginate(20);
-
-        return PostResource::collection($posts);
+        return PostResource::collection($this->service->listForAdmin());
     }
 
     public function store(StorePostRequest $request): JsonResponse
     {
-        $data = $this->postData($request->validated());
+        $post = $this->service->create(
+            $request->validated(),
+            $request->user()->id,
+            $request->validated('tag_ids', []),
+        );
 
-        $post = new Post($data);
-        $post->user()->associate($request->user());
-        $post->save();
-        $post->tags()->sync($request->validated('tag_ids', []));
-
-        return (new PostResource($post->load(['user', 'tags'])->loadCount(['comments', 'stars'])))
+        return (new PostResource($post))
             ->response()
             ->setStatusCode(201);
     }
 
     public function update(UpdatePostRequest $request, Post $post): PostResource
     {
-        $data = $this->postData($request->validated());
+        $post = $this->service->update(
+            $post,
+            $request->validated(),
+            $request->has('tag_ids') ? $request->validated('tag_ids', []) : null,
+        );
 
-        $post->update($data);
-
-        if ($request->has('tag_ids')) {
-            $post->tags()->sync($request->validated('tag_ids', []));
-        }
-
-        return new PostResource($post->load(['user', 'tags'])->loadCount(['comments', 'stars']));
+        return new PostResource($post);
     }
 
-    public function destroy(Post $post): JsonResponse
+    public function destroy(Post $post): \Illuminate\Http\Response
     {
-        $post->delete();
+        $this->service->delete($post);
 
-        return response()->json([], 204);
-    }
-
-    private function postData(array $validated): array
-    {
-        $data = Arr::except($validated, ['tag_ids']);
-
-        if (($data['status'] ?? null) === 'published' && empty($data['published_at'])) {
-            $data['published_at'] = now();
-        }
-
-        return $data;
+        return response()->noContent();
     }
 }

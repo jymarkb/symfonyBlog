@@ -24,7 +24,7 @@
     "tailwindcss": "^4.2.4",
     "vike": "^0.4.258",
     "vike-react": "^0.6.21",
-    "@jymarkb/block-editor": "^1.0.7"
+    "@jymarkb/block-editor": "^1.2.1"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
