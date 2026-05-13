@@ -92,6 +92,18 @@ it('throttles follow requests', function () {
         ->assertTooManyRequests();
 });
 
+it('returns 404 for non-integer author id on destroy', function () {
+    $user = User::factory()->create();
+    $response = $this->actingAs($user)->deleteJson('/api/v1/authors/not-a-number/follow');
+    $response->assertStatus(404);
+});
+
+it('returns 204 for non-existent integer author id on destroy', function () {
+    $user = User::factory()->create();
+    $response = $this->actingAs($user)->deleteJson('/api/v1/authors/99999/follow');
+    $response->assertStatus(204);
+});
+
 it('throttles unfollow requests', function () {
     $user = User::factory()->create();
     $author = User::factory()->create();

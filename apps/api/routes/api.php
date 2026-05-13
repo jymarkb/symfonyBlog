@@ -55,8 +55,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/posts/{slug}/me', [PostUserStateController::class, 'show'])->middleware('throttle:auth-read');
         Route::post('/posts/{slug}/reactions', [PostReactionController::class, 'store'])->middleware('throttle:profile-mutations');
 
-        Route::post('/authors/{authorId}/follow', [AuthorFollowController::class, 'store'])->middleware('throttle:profile-mutations');
-        Route::delete('/authors/{authorId}/follow', [AuthorFollowController::class, 'destroy'])->middleware('throttle:profile-mutations');
+        Route::post('/authors/{authorId}/follow', [AuthorFollowController::class, 'store'])->middleware('throttle:profile-mutations')->where('authorId', '[0-9]+');
+        Route::delete('/authors/{authorId}/follow', [AuthorFollowController::class, 'destroy'])->middleware('throttle:profile-mutations')->where('authorId', '[0-9]+');
 
         /*
         |----------------------------------------------------------------------
