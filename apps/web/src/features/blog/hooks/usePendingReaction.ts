@@ -8,26 +8,26 @@ const PENDING_REACTION_KEY = 'pending_reaction';
 
 type Params = {
   postSlug: string;
-  initialActiveReaction: ReactionType | null;
+  initialActiveReaction: ReactionType[];
   initialCounts: ReactionCounts;
   onOpenAuthGate?: () => void;
 };
 
 type Result = {
-  activeReaction: ReactionType | null;
+  activeReactions: ReactionType[];
   reactionCounts: ReactionCounts;
   busy: boolean;
   handleReaction: (type: ReactionType) => Promise<void>;
 };
 
 export function usePendingReaction({ postSlug, initialActiveReaction, initialCounts, onOpenAuthGate }: Params): Result {
-  const [activeReaction, setActiveReaction] = useState<ReactionType | null>(initialActiveReaction);
+  const [activeReactions, setActiveReactions] = useState<ReactionType[]>(initialActiveReaction);
   const [reactionCounts, setReactionCounts] = useState<ReactionCounts>(initialCounts);
   const [busy, setBusy] = useState(false);
 
   // Sync when page-level initial values update (e.g. after client-side userState fetch)
   useEffect(() => {
-    setActiveReaction(initialActiveReaction);
+    setActiveReactions(initialActiveReaction);
   }, [initialActiveReaction]);
 
   useEffect(() => {
@@ -58,15 +58,17 @@ export function usePendingReaction({ postSlug, initialActiveReaction, initialCou
       return;
     }
 
-    const prevReaction = activeReaction;
+    const isActive = activeReactions.includes(reactionType);
+    const prevReactions = [...activeReactions];
     const prevCounts = { ...reactionCounts } as ReactionCounts;
-    const nextReaction: ReactionType | null = activeReaction === reactionType ? null : reactionType;
 
-    setActiveReaction(nextReaction);
+    // Optimistic update
+    setActiveReactions(prev =>
+      isActive ? prev.filter(r => r !== reactionType) : [...prev, reactionType]
+    );
     setReactionCounts(prev => {
       const next = { ...prev } as ReactionCounts;
-      if (prevReaction) next[prevReaction] = Math.max(0, (next[prevReaction] ?? 0) - 1);
-      if (nextReaction) next[nextReaction] = (next[nextReaction] ?? 0) + 1;
+      next[reactionType] = Math.max(0, (next[reactionType] ?? 0) + (isActive ? -1 : 1));
       return next;
     });
     setBusy(true);
@@ -74,10 +76,10 @@ export function usePendingReaction({ postSlug, initialActiveReaction, initialCou
     try {
       const accessToken = await getAccessToken();
       const result = await toggleReaction(postSlug, reactionType, accessToken);
-      setActiveReaction(result.reaction);
+      setActiveReactions(result.reaction);  // server-reconciled array
       setReactionCounts(result.counts);
     } catch (err) {
-      setActiveReaction(prevReaction);
+      setActiveReactions(prevReactions);
       setReactionCounts(prevCounts);
       if (err instanceof ApiError && err.status === 401) {
         sessionStorage.setItem(PENDING_REACTION_KEY, JSON.stringify({ slug: postSlug, reaction: reactionType }));
@@ -88,5 +90,5 @@ export function usePendingReaction({ postSlug, initialActiveReaction, initialCou
     }
   }
 
-  return { activeReaction, reactionCounts, busy, handleReaction };
+  return { activeReactions, reactionCounts, busy, handleReaction };
 }
