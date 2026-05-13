@@ -10,7 +10,6 @@ it('keeps api v1 route test coverage explicit', function () {
         'GET api/v1/tags',
         'POST api/v1/posts/{slug}/view',
         'GET api/v1/profiles/{handle}',
-        'POST api/v1/experiments/track',
 
         'GET api/v1/session',
         'GET api/v1/profile/comments',
@@ -43,8 +42,6 @@ it('keeps api v1 route test coverage explicit', function () {
         'DELETE api/v1/admin/tags/{tag}',
 
         'POST api/v1/admin/uploads',
-
-        'GET api/v1/admin/experiments',
     ];
 
     $actualRoutes = collect(Route::getRoutes())
