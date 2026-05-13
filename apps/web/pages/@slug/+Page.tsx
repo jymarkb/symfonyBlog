@@ -53,15 +53,16 @@ function extractHeadings(blocks: BlockElement[]): TocHeading[] {
 type ReactionButtonProps = {
   emoji: string;
   label: string;
+  postSlug: string;
   openAuthGate: (callback: () => void) => void;
 };
 
-function ReactionButton({ emoji, label, openAuthGate }: ReactionButtonProps) {
+function ReactionButton({ emoji, label, postSlug, openAuthGate }: ReactionButtonProps) {
   const { isAuthenticated } = useCurrentSession();
 
   function handleClick() {
     if (!isAuthenticated) {
-      openAuthGate(() => { window.location.reload(); });
+      openAuthGate(() => { window.location.replace(`/${postSlug}`); });
       return;
     }
   }
@@ -283,9 +284,9 @@ export default function Page() {
                       setAuthGateOpen(true);
                     }}
                   />
-                  <ReactionButton emoji="👍" label="Helpful" openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
-                  <ReactionButton emoji="🔥" label="Fire" openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
-                  <ReactionButton emoji="💡" label="Insightful" openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
+                  <ReactionButton emoji="👍" label="Helpful" postSlug={post.slug} openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
+                  <ReactionButton emoji="🔥" label="Fire" postSlug={post.slug} openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
+                  <ReactionButton emoji="💡" label="Insightful" postSlug={post.slug} openAuthGate={(cb) => { pendingStarRef.current = cb; setAuthGateOpen(true); }} />
                 </div>
               </div>
               <div className="pe-tags">

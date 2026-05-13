@@ -30,9 +30,9 @@ export function AuthorCard({ post, variant, onOpenAuthGate }: AuthorCardProps) {
     if (busy) return;
     if (!isAuthenticated) {
       if (onOpenAuthGate) {
-        onOpenAuthGate(() => { window.location.reload(); });
+        onOpenAuthGate(() => { window.location.replace(`/${post.slug}`); });
       } else {
-        pendingFollowRef.current = () => { window.location.reload(); };
+        pendingFollowRef.current = () => { window.location.replace(`/${post.slug}`); };
         setAuthGateOpen(true);
       }
       return;
@@ -51,9 +51,9 @@ export function AuthorCard({ post, variant, onOpenAuthGate }: AuthorCardProps) {
       setFollowing(!next);
       if (err instanceof ApiError && err.status === 401) {
         if (onOpenAuthGate) {
-          onOpenAuthGate(() => { window.location.reload(); });
+          onOpenAuthGate(() => { window.location.replace(`/${post.slug}`); });
         } else {
-          pendingFollowRef.current = () => { window.location.reload(); };
+          pendingFollowRef.current = () => { window.location.replace(`/${post.slug}`); };
           setAuthGateOpen(true);
         }
       }
