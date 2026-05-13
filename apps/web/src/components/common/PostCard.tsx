@@ -21,7 +21,7 @@ export function PostRow({ post }: Props) {
     <article className="post-row">
       <div className="post-row-body">
         <h3 className="post-row-title">
-          <a href={`/blog/${post.slug}`}>{post.title}</a>
+          <a href={`/${post.slug}`}>{post.title}</a>
         </h3>
         {post.excerpt != null && (
           <p className="post-row-dek">{post.excerpt}</p>
