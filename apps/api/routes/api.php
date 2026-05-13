@@ -5,6 +5,8 @@ use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\PostController as PublicPostController;
 use App\Http\Controllers\Api\V1\PostStarController;
+use App\Http\Controllers\Api\V1\PostUserStateController;
+use App\Http\Controllers\Api\V1\PostReactionController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\PublicProfileController;
 use App\Http\Controllers\Api\V1\ProfileCommentController;
@@ -49,6 +51,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/profile', [ProfileController::class, 'show'])->middleware('throttle:auth-read');
         Route::patch('/profile', [ProfileController::class, 'update'])->middleware('throttle:profile-mutations');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware('throttle:profile-delete');
+
+        Route::get('/posts/{slug}/me', [PostUserStateController::class, 'show'])->middleware('throttle:auth-read');
+        Route::post('/posts/{slug}/reactions', [PostReactionController::class, 'store'])->middleware('throttle:profile-mutations');
 
         Route::post('/posts/{slug}/stars', [PostStarController::class, 'store'])->middleware('throttle:profile-mutations');
         Route::delete('/posts/{slug}/stars', [PostStarController::class, 'destroy'])->middleware('throttle:profile-mutations');
