@@ -10,3 +10,11 @@ export async function getAccessToken(): Promise<string> {
 
   return data.session.access_token;
 }
+
+// Soft check — returns the token if a valid Supabase session exists, null otherwise.
+// Does NOT redirect. Use this when you need to probe auth state without the React
+// context (isAuthenticated lags behind getSession because it waits for fetchCurrentUser).
+export async function tryGetAccessToken(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
