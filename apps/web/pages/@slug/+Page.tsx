@@ -262,7 +262,7 @@ export default function Page() {
       } catch {}
     }
     void load();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, post.slug]);
 
   useEffect(() => {
     if (userState === null) return;
@@ -279,9 +279,14 @@ export default function Page() {
       try {
         const token = await getAccessToken();
         const result = await followAuthor(post.author.id, token);
+        // State is only updated on success — no optimistic updates were made before
+        // the try block, so no rollback is needed on failure.
         setIsFollowing(true);
         setFollowersCount(result.followers_count);
-      } catch {}
+      } catch {
+        // API failure after auth: pending key was already removed above, so the
+        // follow intent is lost. No stale optimistic state to roll back.
+      }
     }
     void applyFollow();
   }, [isAuthenticated]);
