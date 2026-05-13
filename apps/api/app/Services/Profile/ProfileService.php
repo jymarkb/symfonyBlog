@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ProfileService
 {
+    public function getAuthenticatedProfile(User $user): User
+    {
+        return $user->loadCount(['comments', 'postViews']);
+    }
+
     public function findPublicProfileByHandle(string $handle): User
     {
         $normalizedHandle = $this->normalizeHandle($handle);

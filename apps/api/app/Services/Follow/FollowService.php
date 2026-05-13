@@ -17,10 +17,13 @@ class FollowService
 
         User::findOrFail($authorId);
 
-        return AuthorFollow::firstOrCreate([
+        $follow = AuthorFollow::firstOrCreate([
             'follower_id' => $followerId,
             'author_id'   => $authorId,
         ]);
+        $follow->load('author');
+        $follow->author->loadCount('followers');
+        return $follow;
     }
 
     public function unfollow(User $follower, int $authorId): void
