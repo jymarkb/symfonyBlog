@@ -2,7 +2,6 @@ import { useRef, useEffect, useState } from 'react';
 import { useData } from 'vike-react/useData';
 import { BlockRenderer } from '@jymarkb/block-editor/render';
 import type { BlockElement } from '@jymarkb/block-editor/render';
-import { navigate } from 'vike/client/router';
 import { AppShell } from '@/layouts/AppShell';
 import { PostRail } from '@/features/blog/components/PostRail';
 import type { TocHeading } from '@/features/blog/components/PostRail';
@@ -11,6 +10,7 @@ import type { PostDetailPageData, PostDetail } from '@/features/blog/blogTypes';
 import { starPost, unstarPost } from '@/features/blog/api/blogApi';
 import { ApiError } from '@/lib/api/apiClient';
 import { getAccessToken } from '@/lib/auth/getAccessToken';
+import { AuthGateModal } from '@/features/auth/components/AuthGateModal';
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return '';
@@ -52,9 +52,10 @@ function extractHeadings(blocks: BlockElement[]): TocHeading[] {
 type StarButtonProps = {
   slug: string;
   initialCount: number;
+  openAuthGate: (callback: () => void) => void;
 };
 
-function StarButton({ slug, initialCount }: StarButtonProps) {
+function StarButton({ slug, initialCount, openAuthGate }: StarButtonProps) {
   const [count, setCount] = useState(initialCount);
   const [starred, setStarred] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -78,7 +79,7 @@ function StarButton({ slug, initialCount }: StarButtonProps) {
       setStarred(!next);
       setCount((c) => c + (next ? -1 : 1));
       if (err instanceof ApiError && err.status === 401) {
-        navigate(`/signin?redirect=${encodeURIComponent('/' + slug)}`);
+        openAuthGate(() => void toggle());
       } else if (!(err instanceof Error && err.message === 'Session expired.')) {
         setError(true);
       }
@@ -169,6 +170,8 @@ export default function Page() {
   const mobileMaxPct = useRef(0);
   const headings = extractHeadings(post.body);
   const [activeId, setActiveId] = useState('');
+  const [authGateOpen, setAuthGateOpen] = useState(false);
+  const pendingStarRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     function update() {
@@ -239,7 +242,14 @@ export default function Page() {
                 <p className="pe-heading">Was this post helpful?</p>
                 <p className="pe-prompt">Found this useful?</p>
                 <div className="pe-btns">
-                  <StarButton slug={post.slug} initialCount={post.stars_count ?? 0} />
+                  <StarButton
+                    slug={post.slug}
+                    initialCount={post.stars_count ?? 0}
+                    openAuthGate={(cb) => {
+                      pendingStarRef.current = cb;
+                      setAuthGateOpen(true);
+                    }}
+                  />
                   <button className="react-btn" disabled>👍 <span className="count">—</span></button>
                   <button className="react-btn" disabled>🔥 <span className="count">—</span></button>
                   <button className="react-btn" disabled>💡 <span className="count">—</span></button>
@@ -286,7 +296,15 @@ export default function Page() {
           </footer>
         </div>
       </div>
-
+      <AuthGateModal
+        isOpen={authGateOpen}
+        onClose={() => setAuthGateOpen(false)}
+        onSuccess={() => {
+          setAuthGateOpen(false);
+          pendingStarRef.current?.();
+          pendingStarRef.current = null;
+        }}
+      />
     </AppShell>
   );
 }
