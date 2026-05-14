@@ -197,7 +197,8 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 
 ### 10. Accessibility basics
 
-- [ ] Interactive elements that are icon-only have `aria-label` or `title`
+- [ ] Interactive elements that are icon-only (no visible text) have `aria-label` or `title` — this is a 🔴 bug
+- [ ] Links and buttons with visible text children should also have a descriptive `aria-label` attribute for screen readers — flag as 🟡 gap, never 🔴 bug
 - [ ] Form inputs have associated `<label>` elements — not just placeholder text
 - [ ] Error messages are associated with their input via `aria-describedby`
 - [ ] Focus returns to a logical element after dialog close or async state change
