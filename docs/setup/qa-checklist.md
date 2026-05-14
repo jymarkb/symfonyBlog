@@ -56,7 +56,7 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 - [ ] GET endpoints that trigger expensive operations (DB writes on first call, external API calls) are also rate-limited
 - [ ] Named limiters are registered in `AppServiceProvider` — not inline on routes
 - [ ] Rate limit tests pre-fill the cache bucket using the exact key format `ThrottleRequests` writes — check the named limiter's `->by()` value and match it; a mismatched key hits a different bucket and the test passes vacuously
-- [ ] **Rate limit test hit count must be `limit + 1`, not `limit`** — hitting N times when the limit is N *reaches* the limit but does not trigger 429; the 429 fires only on hit N+1; the test loop must use `<= $limit` or `$limit + 1` as the iteration count
+- [ ] **Rate limit test hit count must be `limit + 1`, not `limit`** — hitting N times when the limit is N *reaches* the limit but does not trigger 429; the 429 fires only on hit N+1; the test loop must use `<= $limit` or `$limit + 1` as the iteration count; check ALL rate limit tests in the feature's test files, not just newly written ones
 - [ ] 429 tests assert `assertTooManyRequests()`, not just a status code
 - [ ] Limits are appropriately tight on destructive operations (e.g., account delete: 5/min vs mutations: 60/min)
 
@@ -168,6 +168,7 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 - [ ] Retry or refresh affordance available where appropriate — a "Try again" button must be rendered alongside error messages, not just a message that says "please try again" with no button
 - [ ] SSR pages with client-side filtering use a `hasMounted` ref guard to skip the initial `useEffect` fetch — without this the page double-fetches on hydration (SSR data is already in state from `useData()`)
 - [ ] **Silent failures are 🔴 bugs** — every `catch` block on a user-visible mutation (post, edit, delete, load-more, follow, react, etc.) must call `setError(...)` or equivalent to display an error message; a catch block that only rolls back optimistic state without showing an error is a silent failure; audit every `catch {}` in the feature files
+- [ ] **`useEffect` data-fetch catch blocks must not be empty** — a `useEffect` that loads user state, follower counts, auth-dependent flags, or any data affecting visible UI must handle failure explicitly; an empty `catch {}` or `catch (e) {}` that silently discards a fetch failure is a 🔴 bug; the same applies to post-auth pending action handlers
 
 ### 6. Error message hygiene
 

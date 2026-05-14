@@ -461,6 +461,7 @@ Rules:
 - **Character counters must always be visible**, never conditionally rendered. Use CSS classes (`warn`, `over`) to change appearance at thresholds — never toggle visibility with a boolean. The counter is always present; only its style changes.
 - **Every error message element must have `role="alert"`.** Apply `role="alert"` to every `<p>`, `<div>`, or `<span>` that conditionally renders an error string. Do not render error text without it.
 - **Every `catch` block on a user-visible mutation must set user-visible error state.** A catch that only rolls back optimistic state (e.g. `setItems(snapshot)`) without also calling `setError(...)` is a silent failure — a 🔴 bug. Every async user action (post, edit, delete, load-more, follow, react) must tell the user what went wrong. Write the error state and its render at the same time as the catch block.
+- **Every `useEffect` that loads data affecting visible UI must handle its catch block.** A `useEffect` that fetches user state, follower counts, auth-dependent flags, or any data that controls what the user sees must not use an empty `catch {}` or `catch (e) {}` that silently discards failures. If the fetch fails and the user sees stale or missing UI with no explanation, that is a silent failure — a 🔴 bug. Set an error state and render a fallback or message. This applies equally to post-auth pending action handlers: if a deferred action (follow, react, comment) fails after the user completes login, the user must be told — an empty catch that silently loses their intent is a 🔴 bug.
 - **Use proper generic types on API calls — never `as` casts on response values.** Pass the full expected shape as the generic: `apiRequest<{ data: Comment }>(...)`. Casting with `as { data: Comment }` bypasses type inference and hides shape mismatches silently.
 
 ### Pre-report self-verification checklist (run before reporting done)
@@ -473,6 +474,7 @@ Before reporting a task complete, execute each step — do not self-report witho
 - [ ] **Grep `try again` and `please try` in rendered JSX** — every match must have an adjacent `<button>` that executes the retry action; a bare error message with retry wording and no button is a 🔴 bug
 - [ ] Every element that conditionally renders an error string has `role="alert"` — grep for `setError\|error &&\|error ?` and confirm each render site has the attribute
 - [ ] Every `catch` block on a user-visible mutation calls `setError(...)` — grep `catch` in each file and confirm no block only rolls back state without also calling `setError`
+- [ ] **Grep `useEffect` in every file you touched** — every `useEffect` that fetches data or executes a pending action must have a non-empty `catch` block that calls `setError(...)` or equivalent; an empty `catch {}` or `catch (e) {}` on a data-loading effect is a 🔴 bug
 - [ ] Character counters are always rendered — never behind a conditional; grep for the counter component and confirm no `&&` or ternary gates its render
 - [ ] Counter `id` values are unique per instance — grep `id="` in components that render in lists; hardcoded IDs like `id="reply-counter"` are a 🔴 bug when the component renders more than once
 - [ ] **Grep `) as {` and `response as ` in every file you touched** — every match on an API response value is a violation; replace with `apiRequest<{ data: Type }>(...)` generics
@@ -523,14 +525,14 @@ Rules:
 Before reporting a task complete, execute each step — do not self-report without running the grep:
 
 - [ ] Every ownership check uses `response()->json(['error' => 'forbidden', 'message' => '...'], 403)` — grep `abort(403)` in files you touched; every match is a 🔴 bug
-- [ ] Every test asserting 401 chains `->assertJson(['error' => 'unauthenticated'])` — grep `assertUnauthorized` and confirm every call is followed by `->assertJson`
+- [ ] **Grep `assertUnauthorized` across ALL test files in the feature area** (not just ones you wrote) — every call must be followed by `->assertJson(['error' => 'unauthenticated'])`; fix any existing test missing the body assertion
 - [ ] Every test asserting 403 chains `->assertJson(['error' => 'forbidden', ...])` — grep `assertForbidden` and confirm every call is followed by `->assertJson` with both `error` and `message` keys
 - [ ] Every endpoint test that returns user or resource data has `assertJsonMissingPath` for `role`, `email`, `supabase_user_id`, and `user_id`
 - [ ] Every controller method is one of: `index`, `show`, `store`, `update`, `destroy` — no custom action methods added
 - [ ] **Grep `->` in every controller method body** — any Eloquent chain (`->where`, `->find`, `->load`, `->with`, or a relationship property like `$model->relation`) is a violation; all model access must go through service methods
 - [ ] Service methods fully hydrate relationships required by every Resource that consumes them
 - [ ] FormRequest includes all validation constraints including cross-resource ownership scoping
-- [ ] **Rate limit test loops use `<= $limit` (N+1 hits)**, not `< $limit` or `$limit` iterations — confirm the loop count exceeds the throttle ceiling by one
+- [ ] **Grep ALL rate limit test loops in the feature's test files** (not just ones you wrote) — every loop must use `<= $limit` or `$limit + 1` hits; `< $limit` hits the ceiling without exceeding it and the test passes vacuously; fix any existing test with the wrong count
 - [ ] New or changed `/api/v1` routes are reflected in `ApiRouteCoverageTest.php`
 - [ ] `php artisan test` exits clean (no new failures)
 
