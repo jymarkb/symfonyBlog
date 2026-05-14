@@ -53,7 +53,7 @@ class PostCommentController extends Controller
         $commentModel = $this->commentService->findForPost($comment, $post);
 
         if ($request->user()?->id !== $commentModel->user_id) {
-            abort(403);
+            return response()->json(['error' => 'forbidden'], 403);
         }
 
         $updated = $this->commentService->updateComment($commentModel, $post, $request->validated()['body']);
@@ -67,7 +67,7 @@ class PostCommentController extends Controller
         $commentModel = $this->commentService->findForPost($comment, $post);
 
         if ($request->user()?->id !== $commentModel->user_id) {
-            abort(403);
+            return response()->json(['error' => 'forbidden'], 403);
         }
 
         $this->commentService->deleteComment($commentModel);

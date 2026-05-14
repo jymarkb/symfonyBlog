@@ -172,6 +172,21 @@ it('returns 422 when parent_id belongs to a reply (depth > 1 not allowed)', func
         ->assertJsonValidationErrors(['parent_id']);
 });
 
+it('returns 422 when parent_id belongs to a comment on a different post', function () {
+    $user    = User::factory()->create();
+    $postA   = Post::factory()->create(['status' => 'published']);
+    $postB   = Post::factory()->create(['status' => 'published']);
+    $comment = Comment::factory()->create(['post_id' => $postA->id]);
+
+    $this->actingAs($user, 'api')
+        ->postJson("/api/v1/posts/{$postB->slug}/comments", [
+            'body'      => 'Cross-post reply attempt',
+            'parent_id' => $comment->id,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['parent_id']);
+});
+
 // ---------------------------------------------------------------------------
 // PATCH /api/v1/posts/{slug}/comments/{comment}
 // ---------------------------------------------------------------------------
@@ -210,7 +225,8 @@ it('returns 403 when non-owner tries to update a comment', function () {
 
     $this->actingAs($other, 'api')
         ->patchJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}", ['body' => 'Attempted update'])
-        ->assertForbidden();
+        ->assertForbidden()
+        ->assertJson(['error' => 'forbidden']);
 });
 
 it('returns 422 when update body is empty', function () {
@@ -275,7 +291,8 @@ it('returns 403 when non-owner tries to delete a comment', function () {
 
     $this->actingAs($other, 'api')
         ->deleteJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}")
-        ->assertForbidden();
+        ->assertForbidden()
+        ->assertJson(['error' => 'forbidden']);
 });
 
 it('returns 404 when comment does not exist on destroy', function () {

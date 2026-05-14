@@ -16,7 +16,13 @@ class StoreCommentRequest extends FormRequest
     {
         return [
             'body'      => ['required', 'string', 'min:1', 'max:250'],
-            'parent_id' => ['nullable', 'integer', Rule::exists('comments', 'id')->where('parent_id', null)],
+            'parent_id' => ['nullable', 'integer', Rule::exists('comments', 'id')->where(function ($query) {
+                $slug = $this->route('slug');
+                $query->where('parent_id', null)
+                      ->whereIn('post_id', function ($sub) use ($slug) {
+                          $sub->select('id')->from('posts')->where('slug', $slug);
+                      });
+            })],
         ];
     }
 }
