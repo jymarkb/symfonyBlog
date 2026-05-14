@@ -461,6 +461,19 @@ Rules:
 - **Every `catch` block on a user-visible mutation must set user-visible error state.** A catch that only rolls back optimistic state (e.g. `setItems(snapshot)`) without also calling `setError(...)` is a silent failure — a 🔴 bug. Every async user action (post, edit, delete, load-more, follow, react) must tell the user what went wrong. Write the error state and its render at the same time as the catch block.
 - **Use proper generic types on API calls — never `as` casts on response values.** Pass the full expected shape as the generic: `apiRequest<{ data: Comment }>(...)`. Casting with `as { data: Comment }` bypasses type inference and hides shape mismatches silently.
 
+### Pre-report self-verification checklist (run before reporting done)
+
+Before reporting a task complete, verify each component or hook you touched:
+
+- [ ] Every `<textarea>` has `maxLength`, `aria-label`, and `aria-describedby` — all three, every instance
+- [ ] Every `<button>` and `<a>` has `aria-label`
+- [ ] Every element that conditionally renders an error string has `role="alert"`
+- [ ] Every `catch` block on a user-visible mutation calls `setError(...)` — no silent rollbacks
+- [ ] Character counters are always rendered — never behind a conditional
+- [ ] Counter `id` values are unique per instance (e.g. `reply-counter-${item.id}`, not a hardcoded string)
+- [ ] `apiRequest<T>()` is typed with the full response shape — no `as` casts on the return value
+- [ ] `npx tsc --noEmit` from `apps/web` exits clean
+
 ## Core PHP/Laravel Developer Agent
 
 Use a PHP/Laravel implementation agent for `-core-php- <task>`. Under Claude, use `general-purpose` subagent type, `run_in_background: true`. When done, main session posts the changed files and test results to chat, then closes the agent.
@@ -499,6 +512,21 @@ Rules:
 - **Every test that asserts a 401 or 403 must also assert the response body shape.** Chain `->assertJson(['error' => 'unauthenticated'])` after every `->assertUnauthorized()` and `->assertJson(['error' => 'forbidden'])` after every `->assertForbidden()`. Status-only assertions allow response body regressions to go undetected.
 - **Every endpoint that returns user or resource data must have `assertJsonMissingPath` tests** pinning that `role`, `email`, `supabase_user_id`, and `user_id` are absent from the response. Add these assertions when you write the endpoint test — do not leave them for QA.
 - **FormRequest validation must include all constraints, including ownership scoping.** If a field references a resource that is scoped to the current post/user/context (e.g. `parent_id` must belong to the same post), validate this in the FormRequest using `Rule::exists(...)->where(...)` with a subquery. Do not rely solely on the service layer — service exceptions produce less user-friendly errors than a FormRequest 422.
+
+### Pre-report self-verification checklist (run before reporting done)
+
+Before reporting a task complete, verify each controller, service, resource, request, and test you touched:
+
+- [ ] Every ownership check uses `response()->json(['error' => 'forbidden', 'message' => '...'], 403)` — never `abort(403)`
+- [ ] Every test asserting 401 chains `->assertJson(['error' => 'unauthenticated'])` after `->assertUnauthorized()`
+- [ ] Every test asserting 403 chains `->assertJson(['error' => 'forbidden', ...])` after `->assertForbidden()`
+- [ ] Every endpoint test that returns user or resource data has `assertJsonMissingPath` for `role`, `email`, `supabase_user_id`, and `user_id`
+- [ ] Every controller method is one of: `index`, `show`, `store`, `update`, `destroy` — no custom action methods added
+- [ ] No Eloquent calls in controllers — all model access through service methods
+- [ ] Service methods fully hydrate relationships required by every Resource that consumes them
+- [ ] FormRequest includes all validation constraints including cross-resource ownership scoping
+- [ ] New or changed `/api/v1` routes are reflected in `ApiRouteCoverageTest.php`
+- [ ] `php artisan test` exits clean (no new failures)
 
 ## Frontend QA Agent
 
