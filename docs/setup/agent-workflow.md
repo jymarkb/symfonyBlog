@@ -334,6 +334,8 @@ Use `-autotest- <feature-name>` to automatically clear all QA bugs and make the 
 - Do NOT auto-commit. After reaching green, report the suggested commit grouping and wait for the user to run `-commit`.
 - Cap at 5 iterations. If the feature is not green after 5 fix cycles, stop and post the remaining open bugs with a note that manual intervention is needed.
 - Each iteration's QA agents must read `docs/setup/qa-checklist.md` and `docs/setup/security.md` before reviewing — brief them explicitly.
+- **QA agents must use full-depth prompts every iteration** — do not shorten the prompt for later iterations with "re-check prior findings only." Every iteration is a fresh full review. Shortened prompts miss new bugs introduced by fixes and bugs that the prior pass overlooked.
+- **Explicitly instruct QA agents to audit every `catch` block** — silent failures (catch blocks that roll back state or do nothing without showing the user an error) are 🔴 bugs and are easily missed by shallow prompts.
 - Track which bugs were fixed in which iteration so the final report shows the full fix history.
 
 ### Output format (final report only)
@@ -504,6 +506,7 @@ Apply every relevant section of the QA checklist. At minimum cover:
 - **Route guards** — correct layout guard (`RequireAuth`/`RequireGuest`) per route group; no duplicate check inside the page; admin-gated UI does not treat client-side `isAdmin` as the sole gate
 - **Auth flow edge cases** — OAuth error messages generic (no raw provider strings); `pendingAuthProvider` cleared on failure not just success; token fragments stripped from URL before redirect; password reset does not conflict with `RequireGuest`
 - **Form validation and UX** — client-side validation fires before any API call; double-submit prevented; all four async states handled (loading, error, empty, data); dead UI identified (unchecked checkboxes, disabled buttons with no enable path)
+- **Silent failures** — every `catch` block on a user-visible mutation (post, edit, delete, load-more, follow, react, etc.) must surface an error message to the user; rolling back optimistic state without showing an error is a 🔴 bug; audit every `catch {}` and `catch (e) {}` in the feature
 - **Error message hygiene** — no raw API error strings, Supabase messages, or stack traces in the UI; generic messages throughout
 - **Token handling** — `getSession()` called immediately before each API call, not cached in state; no token in URL params or `console.log`
 - **Security** — no `dangerouslySetInnerHTML` without sanitization; no open redirect via URL params; no sensitive data in `localStorage` beyond library requirements
