@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCommentRequest extends FormRequest
 {
@@ -15,8 +16,7 @@ class StoreCommentRequest extends FormRequest
     {
         return [
             'body'      => ['required', 'string', 'min:1', 'max:250'],
-            // Depth constraint (top-level only) enforced in CommentService::createComment()
-            'parent_id' => ['nullable', 'integer', 'exists:comments,id'],
+            'parent_id' => ['nullable', 'integer', Rule::exists('comments', 'id')->where('parent_id', null)],
         ];
     }
 }

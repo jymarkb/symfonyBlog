@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use App\Services\Post\CommentService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -30,9 +30,11 @@ class CommentController extends Controller
         return CommentResource::collection($paginator);
     }
 
-    public function update(string $comment): JsonResponse
+    public function update(UpdateCommentRequest $request, Comment $comment): CommentResource
     {
-        return response()->json(['id' => $comment]);
+        $updated = $this->commentService->updateComment($comment, $comment->post, $request->validated()['body']);
+
+        return new CommentResource($updated);
     }
 
     public function destroy(Comment $comment): Response

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Comment;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
@@ -206,6 +207,12 @@ function resolvedAdminRoute(string $method, string $uri): string
         return str_replace('123', (string) $tag->id, $uri);
     }
 
+    if (str_contains($uri, '/admin/comments/123')) {
+        $comment = Comment::factory()->create();
+
+        return str_replace('123', (string) $comment->id, $uri);
+    }
+
     return $uri;
 }
 
@@ -239,6 +246,12 @@ function adminRoutePayload(string $method, string $uri): array
     if ($method === 'PATCH' && str_contains($uri, '/admin/tags/')) {
         return [
             'name' => 'Admin Matrix Updated',
+        ];
+    }
+
+    if ($method === 'PATCH' && str_contains($uri, '/admin/comments/')) {
+        return [
+            'body' => 'Admin matrix updated comment body.',
         ];
     }
 

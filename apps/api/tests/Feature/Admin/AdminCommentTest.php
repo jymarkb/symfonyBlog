@@ -78,3 +78,56 @@ it('returns 403 for regular user on delete', function () {
         ->deleteJson("/api/v1/admin/comments/{$comment->id}")
         ->assertForbidden();
 });
+
+// ---------------------------------------------------------------------------
+// PATCH /api/v1/admin/comments/{comment}
+// ---------------------------------------------------------------------------
+
+it('returns 401 for guest on admin comment update', function () {
+    $comment = Comment::factory()->create();
+
+    $this->patchJson("/api/v1/admin/comments/{$comment->id}", ['body' => 'Updated body'])
+        ->assertUnauthorized();
+});
+
+it('returns 403 for regular user on admin comment update', function () {
+    $user    = User::factory()->create(['role' => User::ROLE_USER]);
+    $comment = Comment::factory()->create();
+
+    $this->actingAs($user, 'api')
+        ->patchJson("/api/v1/admin/comments/{$comment->id}", ['body' => 'Updated body'])
+        ->assertForbidden();
+});
+
+it('allows admin to update any comment and returns 200 with updated body', function () {
+    $admin   = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    $owner   = User::factory()->create(['role' => User::ROLE_USER]);
+    $comment = Comment::factory()->create(['user_id' => $owner->id, 'body' => 'Original body']);
+
+    $response = $this->actingAs($admin, 'api')
+        ->patchJson("/api/v1/admin/comments/{$comment->id}", ['body' => 'Admin updated body'])
+        ->assertOk();
+
+    expect($response->json('data.body'))->toBe('Admin updated body');
+    $this->assertDatabaseHas('comments', ['id' => $comment->id, 'body' => 'Admin updated body']);
+});
+
+it('returns 422 when body is empty on admin comment update', function () {
+    $admin   = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    $comment = Comment::factory()->create();
+
+    $this->actingAs($admin, 'api')
+        ->patchJson("/api/v1/admin/comments/{$comment->id}", ['body' => ''])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['body']);
+});
+
+it('returns 422 when body exceeds 250 characters on admin comment update', function () {
+    $admin   = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    $comment = Comment::factory()->create();
+
+    $this->actingAs($admin, 'api')
+        ->patchJson("/api/v1/admin/comments/{$comment->id}", ['body' => str_repeat('a', 251)])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['body']);
+});
