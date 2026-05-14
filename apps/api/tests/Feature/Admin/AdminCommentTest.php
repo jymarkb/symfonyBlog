@@ -37,7 +37,11 @@ it('returns 200 with paginated list for admin', function () {
             ],
             'links',
             'meta' => ['current_page', 'last_page', 'per_page', 'total'],
-        ]);
+        ])
+        ->assertJsonMissingPath('data.0.author.role')
+        ->assertJsonMissingPath('data.0.author.email')
+        ->assertJsonMissingPath('data.0.author.supabase_user_id')
+        ->assertJsonMissingPath('data.0.user_id');
 });
 
 it('filters by post_id when provided', function () {
@@ -106,7 +110,11 @@ it('allows admin to update any comment and returns 200 with updated body', funct
 
     $response = $this->actingAs($admin, 'api')
         ->patchJson("/api/v1/admin/comments/{$comment->id}", ['body' => 'Admin updated body'])
-        ->assertOk();
+        ->assertOk()
+        ->assertJsonMissingPath('data.author.role')
+        ->assertJsonMissingPath('data.author.email')
+        ->assertJsonMissingPath('data.author.supabase_user_id')
+        ->assertJsonMissingPath('data.user_id');
 
     expect($response->json('data.body'))->toBe('Admin updated body');
     $this->assertDatabaseHas('comments', ['id' => $comment->id, 'body' => 'Admin updated body']);

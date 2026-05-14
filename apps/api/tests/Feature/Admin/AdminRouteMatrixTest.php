@@ -21,6 +21,7 @@ function adminRoutes(): array
 
         'GET admin comments' => ['GET', '/api/v1/admin/comments', 200],
         'PATCH admin comments' => ['PATCH', '/api/v1/admin/comments/123', 200],
+        'DELETE admin comments' => ['DELETE', '/api/v1/admin/comments/123', 204],
 
         'GET admin tags' => ['GET', '/api/v1/admin/tags', 200],
         'POST admin tags' => ['POST', '/api/v1/admin/tags', 201],
