@@ -1,3 +1,8 @@
+import { useEffect, useRef } from 'react';
+
+const MAX_LENGTH = 250;
+const WARN_THRESHOLD = 50;
+
 type Props = {
   value: string;
   onChange: (v: string) => void;
@@ -7,7 +12,19 @@ type Props = {
   placeholder: string;
   showToolbar: boolean;
   avatarInitial?: string;
+  error?: string | null;
 };
+
+function useAutoResize(value: string) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value]);
+  return ref;
+}
 
 export function ComposeBox({
   value,
@@ -18,13 +35,29 @@ export function ComposeBox({
   placeholder,
   showToolbar,
   avatarInitial,
+  error,
 }: Props) {
+  const ref = useAutoResize(value);
+  const remaining = MAX_LENGTH - value.length;
+  const nearLimit = remaining <= WARN_THRESHOLD;
+  const overLimit = remaining < 0;
+
+  const counterClass = overLimit ? ' over' : nearLimit ? ' warn' : '';
+  const counter = (
+    <span className={`compose-count${counterClass}`}>
+      {overLimit
+        ? `${Math.abs(remaining)} character${Math.abs(remaining) === 1 ? '' : 's'} over the limit`
+        : `${remaining} character${remaining === 1 ? '' : 's'} remaining`}
+    </span>
+  );
+
   if (showToolbar) {
     return (
       <div className="compose">
         <div className="compose-body">
           <div className="compose-avatar">{avatarInitial ?? '?'}</div>
           <textarea
+            ref={ref}
             className="compose-textarea"
             placeholder={placeholder}
             value={value}
@@ -34,17 +67,19 @@ export function ComposeBox({
           />
         </div>
         <div className="compose-foot">
+          {counter}
           <div className="compose-actions">
             <button
               className="btn btn-sm btn-primary"
               onClick={() => void onSubmit()}
-              disabled={busy || !value.trim()}
+              disabled={busy || !value.trim() || overLimit}
               aria-label={busy ? 'Posting comment' : 'Post comment'}
             >
               {busy ? 'Posting…' : 'Post comment'}
             </button>
           </div>
         </div>
+        {error && <p className="compose-error-msg">{error}</p>}
       </div>
     );
   }
@@ -52,12 +87,15 @@ export function ComposeBox({
   return (
     <div className="reply-compose">
       <textarea
+        ref={ref}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         readOnly={busy}
         rows={2}
       />
+      {counter && <div className="reply-compose-counter">{counter}</div>}
+      {error && <p className="compose-error-msg">{error}</p>}
       <div className="reply-compose-actions">
         {onCancel && (
           <button
@@ -72,7 +110,7 @@ export function ComposeBox({
         <button
           className="btn btn-sm btn-primary"
           onClick={() => void onSubmit()}
-          disabled={busy || !value.trim()}
+          disabled={busy || !value.trim() || overLimit}
           aria-label={busy ? 'Posting reply' : 'Post reply'}
         >
           {busy ? 'Posting…' : 'Reply'}
