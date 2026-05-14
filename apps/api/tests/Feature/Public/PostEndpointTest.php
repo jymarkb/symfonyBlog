@@ -2,6 +2,7 @@
 
 use App\Models\Post;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -675,4 +676,29 @@ it('related contains at most 2 items', function () {
     $related = $response->json('data.related');
 
     expect(count($related))->toBeLessThanOrEqual(2);
+});
+
+it('related posts do not expose sensitive author fields', function () {
+    $tag = Tag::factory()->create();
+    $author = User::factory()->create();
+
+    $main = Post::factory()->create([
+        'slug' => 'main-sensitive-check',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+    $main->tags()->attach($tag);
+
+    $related = Post::factory()->create([
+        'status' => 'published',
+        'published_at' => now()->subDay(),
+        'user_id' => $author->id,
+    ]);
+    $related->tags()->attach($tag);
+
+    $this->getJson('/api/v1/posts/main-sensitive-check')
+        ->assertOk()
+        ->assertJsonMissingPath('data.related.0.author.role')
+        ->assertJsonMissingPath('data.related.0.author.supabase_user_id')
+        ->assertJsonMissingPath('data.related.0.author.email');
 });
