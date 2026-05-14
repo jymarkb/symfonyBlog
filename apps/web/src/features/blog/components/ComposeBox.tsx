@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
 
 const MAX_LENGTH = 250;
 const WARN_THRESHOLD = 50;
@@ -15,17 +15,6 @@ type Props = {
   error?: string | null;
 };
 
-function useAutoResize(value: string) {
-  const ref = useRef<HTMLTextAreaElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-  }, [value]);
-  return ref;
-}
-
 export function ComposeBox({
   value,
   onChange,
@@ -37,7 +26,7 @@ export function ComposeBox({
   avatarInitial,
   error,
 }: Props) {
-  const ref = useAutoResize(value);
+  const ref = useAutoResizeTextarea(value);
   const remaining = MAX_LENGTH - value.length;
   const nearLimit = remaining <= WARN_THRESHOLD;
   const overLimit = remaining < 0;

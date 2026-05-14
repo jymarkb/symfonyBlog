@@ -354,7 +354,6 @@ export default function Page() {
           </footer>
           <DiscussionSection
             postSlug={post.slug}
-            postAuthorId={post.author.id}
             initialCount={post.comments_count ?? 0}
             isAuthenticated={isAuthenticated}
             onOpenAuthGate={() => { setAuthGateOpen(true); }}
