@@ -131,13 +131,22 @@ export function CommentItem({
           {(comment.author.display_name?.[0] ?? comment.author.handle[0]).toUpperCase()}
         </div>
         <div className="comment-meta">
-          <a href={`/profile/${comment.author.handle}`} className="comment-author">
+          <a
+            href={`/profile/${comment.author.handle}`}
+            className="comment-author"
+            aria-label={`View ${comment.author.display_name ?? comment.author.handle}'s profile`}
+          >
             {comment.author.display_name ?? comment.author.handle}
           </a>
           {comment.is_post_author && (
             <span className="comment-badge-author">Author</span>
           )}
-          <a href={`#comment-${comment.id}`} className="comment-date" title={absolute}>
+          <a
+            href={`#comment-${comment.id}`}
+            className="comment-date"
+            title={absolute}
+            aria-label={`Comment posted on ${absolute}`}
+          >
             {relative}
           </a>
         </div>
