@@ -7,7 +7,7 @@ export function renderMarkdown(text: string): string {
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/`(.+?)`/g, '<code>$1</code>')
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)][^\s]*)\)/g, '<a href="$2" rel="noopener noreferrer" target="_blank">$1</a>')
-    .replace(/(@[a-z0-9_]+)/gi, (_, handle) => `<a href="/profile/${encodeURIComponent(handle.toLowerCase())}" class="comment-mention">${handle}</a>`)
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)][^\s]*)\)/g, '<a href="$2" rel="noopener noreferrer" target="_blank" aria-label="$1">$1</a>')
+    .replace(/(@[a-z0-9_]+)/gi, (_, handle) => `<a href="/profile/${encodeURIComponent(handle.toLowerCase())}" class="comment-mention" aria-label="View ${handle}&#39;s profile">${handle}</a>`)
     .replace(/\n/g, '<br>');
 }
