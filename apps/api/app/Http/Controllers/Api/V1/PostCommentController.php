@@ -33,10 +33,6 @@ class PostCommentController extends Controller
 
     public function store(StoreCommentRequest $request, string $slug): JsonResponse
     {
-        if ($request->user() === null) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
-        }
-
         $post = $this->postService->findPublishedBySlug($slug);
 
         $validated = $request->validated();

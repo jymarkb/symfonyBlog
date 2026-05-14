@@ -17,7 +17,7 @@ class CommentService
             ->whereNull('parent_id')
             ->with(['user', 'replies.user']);
 
-        match ($sort) {
+        $query = match ($sort) {
             'old'   => $query->oldest(),
             default => $query->latest(),
         };

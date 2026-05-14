@@ -15,6 +15,7 @@ class StoreCommentRequest extends FormRequest
     {
         return [
             'body'      => ['required', 'string', 'min:1', 'max:250'],
+            // Depth constraint (top-level only) enforced in CommentService::createComment()
             'parent_id' => ['nullable', 'integer', 'exists:comments,id'],
         ];
     }
