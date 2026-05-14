@@ -58,7 +58,7 @@ export function ComposeBox({
             rows={3}
             maxLength={250}
             aria-describedby="compose-counter"
-          aria-label="Write a comment"
+            aria-label="Write a comment"
           />
         </div>
         <div className="compose-foot">

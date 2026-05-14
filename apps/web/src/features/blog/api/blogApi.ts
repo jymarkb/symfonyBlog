@@ -103,12 +103,12 @@ export async function postComment(
   accessToken: string,
   parentId?: number,
 ): Promise<Comment> {
-  const response = await apiRequest(`/posts/${slug}/comments`, {
+  const response = await apiRequest<{ data: Comment }>(`/posts/${slug}/comments`, {
     method: 'POST',
     accessToken,
     body: { body, parent_id: parentId ?? null },
   });
-  return (response as { data: Comment }).data;
+  return response.data;
 }
 
 export async function editComment(
@@ -117,12 +117,12 @@ export async function editComment(
   body: string,
   accessToken: string,
 ): Promise<Comment> {
-  const response = await apiRequest(`/posts/${slug}/comments/${commentId}`, {
+  const response = await apiRequest<{ data: Comment }>(`/posts/${slug}/comments/${commentId}`, {
     method: 'PATCH',
     accessToken,
     body: { body },
   });
-  return (response as { data: Comment }).data;
+  return response.data;
 }
 
 export async function deleteComment(

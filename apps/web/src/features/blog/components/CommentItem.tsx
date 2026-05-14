@@ -154,7 +154,7 @@ export function CommentItem({
             rows={3}
             maxLength={250}
             aria-label="Edit comment"
-          aria-describedby={`edit-counter-${comment.id}`}
+            aria-describedby={`edit-counter-${comment.id}`}
           />
           {editError && <p className="compose-error-msg" role="alert">{editError}</p>}
           <div className="comment-edit-actions">
@@ -173,6 +173,7 @@ export function CommentItem({
             })()}
             <button
               className="btn btn-sm btn-primary"
+              aria-label="Save edit"
               onClick={() => void handleEditSave()}
               disabled={editBusy || !editBody.trim() || editBody.length > 250}
             >
@@ -180,6 +181,7 @@ export function CommentItem({
             </button>
             <button
               className="btn btn-sm"
+              aria-label="Cancel edit"
               onClick={() => { setIsEditing(false); setEditBody(comment.body); setEditError(null); }}
               disabled={editBusy}
             >
