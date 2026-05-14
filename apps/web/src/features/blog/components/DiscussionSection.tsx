@@ -164,7 +164,7 @@ export function DiscussionSection({
       {error && (
         <div className="load-error" role="alert">
           <span>Couldn't load comments.</span>
-          <button onClick={retry}>Try again</button>
+          <button onClick={retry} aria-label="Try again">Try again</button>
         </div>
       )}
 
@@ -200,7 +200,18 @@ export function DiscussionSection({
         )
       )}
 
-      {loadMoreError && <p className="compose-error-msg" role="alert">{loadMoreError}</p>}
+      {loadMoreError && (
+        <div className="load-error" role="alert">
+          <span>{loadMoreError}</span>
+          <button
+            onClick={() => void handleLoadMore()}
+            aria-label="Retry loading more comments"
+            disabled={loadingMore}
+          >
+            Try again
+          </button>
+        </div>
+      )}
 
       {hasMore && !loadingMore && (
         <div className="load-more-wrap">
