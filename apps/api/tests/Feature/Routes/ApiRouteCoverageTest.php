@@ -21,6 +21,8 @@ it('keeps api v1 route test coverage explicit', function () {
 
         'GET api/v1/posts/{slug}/comments',
         'POST api/v1/posts/{slug}/comments',
+        'PATCH api/v1/posts/{slug}/comments/{comment}',
+        'DELETE api/v1/posts/{slug}/comments/{comment}',
 
         'GET api/v1/posts/{slug}/me',
         'POST api/v1/posts/{slug}/reactions',

@@ -123,12 +123,12 @@ it('returns 422 for empty body', function () {
         ->assertJsonValidationErrors(['body']);
 });
 
-it('returns 422 for body exceeding 5000 characters', function () {
+it('returns 422 for body exceeding 250 characters', function () {
     $user = User::factory()->create();
     $post = Post::factory()->create(['status' => 'published']);
 
     $this->actingAs($user, 'api')
-        ->postJson("/api/v1/posts/{$post->slug}/comments", ['body' => str_repeat('a', 5001)])
+        ->postJson("/api/v1/posts/{$post->slug}/comments", ['body' => str_repeat('a', 251)])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['body']);
 });
@@ -161,4 +161,113 @@ it('returns 422 when parent_id belongs to a reply (depth > 1 not allowed)', func
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['parent_id']);
+});
+
+// ---------------------------------------------------------------------------
+// PATCH /api/v1/posts/{slug}/comments/{comment}
+// ---------------------------------------------------------------------------
+
+it('returns 401 for guest on update', function () {
+    $post    = Post::factory()->create(['status' => 'published']);
+    $comment = Comment::factory()->create(['post_id' => $post->id]);
+
+    $this->patchJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}", ['body' => 'Updated body'])
+        ->assertUnauthorized();
+});
+
+it('owner can update their comment and returns 200 with resource shape', function () {
+    $user    = User::factory()->create();
+    $post    = Post::factory()->create(['status' => 'published']);
+    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id]);
+
+    $this->actingAs($user, 'api')
+        ->patchJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}", ['body' => 'Updated body'])
+        ->assertOk()
+        ->assertJsonStructure([
+            'data' => ['id', 'body', 'author'],
+        ]);
+});
+
+it('returns 403 when non-owner tries to update a comment', function () {
+    $owner   = User::factory()->create();
+    $other   = User::factory()->create();
+    $post    = Post::factory()->create(['status' => 'published']);
+    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $owner->id]);
+
+    $this->actingAs($other, 'api')
+        ->patchJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}", ['body' => 'Attempted update'])
+        ->assertForbidden();
+});
+
+it('returns 422 when update body is empty', function () {
+    $user    = User::factory()->create();
+    $post    = Post::factory()->create(['status' => 'published']);
+    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id]);
+
+    $this->actingAs($user, 'api')
+        ->patchJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}", ['body' => ''])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['body']);
+});
+
+it('returns 422 when update body exceeds 250 characters', function () {
+    $user    = User::factory()->create();
+    $post    = Post::factory()->create(['status' => 'published']);
+    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id]);
+
+    $this->actingAs($user, 'api')
+        ->patchJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}", ['body' => str_repeat('a', 251)])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['body']);
+});
+
+it('returns 404 when comment does not exist on update', function () {
+    $user = User::factory()->create();
+    $post = Post::factory()->create(['status' => 'published']);
+
+    $this->actingAs($user, 'api')
+        ->patchJson("/api/v1/posts/{$post->slug}/comments/99999", ['body' => 'Some body'])
+        ->assertNotFound();
+});
+
+// ---------------------------------------------------------------------------
+// DELETE /api/v1/posts/{slug}/comments/{comment}
+// ---------------------------------------------------------------------------
+
+it('returns 401 for guest on destroy', function () {
+    $post    = Post::factory()->create(['status' => 'published']);
+    $comment = Comment::factory()->create(['post_id' => $post->id]);
+
+    $this->deleteJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}")
+        ->assertUnauthorized();
+});
+
+it('owner can delete their comment and returns 204', function () {
+    $user    = User::factory()->create();
+    $post    = Post::factory()->create(['status' => 'published']);
+    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id]);
+
+    $this->actingAs($user, 'api')
+        ->deleteJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}")
+        ->assertNoContent();
+});
+
+it('returns 403 when non-owner tries to delete a comment', function () {
+    $owner   = User::factory()->create();
+    $other   = User::factory()->create();
+    $post    = Post::factory()->create(['status' => 'published']);
+    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $owner->id]);
+
+    $this->actingAs($other, 'api')
+        ->deleteJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}")
+        ->assertForbidden();
+});
+
+it('returns 404 when comment does not exist on destroy', function () {
+    $user = User::factory()->create();
+    $post = Post::factory()->create(['status' => 'published']);
+
+    $this->actingAs($user, 'api')
+        ->deleteJson("/api/v1/posts/{$post->slug}/comments/99999")
+        ->assertNotFound();
 });
