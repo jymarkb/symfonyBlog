@@ -155,7 +155,7 @@ export function CommentItem({
             maxLength={250}
             aria-label="Edit comment"
           />
-          {editError && <p className="compose-error-msg">{editError}</p>}
+          {editError && <p className="compose-error-msg" role="alert">{editError}</p>}
           <div className="comment-edit-actions">
             {(() => {
               const remaining = 250 - editBody.length;

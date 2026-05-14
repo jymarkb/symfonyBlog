@@ -56,6 +56,7 @@ export function ComposeBox({
             rows={3}
             maxLength={250}
             aria-describedby="compose-counter"
+          aria-label="Write a comment"
           />
         </div>
         <div className="compose-foot">
@@ -87,6 +88,7 @@ export function ComposeBox({
         rows={2}
         maxLength={250}
         aria-describedby="reply-counter"
+        aria-label="Write a reply"
       />
       <div className="reply-compose-counter"><CharacterCounter value={value} max={MAX_LENGTH} id="reply-counter" /></div>
       {error && <p className="compose-error-msg" role="alert">{error}</p>}

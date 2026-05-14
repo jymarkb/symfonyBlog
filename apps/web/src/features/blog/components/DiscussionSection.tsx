@@ -159,7 +159,7 @@ export function DiscussionSection({
       {loading && [0, 1, 2].map(i => <CommentSkeleton key={i} />)}
 
       {error && (
-        <div className="load-error">
+        <div className="load-error" role="alert">
           <span>Couldn't load comments.</span>
           <button onClick={retry}>Try again</button>
         </div>
