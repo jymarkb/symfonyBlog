@@ -9,6 +9,9 @@ import type {
   PostUserState,
   ReactionType,
   ReactionToggleResponse,
+  CommentSortOrder,
+  CommentsResponse,
+  Comment,
 } from "@/features/blog/blogTypes";
 
 export async function fetchFeaturedPosts(): Promise<PostSummary[]> {
@@ -79,6 +82,33 @@ export async function fetchPostUserState(slug: string, accessToken: string): Pro
     accessToken,
   });
   return response.data;
+}
+
+export async function fetchComments(
+  slug: string,
+  opts?: { sort?: CommentSortOrder; page?: number },
+): Promise<CommentsResponse> {
+  const params = new URLSearchParams();
+  if (opts?.sort) params.set('sort', opts.sort);
+  if (opts?.page != null) params.set('page', String(opts.page));
+  const qs = params.toString();
+  const url = `/posts/${slug}/comments${qs ? `?${qs}` : ''}`;
+  const response = await apiRequest(url);
+  return response as CommentsResponse;
+}
+
+export async function postComment(
+  slug: string,
+  body: string,
+  accessToken: string,
+  parentId?: number,
+): Promise<Comment> {
+  const response = await apiRequest(`/posts/${slug}/comments`, {
+    method: 'POST',
+    accessToken,
+    body: { body, parent_id: parentId ?? null },
+  });
+  return (response as { data: Comment }).data;
 }
 
 export async function toggleReaction(slug: string, reaction: ReactionType, accessToken: string): Promise<ReactionToggleResponse> {
