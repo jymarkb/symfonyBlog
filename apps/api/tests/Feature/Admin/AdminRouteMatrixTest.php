@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Comment;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
@@ -20,6 +21,7 @@ function adminRoutes(): array
 
         'GET admin comments' => ['GET', '/api/v1/admin/comments', 200],
         'PATCH admin comments' => ['PATCH', '/api/v1/admin/comments/123', 200],
+        'DELETE admin comments' => ['DELETE', '/api/v1/admin/comments/123', 204],
 
         'GET admin tags' => ['GET', '/api/v1/admin/tags', 200],
         'POST admin tags' => ['POST', '/api/v1/admin/tags', 201],
@@ -65,7 +67,7 @@ it('returns 429 when the admin read rate limit is exceeded', function () {
     ]);
 
     $cacheKey = md5('admin-read' . $admin->id);
-    for ($i = 0; $i < 60; $i++) {
+    for ($i = 0; $i <= 60; $i++) {
         \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
     }
 
@@ -80,7 +82,7 @@ it('returns 429 when the admin mutations rate limit is exceeded', function () {
     ]);
 
     $cacheKey = md5('admin-mutations' . $admin->id);
-    for ($i = 0; $i < 60; $i++) {
+    for ($i = 0; $i <= 60; $i++) {
         \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
     }
 
@@ -206,6 +208,12 @@ function resolvedAdminRoute(string $method, string $uri): string
         return str_replace('123', (string) $tag->id, $uri);
     }
 
+    if (str_contains($uri, '/admin/comments/123')) {
+        $comment = Comment::factory()->create();
+
+        return str_replace('123', (string) $comment->id, $uri);
+    }
+
     return $uri;
 }
 
@@ -239,6 +247,12 @@ function adminRoutePayload(string $method, string $uri): array
     if ($method === 'PATCH' && str_contains($uri, '/admin/tags/')) {
         return [
             'name' => 'Admin Matrix Updated',
+        ];
+    }
+
+    if ($method === 'PATCH' && str_contains($uri, '/admin/comments/')) {
+        return [
+            'body' => 'Admin matrix updated comment body.',
         ];
     }
 

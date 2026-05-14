@@ -121,3 +121,34 @@ export type ArchivePageData = {
   tags: PostTag[];
   years: PostYear[];
 };
+
+// ── Comment types ─────────────────────────────────────────────────────────────
+
+export type CommentAuthor = {
+  id: number;
+  display_name: string | null;
+  handle: string;
+  avatar_url: string | null;
+};
+
+export type Comment = {
+  id: number;
+  body: string;
+  parent_id: number | null;
+  created_at: string;
+  is_post_author: boolean;
+  author: CommentAuthor;
+  replies?: Comment[];
+};
+
+export type CommentsResponse = {
+  data: Comment[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+};
+
+export type CommentSortOrder = 'new' | 'old';

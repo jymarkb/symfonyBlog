@@ -9,6 +9,9 @@ import type {
   PostUserState,
   ReactionType,
   ReactionToggleResponse,
+  CommentSortOrder,
+  CommentsResponse,
+  Comment,
 } from "@/features/blog/blogTypes";
 
 export async function fetchFeaturedPosts(): Promise<PostSummary[]> {
@@ -79,6 +82,58 @@ export async function fetchPostUserState(slug: string, accessToken: string): Pro
     accessToken,
   });
   return response.data;
+}
+
+export async function fetchComments(
+  slug: string,
+  opts?: { sort?: CommentSortOrder; page?: number; per_page?: number },
+): Promise<CommentsResponse> {
+  const params = new URLSearchParams();
+  if (opts?.sort) params.set('sort', opts.sort);
+  if (opts?.page != null) params.set('page', String(opts.page));
+  if (opts?.per_page != null) params.set('per_page', String(opts.per_page));
+  const qs = params.toString();
+  const url = `/posts/${slug}/comments${qs ? `?${qs}` : ''}`;
+  return await apiRequest<CommentsResponse>(url);
+}
+
+export async function postComment(
+  slug: string,
+  body: string,
+  accessToken: string,
+  parentId?: number,
+): Promise<Comment> {
+  const response = await apiRequest<{ data: Comment }>(`/posts/${slug}/comments`, {
+    method: 'POST',
+    accessToken,
+    body: { body, parent_id: parentId ?? null },
+  });
+  return response.data;
+}
+
+export async function editComment(
+  slug: string,
+  commentId: number,
+  body: string,
+  accessToken: string,
+): Promise<Comment> {
+  const response = await apiRequest<{ data: Comment }>(`/posts/${slug}/comments/${commentId}`, {
+    method: 'PATCH',
+    accessToken,
+    body: { body },
+  });
+  return response.data;
+}
+
+export async function deleteComment(
+  slug: string,
+  commentId: number,
+  accessToken: string,
+): Promise<void> {
+  await apiRequest(`/posts/${slug}/comments/${commentId}`, {
+    method: 'DELETE',
+    accessToken,
+  });
 }
 
 export async function toggleReaction(slug: string, reaction: ReactionType, accessToken: string): Promise<ReactionToggleResponse> {

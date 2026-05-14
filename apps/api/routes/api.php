@@ -5,6 +5,7 @@ use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\PostController as PublicPostController;
 use App\Http\Controllers\Api\V1\PostUserStateController;
+use App\Http\Controllers\Api\V1\PostCommentController;
 use App\Http\Controllers\Api\V1\PostReactionController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\PublicProfileController;
@@ -35,6 +36,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/tags', [PublicTagController::class, 'index'])->middleware('throttle:public-api');
         Route::get('/profiles/{handle}', [PublicProfileController::class, 'show'])->middleware('throttle:public-api');
         Route::post('/posts/{slug}/view', fn() => response()->json([], 202))->middleware('throttle:post-view');
+        Route::get('/posts/{slug}/comments', [PostCommentController::class, 'index'])->middleware('throttle:public-api');
     });
 
     /*
@@ -54,6 +56,9 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/posts/{slug}/me', [PostUserStateController::class, 'show'])->middleware('throttle:auth-read');
         Route::post('/posts/{slug}/reactions', [PostReactionController::class, 'store'])->middleware('throttle:profile-mutations');
+        Route::post('/posts/{slug}/comments', [PostCommentController::class, 'store'])->middleware('throttle:comment-create');
+        Route::patch('/posts/{slug}/comments/{comment}', [PostCommentController::class, 'update'])->middleware('throttle:profile-mutations');
+        Route::delete('/posts/{slug}/comments/{comment}', [PostCommentController::class, 'destroy'])->middleware('throttle:profile-mutations');
 
         Route::post('/authors/{authorId}/follow', [AuthorFollowController::class, 'store'])->middleware('throttle:profile-mutations')->where('authorId', '[0-9]+');
         Route::delete('/authors/{authorId}/follow', [AuthorFollowController::class, 'destroy'])->middleware('throttle:profile-mutations')->where('authorId', '[0-9]+');
@@ -74,6 +79,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/comments', [CommentController::class, 'index'])->middleware('throttle:admin-read');
             Route::patch('/comments/{comment}', [CommentController::class, 'update'])->middleware('throttle:admin-mutations');
+            Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->middleware('throttle:admin-mutations');
 
             Route::get('/tags', [TagController::class, 'index'])->middleware('throttle:admin-read');
             Route::post('/tags', [TagController::class, 'store'])->middleware('throttle:admin-mutations');

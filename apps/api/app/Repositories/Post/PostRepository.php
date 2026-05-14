@@ -3,6 +3,7 @@
 namespace App\Repositories\Post;
 
 use App\Models\Post;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class PostRepository
@@ -29,13 +30,13 @@ class PostRepository
         );
     }
 
-    public function getRelatedPosts(Post $post, int $limit = 2): \Illuminate\Database\Eloquent\Collection
+    public function getRelatedPosts(Post $post, int $limit = 2): Collection
     {
         $post->loadMissing('tags');
         $tagIds = $post->tags->pluck('id');
 
         if ($tagIds->isEmpty()) {
-            return new \Illuminate\Database\Eloquent\Collection();
+            return new Collection();
         }
 
         return Post::query()

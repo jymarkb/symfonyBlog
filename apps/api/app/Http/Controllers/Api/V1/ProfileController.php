@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProfileResource;
 use App\Services\Profile\ProfileService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
@@ -27,7 +28,7 @@ class ProfileController extends Controller
         );
     }
 
-    public function destroy(Request $request, ProfileService $profiles): \Illuminate\Http\JsonResponse
+    public function destroy(Request $request, ProfileService $profiles): JsonResponse
     {
         $profiles->deleteAccount($request->user());
 

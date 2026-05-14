@@ -55,14 +55,15 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 - [ ] Every mutation route (POST, PATCH, PUT, DELETE) has a `throttle:` middleware applied
 - [ ] GET endpoints that trigger expensive operations (DB writes on first call, external API calls) are also rate-limited
 - [ ] Named limiters are registered in `AppServiceProvider` — not inline on routes
-- [ ] Rate limit tests pre-fill the cache bucket using `md5($limiterName . $limitKey)` to match `ThrottleRequests` key format
+- [ ] Rate limit tests pre-fill the cache bucket using the exact key format `ThrottleRequests` writes — check the named limiter's `->by()` value and match it; a mismatched key hits a different bucket and the test passes vacuously
+- [ ] **Rate limit test hit count must be `limit + 1`, not `limit`** — hitting N times when the limit is N *reaches* the limit but does not trigger 429; the 429 fires only on hit N+1; the test loop must use `<= $limit` or `$limit + 1` as the iteration count; check ALL rate limit tests in the feature's test files, not just newly written ones
 - [ ] 429 tests assert `assertTooManyRequests()`, not just a status code
 - [ ] Limits are appropriately tight on destructive operations (e.g., account delete: 5/min vs mutations: 60/min)
 
 ### 6. API response consistency
 
 - [ ] 401 responses use the canonical shape `{"error":"unauthenticated","message":"A valid authentication token is required."}` — centralized in `bootstrap/app.php`, not per-middleware
-- [ ] 403 responses use the canonical shape `{"error":"forbidden","message":"You do not have permission to access this resource."}` — same centralized handler
+- [ ] 403 responses use the canonical shape `{"error":"forbidden","message":"You do not have permission to access this resource."}` — same centralized handler; inline `response()->json()` in controllers must include both `error` and `message` keys to match
 - [ ] Error responses use a consistent shape across all endpoints — `{message: string}` or `{errors: {field: [...]}}`
 - [ ] Validation error responses return 422 with `{errors: {field: [...]}}` from Laravel's default validator
 - [ ] 401 for unauthenticated, 403 for unauthorized (authenticated but not permitted), 404 for not found, 422 for validation
@@ -78,6 +79,8 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 - [ ] Admin routes: guest → 401, user → 403, admin → correct response
 - [ ] Public routes: unauthenticated → correct response, correct shape
 - [ ] Tests assert response shape, not just status code
+- [ ] Every test that asserts 401 chains `->assertJson(['error' => 'unauthenticated'])` — status-only assertions miss body regressions
+- [ ] Every test that asserts 403 chains `->assertJson(['error' => 'forbidden', 'message' => '...'])` — both fields required
 - [ ] Isolation tests: user A's data is not returned when user B is authenticated
 - [ ] Rate limit tests present for every throttled route
 - [ ] `assertJsonMissingPath` assertions for every field that must NOT be exposed
@@ -92,6 +95,7 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 ### 9. Query hygiene
 
 - [ ] No N+1 queries on collection endpoints — use `with()` or `withCount()` in the query, not `load()`/`loadCount()` after
+- [ ] No lazy relationship access on route-model-bound objects inside controllers — `$model->relation` in a controller method triggers a lazy load; relationships must be loaded by the service before the model is returned
 - [ ] `loadCount` is acceptable on single-record endpoints; `withCount` is preferred on collections
 - [ ] Only columns the endpoint uses are fetched — no `SELECT *` on large tables
 - [ ] Frequently filtered columns (`user_id`, `handle`, foreign keys) have DB indexes in migrations
@@ -163,6 +167,8 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 - [ ] 401 on a private page triggers a sign-out and redirect — not just an error banner
 - [ ] Retry or refresh affordance available where appropriate — a "Try again" button must be rendered alongside error messages, not just a message that says "please try again" with no button
 - [ ] SSR pages with client-side filtering use a `hasMounted` ref guard to skip the initial `useEffect` fetch — without this the page double-fetches on hydration (SSR data is already in state from `useData()`)
+- [ ] **Silent failures are 🔴 bugs** — every `catch` block on a user-visible mutation (post, edit, delete, load-more, follow, react, etc.) must call `setError(...)` or equivalent to display an error message; a catch block that only rolls back optimistic state without showing an error is a silent failure; audit every `catch {}` in the feature files
+- [ ] **`useEffect` data-fetch catch blocks must not be empty** — a `useEffect` that loads user state, follower counts, auth-dependent flags, or any data affecting visible UI must handle failure explicitly; an empty `catch {}` or `catch (e) {}` that silently discards a fetch failure is a 🔴 bug; the same applies to post-auth pending action handlers
 
 ### 6. Error message hygiene
 
@@ -199,7 +205,14 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 
 - [ ] Interactive elements that are icon-only (no visible text) have `aria-label` or `title` — this is a 🔴 bug
 - [ ] Links and buttons with visible text children should also have a descriptive `aria-label` attribute for screen readers — flag as 🟡 gap, never 🔴 bug
-- [ ] Form inputs have associated `<label>` elements — not just placeholder text
+- [ ] Navigational `<a>` tags inside card or list components (author links, date links, title links) have `aria-label` — these are commonly written without one; flag as 🟡 gap if they have visible text, 🔴 if icon-only
+- [ ] HTML strings generated for `dangerouslySetInnerHTML` (markdown renderers, highlight functions) embed `aria-label` on every `<a>` in the generated string — missing is a 🟡 gap since generated links typically have visible text, but flag for each link type found
+- [ ] Every `<textarea>` has `maxLength` (matching backend limit), `aria-label` (describing the field), and `aria-describedby` (pointing to the character counter id) — missing any of these is a 🔴 bug
+- [ ] Character counter IDs are unique per instance — if the same component renders multiple times (e.g. one reply box per comment), each counter must get a unique `id` such as `reply-counter-${comment.id}`; duplicate IDs break `aria-describedby` linkage
+- [ ] Every element that conditionally renders error text has `role="alert"` — applies to `<p>`, `<div>`, `<span>` used as error messages; missing `role="alert"` means screen readers do not announce the error
+- [ ] Every error message with "try again" or "please retry" wording has an adjacent `<button>` that executes the retry action — text alone with no button is a 🔴 bug
+- [ ] Character counters are always rendered (not conditionally hidden) — use CSS classes (`warn`, `over`) for visual threshold changes, not boolean rendering
+- [ ] Form inputs have associated `<label>` elements or `aria-label` — not just placeholder text
 - [ ] Error messages are associated with their input via `aria-describedby`
 - [ ] Focus returns to a logical element after dialog close or async state change
 - [ ] Page is navigable by keyboard alone — no focus traps outside of modals

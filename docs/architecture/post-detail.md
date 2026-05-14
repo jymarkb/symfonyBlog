@@ -40,6 +40,7 @@ Top-level `/<slug>` was chosen over `/blog/<slug>` for SEO (shorter path, slug i
 | Reserved slug validation | n/a | ✅ | n/a | ✅ |
 | Cache layer (`posts.slug.{slug}`) | n/a | ✅ | n/a | n/a |
 | Detail shape + sensitive field tests | n/a | ✅ | n/a | ✅ |
+| Comments section (`DiscussionSection`) | ✅ | ✅ | ✅ | ✅ |
 
 ## User Interaction State (Follow, Star, Reaction)
 
@@ -83,7 +84,7 @@ Key files added / changed:
 
 - **TOC rail** — ✅ Done. Scroll-spy TOC implemented in `PostRail.tsx` with `IntersectionObserver`; `activeId` owned at page level in `+Page.tsx`.
 - **Related posts** — ✅ Done. `PostRepository::getRelatedPosts` queries by shared tag count; embedded in `GET /posts/{slug}` response under `related`; `RelatedPosts.tsx` component wired in `+Page.tsx`; 5 Pest tests covering ordering, self-exclusion, empty-tag guard, and shape.
-- **Comments section** — full comment thread UI. Deferred.
+- **Comments section** — ✅ Done. `DiscussionSection` component with paginated load, sort (latest/oldest), compose box (auth-gated), inline replies (depth 1), guest auth gate, edit/delete own comment, relative timestamps, @mention rendering, sort persistence. Backend: `PostCommentController`, `CommentService` (listForPost, createComment, updateComment, deleteComment, findForPost), `UpdateCommentRequest`, `CommentResource`, `comment-create` throttle. 22 Pest tests (guest/owner/BOLA/422/404 for all mutations).
 
 ## Reserved Slugs
 
@@ -124,6 +125,12 @@ Backend
 ├── apps/api/app/Http/Requests/Admin/UpdatePostRequest.php   — reserved slug validation
 ├── apps/api/app/Rules/ReservedSlug.php                      — custom Rule class (to be created)
 └── apps/api/tests/Feature/Public/PostEndpointTest.php       — detail shape + sensitive field tests
+├── apps/api/app/Http/Controllers/Api/V1/PostCommentController.php  — GET/POST/PATCH/DELETE /posts/{slug}/comments
+├── apps/api/app/Services/Post/CommentService.php                   — listForPost, createComment, updateComment, findForPost, deleteComment
+├── apps/api/app/Http/Requests/UpdateCommentRequest.php             — body max:250 validation for PATCH
+├── apps/api/app/Http/Resources/CommentResource.php                 — comment shape with nested replies
+└── apps/api/tests/Feature/Public/PostCommentTest.php               — 22 tests
+    apps/api/tests/Feature/Admin/AdminCommentTest.php               — 6 tests
 
 Frontend
 ├── apps/web/pages/@slug/+config.ts                          — prerender: false
@@ -134,7 +141,8 @@ Frontend
 ├── apps/web/src/features/blog/components/ArticleHead.tsx    — title, byline, cover image
 ├── apps/web/src/features/blog/components/BlockRenderer.tsx  — block-tree renderer
 ├── apps/web/src/features/blog/components/ArticleFoot.tsx    — tag chips + share row
-└── apps/web/src/features/blog/blog.css                      — post-detail CSS
+├── apps/web/src/features/blog/blog.css                      — post-detail CSS
+└── apps/web/src/features/blog/components/DiscussionSection.tsx     — comment thread UI
 ```
 
 ## Notes

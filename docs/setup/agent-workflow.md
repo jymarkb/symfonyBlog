@@ -255,16 +255,18 @@ Use `-feature-auto- <feature-name> <section>` to fully close a feature section w
 
 5. **Typecheck** — Run `npx tsc --noEmit` from `apps/web` to verify the frontend compiles clean.
 
-6. **Update feature doc** — Edit `docs/architecture/<feature>.md` to mark the section's phases as done.
+6. **QA gate** — Spawn `-qa-frontend-` and `-qa-backend-` in parallel (background). Wait for both. If either reports any 🔴 bug, spawn targeted fix agents (background, parallel where independent), re-run `php artisan test` and `npx tsc --noEmit`, then re-run QA. Repeat until zero 🔴 bugs. Do not proceed to step 7 until QA is clean. This gate exists so that fix commits never accumulate after the feature is reported done.
 
-7. **Report** — Only after all phases complete, post one consolidated summary: what was implemented, test results, and suggested commit grouping. The user runs `-commit` manually.
+7. **Update feature doc** — Edit `docs/architecture/<feature>.md` to mark the section's phases as done.
+
+8. **Report** — Only after all phases complete and QA is green, post one consolidated summary: what was implemented, test results, QA iteration count, and suggested commit grouping. The user runs `-commit` manually.
 
 ### Rules
 
 - Always verify actual file state before planning — never trust the doc alone.
-- Respect the phase order: Backend → Tests → Wiring. Do not wire the frontend before backend tests pass.
-- If a step fails (test red, type error, missing dependency), stop the loop, fix the blocker, then continue — do not skip ahead.
-- **Silent mode** — do not post intermediate progress updates ("Batch 1 done", "tests green", etc.) to the main chat. Run all phases silently and post only the final consolidated summary when everything is complete.
+- Respect the phase order: Backend → Tests → Wiring → QA gate. Do not wire the frontend before backend tests pass. Do not mark done before QA is green.
+- If a step fails (test red, type error, missing dependency, 🔴 QA bug), stop the loop, fix the blocker, then continue — do not skip ahead.
+- **Silent mode** — do not post intermediate progress updates ("Batch 1 done", "tests green", "QA iteration 1 done", etc.) to the main chat. Run all phases silently and post only the final consolidated summary when everything is complete.
 - Do not silently absorb failures — surface them immediately when they occur (failures are the exception to silent mode).
 - Do NOT auto-commit. After all phases close, report the suggested commit grouping and wait for the user to run `-commit`.
 - Multiple `-feature-auto-` tasks with different sections can run in parallel — each drives its own independent backend + frontend loop. The main session coordinates completion notifications and posts each summary as sections finish.
@@ -334,6 +336,8 @@ Use `-autotest- <feature-name>` to automatically clear all QA bugs and make the 
 - Do NOT auto-commit. After reaching green, report the suggested commit grouping and wait for the user to run `-commit`.
 - Cap at 5 iterations. If the feature is not green after 5 fix cycles, stop and post the remaining open bugs with a note that manual intervention is needed.
 - Each iteration's QA agents must read `docs/setup/qa-checklist.md` and `docs/setup/security.md` before reviewing — brief them explicitly.
+- **QA agents must use full-depth prompts every iteration** — do not shorten the prompt for later iterations with "re-check prior findings only." Every iteration is a fresh full review. Shortened prompts miss new bugs introduced by fixes and bugs that the prior pass overlooked.
+- **Explicitly instruct QA agents to audit every `catch` block** — silent failures (catch blocks that roll back state or do nothing without showing the user an error) are 🔴 bugs and are easily missed by shallow prompts.
 - Track which bugs were fixed in which iteration so the final report shows the full fix history.
 
 ### Output format (final report only)
@@ -450,7 +454,31 @@ Rules:
 - **`isAuthenticated` lags behind the Supabase session.** `isAuthenticated` from `useCurrentSession()` does not flip to `true` until `fetchCurrentUser` resolves, which can take one or more render cycles after a successful OAuth login. When a component must decide synchronously whether a click should open the auth gate (e.g. on a Follow button click handler), always probe `tryGetAccessToken()` first. If it returns a token, the user is authenticated even if `isAuthenticated` is still `false` — fall through to the authenticated path. Only open the auth gate if both `isAuthenticated === false` AND `tryGetAccessToken()` returns `null`.
 - **Skip `response.json()` for 204 and 304 responses.** Any API call that can return 204 No Content (e.g. DELETE unfollow, DELETE unlike) must not call `response.json()` — it throws a `SyntaxError` on empty body, which is caught silently and reverts optimistic UI. Ensure `apiClient.ts` checks `response.status === 204 || response.status === 304` before the `.json()` call and returns early.
 - **One `AuthGateModal` instance per page.** Do not render `AuthGateModal` (or any modal/dialog overlay) inside a component that appears more than once on the same page. Multiple instances compete for the same `onSuccess` callback and produce duplicate DOM overlays. Instead, the page owns a single `authGateOpen` boolean and `pendingCallback` ref, and passes an `onOpenAuthGate` prop to child components so they delegate upward.
-- **Every `<button>` and `<a>` must have an `aria-label` attribute.** Icon-only elements (no visible text) require it to be accessible at all. Elements with visible text still require it so screen readers announce a clean, descriptive label rather than raw text content. Set `aria-label` at the time you write the element — do not leave it for QA to catch. Example: `<a href={`/${post.slug}`} aria-label={`Read: ${post.title}`}>` and `<button aria-label="Close dialog">✕</button>`.
+- **Every `<button>` and `<a>` must have an `aria-label` attribute.** Icon-only elements (no visible text) require it to be accessible at all. Elements with visible text still require it so screen readers announce a clean, descriptive label rather than raw text content. Set `aria-label` at the time you write the element — do not leave it for QA to catch. This applies to ALL anchor tags, including navigational links in card or list components (author links, date links, post title links) — not just icon-only buttons. Example: `<a href={`/profile/${handle}`} aria-label={`View ${name}'s profile`}>` and `<a href={`#comment-${id}`} aria-label={`Comment posted on ${absolute}`}>`.
+- **HTML strings generated for `dangerouslySetInnerHTML` must embed `aria-label` in the string template.** When a function returns an HTML string (e.g. a markdown renderer, a highlight function), every `<a>` and interactive element in that string must include `aria-label="..."` as a literal attribute in the template — you cannot add React props to HTML strings after the fact. Write the aria-label into the string at generation time. Example: `` `<a href="/profile/${handle}" aria-label="View @${handle}'s profile">@${handle}</a>` ``.
+- **Every error message that includes "try again" wording must have an adjacent retry `<button>`.** An error `<p>` that says "please try again" with no button is a 🔴 bug — the user has no affordance to act. Place a `<button>` that executes the retry action immediately after (or inside) the error element. The retry button must have `aria-label` and must be `disabled` while the operation is in flight.
+- **Every `<textarea>` must have `maxLength`, `aria-label`, and `aria-describedby`.** Set `maxLength` to the character limit enforced by the backend. Add `aria-label` describing the field ("Write a comment", "Write a reply", "Edit comment"). Add `aria-describedby` pointing to the `id` of the associated character counter element. Do not leave any of these for QA to catch.
+- **Character counters must always be visible**, never conditionally rendered. Use CSS classes (`warn`, `over`) to change appearance at thresholds — never toggle visibility with a boolean. The counter is always present; only its style changes.
+- **Every error message element must have `role="alert"`.** Apply `role="alert"` to every `<p>`, `<div>`, or `<span>` that conditionally renders an error string. Do not render error text without it.
+- **Every `catch` block on a user-visible mutation must set user-visible error state.** A catch that only rolls back optimistic state (e.g. `setItems(snapshot)`) without also calling `setError(...)` is a silent failure — a 🔴 bug. Every async user action (post, edit, delete, load-more, follow, react) must tell the user what went wrong. Write the error state and its render at the same time as the catch block.
+- **Every `useEffect` that loads data affecting visible UI must handle its catch block.** A `useEffect` that fetches user state, follower counts, auth-dependent flags, or any data that controls what the user sees must not use an empty `catch {}` or `catch (e) {}` that silently discards failures. If the fetch fails and the user sees stale or missing UI with no explanation, that is a silent failure — a 🔴 bug. Set an error state and render a fallback or message. This applies equally to post-auth pending action handlers: if a deferred action (follow, react, comment) fails after the user completes login, the user must be told — an empty catch that silently loses their intent is a 🔴 bug.
+- **Use proper generic types on API calls — never `as` casts on response values.** Pass the full expected shape as the generic: `apiRequest<{ data: Comment }>(...)`. Casting with `as { data: Comment }` bypasses type inference and hides shape mismatches silently.
+
+### Pre-report self-verification checklist (run before reporting done)
+
+Before reporting a task complete, execute each step — do not self-report without running the grep:
+
+- [ ] **Grep `<textarea` in every file you touched** — count each instance; every one must have `maxLength=`, `aria-label=`, and `aria-describedby=`. Missing any attribute on any instance is a 🔴 bug. Fix before reporting.
+- [ ] **Grep `<button` and `<a ` in every file you touched** — every one must have `aria-label=`. This includes plain navigational anchor tags in card/list components (author links, date links, title links) — not just icon-only buttons. Fix before reporting.
+- [ ] **Grep `dangerouslySetInnerHTML` in every file you touched** — for each usage, open the function that generates the HTML string and confirm every `<a>` in the generated string has `aria-label="..."` embedded as a literal attribute in the template
+- [ ] **Grep `try again` and `please try` in rendered JSX** — every match must have an adjacent `<button>` that executes the retry action; a bare error message with retry wording and no button is a 🔴 bug
+- [ ] Every element that conditionally renders an error string has `role="alert"` — grep for `setError\|error &&\|error ?` and confirm each render site has the attribute
+- [ ] Every `catch` block on a user-visible mutation calls `setError(...)` — grep `catch` in each file and confirm no block only rolls back state without also calling `setError`
+- [ ] **Grep `useEffect` in every file you touched** — every `useEffect` that fetches data or executes a pending action must have a non-empty `catch` block that calls `setError(...)` or equivalent; an empty `catch {}` or `catch (e) {}` on a data-loading effect is a 🔴 bug
+- [ ] Character counters are always rendered — never behind a conditional; grep for the counter component and confirm no `&&` or ternary gates its render
+- [ ] Counter `id` values are unique per instance — grep `id="` in components that render in lists; hardcoded IDs like `id="reply-counter"` are a 🔴 bug when the component renders more than once
+- [ ] **Grep `) as {` and `response as ` in every file you touched** — every match on an API response value is a violation; replace with `apiRequest<{ data: Type }>(...)` generics
+- [ ] `npx tsc --noEmit` from `apps/web` exits clean
 
 ## Core PHP/Laravel Developer Agent
 
@@ -472,7 +500,8 @@ Rules:
 - Follow `docs/setup/security.md` backend conventions: auth gating, `$fillable` discipline, `$hidden`, input validation rules, throttle on mutations, Resource field whitelist.
 - Controllers must only contain the five RESTful methods: `index`, `show`, `store`, `update`, `destroy`. Do not add custom action methods (e.g. `comments()`, `history()`). If a resource needs its own endpoint, create a separate dedicated controller for it.
 - Controllers must not contain business logic. Validate input via FormRequest, call a service method, return a resource. That is all. No `Model::query()`, no `where()` chains, no Eloquent calls of any kind inside a controller — read or write. There is no "simple enough to skip the service" exception.
-- **No model or entity operations in controllers.** This means no `->load()`, `->loadCount()`, `->with()`, `->withCount()`, `->find()`, `->findOrFail()`, `->where()`, `->firstOrCreate()`, `->save()`, `->delete()`, or any other Eloquent method. Every model touch — including eager-loading relationships or counts needed for a Resource — must live in the service method that returns the model. The controller receives a fully-hydrated model or value object from the service and passes it directly to the Resource.
+- **No model or entity operations in controllers.** This means no `->load()`, `->loadCount()`, `->with()`, `->withCount()`, `->find()`, `->findOrFail()`, `->where()`, `->firstOrCreate()`, `->save()`, `->delete()`, or any other Eloquent method. Every model touch — including eager-loading relationships or counts needed for a Resource — must live in the service method that returns the model. The controller receives a fully-hydrated model or value object from the service and passes it directly to the Resource. **Accessing `$model->relation` on a route-model-bound object is also a model operation** — it triggers a lazy load query in the controller. Pass the bound model to the service; the service loads any required relationships internally.
+- **Slug resolution is a service call, never raw Eloquent.** When a controller needs a `Post` by slug, it must call `$this->postService->findPublishedBySlug($slug)` — never `Post::where('slug', $slug)->where('status', 'published')->firstOrFail()`. The same applies to every other model: if a service method exists to look it up, use it. If one does not exist, add it to the service. A controller that imports any `App\Models\*` class (other than for route model binding type-hints) is violating this rule.
 - **Service methods must fully hydrate for their Resource.** Before writing or modifying any service method that returns a model, read every Resource that will consume it. Find every `$this->whenLoaded('relation')` and `$this->whenCounted('alias')` call inside those Resources and ensure the service query includes the matching `->with(['relation'])` and `->withCount(['alias' => ...])` clauses. A service method used by more than one controller (e.g. `findPublishedBySlug` called from `PostController::show`, `PostUserStateController`, and `PostReactionController`) must load the union of all relationships and counts required by any of the Resources those controllers return. Missing eager loads cause silent null fields or missing keys in the JSON response — they will not throw an error and will not be caught until a test asserts on the specific field.
 - Models must not contain business logic. Models own columns (`$fillable`, `$hidden`, `casts()`), relationships, and nothing else.
 - Any logic that decides what to do with data belongs in a service under `app/Services/<Domain>/`. Create the service if it does not exist. If the service does not exist, create it — do not inline logic in the controller as a shortcut.
@@ -485,6 +514,27 @@ Rules:
 - `DatabaseSeeder` must use a find-or-create pattern (`Model::where(...)->first() ?? Model::factory()->create(...)`) so re-running `db:seed` does not throw a unique constraint violation.
 - **Never modify an existing migration file.** Migrations are immutable once committed or run. If a schema change is needed, always create a new migration (`php artisan make:migration alter_<table>_<description>`). The only exception is a migration that has never been committed and never run on any environment.
 - When migration columns change on a freshly created table, run `php artisan migrate:rollback --step=N && php artisan migrate` before seeding — do not just re-seed.
+- **Ownership checks must return `response()->json(['error' => 'forbidden'], 403)` directly**, not `abort(403)`. In the test environment (`APP_DEBUG=true`), `abort(403)` routes through the debug exception renderer and emits the full stack trace instead of the canonical JSON error shape. The custom handler in `bootstrap/app.php` only applies when debug mode is off. Using `response()->json()` directly guarantees the correct shape in all environments.
+- **Every test that asserts a 401 or 403 must also assert the response body shape.** Chain `->assertJson(['error' => 'unauthenticated'])` after every `->assertUnauthorized()` and `->assertJson(['error' => 'forbidden'])` after every `->assertForbidden()`. Status-only assertions allow response body regressions to go undetected.
+- **Every endpoint that returns user or resource data must have `assertJsonMissingPath` tests** pinning that `role`, `email`, `supabase_user_id`, and `user_id` are absent from the response. Add these assertions when you write the endpoint test — do not leave them for QA.
+- **FormRequest validation must include all constraints, including ownership scoping.** If a field references a resource that is scoped to the current post/user/context (e.g. `parent_id` must belong to the same post), validate this in the FormRequest using `Rule::exists(...)->where(...)` with a subquery. Do not rely solely on the service layer — service exceptions produce less user-friendly errors than a FormRequest 422.
+- **Rate limit tests must pre-fill the bucket `limit + 1` times, not `limit`.** Hitting N times when the limit is N *reaches* the limit but does not trigger a 429 — the 429 fires on hit N+1. Write the loop as `for ($i = 0; $i <= $limit; $i++)` (note `<=`, not `<`). Also verify the cache key format: `ThrottleRequests` uses `md5($limiterName . '|' . $identifier)` — check the named limiter's `->by()` value and match it exactly in the test.
+
+### Pre-report self-verification checklist (run before reporting done)
+
+Before reporting a task complete, execute each step — do not self-report without running the grep:
+
+- [ ] Every ownership check uses `response()->json(['error' => 'forbidden', 'message' => '...'], 403)` — grep `abort(403)` in files you touched; every match is a 🔴 bug
+- [ ] **Grep `assertUnauthorized` across ALL test files in the feature area** (not just ones you wrote) — every call must be followed by `->assertJson(['error' => 'unauthenticated'])`; fix any existing test missing the body assertion
+- [ ] Every test asserting 403 chains `->assertJson(['error' => 'forbidden', ...])` — grep `assertForbidden` and confirm every call is followed by `->assertJson` with both `error` and `message` keys
+- [ ] Every endpoint test that returns user or resource data has `assertJsonMissingPath` for `role`, `email`, `supabase_user_id`, and `user_id`
+- [ ] Every controller method is one of: `index`, `show`, `store`, `update`, `destroy` — no custom action methods added
+- [ ] **Grep `->` in every controller method body** — any Eloquent chain (`->where`, `->find`, `->load`, `->with`, or a relationship property like `$model->relation`) is a violation; all model access must go through service methods
+- [ ] Service methods fully hydrate relationships required by every Resource that consumes them
+- [ ] FormRequest includes all validation constraints including cross-resource ownership scoping
+- [ ] **Grep ALL rate limit test loops in the feature's test files** (not just ones you wrote) — every loop must use `<= $limit` or `$limit + 1` hits; `< $limit` hits the ceiling without exceeding it and the test passes vacuously; fix any existing test with the wrong count
+- [ ] New or changed `/api/v1` routes are reflected in `ApiRouteCoverageTest.php`
+- [ ] `php artisan test` exits clean (no new failures)
 
 ## Frontend QA Agent
 
@@ -503,6 +553,7 @@ Apply every relevant section of the QA checklist. At minimum cover:
 - **Route guards** — correct layout guard (`RequireAuth`/`RequireGuest`) per route group; no duplicate check inside the page; admin-gated UI does not treat client-side `isAdmin` as the sole gate
 - **Auth flow edge cases** — OAuth error messages generic (no raw provider strings); `pendingAuthProvider` cleared on failure not just success; token fragments stripped from URL before redirect; password reset does not conflict with `RequireGuest`
 - **Form validation and UX** — client-side validation fires before any API call; double-submit prevented; all four async states handled (loading, error, empty, data); dead UI identified (unchecked checkboxes, disabled buttons with no enable path)
+- **Silent failures** — every `catch` block on a user-visible mutation (post, edit, delete, load-more, follow, react, etc.) must surface an error message to the user; rolling back optimistic state without showing an error is a 🔴 bug; audit every `catch {}` and `catch (e) {}` in the feature
 - **Error message hygiene** — no raw API error strings, Supabase messages, or stack traces in the UI; generic messages throughout
 - **Token handling** — `getSession()` called immediately before each API call, not cached in state; no token in URL params or `console.log`
 - **Security** — no `dangerouslySetInnerHTML` without sanitization; no open redirect via URL params; no sensitive data in `localStorage` beyond library requirements

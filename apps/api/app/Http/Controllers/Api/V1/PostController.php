@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PostDetailResource;
 use App\Http\Resources\PostSummaryResource;
 use App\Services\Post\PostService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -22,7 +23,7 @@ class PostController extends Controller
         );
     }
 
-    public function years(): \Illuminate\Http\JsonResponse
+    public function years(): JsonResponse
     {
         return response()->json(['data' => $this->postService->availableYears()]);
     }
