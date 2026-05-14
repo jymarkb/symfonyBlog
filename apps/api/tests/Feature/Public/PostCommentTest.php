@@ -43,7 +43,11 @@ it('returns comment items with correct shape', function () {
                     'replies',
                 ],
             ],
-        ]);
+        ])
+        ->assertJsonMissingPath('data.0.author.role')
+        ->assertJsonMissingPath('data.0.author.email')
+        ->assertJsonMissingPath('data.0.author.supabase_user_id')
+        ->assertJsonMissingPath('data.0.user_id');
 });
 
 it('returns 404 for non-existent slug', function () {
@@ -110,7 +114,11 @@ it('creates a comment and returns 201 with resource shape', function () {
                 'author' => ['id', 'display_name', 'handle', 'avatar_url'],
                 'replies',
             ],
-        ]);
+        ])
+        ->assertJsonMissingPath('data.author.role')
+        ->assertJsonMissingPath('data.author.email')
+        ->assertJsonMissingPath('data.author.supabase_user_id')
+        ->assertJsonMissingPath('data.user_id');
 });
 
 it('returns 422 for empty body', function () {
@@ -185,7 +193,11 @@ it('owner can update their comment and returns 200 with resource shape', functio
         ->assertOk()
         ->assertJsonStructure([
             'data' => ['id', 'body', 'author'],
-        ]);
+        ])
+        ->assertJsonMissingPath('data.author.role')
+        ->assertJsonMissingPath('data.author.email')
+        ->assertJsonMissingPath('data.author.supabase_user_id')
+        ->assertJsonMissingPath('data.user_id');
 });
 
 it('returns 403 when non-owner tries to update a comment', function () {
