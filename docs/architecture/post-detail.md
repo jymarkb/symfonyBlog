@@ -84,7 +84,7 @@ Key files added / changed:
 
 - **TOC rail** — ✅ Done. Scroll-spy TOC implemented in `PostRail.tsx` with `IntersectionObserver`; `activeId` owned at page level in `+Page.tsx`.
 - **Related posts** — ✅ Done. `PostRepository::getRelatedPosts` queries by shared tag count; embedded in `GET /posts/{slug}` response under `related`; `RelatedPosts.tsx` component wired in `+Page.tsx`; 5 Pest tests covering ordering, self-exclusion, empty-tag guard, and shape.
-- **Comments section** — ✅ Done. `DiscussionSection` component with paginated load, sort (latest/oldest/top), compose box (auth-gated), inline replies (depth 1), guest auth gate. Backend: `PostCommentController`, `CommentService`, `CommentResource`, `comment-create` rate limiter (10/min). 18 Pest tests.
+- **Comments section** — ✅ Done. `DiscussionSection` component with paginated load, sort (latest/oldest), compose box (auth-gated), inline replies (depth 1), guest auth gate, edit/delete own comment, relative timestamps, @mention rendering, sort persistence. Backend: `PostCommentController`, `CommentService` (listForPost, createComment, updateComment, deleteComment, findForPost), `UpdateCommentRequest`, `CommentResource`, `comment-create` throttle. 22 Pest tests (guest/owner/BOLA/422/404 for all mutations).
 
 ## Reserved Slugs
 
@@ -125,10 +125,11 @@ Backend
 ├── apps/api/app/Http/Requests/Admin/UpdatePostRequest.php   — reserved slug validation
 ├── apps/api/app/Rules/ReservedSlug.php                      — custom Rule class (to be created)
 └── apps/api/tests/Feature/Public/PostEndpointTest.php       — detail shape + sensitive field tests
-├── apps/api/app/Http/Controllers/Api/V1/PostCommentController.php  — GET/POST /posts/{slug}/comments
-├── apps/api/app/Services/Post/CommentService.php                   — listForPost, createComment, deleteComment
+├── apps/api/app/Http/Controllers/Api/V1/PostCommentController.php  — GET/POST/PATCH/DELETE /posts/{slug}/comments
+├── apps/api/app/Services/Post/CommentService.php                   — listForPost, createComment, updateComment, findForPost, deleteComment
+├── apps/api/app/Http/Requests/UpdateCommentRequest.php             — body max:250 validation for PATCH
 ├── apps/api/app/Http/Resources/CommentResource.php                 — comment shape with nested replies
-└── apps/api/tests/Feature/Public/PostCommentTest.php               — 12 tests
+└── apps/api/tests/Feature/Public/PostCommentTest.php               — 22 tests
     apps/api/tests/Feature/Admin/AdminCommentTest.php               — 6 tests
 
 Frontend
