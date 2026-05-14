@@ -62,16 +62,16 @@
 
   /* ── Comment history ── */
 
-  .comment-list { display: grid; gap: 12px; }
+  .profile-section .comment-list { display: grid; gap: 12px; }
 
-  .comment-item {
+  .profile-section .comment-item {
     padding: 14px 16px;
     background: var(--paper-2);
     border: 1px solid var(--rule-2);
     border-radius: 6px;
   }
 
-  .comment-item .on {
+  .profile-section .comment-item .on {
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--ink-4);
@@ -83,9 +83,9 @@
     gap: 8px;
   }
 
-  .comment-item .on a { color: var(--accent-ink); }
-  .comment-item .on a:hover { color: var(--accent); }
-  .comment-item p { font-size: 14px; color: var(--ink-2); margin: 0; line-height: 1.55; }
+  .profile-section .comment-item .on a { color: var(--accent-ink); }
+  .profile-section .comment-item .on a:hover { color: var(--accent); }
+  .profile-section .comment-item p { font-size: 14px; color: var(--ink-2); margin: 0; line-height: 1.55; }
 
   /* ── Recently viewed ── */
 

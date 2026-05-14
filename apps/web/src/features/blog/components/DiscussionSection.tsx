@@ -23,9 +23,6 @@ const SORT_TABS: { label: string; value: CommentSortOrder }[] = [
 
 // ── Avatar helpers ────────────────────────────────────────────────────────────
 
-function avatarInitial(authorId: number): string {
-  return String.fromCharCode(65 + (authorId % 26));
-}
 
 const AVATAR_GRADIENTS = [
   'linear-gradient(135deg, oklch(0.52 0.16 255), oklch(0.52 0.16 305))',
@@ -80,7 +77,7 @@ function CommentItem({
               : { background: avatarGradient(comment.author.id) }
           }
         >
-          {avatarInitial(comment.author.id)}
+          {(comment.author.display_name?.[0] ?? comment.author.handle[0]).toUpperCase()}
         </div>
         <div className="comment-meta">
           <a

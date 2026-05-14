@@ -1833,8 +1833,8 @@
 }
 .compose-textarea {
   flex: 1;
-  min-height: 72px;
-  background: none;
+  min-height: 60px;
+  background: transparent;
   border: none;
   outline: none;
   resize: none;
@@ -1842,7 +1842,7 @@
   font-size: 14px;
   line-height: 1.6;
   color: var(--ink-2);
-  padding: 0;
+  padding: 2px 0 0;
 }
 .compose-textarea::placeholder { color: var(--ink-5); }
 .compose-foot {
@@ -1906,7 +1906,10 @@
 }
 .comment-item {
   padding: 20px 0;
+  border: none;
   border-bottom: 1px solid var(--rule-2);
+  background: none;
+  border-radius: 0;
 }
 .comment-item:last-child { border-bottom: none; }
 .comment-head {
@@ -1965,11 +1968,13 @@
   line-height: 1.65;
   color: var(--ink-2);
   margin: 0 0 10px;
+  padding-left: 38px;
 }
 .comment-actions {
   display: flex;
   gap: 4px;
   align-items: center;
+  padding-left: 38px;
 }
 .comment-action-btn {
   font-family: var(--font-mono);
@@ -1998,6 +2003,8 @@
 }
 .reply-item:first-child { padding-top: 0; }
 .reply-item:last-child { border-bottom: none; padding-bottom: 0; }
+.reply-item .comment-body { padding-left: 34px; }
+.reply-item .comment-actions { padding-left: 34px; }
 
 /* ── Reply compose ───────────────────────────────────── */
 .reply-compose {
