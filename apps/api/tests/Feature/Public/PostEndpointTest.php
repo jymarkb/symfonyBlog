@@ -656,7 +656,7 @@ it('post with no tags returns related as empty array', function () {
     expect($response->json('data.related'))->toBe([]);
 });
 
-it('related contains at most 3 items', function () {
+it('related contains at most 2 items', function () {
     $tag = Tag::factory()->create(['slug' => 'limit-tag']);
 
     $main = Post::factory()->create([
@@ -674,5 +674,5 @@ it('related contains at most 3 items', function () {
     $response = $this->getJson('/api/v1/posts/limit-main-post')->assertOk();
     $related = $response->json('data.related');
 
-    expect(count($related))->toBeLessThanOrEqual(3);
+    expect(count($related))->toBeLessThanOrEqual(2);
 });

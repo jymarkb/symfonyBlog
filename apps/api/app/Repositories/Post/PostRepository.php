@@ -29,7 +29,7 @@ class PostRepository
         );
     }
 
-    public function getRelatedPosts(Post $post, int $limit = 3): \Illuminate\Database\Eloquent\Collection
+    public function getRelatedPosts(Post $post, int $limit = 2): \Illuminate\Database\Eloquent\Collection
     {
         $post->loadMissing('tags');
         $tagIds = $post->tags->pluck('id');
