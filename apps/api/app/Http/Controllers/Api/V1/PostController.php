@@ -29,8 +29,10 @@ class PostController extends Controller
 
     public function show(string $slug): PostDetailResource
     {
-        return new PostDetailResource(
-            $this->postService->findPublishedBySlug($slug)
-        );
+        $post = $this->postService->findPublishedBySlug($slug);
+        $related = $this->postService->findRelatedPosts($post);
+        $post->setRelation('related', $related);
+
+        return new PostDetailResource($post);
     }
 }

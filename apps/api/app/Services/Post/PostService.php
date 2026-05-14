@@ -83,6 +83,11 @@ class PostService
         return $this->repository->getPublishedBySlug($slug);
     }
 
+    public function findRelatedPosts(Post $post): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->repository->getRelatedPosts($post);
+    }
+
     public function create(array $validated, int $userId, array $tagIds): Post
     {
         $data = $this->postData($validated);
