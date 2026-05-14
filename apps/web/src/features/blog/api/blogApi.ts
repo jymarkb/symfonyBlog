@@ -94,8 +94,7 @@ export async function fetchComments(
   if (opts?.per_page != null) params.set('per_page', String(opts.per_page));
   const qs = params.toString();
   const url = `/posts/${slug}/comments${qs ? `?${qs}` : ''}`;
-  const response = await apiRequest(url);
-  return response as CommentsResponse;
+  return await apiRequest<CommentsResponse>(url);
 }
 
 export async function postComment(
