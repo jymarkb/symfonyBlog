@@ -18,9 +18,8 @@ class CommentService
             ->with(['user', 'replies.user']);
 
         match ($sort) {
-            'new'   => $query->latest(),
             'old'   => $query->oldest(),
-            default => $query->latest(), // 'top' — votes not implemented yet, fall back to newest
+            default => $query->latest(),
         };
 
         $paginator = $query->paginate($perPage);
@@ -63,8 +62,27 @@ class CommentService
         return $comment;
     }
 
+    public function findForPost(int $commentId, Post $post): Comment
+    {
+        return Comment::where('id', $commentId)
+            ->where('post_id', $post->id)
+            ->firstOrFail();
+    }
+
+    public function updateComment(Comment $comment, Post $post, string $body): Comment
+    {
+        $comment->update(['body' => $body]);
+        $comment->load(['user', 'replies.user']);
+        $comment->setRelation('post', $post);
+
+        return $comment;
+    }
+
     public function deleteComment(Comment $comment): void
     {
+        if ($comment->parent_id === null) {
+            $comment->replies()->delete();
+        }
         $comment->delete();
     }
 
