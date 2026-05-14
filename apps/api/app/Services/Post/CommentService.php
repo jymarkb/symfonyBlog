@@ -72,7 +72,7 @@ class CommentService
     public function updateComment(Comment $comment, Post $post, string $body): Comment
     {
         $comment->update(['body' => $body]);
-        $comment->load(['user', 'replies.user']);
+        $comment->load('user');
         $comment->setRelation('post', $post);
 
         return $comment;

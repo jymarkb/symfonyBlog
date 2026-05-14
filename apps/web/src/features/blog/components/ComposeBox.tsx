@@ -1,7 +1,20 @@
 import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
 
 const MAX_LENGTH = 250;
-const WARN_THRESHOLD = 50;
+
+function CharacterCounter({ value, max }: { value: string; max: number }) {
+  const remaining = max - value.length;
+  const nearLimit = remaining <= 50;
+  const overLimit = remaining < 0;
+  const cls = overLimit ? ' over' : nearLimit ? ' warn' : '';
+  return (
+    <span className={`compose-count${cls}`}>
+      {overLimit
+        ? `${Math.abs(remaining)} character${Math.abs(remaining) === 1 ? '' : 's'} over the limit`
+        : `${remaining} character${remaining === 1 ? '' : 's'} remaining`}
+    </span>
+  );
+}
 
 type Props = {
   value: string;
@@ -27,18 +40,6 @@ export function ComposeBox({
   error,
 }: Props) {
   const ref = useAutoResizeTextarea(value);
-  const remaining = MAX_LENGTH - value.length;
-  const nearLimit = remaining <= WARN_THRESHOLD;
-  const overLimit = remaining < 0;
-
-  const counterClass = overLimit ? ' over' : nearLimit ? ' warn' : '';
-  const counter = (
-    <span className={`compose-count${counterClass}`}>
-      {overLimit
-        ? `${Math.abs(remaining)} character${Math.abs(remaining) === 1 ? '' : 's'} over the limit`
-        : `${remaining} character${remaining === 1 ? '' : 's'} remaining`}
-    </span>
-  );
 
   if (showToolbar) {
     return (
@@ -56,12 +57,12 @@ export function ComposeBox({
           />
         </div>
         <div className="compose-foot">
-          {counter}
+          <CharacterCounter value={value} max={MAX_LENGTH} />
           <div className="compose-actions">
             <button
               className="btn btn-sm btn-primary"
               onClick={() => void onSubmit()}
-              disabled={busy || !value.trim() || overLimit}
+              disabled={busy || !value.trim() || value.length > MAX_LENGTH}
               aria-label={busy ? 'Posting comment' : 'Post comment'}
             >
               {busy ? 'Posting…' : 'Post comment'}
@@ -83,7 +84,7 @@ export function ComposeBox({
         readOnly={busy}
         rows={2}
       />
-      {counter && <div className="reply-compose-counter">{counter}</div>}
+      <div className="reply-compose-counter"><CharacterCounter value={value} max={MAX_LENGTH} /></div>
       {error && <p className="compose-error-msg">{error}</p>}
       <div className="reply-compose-actions">
         {onCancel && (
@@ -99,7 +100,7 @@ export function ComposeBox({
         <button
           className="btn btn-sm btn-primary"
           onClick={() => void onSubmit()}
-          disabled={busy || !value.trim() || overLimit}
+          disabled={busy || !value.trim() || value.length > MAX_LENGTH}
           aria-label={busy ? 'Posting reply' : 'Post reply'}
         >
           {busy ? 'Posting…' : 'Reply'}

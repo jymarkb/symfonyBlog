@@ -33,7 +33,7 @@ type CommentItemProps = {
   onReplyClick: (id: number) => void;
   onReplyAdded: (parentId: number, reply: Comment) => void;
   onCommentEdited: (id: number, newBody: string) => void;
-  onDelete: (id: number, isReply: boolean, parentId: number | null) => Promise<void>;
+  onDelete: (id: number, parentId: number | null) => Promise<void>;
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -214,7 +214,7 @@ export function CommentItem({
                 <span className="comment-action-confirm">Delete?</span>
                 <button
                   className="comment-action-btn danger"
-                  onClick={() => void onDelete(comment.id, isReply, comment.parent_id)}
+                  onClick={() => void onDelete(comment.id, comment.parent_id)}
                   aria-label="Confirm delete"
                 >
                   Yes

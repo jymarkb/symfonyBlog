@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { fetchComments, postComment, deleteComment } from '../api/blogApi';
-import type { Comment, CommentSortOrder, CommentsResponse } from '../blogTypes';
+import { useMemo, useRef, useState } from 'react';
+import { postComment, deleteComment } from '../api/blogApi';
+import type { Comment, CommentSortOrder } from '../blogTypes';
 import { getAccessToken } from '@/lib/auth/getAccessToken';
 import { useCurrentSession } from '@/features/auth/session/useCurrentSession';
 import { ComposeBox } from './ComposeBox';
 import { CommentSkeleton } from './CommentSkeleton';
 import { DiscussionGate } from './DiscussionGate';
 import { CommentItem } from './CommentItem';
+import { useFetchComments } from '../hooks/useFetchComments';
 
 type Props = {
   postSlug: string;
@@ -20,17 +21,6 @@ const SORT_TABS: { label: string; value: CommentSortOrder }[] = [
   { label: 'Oldest', value: 'old' },
 ];
 
-const PER_PAGE = 3;
-
-function getSavedSort(slug: string): CommentSortOrder {
-  try {
-    const v = localStorage.getItem(`discussion-sort-${slug}`);
-    return v === 'old' ? 'old' : 'new';
-  } catch {
-    return 'new';
-  }
-}
-
 export function DiscussionSection({
   postSlug,
   initialCount,
@@ -39,26 +29,15 @@ export function DiscussionSection({
 }: Props) {
   const { user } = useCurrentSession();
 
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [meta, setMeta] = useState<CommentsResponse['meta'] | null>(null);
-  const [sort, setSort] = useState<CommentSortOrder>('new');
-  const [page, setPage] = useState(1);
+  const { comments, setComments, meta, sort, loading, loadingMore, error, hasMore, remaining, handleSortChange, handleLoadMore, retry } = useFetchComments(postSlug);
+
   const [count, setCount] = useState(initialCount);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState(false);
   const [composeBody, setComposeBody] = useState('');
   const [composeBusy, setComposeBusy] = useState(false);
   const [composeError, setComposeError] = useState<string | null>(null);
   const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
-  const [retryKey, setRetryKey] = useState(0);
 
   const listRef = useRef<HTMLUListElement>(null);
-
-  // Load persisted sort after mount (localStorage not available on SSR)
-  useEffect(() => {
-    setSort(getSavedSort(postSlug));
-  }, [postSlug]);
 
   const avatarInitial = (user?.display_name?.[0] ?? user?.handle?.[0] ?? '?').toUpperCase();
 
@@ -70,47 +49,6 @@ export function DiscussionSection({
     });
     return ids.size;
   }, [comments]);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError(false);
-    setPage(1);
-
-    fetchComments(postSlug, { sort, page: 1, per_page: PER_PAGE })
-      .then((res) => {
-        if (cancelled) return;
-        setComments(res.data);
-        setMeta(res.meta);
-      })
-      .catch(() => { if (!cancelled) setError(true); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-
-    return () => { cancelled = true; };
-  }, [postSlug, sort, retryKey]);
-
-  function handleSortChange(newSort: CommentSortOrder) {
-    try { localStorage.setItem(`discussion-sort-${postSlug}`, newSort); } catch { /* ignore */ }
-    setSort(newSort);
-    setPage(1);
-    setComments([]);
-  }
-
-  async function handleLoadMore() {
-    const nextPage = page + 1;
-    setLoadingMore(true);
-    try {
-      const res = await fetchComments(postSlug, { sort, page: nextPage, per_page: PER_PAGE });
-      setComments(prev => {
-        const seen = new Set(prev.map(c => c.id));
-        return [...prev, ...res.data.filter(c => !seen.has(c.id))];
-      });
-      setMeta(res.meta);
-      setPage(nextPage);
-    } finally {
-      setLoadingMore(false);
-    }
-  }
 
   async function handleCommentSubmit() {
     if (!composeBody.trim()) return;
@@ -148,7 +86,8 @@ export function DiscussionSection({
     );
   }
 
-  async function handleDelete(id: number, isReply: boolean, parentId: number | null) {
+  async function handleDelete(id: number, parentId: number | null) {
+    const isReply = parentId !== null;
     const snapshot = comments;
     if (isReply && parentId !== null) {
       setComments(prev =>
@@ -172,8 +111,6 @@ export function DiscussionSection({
   }
 
   const showSortTabs = !loading && (meta?.total ?? 0) > 1;
-  const hasMore = meta ? page < meta.last_page : false;
-  const remaining = meta ? meta.total - comments.length : 0;
 
   return (
     <section className="discussion" aria-label="Comments">
@@ -194,6 +131,7 @@ export function DiscussionSection({
                 onClick={() => handleSortChange(tab.value)}
                 role="tab"
                 aria-selected={sort === tab.value}
+                aria-label={`Sort by ${tab.label}`}
               >
                 {tab.label}
               </button>
@@ -223,7 +161,7 @@ export function DiscussionSection({
       {error && (
         <div className="load-error">
           <span>Couldn't load comments.</span>
-          <button onClick={() => setRetryKey(k => k + 1)}>Try again</button>
+          <button onClick={retry}>Try again</button>
         </div>
       )}
 

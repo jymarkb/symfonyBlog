@@ -94,7 +94,8 @@ it('returns 401 for guest on store', function () {
     $post = Post::factory()->create(['status' => 'published']);
 
     $this->postJson("/api/v1/posts/{$post->slug}/comments", ['body' => 'Hello world'])
-        ->assertUnauthorized();
+        ->assertUnauthorized()
+        ->assertJson(['error' => 'unauthenticated']);
 });
 
 it('creates a comment and returns 201 with resource shape', function () {
@@ -180,7 +181,8 @@ it('returns 401 for guest on update', function () {
     $comment = Comment::factory()->create(['post_id' => $post->id]);
 
     $this->patchJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}", ['body' => 'Updated body'])
-        ->assertUnauthorized();
+        ->assertUnauthorized()
+        ->assertJson(['error' => 'unauthenticated']);
 });
 
 it('owner can update their comment and returns 200 with resource shape', function () {
@@ -251,7 +253,8 @@ it('returns 401 for guest on destroy', function () {
     $comment = Comment::factory()->create(['post_id' => $post->id]);
 
     $this->deleteJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}")
-        ->assertUnauthorized();
+        ->assertUnauthorized()
+        ->assertJson(['error' => 'unauthenticated']);
 });
 
 it('owner can delete their comment and returns 204', function () {
@@ -282,4 +285,53 @@ it('returns 404 when comment does not exist on destroy', function () {
     $this->actingAs($user, 'api')
         ->deleteJson("/api/v1/posts/{$post->slug}/comments/99999")
         ->assertNotFound();
+});
+
+// ---------------------------------------------------------------------------
+// Rate limiting
+// ---------------------------------------------------------------------------
+
+it('returns 429 when comment-create rate limit is exceeded', function () {
+    $user = User::factory()->create();
+    $post = Post::factory()->create(['status' => 'published']);
+
+    $cacheKey = md5('comment-create' . $user->id);
+    for ($i = 0; $i < 10; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->actingAs($user, 'api')
+        ->postJson("/api/v1/posts/{$post->slug}/comments", ['body' => 'Over the limit'])
+        ->assertTooManyRequests();
+});
+
+it('returns 429 when profile-mutations rate limit is exceeded for update', function () {
+    $user    = User::factory()->create();
+    $post    = Post::factory()->create(['status' => 'published']);
+    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id]);
+
+    $cacheKey = md5('profile-mutations' . $user->id);
+    \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    for ($i = 0; $i < 59; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->actingAs($user, 'api')
+        ->patchJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}", ['body' => 'Updated'])
+        ->assertTooManyRequests();
+});
+
+it('returns 429 when profile-mutations rate limit is exceeded for delete', function () {
+    $user    = User::factory()->create();
+    $post    = Post::factory()->create(['status' => 'published']);
+    $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id]);
+
+    $cacheKey = md5('profile-mutations' . $user->id);
+    for ($i = 0; $i < 60; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->actingAs($user, 'api')
+        ->deleteJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}")
+        ->assertTooManyRequests();
 });
