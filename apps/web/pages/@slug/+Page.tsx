@@ -15,6 +15,7 @@ import { AuthGateModal } from '@/features/auth/components/AuthGateModal';
 import { usePendingReaction } from '@/features/blog/hooks/usePendingReaction';
 import { siteUrl } from '@/lib/env/siteUrl';
 import { RelatedPosts } from '@/features/blog/components/RelatedPosts';
+import { DiscussionSection } from '@/features/blog/components/DiscussionSection';
 import { formatDate } from '@/features/blog/utils/formatDate';
 
 function slugify(text: string): string {
@@ -350,23 +351,14 @@ export default function Page() {
               onFollowChange={(following, count) => { setIsFollowing(following); setFollowersCount(count); }}
             />
             <RelatedPosts posts={post.related} />
-            <div className="discussion">
-              <div className="discussion-header">
-                <h4 className="discussion-title">Discussion</h4>
-                <span className="discussion-count">{post.comments_count != null ? `${post.comments_count} ${post.comments_count === 1 ? 'comment' : 'comments'}` : '—'}</span>
-              </div>
-              <div className="discussion-gate">
-                <div className="discussion-gate-avatar" aria-hidden="true">?</div>
-                <div className="discussion-gate-body">
-                  <p className="discussion-gate-msg">Sign in to join the discussion</p>
-                  <a href="/signin" className="discussion-gate-btn">Sign in</a>
-                </div>
-              </div>
-              <div className="discussion-empty">
-                <p>No comments yet. Be the first to start the discussion.</p>
-              </div>
-            </div>
           </footer>
+          <DiscussionSection
+            postSlug={post.slug}
+            postAuthorId={post.author.id}
+            initialCount={post.comments_count ?? 0}
+            isAuthenticated={isAuthenticated}
+            onOpenAuthGate={() => { setAuthGateOpen(true); }}
+          />
         </div>
       </div>
       <AuthGateModal
