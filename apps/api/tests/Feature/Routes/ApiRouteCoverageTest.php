@@ -19,6 +19,9 @@ it('keeps api v1 route test coverage explicit', function () {
         'PATCH api/v1/profile',
         'DELETE api/v1/profile',
 
+        'GET api/v1/posts/{slug}/comments',
+        'POST api/v1/posts/{slug}/comments',
+
         'GET api/v1/posts/{slug}/me',
         'POST api/v1/posts/{slug}/reactions',
 
@@ -35,6 +38,7 @@ it('keeps api v1 route test coverage explicit', function () {
 
         'GET api/v1/admin/comments',
         'PATCH api/v1/admin/comments/{comment}',
+        'DELETE api/v1/admin/comments/{comment}',
 
         'GET api/v1/admin/tags',
         'POST api/v1/admin/tags',
