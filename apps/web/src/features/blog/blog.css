@@ -1699,8 +1699,8 @@
 }
 
 .discussion {
-  margin-top: 48px;
-  padding-top: 32px;
+  margin-top: 36px;
+  padding-top: 24px;
   border-top: 1px solid var(--rule);
 }
 
@@ -1710,7 +1710,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 .discussion-header-left {}
 .discussion-eyebrow {
@@ -1807,8 +1807,8 @@
   background: var(--paper-2);
   border: 1px solid var(--rule);
   border-radius: 8px;
-  padding: 14px 16px;
-  margin-bottom: 28px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
   transition: border-color 0.15s;
 }
 .compose:focus-within { border-color: var(--ink-4); }
@@ -1849,6 +1849,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  gap: 10px;
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid var(--rule-2);
@@ -1857,6 +1858,20 @@
   display: flex;
   gap: 6px;
   align-items: center;
+}
+.compose-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-5);
+  margin-right: auto;
+}
+.compose-count.warn { color: oklch(0.55 0.12 60); }
+.compose-count.over { color: oklch(0.52 0.14 20); font-weight: 600; }
+.compose-error-msg {
+  font-size: 12px;
+  color: oklch(0.45 0.14 20);
+  margin: 6px 0 0;
+  padding-left: 40px;
 }
 
 /* ── Skeleton loading ────────────────────────────────── */
@@ -1888,7 +1903,7 @@
   margin: 0;
 }
 .comment-item {
-  padding: 20px 0;
+  padding: 14px 0;
   border: none;
   border-bottom: 1px solid var(--rule-2);
   background: none;
@@ -1899,7 +1914,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .comment-avatar {
   width: 30px;
@@ -1947,12 +1962,17 @@
   margin-top: 1px;
 }
 .comment-body {
-  font-size: 14.5px;
-  line-height: 1.65;
+  font-size: 14px;
+  line-height: 1.6;
   color: var(--ink-2);
-  margin: 0 0 10px;
+  margin: 0 0 6px;
   padding-left: 38px;
 }
+.comment-mention {
+  color: var(--accent-ink);
+  font-weight: 500;
+}
+.comment-mention:hover { text-decoration: underline; }
 .comment-actions {
   display: flex;
   gap: 4px;
@@ -1972,22 +1992,59 @@
 }
 .comment-action-btn:hover { background: var(--paper-2); color: var(--ink-3); }
 .comment-action-btn.active { color: var(--accent-ink); }
+.comment-action-btn.danger { color: oklch(0.52 0.14 20); }
+.comment-action-btn.danger:hover { background: oklch(0.96 0.03 20); color: oklch(0.38 0.14 20); }
+.comment-action-confirm {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-4);
+  padding: 4px 4px 4px 8px;
+}
 
 /* ── Replies ─────────────────────────────────────────── */
 .replies-list {
   list-style: none;
-  padding: 0 0 0 20px;
-  margin: 14px 0 0;
+  padding: 0 0 0 16px;
+  margin: 8px 0 0;
   border-left: 2px solid var(--accent-soft);
 }
 .reply-item {
-  padding: 14px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--rule-2);
 }
 .reply-item:first-child { padding-top: 0; }
 .reply-item:last-child { border-bottom: none; padding-bottom: 0; }
 .reply-item .comment-body { padding-left: 34px; }
 .reply-item .comment-actions { padding-left: 34px; }
+
+/* ── Inline edit ─────────────────────────────────────── */
+.comment-edit {
+  padding-left: 38px;
+  margin-bottom: 6px;
+}
+.reply-item .comment-edit { padding-left: 34px; }
+.comment-edit-textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 10px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  resize: none;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.comment-edit-textarea:focus { border-color: var(--ink-4); }
+.comment-edit-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
 
 /* ── Reply compose ───────────────────────────────────── */
 .reply-compose {
@@ -2012,6 +2069,15 @@
 }
 .reply-compose textarea:focus { border-color: var(--ink-4); }
 .reply-compose textarea::placeholder { color: var(--ink-5); }
+.reply-compose .compose-count {
+  display: block;
+  text-align: right;
+  margin: 4px 0 0;
+}
+.reply-compose-counter {
+  text-align: right;
+  margin: 4px 0 0;
+}
 .reply-compose-actions {
   display: flex;
   gap: 6px;
@@ -2022,7 +2088,8 @@
 /* ── Load more ───────────────────────────────────────── */
 .load-more-wrap {
   text-align: center;
-  margin-top: 24px;
+  margin-top: 16px;
+  padding-bottom: 8px;
 }
 
 /* ── Empty state ─────────────────────────────────────── */
