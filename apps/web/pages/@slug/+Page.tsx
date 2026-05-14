@@ -349,7 +349,7 @@ export default function Page() {
               initialFollowersCount={followersCount}
               onFollowChange={(following, count) => { setIsFollowing(following); setFollowersCount(count); }}
             />
-            <RelatedPosts posts={post.related ?? []} />
+            <RelatedPosts posts={post.related} />
             <div className="discussion">
               <div className="discussion-header">
                 <h4 className="discussion-title">Discussion</h4>

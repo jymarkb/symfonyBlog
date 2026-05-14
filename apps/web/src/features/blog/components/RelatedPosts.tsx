@@ -13,9 +13,11 @@ export function RelatedPosts({ posts }: Props) {
         <p className="related-empty">Similar posts will appear here once more content is published.</p>
       ) : (
         <div className="related-grid">
-          {posts.map((post) => (
+          {posts.map((post) => {
+            const date = formatDate(post.published_at);
+            return (
             <a key={post.id} className="related-card" href={`/${post.slug}`}>
-              {(() => { const d = formatDate(post.published_at); return d ? <div className="date">{d}</div> : null; })()}
+              {date && <div className="date">{date}</div>}
               <h5>{post.title}</h5>
               {post.excerpt != null && (
                 <p>
@@ -23,7 +25,8 @@ export function RelatedPosts({ posts }: Props) {
                 </p>
               )}
             </a>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
