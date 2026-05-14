@@ -1,6 +1,23 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { PostDetail } from '../blogTypes';
 import { AuthorCard } from './AuthorCard';
+import { siteUrl } from '@/lib/env/siteUrl';
+
+function RailShareChip({ label, slug }: { label: string; slug: string }) {
+  const [copied, setCopied] = useState(false);
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(`${siteUrl}/${slug}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  }
+  return (
+    <button className="share-chip" onClick={() => void handleCopy()} aria-label={`Copy link to share on ${label}`}>
+      {copied ? '✓ Copied' : label}
+    </button>
+  );
+}
 
 export type TocHeading = { id: string; text: string; level: 'h2' | 'h3' };
 
@@ -126,9 +143,9 @@ export function PostRail({ post, headings, activeId = '', bodyRef, initialFollow
       <div className="rail-share">
         <span className="rail-share-label">Share</span>
         <div className="rail-share-links">
-          <a className="share-chip" href={`https://twitter.com/intent/tweet?url=https://jymb.blog/${encodeURIComponent(post.slug)}&text=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">𝕏 X</a>
-          <a className="share-chip" href={`https://www.linkedin.com/sharing/share-offsite/?url=https://jymb.blog/${encodeURIComponent(post.slug)}`} target="_blank" rel="noopener noreferrer">in LinkedIn</a>
-          <a className="share-chip" href={`https://reddit.com/submit?url=https://jymb.blog/${encodeURIComponent(post.slug)}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">↑ Reddit</a>
+          <RailShareChip label="𝕏 X" slug={post.slug} />
+          <RailShareChip label="in LinkedIn" slug={post.slug} />
+          <RailShareChip label="↑ Reddit" slug={post.slug} />
         </div>
       </div>
 

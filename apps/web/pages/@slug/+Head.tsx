@@ -1,5 +1,6 @@
 import { useData } from 'vike-react/useData'
 import type { PostDetailPageData } from '@/features/blog/blogTypes'
+import { siteUrl, siteName } from '@/lib/env/siteUrl'
 
 export default function Head() {
   const { post } = useData<PostDetailPageData>()
@@ -10,11 +11,11 @@ export default function Head() {
     headline: post.title,
     description: post.excerpt ?? '',
     datePublished: post.published_at,
-    url: `https://jymb.blog/${encodeURIComponent(post.slug)}`,
+    url: `${siteUrl}/${encodeURIComponent(post.slug)}`,
     author: {
       '@type': 'Person',
       name: post.author.display_name,
-      url: 'https://jymb.blog',
+      url: siteUrl,
     },
   }
 
@@ -24,15 +25,15 @@ export default function Head() {
 
   return (
     <>
-      <title>{post.title} — jymb.blog</title>
+      <title>{post.title} — {siteName}</title>
       <meta name="description" content={post.excerpt ?? ''} />
-      <link rel="canonical" href={`https://jymb.blog/${encodeURIComponent(post.slug)}`} />
-      <meta property="og:site_name" content="jymb.blog" />
+      <link rel="canonical" href={`${siteUrl}/${encodeURIComponent(post.slug)}`} />
+      <meta property="og:site_name" content={siteName} />
 
       <meta property="og:type" content="article" />
       <meta property="og:title" content={post.title} />
       <meta property="og:description" content={post.excerpt ?? ''} />
-      <meta property="og:url" content={`https://jymb.blog/${encodeURIComponent(post.slug)}`} />
+      <meta property="og:url" content={`${siteUrl}/${encodeURIComponent(post.slug)}`} />
       {post.cover_image != null && (
         <meta property="og:image" content={post.cover_image} />
       )}
