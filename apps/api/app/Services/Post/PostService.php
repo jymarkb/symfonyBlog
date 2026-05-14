@@ -3,8 +3,12 @@
 namespace App\Services\Post;
 
 use App\Models\Post;
+use App\Models\User;
 use App\Repositories\Post\PostRepository;
+use App\Services\Follow\FollowService;
+use App\Services\Post\PostReactionService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -83,7 +87,7 @@ class PostService
         return $this->repository->getPublishedBySlug($slug);
     }
 
-    public function findRelatedPosts(Post $post): \Illuminate\Database\Eloquent\Collection
+    public function findRelatedPosts(Post $post): Collection
     {
         return $this->repository->getRelatedPosts($post);
     }
@@ -129,10 +133,10 @@ class PostService
         $post->delete();
     }
 
-    public function getUserStateForPost(Post $post, \App\Models\User $user): array
+    public function getUserStateForPost(Post $post, User $user): array
     {
-        $reactionService = app(\App\Services\Post\PostReactionService::class);
-        $followService = app(\App\Services\Follow\FollowService::class);
+        $reactionService = app(PostReactionService::class);
+        $followService = app(FollowService::class);
 
         $isFollowing = $followService->isFollowing($user, (int) $post->user_id);
         $reaction = $reactionService->getUserReactions($post, $user);

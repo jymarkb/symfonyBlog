@@ -47,7 +47,7 @@ class ProfileService
             ->get();
     }
 
-    public function getReadingHistory(User $user, int $limit = 10): \Illuminate\Support\Collection
+    public function getReadingHistory(User $user, int $limit = 10): Collection
     {
         return $user->postViews()
             ->with('post')
