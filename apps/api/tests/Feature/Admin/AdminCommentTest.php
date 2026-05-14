@@ -23,7 +23,7 @@ it('returns 403 for regular user on admin comment list', function () {
     $this->actingAs($user, 'api')
         ->getJson('/api/v1/admin/comments')
         ->assertForbidden()
-        ->assertJson(['error' => 'forbidden']);
+        ->assertJson(['error' => 'forbidden', 'message' => 'You do not have permission to access this resource.']);
 });
 
 it('returns 200 with paginated list for admin', function () {
@@ -83,7 +83,7 @@ it('returns 403 for regular user on delete', function () {
     $this->actingAs($user, 'api')
         ->deleteJson("/api/v1/admin/comments/{$comment->id}")
         ->assertForbidden()
-        ->assertJson(['error' => 'forbidden']);
+        ->assertJson(['error' => 'forbidden', 'message' => 'You do not have permission to access this resource.']);
 });
 
 // ---------------------------------------------------------------------------
@@ -105,7 +105,7 @@ it('returns 403 for regular user on admin comment update', function () {
     $this->actingAs($user, 'api')
         ->patchJson("/api/v1/admin/comments/{$comment->id}", ['body' => 'Updated body'])
         ->assertForbidden()
-        ->assertJson(['error' => 'forbidden']);
+        ->assertJson(['error' => 'forbidden', 'message' => 'You do not have permission to access this resource.']);
 });
 
 it('allows admin to update any comment and returns 200 with updated body', function () {

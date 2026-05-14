@@ -314,12 +314,24 @@ it('returns 404 when comment does not exist on destroy', function () {
 // Rate limiting
 // ---------------------------------------------------------------------------
 
+it('returns 429 when the comment list rate limit is exceeded', function () {
+    $post = Post::factory()->create(['status' => 'published']);
+
+    $cacheKey = md5('public-api' . '127.0.0.1');
+    for ($i = 0; $i <= 60; $i++) {
+        \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
+    }
+
+    $this->getJson("/api/v1/posts/{$post->slug}/comments")
+        ->assertTooManyRequests();
+});
+
 it('returns 429 when comment-create rate limit is exceeded', function () {
     $user = User::factory()->create();
     $post = Post::factory()->create(['status' => 'published']);
 
     $cacheKey = md5('comment-create' . $user->id);
-    for ($i = 0; $i < 10; $i++) {
+    for ($i = 0; $i <= 10; $i++) {
         \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
     }
 
@@ -334,8 +346,7 @@ it('returns 429 when profile-mutations rate limit is exceeded for update', funct
     $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id]);
 
     $cacheKey = md5('profile-mutations' . $user->id);
-    \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
-    for ($i = 0; $i < 59; $i++) {
+    for ($i = 0; $i <= 60; $i++) {
         \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
     }
 
@@ -350,7 +361,7 @@ it('returns 429 when profile-mutations rate limit is exceeded for delete', funct
     $comment = Comment::factory()->create(['post_id' => $post->id, 'user_id' => $user->id]);
 
     $cacheKey = md5('profile-mutations' . $user->id);
-    for ($i = 0; $i < 60; $i++) {
+    for ($i = 0; $i <= 60; $i++) {
         \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
     }
 

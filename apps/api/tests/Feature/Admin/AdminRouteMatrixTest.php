@@ -67,7 +67,7 @@ it('returns 429 when the admin read rate limit is exceeded', function () {
     ]);
 
     $cacheKey = md5('admin-read' . $admin->id);
-    for ($i = 0; $i < 60; $i++) {
+    for ($i = 0; $i <= 60; $i++) {
         \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
     }
 
@@ -82,7 +82,7 @@ it('returns 429 when the admin mutations rate limit is exceeded', function () {
     ]);
 
     $cacheKey = md5('admin-mutations' . $admin->id);
-    for ($i = 0; $i < 60; $i++) {
+    for ($i = 0; $i <= 60; $i++) {
         \Illuminate\Support\Facades\RateLimiter::hit($cacheKey, 60);
     }
 
