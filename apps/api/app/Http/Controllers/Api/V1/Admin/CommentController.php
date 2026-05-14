@@ -32,7 +32,7 @@ class CommentController extends Controller
 
     public function update(UpdateCommentRequest $request, Comment $comment): CommentResource
     {
-        $updated = $this->commentService->updateComment($comment, $comment->post, $request->validated()['body']);
+        $updated = $this->commentService->updateComment($comment, $request->validated()['body']);
 
         return new CommentResource($updated);
     }

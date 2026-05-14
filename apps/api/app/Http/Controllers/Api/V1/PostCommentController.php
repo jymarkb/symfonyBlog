@@ -59,7 +59,7 @@ class PostCommentController extends Controller
             ], 403);
         }
 
-        $updated = $this->commentService->updateComment($commentModel, $post, $request->validated()['body']);
+        $updated = $this->commentService->updateComment($commentModel, $request->validated()['body']);
 
         return (new CommentResource($updated))->response();
     }

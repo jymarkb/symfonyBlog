@@ -69,11 +69,10 @@ class CommentService
             ->firstOrFail();
     }
 
-    public function updateComment(Comment $comment, Post $post, string $body): Comment
+    public function updateComment(Comment $comment, string $body): Comment
     {
         $comment->update(['body' => $body]);
-        $comment->load('user');
-        $comment->setRelation('post', $post);
+        $comment->load(['user', 'post']);
 
         return $comment;
     }
