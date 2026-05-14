@@ -200,6 +200,7 @@ export function DiscussionSection({
           <button
             className="load-more-btn"
             onClick={() => void handleLoadMore()}
+            aria-label={remaining > 0 ? `Load ${remaining} more comments` : 'Load more comments'}
           >
             {remaining > 0 ? `Show ${remaining} more` : 'Load more'} →
           </button>

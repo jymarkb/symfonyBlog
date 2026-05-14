@@ -73,7 +73,7 @@ export function CommentItem({
   useEffect(() => {
     if (isReplying) setReplyBody(`${comment.author.handle} `);
     else setReplyBody('');
-  }, [isReplying, comment.author.handle]);
+  }, [isReplying, comment.id]);
 
   // Focus edit textarea when editing starts
   useEffect(() => {
@@ -153,13 +153,27 @@ export function CommentItem({
             disabled={editBusy}
             rows={3}
             maxLength={250}
+            aria-label="Edit comment"
           />
           {editError && <p className="compose-error-msg">{editError}</p>}
           <div className="comment-edit-actions">
+            {(() => {
+              const remaining = 250 - editBody.length;
+              const overLimit = remaining < 0;
+              const nearLimit = remaining <= 50;
+              const cls = overLimit ? ' over' : nearLimit ? ' warn' : '';
+              return (
+                <span className={`compose-count${cls}`}>
+                  {overLimit
+                    ? `${Math.abs(remaining)} character${Math.abs(remaining) === 1 ? '' : 's'} over the limit`
+                    : `${remaining} character${remaining === 1 ? '' : 's'} remaining`}
+                </span>
+              );
+            })()}
             <button
               className="btn btn-sm btn-primary"
               onClick={() => void handleEditSave()}
-              disabled={editBusy || !editBody.trim()}
+              disabled={editBusy || !editBody.trim() || editBody.length > 250}
             >
               {editBusy ? 'Saving…' : 'Save'}
             </button>
@@ -173,6 +187,7 @@ export function CommentItem({
           </div>
         </div>
       ) : (
+        /* renderMarkdown escapes HTML entities before applying regex — output is safe */
         <p
           className="comment-body"
           dangerouslySetInnerHTML={{ __html: renderMarkdown(comment.body) }}

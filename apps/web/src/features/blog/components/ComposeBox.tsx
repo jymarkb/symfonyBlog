@@ -2,13 +2,13 @@ import { useAutoResizeTextarea } from '../hooks/useAutoResizeTextarea';
 
 const MAX_LENGTH = 250;
 
-function CharacterCounter({ value, max }: { value: string; max: number }) {
+function CharacterCounter({ value, max, id }: { value: string; max: number; id?: string }) {
   const remaining = max - value.length;
   const nearLimit = remaining <= 50;
   const overLimit = remaining < 0;
   const cls = overLimit ? ' over' : nearLimit ? ' warn' : '';
   return (
-    <span className={`compose-count${cls}`}>
+    <span id={id} className={`compose-count${cls}`}>
       {overLimit
         ? `${Math.abs(remaining)} character${Math.abs(remaining) === 1 ? '' : 's'} over the limit`
         : `${remaining} character${remaining === 1 ? '' : 's'} remaining`}
@@ -54,10 +54,12 @@ export function ComposeBox({
             onChange={(e) => onChange(e.target.value)}
             readOnly={busy}
             rows={3}
+            maxLength={250}
+            aria-describedby="compose-counter"
           />
         </div>
         <div className="compose-foot">
-          <CharacterCounter value={value} max={MAX_LENGTH} />
+          <CharacterCounter value={value} max={MAX_LENGTH} id="compose-counter" />
           <div className="compose-actions">
             <button
               className="btn btn-sm btn-primary"
@@ -69,7 +71,7 @@ export function ComposeBox({
             </button>
           </div>
         </div>
-        {error && <p className="compose-error-msg">{error}</p>}
+        {error && <p className="compose-error-msg" role="alert">{error}</p>}
       </div>
     );
   }
@@ -83,9 +85,11 @@ export function ComposeBox({
         onChange={(e) => onChange(e.target.value)}
         readOnly={busy}
         rows={2}
+        maxLength={250}
+        aria-describedby="reply-counter"
       />
-      <div className="reply-compose-counter"><CharacterCounter value={value} max={MAX_LENGTH} /></div>
-      {error && <p className="compose-error-msg">{error}</p>}
+      <div className="reply-compose-counter"><CharacterCounter value={value} max={MAX_LENGTH} id="reply-counter" /></div>
+      {error && <p className="compose-error-msg" role="alert">{error}</p>}
       <div className="reply-compose-actions">
         {onCancel && (
           <button
