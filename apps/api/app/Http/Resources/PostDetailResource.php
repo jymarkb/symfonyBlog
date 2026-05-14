@@ -17,6 +17,7 @@ class PostDetailResource extends PostSummaryResource
                 'fire' => (int) ($this->fire_reactions_count ?? 0),
                 'insightful' => (int) ($this->insightful_reactions_count ?? 0),
             ],
+            'related' => PostSummaryResource::collection($this->whenLoaded('related')),
         ];
     }
 }

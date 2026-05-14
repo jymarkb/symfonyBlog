@@ -1,4 +1,5 @@
 import { usePageContext } from 'vike-react/usePageContext'
+import { siteUrl, siteName } from '@/lib/env/siteUrl'
 
 export default function Head() {
   const { urlParsed } = usePageContext()
@@ -17,7 +18,7 @@ export default function Head() {
   else if (year) title = `${year} · Archive`
   else if (search) title = `Search: ${search} · Archive`
 
-  const fullTitle = `${title} · jymb.blog`
+  const fullTitle = `${title} · ${siteName}`
 
   const description = tag && year
     ? `Essays tagged ${tag} from ${year}.`
@@ -26,7 +27,7 @@ export default function Head() {
     : year
     ? `Essays published in ${year}.`
     : search
-    ? `Posts matching "${search}" on jymb.blog.`
+    ? `Posts matching "${search}" on ${siteName}.`
     : 'All essays, sorted by date.'
 
   const params = new URLSearchParams();
@@ -34,7 +35,7 @@ export default function Head() {
   if (year) params.set('year', year);
   if (search) params.set('search', search.toLowerCase());
   const qs = params.toString();
-  const canonical = `https://jymb.blog/archive${qs ? '?' + qs : ''}`
+  const canonical = `${siteUrl}/archive${qs ? '?' + qs : ''}`
 
   return (
     <>

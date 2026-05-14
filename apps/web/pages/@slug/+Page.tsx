@@ -13,16 +13,9 @@ import { getAccessToken } from '@/lib/auth/getAccessToken';
 import { useCurrentSession } from '@/features/auth/session/useCurrentSession';
 import { AuthGateModal } from '@/features/auth/components/AuthGateModal';
 import { usePendingReaction } from '@/features/blog/hooks/usePendingReaction';
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
-}
+import { siteUrl } from '@/lib/env/siteUrl';
+import { RelatedPosts } from '@/features/blog/components/RelatedPosts';
+import { formatDate } from '@/features/blog/utils/formatDate';
 
 function slugify(text: string): string {
   return text
@@ -130,6 +123,24 @@ function PostMetaBar({ post }: PostMetaBarProps) {
       {date && post.reading_time != null && <span className="pmb-sep" aria-hidden="true">·</span>}
       {post.reading_time != null && <span>{post.reading_time} min read</span>}
     </div>
+  );
+}
+
+function ShareChip({ label, slug }: { label: string; slug: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(`${siteUrl}/${slug}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  }
+
+  return (
+    <button className="share-chip" onClick={() => void handleCopy()} aria-label={`Copy link to share on ${label}`}>
+      {copied ? '✓ Copied' : label}
+    </button>
   );
 }
 
@@ -325,9 +336,10 @@ export default function Page() {
             <div className="share-row">
               <span className="share-label">Share</span>
               <div className="share-links">
-                <a className="share-chip" href={`https://twitter.com/intent/tweet?url=https://jymb.blog/${encodeURIComponent(post.slug)}&text=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">𝕏 X</a>
-                <a className="share-chip" href={`https://www.linkedin.com/sharing/share-offsite/?url=https://jymb.blog/${encodeURIComponent(post.slug)}`} target="_blank" rel="noopener noreferrer">in LinkedIn</a>
-                <a className="share-chip" href={`https://reddit.com/submit?url=https://jymb.blog/${encodeURIComponent(post.slug)}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer">↑ Reddit</a>
+                <ShareChip label="𝕏 X" slug={post.slug} />
+                <ShareChip label="LinkedIn" slug={post.slug} />
+                <ShareChip label="Reddit" slug={post.slug} />
+                <ShareChip label="🔗 Copy link" slug={post.slug} />
               </div>
             </div>
             <AuthorCard
@@ -337,10 +349,7 @@ export default function Page() {
               initialFollowersCount={followersCount}
               onFollowChange={(following, count) => { setIsFollowing(following); setFollowersCount(count); }}
             />
-            <div className="related">
-              <h4 className="related-label">Related essays</h4>
-              <p className="related-empty">Similar posts will appear here once more content is published.</p>
-            </div>
+            <RelatedPosts posts={post.related} />
             <div className="discussion">
               <div className="discussion-header">
                 <h4 className="discussion-title">Discussion</h4>

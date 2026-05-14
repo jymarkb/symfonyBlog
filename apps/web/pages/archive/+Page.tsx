@@ -7,6 +7,7 @@ import { AppShell } from '@/layouts/AppShell';
 import { ArchiveFilterBar } from '@/features/blog/components/ArchiveFilterBar';
 import ArchiveSection from '@/features/blog/components/ArchiveSection';
 import ArchiveStatsStrip from '@/features/blog/components/ArchiveStatsStrip';
+import { siteName } from '@/lib/env/siteUrl';
 
 const PER_PAGE = 50;
 
@@ -102,11 +103,11 @@ export default function Page() {
 
   // Update document.title reactively on filter changes
   useEffect(() => {
-    if (activeTag && activeYear) document.title = `${activeTag} · ${activeYear} · Archive · jymb.blog`;
-    else if (activeTag) document.title = `${activeTag} · Archive · jymb.blog`;
-    else if (activeYear) document.title = `${activeYear} · Archive · jymb.blog`;
-    else if (search.trim()) document.title = `Search: ${search.trim()} · Archive · jymb.blog`;
-    else document.title = 'Archive · jymb.blog';
+    if (activeTag && activeYear) document.title = `${activeTag} · ${activeYear} · Archive · ${siteName}`;
+    else if (activeTag) document.title = `${activeTag} · Archive · ${siteName}`;
+    else if (activeYear) document.title = `${activeYear} · Archive · ${siteName}`;
+    else if (search.trim()) document.title = `Search: ${search.trim()} · Archive · ${siteName}`;
+    else document.title = 'Archive · ${siteName}';
   }, [activeTag, activeYear, search]);
 
   const handleTagChange = useCallback((slug: string | null) => {

@@ -81,9 +81,8 @@ Key files added / changed:
 
 ## Deferred
 
-- **TOC rail** — left rail (`<aside class="toc-rail">`) is an empty stub. Real scroll-spy TOC is a standalone task.
-- **Margin-notes rail** — right rail (`<aside class="margin-notes">`) is an empty stub. Deferred.
-- **Related posts** — design shows "Related essays" section. No backend endpoint exists. Deferred.
+- **TOC rail** — ✅ Done. Scroll-spy TOC implemented in `PostRail.tsx` with `IntersectionObserver`; `activeId` owned at page level in `+Page.tsx`.
+- **Related posts** — ✅ Done. `PostRepository::getRelatedPosts` queries by shared tag count; embedded in `GET /posts/{slug}` response under `related`; `RelatedPosts.tsx` component wired in `+Page.tsx`; 5 Pest tests covering ordering, self-exclusion, empty-tag guard, and shape.
 - **Comments section** — full comment thread UI. Deferred.
 
 ## Reserved Slugs

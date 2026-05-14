@@ -2,6 +2,7 @@
 
 use App\Models\Post;
 use App\Models\Tag;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -568,4 +569,136 @@ it('returns 404 for archived post detail', function () {
 
     $this->getJson('/api/v1/posts/archived-post')
         ->assertNotFound();
+});
+
+it('related key is always present in post detail response as an array', function () {
+    $post = Post::factory()->create([
+        'slug' => 'related-always-present',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $response = $this->getJson("/api/v1/posts/{$post->slug}")->assertOk();
+
+    expect($response->json('data.related'))->toBeArray();
+});
+
+it('related posts are ordered by shared tag count descending', function () {
+    $tagA = Tag::factory()->create(['slug' => 'tag-a']);
+    $tagB = Tag::factory()->create(['slug' => 'tag-b']);
+
+    $main = Post::factory()->create([
+        'slug' => 'main-post',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+    $main->tags()->attach([$tagA->id, $tagB->id]);
+
+    // Shares both tags — should appear first
+    $first = Post::factory()->create([
+        'slug' => 'two-tag-post',
+        'status' => 'published',
+        'published_at' => now()->subDay(),
+    ]);
+    $first->tags()->attach([$tagA->id, $tagB->id]);
+
+    // Shares one tag — should appear second
+    $second = Post::factory()->create([
+        'slug' => 'one-tag-post',
+        'status' => 'published',
+        'published_at' => now()->subDays(2),
+    ]);
+    $second->tags()->attach([$tagA->id]);
+
+    // Shares no tags — should be excluded
+    $third = Post::factory()->create([
+        'slug' => 'no-tag-post',
+        'status' => 'published',
+        'published_at' => now()->subDays(3),
+    ]);
+
+    $response = $this->getJson('/api/v1/posts/main-post')->assertOk();
+    $related = $response->json('data.related');
+
+    $slugs = collect($related)->pluck('slug')->all();
+
+    expect($slugs[0])->toBe('two-tag-post');
+    expect($slugs[1])->toBe('one-tag-post');
+    expect($slugs)->not->toContain('no-tag-post');
+});
+
+it('current post does not appear in related', function () {
+    $tag = Tag::factory()->create(['slug' => 'self-tag']);
+
+    $post = Post::factory()->create([
+        'slug' => 'self-post',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+    $post->tags()->attach($tag);
+
+    $response = $this->getJson('/api/v1/posts/self-post')->assertOk();
+    $related = $response->json('data.related');
+
+    $slugs = collect($related)->pluck('slug')->all();
+
+    expect($slugs)->not->toContain('self-post');
+});
+
+it('post with no tags returns related as empty array', function () {
+    Post::factory()->create([
+        'slug' => 'no-tags-post',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+
+    $response = $this->getJson('/api/v1/posts/no-tags-post')->assertOk();
+
+    expect($response->json('data.related'))->toBe([]);
+});
+
+it('related contains at most 2 items', function () {
+    $tag = Tag::factory()->create(['slug' => 'limit-tag']);
+
+    $main = Post::factory()->create([
+        'slug' => 'limit-main-post',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+    $main->tags()->attach($tag);
+
+    Post::factory()->count(5)->create([
+        'status' => 'published',
+        'published_at' => now()->subDay(),
+    ])->each(fn ($p) => $p->tags()->attach($tag));
+
+    $response = $this->getJson('/api/v1/posts/limit-main-post')->assertOk();
+    $related = $response->json('data.related');
+
+    expect(count($related))->toBeLessThanOrEqual(2);
+});
+
+it('related posts do not expose sensitive author fields', function () {
+    $tag = Tag::factory()->create();
+    $author = User::factory()->create();
+
+    $main = Post::factory()->create([
+        'slug' => 'main-sensitive-check',
+        'status' => 'published',
+        'published_at' => now(),
+    ]);
+    $main->tags()->attach($tag);
+
+    $related = Post::factory()->create([
+        'status' => 'published',
+        'published_at' => now()->subDay(),
+        'user_id' => $author->id,
+    ]);
+    $related->tags()->attach($tag);
+
+    $this->getJson('/api/v1/posts/main-sensitive-check')
+        ->assertOk()
+        ->assertJsonMissingPath('data.related.0.author.role')
+        ->assertJsonMissingPath('data.related.0.author.supabase_user_id')
+        ->assertJsonMissingPath('data.related.0.author.email');
 });

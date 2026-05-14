@@ -450,6 +450,7 @@ Rules:
 - **`isAuthenticated` lags behind the Supabase session.** `isAuthenticated` from `useCurrentSession()` does not flip to `true` until `fetchCurrentUser` resolves, which can take one or more render cycles after a successful OAuth login. When a component must decide synchronously whether a click should open the auth gate (e.g. on a Follow button click handler), always probe `tryGetAccessToken()` first. If it returns a token, the user is authenticated even if `isAuthenticated` is still `false` — fall through to the authenticated path. Only open the auth gate if both `isAuthenticated === false` AND `tryGetAccessToken()` returns `null`.
 - **Skip `response.json()` for 204 and 304 responses.** Any API call that can return 204 No Content (e.g. DELETE unfollow, DELETE unlike) must not call `response.json()` — it throws a `SyntaxError` on empty body, which is caught silently and reverts optimistic UI. Ensure `apiClient.ts` checks `response.status === 204 || response.status === 304` before the `.json()` call and returns early.
 - **One `AuthGateModal` instance per page.** Do not render `AuthGateModal` (or any modal/dialog overlay) inside a component that appears more than once on the same page. Multiple instances compete for the same `onSuccess` callback and produce duplicate DOM overlays. Instead, the page owns a single `authGateOpen` boolean and `pendingCallback` ref, and passes an `onOpenAuthGate` prop to child components so they delegate upward.
+- **Every `<button>` and `<a>` must have an `aria-label` attribute.** Icon-only elements (no visible text) require it to be accessible at all. Elements with visible text still require it so screen readers announce a clean, descriptive label rather than raw text content. Set `aria-label` at the time you write the element — do not leave it for QA to catch. Example: `<a href={`/${post.slug}`} aria-label={`Read: ${post.title}`}>` and `<button aria-label="Close dialog">✕</button>`.
 
 ## Core PHP/Laravel Developer Agent
 
@@ -507,7 +508,7 @@ Apply every relevant section of the QA checklist. At minimum cover:
 - **Security** — no `dangerouslySetInnerHTML` without sanitization; no open redirect via URL params; no sensitive data in `localStorage` beyond library requirements
 - **TypeScript** — `tsc --noEmit` would pass; no unchecked `!` assertions on nullable API fields; no `any` on API response types
 - **React correctness** — no duplicate API calls on mount; `useEffect` dependency arrays complete; error boundaries present at page/feature level
-- **Accessibility** — icon-only buttons have `aria-label`; form inputs have `<label>`; `aria-live` regions for async state changes; keyboard navigability
+- **Accessibility** — icon-only buttons (no visible text) missing `aria-label` are 🔴 bugs; links and buttons with visible text but no `aria-label` attribute are 🟡 gaps only, never 🔴 bugs; form inputs have `<label>`; `aria-live` regions for async state changes; keyboard navigability
 - **Dead and inconsistent UI** — feature parity between similar pages; no unbound checkboxes or links
 - **Duplicate and extractable code** — identify JSX blocks, fetch lifecycle patterns, error/success display patterns, or utility logic that appears in two or more components and could be moved to a shared component or utility; report file paths and the common pattern so it can be extracted in a follow-up
 
