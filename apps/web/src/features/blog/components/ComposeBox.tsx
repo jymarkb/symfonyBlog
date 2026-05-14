@@ -34,16 +34,7 @@ export function ComposeBox({
           />
         </div>
         <div className="compose-foot">
-          <div className="compose-tools">
-            <button aria-label="Bold" disabled={busy}>B</button>
-            <button aria-label="Italic" disabled={busy}><em>I</em></button>
-            <button aria-label="Inline code" disabled={busy}>&lt;/&gt;</button>
-            <button aria-label="Quote" disabled={busy}>&quot;</button>
-          </div>
           <div className="compose-actions">
-            <button className="btn btn-sm" aria-label="Preview comment" disabled={busy}>
-              Preview
-            </button>
             <button
               className="btn btn-sm btn-primary"
               onClick={() => void onSubmit()}

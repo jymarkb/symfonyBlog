@@ -1847,29 +1847,12 @@
 .compose-textarea::placeholder { color: var(--ink-5); }
 .compose-foot {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid var(--rule-2);
-  flex-wrap: wrap;
-  gap: 8px;
 }
-.compose-tools {
-  display: flex;
-  gap: 2px;
-}
-.compose-tools button {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--ink-4);
-  padding: 4px 7px;
-  background: none;
-  border: none;
-  border-radius: 4px;
-  transition: background 0.12s, color 0.12s;
-}
-.compose-tools button:hover { background: var(--paper-3); color: var(--ink); }
 .compose-actions {
   display: flex;
   gap: 6px;
@@ -2069,7 +2052,6 @@
   .comment-avatar { width: 26px; height: 26px; font-size: 9px; }
   .compose { padding: 10px 12px; margin-bottom: 20px; }
   .compose-textarea { min-height: 52px; font-size: 13.5px; }
-  .compose-tools { display: none; }
   .discussion-sort button { font-size: 10px; padding: 4px 7px; }
   .compose-foot { padding-top: 8px; margin-top: 6px; }
   .reply-compose { margin-left: 0; padding-left: 10px; margin-top: 8px; }
