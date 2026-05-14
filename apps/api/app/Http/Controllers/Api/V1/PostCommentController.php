@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCommentRequest;
+use App\Http\Requests\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
 use App\Services\Post\CommentService;
 use App\Services\Post\PostService;
@@ -48,5 +49,33 @@ class PostCommentController extends Controller
         );
 
         return (new CommentResource($comment))->response()->setStatusCode(201);
+    }
+
+    public function update(UpdateCommentRequest $request, string $slug, int $comment): JsonResponse
+    {
+        $post         = $this->postService->findPublishedBySlug($slug);
+        $commentModel = $this->commentService->findForPost($comment, $post);
+
+        if ($request->user()?->id !== $commentModel->user_id) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $updated = $this->commentService->updateComment($commentModel, $post, $request->validated()['body']);
+
+        return (new CommentResource($updated))->response();
+    }
+
+    public function destroy(Request $request, string $slug, int $comment): JsonResponse
+    {
+        $post         = $this->postService->findPublishedBySlug($slug);
+        $commentModel = $this->commentService->findForPost($comment, $post);
+
+        if ($request->user()?->id !== $commentModel->user_id) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $this->commentService->deleteComment($commentModel);
+
+        return response()->json(null, 204);
     }
 }
