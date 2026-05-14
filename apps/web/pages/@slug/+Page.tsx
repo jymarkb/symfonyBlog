@@ -15,16 +15,7 @@ import { AuthGateModal } from '@/features/auth/components/AuthGateModal';
 import { usePendingReaction } from '@/features/blog/hooks/usePendingReaction';
 import { siteUrl } from '@/lib/env/siteUrl';
 import { RelatedPosts } from '@/features/blog/components/RelatedPosts';
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
-}
+import { formatDate } from '@/features/blog/utils/formatDate';
 
 function slugify(text: string): string {
   return text

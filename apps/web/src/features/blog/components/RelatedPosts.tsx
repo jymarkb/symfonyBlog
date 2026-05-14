@@ -1,14 +1,5 @@
 import type { PostSummary } from '../blogTypes';
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
-}
+import { formatDate } from '../utils/formatDate';
 
 type Props = {
   posts: PostSummary[];
