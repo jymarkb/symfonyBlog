@@ -53,7 +53,10 @@ class PostCommentController extends Controller
         $commentModel = $this->commentService->findForPost($comment, $post);
 
         if ($request->user()?->id !== $commentModel->user_id) {
-            return response()->json(['error' => 'forbidden'], 403);
+            return response()->json([
+                'error'   => 'forbidden',
+                'message' => 'You do not have permission to access this resource.',
+            ], 403);
         }
 
         $updated = $this->commentService->updateComment($commentModel, $post, $request->validated()['body']);
@@ -67,7 +70,10 @@ class PostCommentController extends Controller
         $commentModel = $this->commentService->findForPost($comment, $post);
 
         if ($request->user()?->id !== $commentModel->user_id) {
-            return response()->json(['error' => 'forbidden'], 403);
+            return response()->json([
+                'error'   => 'forbidden',
+                'message' => 'You do not have permission to access this resource.',
+            ], 403);
         }
 
         $this->commentService->deleteComment($commentModel);

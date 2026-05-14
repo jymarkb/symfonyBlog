@@ -226,7 +226,10 @@ it('returns 403 when non-owner tries to update a comment', function () {
     $this->actingAs($other, 'api')
         ->patchJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}", ['body' => 'Attempted update'])
         ->assertForbidden()
-        ->assertJson(['error' => 'forbidden']);
+        ->assertJson([
+            'error'   => 'forbidden',
+            'message' => 'You do not have permission to access this resource.',
+        ]);
 });
 
 it('returns 422 when update body is empty', function () {
@@ -292,7 +295,10 @@ it('returns 403 when non-owner tries to delete a comment', function () {
     $this->actingAs($other, 'api')
         ->deleteJson("/api/v1/posts/{$post->slug}/comments/{$comment->id}")
         ->assertForbidden()
-        ->assertJson(['error' => 'forbidden']);
+        ->assertJson([
+            'error'   => 'forbidden',
+            'message' => 'You do not have permission to access this resource.',
+        ]);
 });
 
 it('returns 404 when comment does not exist on destroy', function () {

@@ -13,7 +13,8 @@ uses(RefreshDatabase::class);
 
 it('returns 401 for guest on admin comment list', function () {
     $this->getJson('/api/v1/admin/comments')
-        ->assertUnauthorized();
+        ->assertUnauthorized()
+        ->assertJson(['error' => 'unauthenticated']);
 });
 
 it('returns 403 for regular user on admin comment list', function () {
@@ -21,7 +22,8 @@ it('returns 403 for regular user on admin comment list', function () {
 
     $this->actingAs($user, 'api')
         ->getJson('/api/v1/admin/comments')
-        ->assertForbidden();
+        ->assertForbidden()
+        ->assertJson(['error' => 'forbidden']);
 });
 
 it('returns 200 with paginated list for admin', function () {
@@ -80,7 +82,8 @@ it('returns 403 for regular user on delete', function () {
 
     $this->actingAs($user, 'api')
         ->deleteJson("/api/v1/admin/comments/{$comment->id}")
-        ->assertForbidden();
+        ->assertForbidden()
+        ->assertJson(['error' => 'forbidden']);
 });
 
 // ---------------------------------------------------------------------------
@@ -91,7 +94,8 @@ it('returns 401 for guest on admin comment update', function () {
     $comment = Comment::factory()->create();
 
     $this->patchJson("/api/v1/admin/comments/{$comment->id}", ['body' => 'Updated body'])
-        ->assertUnauthorized();
+        ->assertUnauthorized()
+        ->assertJson(['error' => 'unauthenticated']);
 });
 
 it('returns 403 for regular user on admin comment update', function () {
@@ -100,7 +104,8 @@ it('returns 403 for regular user on admin comment update', function () {
 
     $this->actingAs($user, 'api')
         ->patchJson("/api/v1/admin/comments/{$comment->id}", ['body' => 'Updated body'])
-        ->assertForbidden();
+        ->assertForbidden()
+        ->assertJson(['error' => 'forbidden']);
 });
 
 it('allows admin to update any comment and returns 200 with updated body', function () {
