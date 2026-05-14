@@ -15,7 +15,7 @@ export function RelatedPosts({ posts }: Props) {
         <div className="related-grid">
           {posts.map((post) => (
             <a key={post.id} className="related-card" href={`/${post.slug}`}>
-              <div className="date">{formatDate(post.published_at)}</div>
+              {(() => { const d = formatDate(post.published_at); return d ? <div className="date">{d}</div> : null; })()}
               <h5>{post.title}</h5>
               {post.excerpt != null && (
                 <p>
