@@ -266,6 +266,7 @@ export function CommentItem({
           busy={replyBusy}
           placeholder={`Reply to ${comment.author.display_name ?? comment.author.handle}…`}
           error={replyError}
+          counterId={`reply-counter-${comment.id}`}
         />
       )}
 

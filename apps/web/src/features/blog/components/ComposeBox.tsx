@@ -26,6 +26,7 @@ type Props = {
   showToolbar: boolean;
   avatarInitial?: string;
   error?: string | null;
+  counterId?: string;
 };
 
 export function ComposeBox({
@@ -38,6 +39,7 @@ export function ComposeBox({
   showToolbar,
   avatarInitial,
   error,
+  counterId,
 }: Props) {
   const ref = useAutoResizeTextarea(value);
 
@@ -87,10 +89,10 @@ export function ComposeBox({
         readOnly={busy}
         rows={2}
         maxLength={250}
-        aria-describedby="reply-counter"
+        aria-describedby={counterId ?? 'reply-counter'}
         aria-label="Write a reply"
       />
-      <div className="reply-compose-counter"><CharacterCounter value={value} max={MAX_LENGTH} id="reply-counter" /></div>
+      <div className="reply-compose-counter"><CharacterCounter value={value} max={MAX_LENGTH} id={counterId ?? 'reply-counter'} /></div>
       {error && <p className="compose-error-msg" role="alert">{error}</p>}
       <div className="reply-compose-actions">
         {onCancel && (
