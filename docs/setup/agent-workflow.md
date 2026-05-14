@@ -463,15 +463,15 @@ Rules:
 
 ### Pre-report self-verification checklist (run before reporting done)
 
-Before reporting a task complete, verify each component or hook you touched:
+Before reporting a task complete, execute each step — do not self-report without running the grep:
 
-- [ ] Every `<textarea>` has `maxLength`, `aria-label`, and `aria-describedby` — all three, every instance
-- [ ] Every `<button>` and `<a>` has `aria-label`
-- [ ] Every element that conditionally renders an error string has `role="alert"`
-- [ ] Every `catch` block on a user-visible mutation calls `setError(...)` — no silent rollbacks
-- [ ] Character counters are always rendered — never behind a conditional
-- [ ] Counter `id` values are unique per instance (e.g. `reply-counter-${item.id}`, not a hardcoded string)
-- [ ] `apiRequest<T>()` is typed with the full response shape — no `as` casts on the return value
+- [ ] **Grep `<textarea` in every file you touched** — count each instance; every one must have `maxLength=`, `aria-label=`, and `aria-describedby=`. Missing any attribute on any instance is a 🔴 bug. Fix before reporting.
+- [ ] **Grep `<button` and `<a ` in every file you touched** — every one must have `aria-label=`. Fix before reporting.
+- [ ] Every element that conditionally renders an error string has `role="alert"` — grep for `setError\|error &&\|error ?` and confirm each render site has the attribute
+- [ ] Every `catch` block on a user-visible mutation calls `setError(...)` — grep `catch` in each file and confirm no block only rolls back state without also calling `setError`
+- [ ] Character counters are always rendered — never behind a conditional; grep for the counter component and confirm no `&&` or ternary gates its render
+- [ ] Counter `id` values are unique per instance — grep `id="` in components that render in lists; hardcoded IDs like `id="reply-counter"` are a 🔴 bug when the component renders more than once
+- [ ] **Grep `) as {` and `response as ` in every file you touched** — every match on an API response value is a violation; replace with `apiRequest<{ data: Type }>(...)` generics
 - [ ] `npx tsc --noEmit` from `apps/web` exits clean
 
 ## Core PHP/Laravel Developer Agent
@@ -494,7 +494,7 @@ Rules:
 - Follow `docs/setup/security.md` backend conventions: auth gating, `$fillable` discipline, `$hidden`, input validation rules, throttle on mutations, Resource field whitelist.
 - Controllers must only contain the five RESTful methods: `index`, `show`, `store`, `update`, `destroy`. Do not add custom action methods (e.g. `comments()`, `history()`). If a resource needs its own endpoint, create a separate dedicated controller for it.
 - Controllers must not contain business logic. Validate input via FormRequest, call a service method, return a resource. That is all. No `Model::query()`, no `where()` chains, no Eloquent calls of any kind inside a controller — read or write. There is no "simple enough to skip the service" exception.
-- **No model or entity operations in controllers.** This means no `->load()`, `->loadCount()`, `->with()`, `->withCount()`, `->find()`, `->findOrFail()`, `->where()`, `->firstOrCreate()`, `->save()`, `->delete()`, or any other Eloquent method. Every model touch — including eager-loading relationships or counts needed for a Resource — must live in the service method that returns the model. The controller receives a fully-hydrated model or value object from the service and passes it directly to the Resource.
+- **No model or entity operations in controllers.** This means no `->load()`, `->loadCount()`, `->with()`, `->withCount()`, `->find()`, `->findOrFail()`, `->where()`, `->firstOrCreate()`, `->save()`, `->delete()`, or any other Eloquent method. Every model touch — including eager-loading relationships or counts needed for a Resource — must live in the service method that returns the model. The controller receives a fully-hydrated model or value object from the service and passes it directly to the Resource. **Accessing `$model->relation` on a route-model-bound object is also a model operation** — it triggers a lazy load query in the controller. Pass the bound model to the service; the service loads any required relationships internally.
 - **Slug resolution is a service call, never raw Eloquent.** When a controller needs a `Post` by slug, it must call `$this->postService->findPublishedBySlug($slug)` — never `Post::where('slug', $slug)->where('status', 'published')->firstOrFail()`. The same applies to every other model: if a service method exists to look it up, use it. If one does not exist, add it to the service. A controller that imports any `App\Models\*` class (other than for route model binding type-hints) is violating this rule.
 - **Service methods must fully hydrate for their Resource.** Before writing or modifying any service method that returns a model, read every Resource that will consume it. Find every `$this->whenLoaded('relation')` and `$this->whenCounted('alias')` call inside those Resources and ensure the service query includes the matching `->with(['relation'])` and `->withCount(['alias' => ...])` clauses. A service method used by more than one controller (e.g. `findPublishedBySlug` called from `PostController::show`, `PostUserStateController`, and `PostReactionController`) must load the union of all relationships and counts required by any of the Resources those controllers return. Missing eager loads cause silent null fields or missing keys in the JSON response — they will not throw an error and will not be caught until a test asserts on the specific field.
 - Models must not contain business logic. Models own columns (`$fillable`, `$hidden`, `casts()`), relationships, and nothing else.
@@ -512,19 +512,21 @@ Rules:
 - **Every test that asserts a 401 or 403 must also assert the response body shape.** Chain `->assertJson(['error' => 'unauthenticated'])` after every `->assertUnauthorized()` and `->assertJson(['error' => 'forbidden'])` after every `->assertForbidden()`. Status-only assertions allow response body regressions to go undetected.
 - **Every endpoint that returns user or resource data must have `assertJsonMissingPath` tests** pinning that `role`, `email`, `supabase_user_id`, and `user_id` are absent from the response. Add these assertions when you write the endpoint test — do not leave them for QA.
 - **FormRequest validation must include all constraints, including ownership scoping.** If a field references a resource that is scoped to the current post/user/context (e.g. `parent_id` must belong to the same post), validate this in the FormRequest using `Rule::exists(...)->where(...)` with a subquery. Do not rely solely on the service layer — service exceptions produce less user-friendly errors than a FormRequest 422.
+- **Rate limit tests must pre-fill the bucket `limit + 1` times, not `limit`.** Hitting N times when the limit is N *reaches* the limit but does not trigger a 429 — the 429 fires on hit N+1. Write the loop as `for ($i = 0; $i <= $limit; $i++)` (note `<=`, not `<`). Also verify the cache key format: `ThrottleRequests` uses `md5($limiterName . '|' . $identifier)` — check the named limiter's `->by()` value and match it exactly in the test.
 
 ### Pre-report self-verification checklist (run before reporting done)
 
-Before reporting a task complete, verify each controller, service, resource, request, and test you touched:
+Before reporting a task complete, execute each step — do not self-report without running the grep:
 
-- [ ] Every ownership check uses `response()->json(['error' => 'forbidden', 'message' => '...'], 403)` — never `abort(403)`
-- [ ] Every test asserting 401 chains `->assertJson(['error' => 'unauthenticated'])` after `->assertUnauthorized()`
-- [ ] Every test asserting 403 chains `->assertJson(['error' => 'forbidden', ...])` after `->assertForbidden()`
+- [ ] Every ownership check uses `response()->json(['error' => 'forbidden', 'message' => '...'], 403)` — grep `abort(403)` in files you touched; every match is a 🔴 bug
+- [ ] Every test asserting 401 chains `->assertJson(['error' => 'unauthenticated'])` — grep `assertUnauthorized` and confirm every call is followed by `->assertJson`
+- [ ] Every test asserting 403 chains `->assertJson(['error' => 'forbidden', ...])` — grep `assertForbidden` and confirm every call is followed by `->assertJson` with both `error` and `message` keys
 - [ ] Every endpoint test that returns user or resource data has `assertJsonMissingPath` for `role`, `email`, `supabase_user_id`, and `user_id`
 - [ ] Every controller method is one of: `index`, `show`, `store`, `update`, `destroy` — no custom action methods added
-- [ ] No Eloquent calls in controllers — all model access through service methods
+- [ ] **Grep `->` in every controller method body** — any Eloquent chain (`->where`, `->find`, `->load`, `->with`, or a relationship property like `$model->relation`) is a violation; all model access must go through service methods
 - [ ] Service methods fully hydrate relationships required by every Resource that consumes them
 - [ ] FormRequest includes all validation constraints including cross-resource ownership scoping
+- [ ] **Rate limit test loops use `<= $limit` (N+1 hits)**, not `< $limit` or `$limit` iterations — confirm the loop count exceeds the throttle ceiling by one
 - [ ] New or changed `/api/v1` routes are reflected in `ApiRouteCoverageTest.php`
 - [ ] `php artisan test` exits clean (no new failures)
 

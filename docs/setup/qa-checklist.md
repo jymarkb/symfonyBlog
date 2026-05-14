@@ -55,7 +55,8 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 - [ ] Every mutation route (POST, PATCH, PUT, DELETE) has a `throttle:` middleware applied
 - [ ] GET endpoints that trigger expensive operations (DB writes on first call, external API calls) are also rate-limited
 - [ ] Named limiters are registered in `AppServiceProvider` — not inline on routes
-- [ ] Rate limit tests pre-fill the cache bucket using `md5($limiterName . $limitKey)` to match `ThrottleRequests` key format
+- [ ] Rate limit tests pre-fill the cache bucket using the exact key format `ThrottleRequests` writes — check the named limiter's `->by()` value and match it; a mismatched key hits a different bucket and the test passes vacuously
+- [ ] **Rate limit test hit count must be `limit + 1`, not `limit`** — hitting N times when the limit is N *reaches* the limit but does not trigger 429; the 429 fires only on hit N+1; the test loop must use `<= $limit` or `$limit + 1` as the iteration count
 - [ ] 429 tests assert `assertTooManyRequests()`, not just a status code
 - [ ] Limits are appropriately tight on destructive operations (e.g., account delete: 5/min vs mutations: 60/min)
 
@@ -94,6 +95,7 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 ### 9. Query hygiene
 
 - [ ] No N+1 queries on collection endpoints — use `with()` or `withCount()` in the query, not `load()`/`loadCount()` after
+- [ ] No lazy relationship access on route-model-bound objects inside controllers — `$model->relation` in a controller method triggers a lazy load; relationships must be loaded by the service before the model is returned
 - [ ] `loadCount` is acceptable on single-record endpoints; `withCount` is preferred on collections
 - [ ] Only columns the endpoint uses are fetched — no `SELECT *` on large tables
 - [ ] Frequently filtered columns (`user_id`, `handle`, foreign keys) have DB indexes in migrations
