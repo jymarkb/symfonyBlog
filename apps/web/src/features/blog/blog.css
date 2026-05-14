@@ -1671,7 +1671,6 @@
 }
 
 /* Pending backend — hide until ready */
-.related { display: none; }
 .discussion { display: none; }
 
 /* ── Mobile TOC — accordion in flow ─────────────── */
