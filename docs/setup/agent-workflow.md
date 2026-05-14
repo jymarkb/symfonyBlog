@@ -255,16 +255,18 @@ Use `-feature-auto- <feature-name> <section>` to fully close a feature section w
 
 5. **Typecheck** — Run `npx tsc --noEmit` from `apps/web` to verify the frontend compiles clean.
 
-6. **Update feature doc** — Edit `docs/architecture/<feature>.md` to mark the section's phases as done.
+6. **QA gate** — Spawn `-qa-frontend-` and `-qa-backend-` in parallel (background). Wait for both. If either reports any 🔴 bug, spawn targeted fix agents (background, parallel where independent), re-run `php artisan test` and `npx tsc --noEmit`, then re-run QA. Repeat until zero 🔴 bugs. Do not proceed to step 7 until QA is clean. This gate exists so that fix commits never accumulate after the feature is reported done.
 
-7. **Report** — Only after all phases complete, post one consolidated summary: what was implemented, test results, and suggested commit grouping. The user runs `-commit` manually.
+7. **Update feature doc** — Edit `docs/architecture/<feature>.md` to mark the section's phases as done.
+
+8. **Report** — Only after all phases complete and QA is green, post one consolidated summary: what was implemented, test results, QA iteration count, and suggested commit grouping. The user runs `-commit` manually.
 
 ### Rules
 
 - Always verify actual file state before planning — never trust the doc alone.
-- Respect the phase order: Backend → Tests → Wiring. Do not wire the frontend before backend tests pass.
-- If a step fails (test red, type error, missing dependency), stop the loop, fix the blocker, then continue — do not skip ahead.
-- **Silent mode** — do not post intermediate progress updates ("Batch 1 done", "tests green", etc.) to the main chat. Run all phases silently and post only the final consolidated summary when everything is complete.
+- Respect the phase order: Backend → Tests → Wiring → QA gate. Do not wire the frontend before backend tests pass. Do not mark done before QA is green.
+- If a step fails (test red, type error, missing dependency, 🔴 QA bug), stop the loop, fix the blocker, then continue — do not skip ahead.
+- **Silent mode** — do not post intermediate progress updates ("Batch 1 done", "tests green", "QA iteration 1 done", etc.) to the main chat. Run all phases silently and post only the final consolidated summary when everything is complete.
 - Do not silently absorb failures — surface them immediately when they occur (failures are the exception to silent mode).
 - Do NOT auto-commit. After all phases close, report the suggested commit grouping and wait for the user to run `-commit`.
 - Multiple `-feature-auto-` tasks with different sections can run in parallel — each drives its own independent backend + frontend loop. The main session coordinates completion notifications and posts each summary as sections finish.
@@ -453,6 +455,11 @@ Rules:
 - **Skip `response.json()` for 204 and 304 responses.** Any API call that can return 204 No Content (e.g. DELETE unfollow, DELETE unlike) must not call `response.json()` — it throws a `SyntaxError` on empty body, which is caught silently and reverts optimistic UI. Ensure `apiClient.ts` checks `response.status === 204 || response.status === 304` before the `.json()` call and returns early.
 - **One `AuthGateModal` instance per page.** Do not render `AuthGateModal` (or any modal/dialog overlay) inside a component that appears more than once on the same page. Multiple instances compete for the same `onSuccess` callback and produce duplicate DOM overlays. Instead, the page owns a single `authGateOpen` boolean and `pendingCallback` ref, and passes an `onOpenAuthGate` prop to child components so they delegate upward.
 - **Every `<button>` and `<a>` must have an `aria-label` attribute.** Icon-only elements (no visible text) require it to be accessible at all. Elements with visible text still require it so screen readers announce a clean, descriptive label rather than raw text content. Set `aria-label` at the time you write the element — do not leave it for QA to catch. Example: `<a href={`/${post.slug}`} aria-label={`Read: ${post.title}`}>` and `<button aria-label="Close dialog">✕</button>`.
+- **Every `<textarea>` must have `maxLength`, `aria-label`, and `aria-describedby`.** Set `maxLength` to the character limit enforced by the backend. Add `aria-label` describing the field ("Write a comment", "Write a reply", "Edit comment"). Add `aria-describedby` pointing to the `id` of the associated character counter element. Do not leave any of these for QA to catch.
+- **Character counters must always be visible**, never conditionally rendered. Use CSS classes (`warn`, `over`) to change appearance at thresholds — never toggle visibility with a boolean. The counter is always present; only its style changes.
+- **Every error message element must have `role="alert"`.** Apply `role="alert"` to every `<p>`, `<div>`, or `<span>` that conditionally renders an error string. Do not render error text without it.
+- **Every `catch` block on a user-visible mutation must set user-visible error state.** A catch that only rolls back optimistic state (e.g. `setItems(snapshot)`) without also calling `setError(...)` is a silent failure — a 🔴 bug. Every async user action (post, edit, delete, load-more, follow, react) must tell the user what went wrong. Write the error state and its render at the same time as the catch block.
+- **Use proper generic types on API calls — never `as` casts on response values.** Pass the full expected shape as the generic: `apiRequest<{ data: Comment }>(...)`. Casting with `as { data: Comment }` bypasses type inference and hides shape mismatches silently.
 
 ## Core PHP/Laravel Developer Agent
 
@@ -488,6 +495,10 @@ Rules:
 - `DatabaseSeeder` must use a find-or-create pattern (`Model::where(...)->first() ?? Model::factory()->create(...)`) so re-running `db:seed` does not throw a unique constraint violation.
 - **Never modify an existing migration file.** Migrations are immutable once committed or run. If a schema change is needed, always create a new migration (`php artisan make:migration alter_<table>_<description>`). The only exception is a migration that has never been committed and never run on any environment.
 - When migration columns change on a freshly created table, run `php artisan migrate:rollback --step=N && php artisan migrate` before seeding — do not just re-seed.
+- **Ownership checks must return `response()->json(['error' => 'forbidden'], 403)` directly**, not `abort(403)`. In the test environment (`APP_DEBUG=true`), `abort(403)` routes through the debug exception renderer and emits the full stack trace instead of the canonical JSON error shape. The custom handler in `bootstrap/app.php` only applies when debug mode is off. Using `response()->json()` directly guarantees the correct shape in all environments.
+- **Every test that asserts a 401 or 403 must also assert the response body shape.** Chain `->assertJson(['error' => 'unauthenticated'])` after every `->assertUnauthorized()` and `->assertJson(['error' => 'forbidden'])` after every `->assertForbidden()`. Status-only assertions allow response body regressions to go undetected.
+- **Every endpoint that returns user or resource data must have `assertJsonMissingPath` tests** pinning that `role`, `email`, `supabase_user_id`, and `user_id` are absent from the response. Add these assertions when you write the endpoint test — do not leave them for QA.
+- **FormRequest validation must include all constraints, including ownership scoping.** If a field references a resource that is scoped to the current post/user/context (e.g. `parent_id` must belong to the same post), validate this in the FormRequest using `Rule::exists(...)->where(...)` with a subquery. Do not rely solely on the service layer — service exceptions produce less user-friendly errors than a FormRequest 422.
 
 ## Frontend QA Agent
 
