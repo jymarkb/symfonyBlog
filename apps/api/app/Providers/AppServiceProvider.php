@@ -61,6 +61,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('comment-create', function (Request $request) {
+            return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
+        });
+
         Auth::viaRequest('supabase', function (Request $request) {
             $token = $request->bearerToken();
 
