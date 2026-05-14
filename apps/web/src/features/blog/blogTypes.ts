@@ -138,7 +138,7 @@ export type Comment = {
   created_at: string;
   is_post_author: boolean;
   author: CommentAuthor;
-  replies: Comment[];
+  replies?: Comment[];
 };
 
 export type CommentsResponse = {
@@ -151,4 +151,4 @@ export type CommentsResponse = {
   };
 };
 
-export type CommentSortOrder = 'top' | 'new' | 'old';
+export type CommentSortOrder = 'new' | 'old';
