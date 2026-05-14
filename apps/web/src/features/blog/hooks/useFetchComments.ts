@@ -22,6 +22,8 @@ type UseFetchCommentsResult = {
   loading: boolean;
   loadingMore: boolean;
   error: boolean;
+  loadMoreError: string | null;
+  setLoadMoreError: React.Dispatch<React.SetStateAction<string | null>>;
   hasMore: boolean;
   remaining: number;
   handleSortChange: (newSort: CommentSortOrder) => void;
@@ -37,6 +39,7 @@ export function useFetchComments(postSlug: string): UseFetchCommentsResult {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
@@ -79,6 +82,8 @@ export function useFetchComments(postSlug: string): UseFetchCommentsResult {
       });
       setMeta(res.meta);
       setPage(nextPage);
+    } catch {
+      setLoadMoreError('Failed to load more comments. Please try again.');
     } finally {
       setLoadingMore(false);
     }
@@ -96,6 +101,8 @@ export function useFetchComments(postSlug: string): UseFetchCommentsResult {
     loading,
     loadingMore,
     error,
+    loadMoreError,
+    setLoadMoreError,
     hasMore,
     remaining,
     handleSortChange,

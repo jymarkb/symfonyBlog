@@ -29,13 +29,14 @@ export function DiscussionSection({
 }: Props) {
   const { user } = useCurrentSession();
 
-  const { comments, setComments, meta, sort, loading, loadingMore, error, hasMore, remaining, handleSortChange, handleLoadMore, retry } = useFetchComments(postSlug);
+  const { comments, setComments, meta, sort, loading, loadingMore, error, loadMoreError, hasMore, remaining, handleSortChange, handleLoadMore, retry } = useFetchComments(postSlug);
 
   const [count, setCount] = useState(initialCount);
   const [composeBody, setComposeBody] = useState('');
   const [composeBusy, setComposeBusy] = useState(false);
   const [composeError, setComposeError] = useState<string | null>(null);
   const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const listRef = useRef<HTMLUListElement>(null);
 
@@ -87,6 +88,7 @@ export function DiscussionSection({
   }
 
   async function handleDelete(id: number, parentId: number | null) {
+    setDeleteError(null);
     const isReply = parentId !== null;
     const snapshot = comments;
     if (isReply && parentId !== null) {
@@ -103,6 +105,7 @@ export function DiscussionSection({
     } catch {
       setComments(snapshot);
       setCount(c => c + 1);
+      setDeleteError('Failed to delete comment. Please try again.');
     }
   }
 
@@ -165,6 +168,8 @@ export function DiscussionSection({
         </div>
       )}
 
+      {deleteError && <p className="compose-error-msg" role="alert">{deleteError}</p>}
+
       {!loading && !error && (
         <ul className="comment-list" ref={listRef}>
           {comments.map(comment => (
@@ -194,6 +199,8 @@ export function DiscussionSection({
           <DiscussionGate onSignIn={onOpenAuthGate} />
         )
       )}
+
+      {loadMoreError && <p className="compose-error-msg" role="alert">{loadMoreError}</p>}
 
       {hasMore && !loadingMore && (
         <div className="load-more-wrap">

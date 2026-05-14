@@ -154,6 +154,7 @@ export function CommentItem({
             rows={3}
             maxLength={250}
             aria-label="Edit comment"
+          aria-describedby={`edit-counter-${comment.id}`}
           />
           {editError && <p className="compose-error-msg" role="alert">{editError}</p>}
           <div className="comment-edit-actions">
@@ -163,7 +164,7 @@ export function CommentItem({
               const nearLimit = remaining <= 50;
               const cls = overLimit ? ' over' : nearLimit ? ' warn' : '';
               return (
-                <span className={`compose-count${cls}`}>
+                <span id={`edit-counter-${comment.id}`} className={`compose-count${cls}`}>
                   {overLimit
                     ? `${Math.abs(remaining)} character${Math.abs(remaining) === 1 ? '' : 's'} over the limit`
                     : `${remaining} character${remaining === 1 ? '' : 's'} remaining`}
