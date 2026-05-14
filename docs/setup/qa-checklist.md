@@ -204,9 +204,12 @@ The list is built from OWASP API Top 10, common React/Laravel QA gaps, and issue
 
 - [ ] Interactive elements that are icon-only (no visible text) have `aria-label` or `title` — this is a 🔴 bug
 - [ ] Links and buttons with visible text children should also have a descriptive `aria-label` attribute for screen readers — flag as 🟡 gap, never 🔴 bug
+- [ ] Navigational `<a>` tags inside card or list components (author links, date links, title links) have `aria-label` — these are commonly written without one; flag as 🟡 gap if they have visible text, 🔴 if icon-only
+- [ ] HTML strings generated for `dangerouslySetInnerHTML` (markdown renderers, highlight functions) embed `aria-label` on every `<a>` in the generated string — missing is a 🟡 gap since generated links typically have visible text, but flag for each link type found
 - [ ] Every `<textarea>` has `maxLength` (matching backend limit), `aria-label` (describing the field), and `aria-describedby` (pointing to the character counter id) — missing any of these is a 🔴 bug
 - [ ] Character counter IDs are unique per instance — if the same component renders multiple times (e.g. one reply box per comment), each counter must get a unique `id` such as `reply-counter-${comment.id}`; duplicate IDs break `aria-describedby` linkage
 - [ ] Every element that conditionally renders error text has `role="alert"` — applies to `<p>`, `<div>`, `<span>` used as error messages; missing `role="alert"` means screen readers do not announce the error
+- [ ] Every error message with "try again" or "please retry" wording has an adjacent `<button>` that executes the retry action — text alone with no button is a 🔴 bug
 - [ ] Character counters are always rendered (not conditionally hidden) — use CSS classes (`warn`, `over`) for visual threshold changes, not boolean rendering
 - [ ] Form inputs have associated `<label>` elements or `aria-label` — not just placeholder text
 - [ ] Error messages are associated with their input via `aria-describedby`
