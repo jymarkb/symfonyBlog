@@ -69,6 +69,7 @@ export type PostSummary = {
 export type PostDetail = PostSummary & {
   body: BlockElement[];
   reaction_counts: ReactionCounts;
+  related: PostSummary[];
 };
 
 // ── API response wrappers ─────────────────────────────────────────────────────
